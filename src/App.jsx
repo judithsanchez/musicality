@@ -535,10 +535,33 @@ export default function App() {
       };
     }).sort((a, b) => a.beatIndex - b.beatIndex);
 
-    setAnchors(cleanAnchors);
+    let finalAnchors = cleanAnchors;
+
+    // Tier 3: Dense Smooth Warp (If > 20 anchors, apply a Moving-Average filter to cancel timing jitter)
+    if (cleanAnchors.length > 20) {
+      finalAnchors = cleanAnchors.map((anchor, idx) => {
+        const radius = 2; // window of 5 anchors
+        let sumOffset = 0;
+        let count = 0;
+        for (let i = -radius; i <= radius; i++) {
+          const n = cleanAnchors[idx + i];
+          if (n) {
+            sumOffset += (n.tappedTime - n.originalTime);
+            count++;
+          }
+        }
+        const avgOffset = sumOffset / count;
+        return {
+          ...anchor,
+          tappedTime: anchor.originalTime + avgOffset
+        };
+      });
+    }
+
+    setAnchors(finalAnchors);
 
     // Apply Piecewise-Linear Warping
-    const shiftedBeats = applyWarpToBeats(baseSong.beats, cleanAnchors);
+    const shiftedBeats = applyWarpToBeats(baseSong.beats, finalAnchors);
     const shiftedSections = applyWarpToSections(baseSong.sections, baseSong.beats, shiftedBeats);
 
     setCalibratedSongData({
@@ -692,6 +715,25 @@ export default function App() {
       });
   };
 
+  // Auto-Normalization Debounce: Automatically runs the normalization engine in the background
+  // whenever the user pauses the playback, the song ends, or stops tapping for 2 seconds.
+  useEffect(() => {
+    if (rawTaps.length === 0) return;
+
+    // 1. If paused, run normalization instantly
+    if (!isActuallyPlaying) {
+      handleNormalizeBeatmap();
+      return;
+    }
+
+    // 2. If playing, run normalization after 2 seconds of no new taps (idle-debounce)
+    const timer = setTimeout(() => {
+      handleNormalizeBeatmap();
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, [rawTaps, isActuallyPlaying]);
+
   return (
     <div className="app-container" style={{ display: "flex", flexDirection: "column", height: "100%" }}>
       {/* 1. Header Section */}
@@ -749,16 +791,16 @@ export default function App() {
           {/* Reaction Delay Slider */}
           <div className="calibration-row" style={{ margin: "4px 0 12px 0", background: "rgba(0,0,0,0.2)", padding: "12px", borderRadius: "12px", border: "1px solid rgba(139, 92, 246, 0.15)" }}>
             <div className="calibration-label" style={{ fontSize: "0.8rem", display: "flex", justifyContent: "space-between", color: "#e9d5ff", fontWeight: "600" }}>
-              <span>AUDITORY REACTION LAG</span>
+              <span>REACTION & BLUETOOTH LAG</span>
               <span style={{ color: "#c084fc", fontFamily: "monospace" }}>{userDelaySetting}ms</span>
             </div>
             <div className="calibration-subtext" style={{ fontSize: "0.65rem", color: "#a78bfa", opacity: 0.8, marginBottom: "8px" }}>
-              Time subtracted from each tap to align with the real music downbeat.
+              Compensation subtracted from raw taps (handles human lag + Bluetooth delay).
             </div>
             <input
               type="range"
-              min="100"
-              max="400"
+              min="0"
+              max="600"
               step="10"
               value={userDelaySetting}
               onChange={(e) => setUserDelaySetting(parseInt(e.target.value))}
@@ -767,7 +809,7 @@ export default function App() {
             />
             {estimatedDelay && (
               <div style={{ fontSize: "0.6rem", color: "#10b981", marginTop: "6px", display: "flex", justifyContent: "space-between" }}>
-                <span>🎯 Suggested (from your taps):</span>
+                <span>🎯 Sug. delay (based on your taps):</span>
                 <strong>{Math.round(estimatedDelay * 1000)}ms</strong>
               </div>
             )}
@@ -850,34 +892,16 @@ export default function App() {
               </div>
             )}
 
-            <div style={{ display: "flex", gap: "8px" }}>
-              {rawTaps.length > 0 && (
-                <button
-                  className="btn-diagnose-action danger"
-                  onClick={handleResetCalibration}
-                  style={{ flex: 1 }}
-                >
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: "5px" }}><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>
-                  Reset Taps
-                </button>
-              )}
-
-              {rawTaps.length >= 2 && (
-                <button
-                  className="btn-diagnose-action secondary"
-                  onClick={handleNormalizeBeatmap}
-                  style={{
-                    flex: 1.5,
-                    background: "rgba(124, 58, 237, 0.15)",
-                    borderColor: "rgba(124, 58, 237, 0.35)",
-                    color: "#a78bfa"
-                  }}
-                >
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: "5px" }}><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-                  Normalize Grid
-                </button>
-              )}
-            </div>
+            {rawTaps.length > 0 && (
+              <button
+                className="btn-diagnose-action danger"
+                onClick={handleResetCalibration}
+                style={{ width: "100%" }}
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: "5px" }}><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>
+                Reset Taps
+              </button>
+            )}
 
             {rawTaps.length > 0 && (
               <button
