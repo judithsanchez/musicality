@@ -445,53 +445,47 @@ export default function App() {
 
     const delay = userDelaySetting / 1000; // in seconds
 
-    // 1. Single Tap mode: Global Grid Shift
+    // 1. Compute global shift based on the first tap to align the baseline phase
+    const firstTapCorrected = rawTaps[0] - delay;
+    const originalBeat1Times = baseSong.beats
+      .map((b, idx) => ({ ...b, originalIndex: idx }))
+      .filter(b => b.beat === 1);
+
+    if (originalBeat1Times.length === 0) return;
+
+    let bestBeat1ForFirst = originalBeat1Times[0];
+    let minDiffFirst = Infinity;
+    for (const b1 of originalBeat1Times) {
+      const diff = Math.abs(firstTapCorrected - b1.timestamp);
+      if (diff < minDiffFirst) {
+        minDiffFirst = diff;
+        bestBeat1ForFirst = b1;
+      }
+    }
+    const globalShift = firstTapCorrected - bestBeat1ForFirst.timestamp;
+
+    // Apply global phase shift to all baseline beats to bring the grid in-phase with taps
+    const shiftedBaseBeats = baseSong.beats.map(b => ({
+      ...b,
+      timestamp: parseFloat(Math.max(0, b.timestamp + globalShift).toFixed(3))
+    }));
+    const shiftedBaseSections = baseSong.sections.map(sec => ({
+      ...sec,
+      startTimestamp: parseFloat(Math.max(0, sec.startTimestamp + globalShift).toFixed(3))
+    }));
+
+    // If only 1 tap, we are done with global shift alignment
     if (rawTaps.length === 1) {
-      const tapTime = rawTaps[0];
-      const correctedTime = tapTime - delay;
-
-      const beat1Times = baseSong.beats
-        .map((b, idx) => ({ ...b, originalIndex: idx }))
-        .filter(b => b.beat === 1);
-
-      let bestBeat1 = null;
-      let minDiff = Infinity;
-
-      for (const b1 of beat1Times) {
-        const diff = Math.abs(correctedTime - b1.timestamp);
-        if (diff < minDiff) {
-          minDiff = diff;
-          bestBeat1 = b1;
-        }
-      }
-
-      if (!bestBeat1) {
-        showToast("⚠️ Could not match tap to any downbeat.");
-        return;
-      }
-
-      const shift = correctedTime - bestBeat1.timestamp;
-
-      // Apply global shift
-      const shiftedBeats = baseSong.beats.map(b => ({
-        ...b,
-        timestamp: parseFloat(Math.max(0, b.timestamp + shift).toFixed(3))
-      }));
-      const shiftedSections = baseSong.sections.map(sec => ({
-        ...sec,
-        startTimestamp: parseFloat(Math.max(0, sec.startTimestamp + shift).toFixed(3))
-      }));
-
       setAnchors([{
-        beatIndex: bestBeat1.originalIndex,
-        originalTime: bestBeat1.timestamp,
-        tappedTime: correctedTime
+        beatIndex: bestBeat1ForFirst.originalIndex,
+        originalTime: bestBeat1ForFirst.timestamp,
+        tappedTime: firstTapCorrected
       }]);
 
       setCalibratedSongData({
         ...baseSong,
-        beats: shiftedBeats,
-        sections: shiftedSections
+        beats: shiftedBaseBeats,
+        sections: shiftedBaseSections
       });
 
       setCalibrationStats({
@@ -499,19 +493,18 @@ export default function App() {
         matchedTaps: 1,
         outliersCount: 0,
         estimatedDelayMs: userDelaySetting,
-        medianDiffMs: Math.round(shift * 1000)
+        medianDiffMs: Math.round(globalShift * 1000)
       });
 
-      showToast(`✅ Global grid shifted by ${Math.round(shift * 1000)}ms!`);
+      showToast(`✅ Global grid shifted by ${Math.round(globalShift * 1000)}ms!`);
       return;
     }
 
-    // 2. Multi-Tap mode: Piecewise-Linear Warping with Outlier Rejection
-    // Compute corrected tap times
+    // 2. Multi-Tap Mode: Piecewise-Linear Warping on the pre-aligned shifted grid
     const correctedTaps = rawTaps.map(t => t - delay);
 
-    // Match each corrected tap to the nearest beat-1 in original song data
-    const beat1Times = baseSong.beats
+    // Match each corrected tap to the nearest beat-1 in the pre-aligned grid
+    const alignedBeat1Times = shiftedBaseBeats
       .map((b, idx) => ({ ...b, originalIndex: idx }))
       .filter(b => b.beat === 1);
 
@@ -520,7 +513,7 @@ export default function App() {
       let bestBeat1 = null;
       let minDiff = Infinity;
 
-      for (const b1 of beat1Times) {
+      for (const b1 of alignedBeat1Times) {
         const diff = Math.abs(ct - b1.timestamp);
         if (diff < minDiff) {
           minDiff = diff;
@@ -528,7 +521,7 @@ export default function App() {
         }
       }
 
-      if (bestBeat1 && minDiff < 0.400) { // must be within 400ms of a beat-1
+      if (bestBeat1 && minDiff < 0.400) { // now perfectly in-phase, so easily matches within 400ms!
         matchedPairs.push({
           correctedTime: ct,
           originalTime: bestBeat1.timestamp,
@@ -543,12 +536,12 @@ export default function App() {
       return;
     }
 
-    // Outlier Rejection (Median timing difference based filtering)
+    // Outlier Rejection based on median timing difference
     const diffs = matchedPairs.map(p => p.diff);
     const sortedDiffs = [...diffs].sort((a, b) => a - b);
     const medianDiff = sortedDiffs[Math.floor(sortedDiffs.length / 2)];
 
-    // Filter out any tap whose diff deviates from the median diff by more than 150ms
+    // Filter out taps deviating by more than 150ms from median
     const cleanPairs = matchedPairs.filter(p => Math.abs(p.diff - medianDiff) <= 0.150);
     const outlierCount = matchedPairs.length - cleanPairs.length;
 
@@ -581,10 +574,10 @@ export default function App() {
 
     let finalAnchors = cleanAnchors;
 
-    // Tier 3: Dense Smooth Warp (If > 20 anchors, apply a Moving-Average filter to cancel timing jitter)
+    // Apply Dense Smooth Warp if > 20 anchors
     if (cleanAnchors.length > 20) {
       finalAnchors = cleanAnchors.map((anchor, idx) => {
-        const radius = 2; // window of 5 anchors
+        const radius = 2;
         let sumOffset = 0;
         let count = 0;
         for (let i = -radius; i <= radius; i++) {
@@ -604,23 +597,22 @@ export default function App() {
 
     setAnchors(finalAnchors);
 
-    // Apply Piecewise-Linear Warping
-    const shiftedBeats = applyWarpToBeats(baseSong.beats, finalAnchors);
-    const shiftedSections = applyWarpToSections(baseSong.sections, baseSong.beats, shiftedBeats);
+    // Apply Piecewise-Linear Warping on the pre-aligned grid!
+    const warpedBeats = applyWarpToBeats(shiftedBaseBeats, finalAnchors);
+    const warpedSections = applyWarpToSections(shiftedBaseSections, shiftedBaseBeats, warpedBeats);
 
     setCalibratedSongData({
       ...baseSong,
-      sections: shiftedSections,
-      beats: shiftedBeats
+      sections: warpedSections,
+      beats: warpedBeats
     });
 
-    // Update UI Stats & Show Toast
     setCalibrationStats({
       totalTaps: rawTaps.length,
       matchedTaps: cleanPairs.length,
       outliersCount: outlierCount,
       estimatedDelayMs: userDelaySetting,
-      medianDiffMs: Math.round(medianDiff * 1000)
+      medianDiffMs: Math.round((medianDiff + globalShift) * 1000)
     });
 
     showToast(`✅ Normalized! ${cleanPairs.length}/${rawTaps.length} taps matched. Outliers: ${outlierCount}`);
