@@ -255,7 +255,23 @@ export default function App() {
     if (!player) return;
     const currentPlayhead = parseFloat(player.getCurrentTime().toFixed(2));
     handleIntroEndChange(currentPlayhead);
+    // Also seek player to make visual auditioning instant!
+    if (typeof player.seekTo === "function") {
+      player.seekTo(currentPlayhead, true);
+    }
     showToast(`🎯 Intro set to ${currentPlayhead}s!`);
+  };
+
+  const handleIntroEndSeek = (val) => {
+    const numericVal = parseFloat(parseFloat(val).toFixed(2));
+    if (player && typeof player.seekTo === "function") {
+      try {
+        player.seekTo(numericVal, true);
+        showToast(`⏩ Jumped to Intro boundary: ${numericVal}s`);
+      } catch (e) {
+        console.warn("Seek error:", e);
+      }
+    }
   };
 
   // 2. Load the YouTube Player API script dynamically in background
@@ -1013,6 +1029,8 @@ export default function App() {
                 step="0.5"
                 value={introEnd}
                 onChange={(e) => handleIntroEndChange(e.target.value)}
+                onMouseUp={(e) => handleIntroEndSeek(e.target.value)}
+                onTouchEnd={(e) => handleIntroEndSeek(e.target.value)}
                 style={{ flexGrow: 1 }}
               />
               <button
