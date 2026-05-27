@@ -125,13 +125,16 @@ export function useSyncEngine(player, songData, localAudioRef, useLocalAudio, la
         let closest = null;
         let minDiff = Infinity;
 
-        // Tolerant window: search within +/- 150ms of visual time
+        // Asymmetric visual window: trigger beat highlight from 30ms before to 100ms after the timestamp
         for (let i = 0; i < sData.beats.length; i++) {
           const beat = sData.beats[i];
-          const diff = Math.abs(visualTime - beat.timestamp);
-          if (diff < minDiff && diff < 0.150) {
-            minDiff = diff;
-            closest = beat;
+          const timeDiff = visualTime - beat.timestamp;
+          if (timeDiff >= -0.030 && timeDiff < 0.100) {
+            const absDiff = Math.abs(timeDiff);
+            if (absDiff < minDiff) {
+              minDiff = absDiff;
+              closest = beat;
+            }
           }
         }
 

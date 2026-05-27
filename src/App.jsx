@@ -385,84 +385,124 @@ export default function App() {
     const delay = computeReactionDelay(newRawTaps, baseSong.beats);
     setEstimatedDelay(delay);
 
-    // 3. Find closest original beat index (for warp anchor)
-    let closestIndex = -1;
-    let minDiff = Infinity;
-    for (let i = 0; i < baseSong.beats.length; i++) {
-      const b = baseSong.beats[i];
-      const diff = Math.abs(tapTime - b.timestamp);
-      if (diff < minDiff) {
-        minDiff = diff;
-        closestIndex = i;
-      }
-    }
-    if (closestIndex === -1) return;
-
-    // 4. Avoid duplicate anchors within 4 beats of each other
-    const filteredAnchors = anchors.filter(a => Math.abs(a.beatIndex - closestIndex) > 4);
-    const newAnchor = {
-      beatIndex: closestIndex,
-      tappedTime: tapTime,
-      originalTime: baseSong.beats[closestIndex].timestamp
-    };
-    const newAnchors = [...filteredAnchors, newAnchor].sort((a, b) => a.beatIndex - b.beatIndex);
-    setAnchors(newAnchors);
-
-    // 5. Apply warping transformation in real-time
-    const shiftedBeats = applyWarpToBeats(baseSong.beats, newAnchors);
-    const shiftedSections = applyWarpToSections(baseSong.sections, baseSong.beats, shiftedBeats);
-    setCalibratedSongData({ ...baseSong, sections: shiftedSections, beats: shiftedBeats });
-
-    const closestBeat = baseSong.beats[closestIndex];
-    const timeOffset = tapTime - closestBeat.timestamp;
-    setCalibrationStats({
-      tappedTime: tapTime,
-      closestBeatIndex: closestIndex,
-      closestBeatTime: closestBeat.timestamp,
-      offsetMs: Math.round(timeOffset * 1000)
-    });
-
     const delayMs = delay ? Math.round(delay * 1000) : '?';
-    showToast(`🎯 Tap #${newRawTaps.length} — delay est. ${delayMs}ms`);
+    showToast(`🎯 Tap #${newRawTaps.length} recorded!`);
   };
 
-  const handleDeleteAnchor = (beatIndexToDelete) => {
+  const handleNormalizeBeatmap = () => {
     const baseSong = originalSongData || songData;
     if (!baseSong) return;
 
-    const newAnchors = anchors.filter(a => a.beatIndex !== beatIndexToDelete);
-    setAnchors(newAnchors);
+    if (rawTaps.length < 2) {
+      showToast("⚠️ Record at least 2 taps to run normalization!");
+      return;
+    }
 
-    // Recompute warped timelines
-    const shiftedBeats = applyWarpToBeats(baseSong.beats, newAnchors);
+    // 1. Compute reaction delay (median delay)
+    const delay = computeReactionDelay(rawTaps, baseSong.beats);
+    if (!delay) {
+      showToast("⚠️ Could not calculate a valid reaction delay. Keep tapping!");
+      return;
+    }
+    setEstimatedDelay(delay);
+
+    // 2. Compute corrected tap times
+    const correctedTaps = rawTaps.map(t => t - delay);
+
+    // 3. Match each corrected tap to the nearest beat-1 in original song data
+    const beat1Times = baseSong.beats
+      .map((b, idx) => ({ ...b, originalIndex: idx }))
+      .filter(b => b.beat === 1);
+
+    // We want to associate each corrected tap with a unique beat-1 index
+    const matchedPairs = [];
+    correctedTaps.forEach(ct => {
+      let bestBeat1 = null;
+      let minDiff = Infinity;
+
+      for (const b1 of beat1Times) {
+        const diff = Math.abs(ct - b1.timestamp);
+        if (diff < minDiff) {
+          minDiff = diff;
+          bestBeat1 = b1;
+        }
+      }
+
+      if (bestBeat1 && minDiff < 0.400) { // must be within 400ms of a beat-1
+        matchedPairs.push({
+          correctedTime: ct,
+          originalTime: bestBeat1.timestamp,
+          beatIndex: bestBeat1.originalIndex,
+          diff: ct - bestBeat1.timestamp
+        });
+      }
+    });
+
+    if (matchedPairs.length === 0) {
+      showToast("⚠️ No taps could be matched to downbeats. Try tapping more precisely.");
+      return;
+    }
+
+    // 4. Outlier Rejection (Median timing difference based filtering)
+    const diffs = matchedPairs.map(p => p.diff);
+    const sortedDiffs = [...diffs].sort((a, b) => a - b);
+    const medianDiff = sortedDiffs[Math.floor(sortedDiffs.length / 2)];
+
+    // We filter out any tap whose diff deviates from the median diff by more than 150ms
+    const cleanPairs = matchedPairs.filter(p => Math.abs(p.diff - medianDiff) <= 0.150);
+    const outlierCount = matchedPairs.length - cleanPairs.length;
+
+    if (cleanPairs.length === 0) {
+      showToast("⚠️ All taps were classified as outliers. Please try again.");
+      return;
+    }
+
+    // 5. Create clean warp anchors
+    // Group by beatIndex and take the average corrected time.
+    const anchorsMap = {};
+    cleanPairs.forEach(p => {
+      if (!anchorsMap[p.beatIndex]) {
+        anchorsMap[p.beatIndex] = {
+          beatIndex: p.beatIndex,
+          originalTime: p.originalTime,
+          tappedTimesList: []
+        };
+      }
+      anchorsMap[p.beatIndex].tappedTimesList.push(p.correctedTime);
+    });
+
+    const cleanAnchors = Object.values(anchorsMap).map(a => {
+      const avgTappedTime = a.tappedTimesList.reduce((sum, val) => sum + val, 0) / a.tappedTimesList.length;
+      return {
+        beatIndex: a.beatIndex,
+        originalTime: a.originalTime,
+        tappedTime: avgTappedTime
+      };
+    }).sort((a, b) => a.beatIndex - b.beatIndex);
+
+    setAnchors(cleanAnchors);
+
+    // 6. Apply Piecewise-Linear Warping
+    const shiftedBeats = applyWarpToBeats(baseSong.beats, cleanAnchors);
     const shiftedSections = applyWarpToSections(baseSong.sections, baseSong.beats, shiftedBeats);
 
-    const newCalibratedData = {
+    setCalibratedSongData({
       ...baseSong,
       sections: shiftedSections,
       beats: shiftedBeats
-    };
+    });
 
-    setCalibratedSongData(newCalibratedData);
+    // 7. Update UI Stats & Show Toast
+    setCalibrationStats({
+      totalTaps: rawTaps.length,
+      matchedTaps: cleanPairs.length,
+      outliersCount: outlierCount,
+      estimatedDelayMs: Math.round(delay * 1000),
+      medianDiffMs: Math.round(medianDiff * 1000)
+    });
 
-    if (newAnchors.length > 0) {
-      const last = newAnchors[newAnchors.length - 1];
-      const closestBeat = baseSong.beats[last.beatIndex];
-      const timeOffset = last.tappedTime - closestBeat.timestamp;
-      setCalibrationStats({
-        tappedTime: last.tappedTime,
-        closestBeatIndex: last.beatIndex,
-        closestBeatTime: closestBeat.timestamp,
-        offsetMs: Math.round(timeOffset * 1000)
-      });
-    } else {
-      setCalibrationStats(null);
-    }
-
-    showToast("🗑️ Anchor deleted. Recalculated grid!");
-  };
-
-  const handleResetCalibration = () => {
+    showToast(`✅ Grid normalized! Matched: ${cleanPairs.length} · Outliers: ${outlierCount}`);
+  };  const handleResetCalibration = () => {
     if (originalSongData) {
       setCalibratedSongData(JSON.parse(JSON.stringify(originalSongData)));
     }
@@ -706,34 +746,74 @@ export default function App() {
             </button>
           </div>
 
-          {/* Reset + Save */}
-          <div className="diagnose-actions" style={{ display: "flex", flexDirection: "column", gap: "8px", marginTop: "10px" }}>
-            {rawTaps.length > 0 && (
-              <button
-                className="btn-diagnose-action"
-                onClick={handleResetCalibration}
-                style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.25)", color: "#f87171" }}
-              >
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: "5px" }}><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>
-                Reset all taps
-              </button>
+          {/* Reset + Normalize + Save */}
+          <div className="diagnose-actions" style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "12px" }}>
+            {calibrationStats && (
+              <div style={{
+                background: "rgba(16,185,129,0.06)",
+                border: "1px solid rgba(16,185,129,0.2)",
+                borderRadius: "12px",
+                padding: "10px 12px",
+                fontSize: "0.75rem",
+                color: "#e4e4e7",
+                display: "flex",
+                flexDirection: "column",
+                gap: "4px"
+              }}>
+                <div style={{ fontWeight: "700", color: "#34d399", marginBottom: "2px", textTransform: "uppercase", fontSize: "0.7rem", letterSpacing: "0.5px" }}>Normalization Report</div>
+                <div>🎯 <strong>Taps Aligned:</strong> {calibrationStats.matchedTaps} of {calibrationStats.totalTaps}</div>
+                <div>🛡️ <strong>Outliers Ignored:</strong> {calibrationStats.outliersCount} bad taps filtered out</div>
+                <div>⏱️ <strong>Reaction Delay:</strong> -{calibrationStats.estimatedDelayMs}ms auto-compensated</div>
+                <div>📈 <strong>BPM Drift Shift:</strong> {calibrationStats.medianDiffMs}ms median grid correction</div>
+              </div>
             )}
+
+            <div style={{ display: "flex", gap: "8px" }}>
+              {rawTaps.length > 0 && (
+                <button
+                  className="btn-diagnose-action danger"
+                  onClick={handleResetCalibration}
+                  style={{ flex: 1 }}
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: "5px" }}><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>
+                  Reset Taps
+                </button>
+              )}
+
+              {rawTaps.length >= 2 && (
+                <button
+                  className="btn-diagnose-action secondary"
+                  onClick={handleNormalizeBeatmap}
+                  style={{
+                    flex: 1.5,
+                    background: "rgba(124, 58, 237, 0.15)",
+                    borderColor: "rgba(124, 58, 237, 0.35)",
+                    color: "#a78bfa"
+                  }}
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: "5px" }}><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                  Normalize Grid
+                </button>
+              )}
+            </div>
+
             {rawTaps.length > 0 && (
               <button
                 className="btn-diagnose-action primary"
                 onClick={handleSaveToDisk}
                 style={{
-                  background: "linear-gradient(135deg, #10b981, #059669)",
-                  boxShadow: "0 4px 12px rgba(16, 185, 129, 0.25)",
-                  border: "none",
+                  background: anchors.length > 0 ? "linear-gradient(135deg, #10b981, #059669)" : "rgba(255,255,255,0.05)",
+                  boxShadow: anchors.length > 0 ? "0 4px 12px rgba(16, 185, 129, 0.25)" : "none",
+                  border: anchors.length > 0 ? "none" : "1px solid rgba(255, 255, 255, 0.1)",
+                  color: anchors.length > 0 ? "#fff" : "#9ca3af",
                   fontWeight: "800",
                   textTransform: "uppercase",
                   letterSpacing: "0.5px"
                 }}
-                title="Saves warped beatmap + raw tap data to disk for analysis"
+                title={anchors.length > 0 ? "Saves the clean, normalized beatmap to disk" : "Normalize the grid before saving"}
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: "6px" }}><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-                Save {rawTaps.length} taps to disk
+                {anchors.length > 0 ? "Save Normalized Grid to Disk" : "Save Raw Taps to Disk"}
               </button>
             )}
           </div>
