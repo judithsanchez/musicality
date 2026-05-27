@@ -129,6 +129,7 @@ export default function App() {
   const [anchors, setAnchors] = useState([]);
   const [rawTaps, setRawTaps] = useState([]);       // raw clock times when user pressed button
   const [estimatedDelay, setEstimatedDelay] = useState(null); // ms — auto-computed reaction delay
+  const [userDelaySetting, setUserDelaySetting] = useState(220); // ms — user-adjustable reaction delay
   const [toastMessage, setToastMessage] = useState(null);
 
   const playerRef = useRef(null);
@@ -393,28 +394,83 @@ export default function App() {
     const baseSong = originalSongData || songData;
     if (!baseSong) return;
 
-    if (rawTaps.length < 2) {
-      showToast("⚠️ Record at least 2 taps to run normalization!");
+    if (rawTaps.length === 0) {
+      showToast("⚠️ Record at least 1 tap to run normalization!");
       return;
     }
 
-    // 1. Compute reaction delay (median delay)
-    const delay = computeReactionDelay(rawTaps, baseSong.beats);
-    if (!delay) {
-      showToast("⚠️ Could not calculate a valid reaction delay. Keep tapping!");
+    const delay = userDelaySetting / 1000; // in seconds
+
+    // 1. Single Tap mode: Global Grid Shift
+    if (rawTaps.length === 1) {
+      const tapTime = rawTaps[0];
+      const correctedTime = tapTime - delay;
+
+      const beat1Times = baseSong.beats
+        .map((b, idx) => ({ ...b, originalIndex: idx }))
+        .filter(b => b.beat === 1);
+
+      let bestBeat1 = null;
+      let minDiff = Infinity;
+
+      for (const b1 of beat1Times) {
+        const diff = Math.abs(correctedTime - b1.timestamp);
+        if (diff < minDiff) {
+          minDiff = diff;
+          bestBeat1 = b1;
+        }
+      }
+
+      if (!bestBeat1) {
+        showToast("⚠️ Could not match tap to any downbeat.");
+        return;
+      }
+
+      const shift = correctedTime - bestBeat1.timestamp;
+
+      // Apply global shift
+      const shiftedBeats = baseSong.beats.map(b => ({
+        ...b,
+        timestamp: parseFloat(Math.max(0, b.timestamp + shift).toFixed(3))
+      }));
+      const shiftedSections = baseSong.sections.map(sec => ({
+        ...sec,
+        startTimestamp: parseFloat(Math.max(0, sec.startTimestamp + shift).toFixed(3))
+      }));
+
+      setAnchors([{
+        beatIndex: bestBeat1.originalIndex,
+        originalTime: bestBeat1.timestamp,
+        tappedTime: correctedTime
+      }]);
+
+      setCalibratedSongData({
+        ...baseSong,
+        beats: shiftedBeats,
+        sections: shiftedSections
+      });
+
+      setCalibrationStats({
+        totalTaps: 1,
+        matchedTaps: 1,
+        outliersCount: 0,
+        estimatedDelayMs: userDelaySetting,
+        medianDiffMs: Math.round(shift * 1000)
+      });
+
+      showToast(`✅ Global grid shifted by ${Math.round(shift * 1000)}ms!`);
       return;
     }
-    setEstimatedDelay(delay);
 
-    // 2. Compute corrected tap times
+    // 2. Multi-Tap mode: Piecewise-Linear Warping with Outlier Rejection
+    // Compute corrected tap times
     const correctedTaps = rawTaps.map(t => t - delay);
 
-    // 3. Match each corrected tap to the nearest beat-1 in original song data
+    // Match each corrected tap to the nearest beat-1 in original song data
     const beat1Times = baseSong.beats
       .map((b, idx) => ({ ...b, originalIndex: idx }))
       .filter(b => b.beat === 1);
 
-    // We want to associate each corrected tap with a unique beat-1 index
     const matchedPairs = [];
     correctedTaps.forEach(ct => {
       let bestBeat1 = null;
@@ -443,12 +499,12 @@ export default function App() {
       return;
     }
 
-    // 4. Outlier Rejection (Median timing difference based filtering)
+    // Outlier Rejection (Median timing difference based filtering)
     const diffs = matchedPairs.map(p => p.diff);
     const sortedDiffs = [...diffs].sort((a, b) => a - b);
     const medianDiff = sortedDiffs[Math.floor(sortedDiffs.length / 2)];
 
-    // We filter out any tap whose diff deviates from the median diff by more than 150ms
+    // Filter out any tap whose diff deviates from the median diff by more than 150ms
     const cleanPairs = matchedPairs.filter(p => Math.abs(p.diff - medianDiff) <= 0.150);
     const outlierCount = matchedPairs.length - cleanPairs.length;
 
@@ -457,8 +513,7 @@ export default function App() {
       return;
     }
 
-    // 5. Create clean warp anchors
-    // Group by beatIndex and take the average corrected time.
+    // Create clean warp anchors
     const anchorsMap = {};
     cleanPairs.forEach(p => {
       if (!anchorsMap[p.beatIndex]) {
@@ -482,7 +537,7 @@ export default function App() {
 
     setAnchors(cleanAnchors);
 
-    // 6. Apply Piecewise-Linear Warping
+    // Apply Piecewise-Linear Warping
     const shiftedBeats = applyWarpToBeats(baseSong.beats, cleanAnchors);
     const shiftedSections = applyWarpToSections(baseSong.sections, baseSong.beats, shiftedBeats);
 
@@ -492,16 +547,16 @@ export default function App() {
       beats: shiftedBeats
     });
 
-    // 7. Update UI Stats & Show Toast
+    // Update UI Stats & Show Toast
     setCalibrationStats({
       totalTaps: rawTaps.length,
       matchedTaps: cleanPairs.length,
       outliersCount: outlierCount,
-      estimatedDelayMs: Math.round(delay * 1000),
+      estimatedDelayMs: userDelaySetting,
       medianDiffMs: Math.round(medianDiff * 1000)
     });
 
-    showToast(`✅ Grid normalized! Matched: ${cleanPairs.length} · Outliers: ${outlierCount}`);
+    showToast(`✅ Normalized! ${cleanPairs.length}/${rawTaps.length} taps matched. Outliers: ${outlierCount}`);
   };  const handleResetCalibration = () => {
     if (originalSongData) {
       setCalibratedSongData(JSON.parse(JSON.stringify(originalSongData)));
@@ -689,6 +744,33 @@ export default function App() {
             <p className="diagnose-subtitle">
               Press <strong>TAP ON "1"</strong> every time you hear count 1. Tap as many times as you like — more taps = better accuracy. Skip the intro if it's hard to find the one.
             </p>
+          </div>
+
+          {/* Reaction Delay Slider */}
+          <div className="calibration-row" style={{ margin: "4px 0 12px 0", background: "rgba(0,0,0,0.2)", padding: "12px", borderRadius: "12px", border: "1px solid rgba(139, 92, 246, 0.15)" }}>
+            <div className="calibration-label" style={{ fontSize: "0.8rem", display: "flex", justifyContent: "space-between", color: "#e9d5ff", fontWeight: "600" }}>
+              <span>AUDITORY REACTION LAG</span>
+              <span style={{ color: "#c084fc", fontFamily: "monospace" }}>{userDelaySetting}ms</span>
+            </div>
+            <div className="calibration-subtext" style={{ fontSize: "0.65rem", color: "#a78bfa", opacity: 0.8, marginBottom: "8px" }}>
+              Time subtracted from each tap to align with the real music downbeat.
+            </div>
+            <input
+              type="range"
+              min="100"
+              max="400"
+              step="10"
+              value={userDelaySetting}
+              onChange={(e) => setUserDelaySetting(parseInt(e.target.value))}
+              className="calibration-slider"
+              style={{ width: "100%", accentColor: "#8b5cf6" }}
+            />
+            {estimatedDelay && (
+              <div style={{ fontSize: "0.6rem", color: "#10b981", marginTop: "6px", display: "flex", justifyContent: "space-between" }}>
+                <span>🎯 Suggested (from your taps):</span>
+                <strong>{Math.round(estimatedDelay * 1000)}ms</strong>
+              </div>
+            )}
           </div>
 
           {/* Skip intro helper */}
