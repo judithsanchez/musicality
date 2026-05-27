@@ -1,0 +1,210 @@
+import { useState, useEffect, useRef } from "react";
+
+export function useSyncEngine(player, songData, localAudioRef, useLocalAudio, latencyOffset = 0, gridShift = 0) {
+  const [currentTime, setCurrentTime] = useState(0);
+  const [currentBeat, setCurrentBeat] = useState(null); // { timestamp, beat }
+  const [activeSection, setActiveSection] = useState(null); // { name, startTimestamp, focus, emoji }
+
+  // Refs for real-time tracking (avoids stale closures)
+  const playerRef = useRef(player);
+  const songDataRef = useRef(songData);
+  const frameIdRef = useRef(null);
+
+  // Sync anchors for YouTube dead reckoning
+  const anchorYtTimeRef = useRef(0);
+  const anchorPerfTimeRef = useRef(0);
+  const playbackRateRef = useRef(1);
+  const isPlayingRef = useRef(false);
+  const lastDriftCheckRef = useRef(0);
+
+  useEffect(() => {
+    playerRef.current = player;
+  }, [player]);
+
+  useEffect(() => {
+    songDataRef.current = songData;
+  }, [songData]);
+
+  // Synchronize state trigger: resets anchors when play state changes for YT
+  const synchronizeAnchors = () => {
+    if (useLocalAudio) {
+      const audio = localAudioRef.current;
+      if (audio) {
+        setCurrentTime(audio.currentTime);
+      }
+      return;
+    }
+
+    const ytPlayer = playerRef.current;
+    if (!ytPlayer || typeof ytPlayer.getCurrentTime !== "function") return;
+
+    anchorYtTimeRef.current = ytPlayer.getCurrentTime();
+    anchorPerfTimeRef.current = performance.now();
+    playbackRateRef.current = ytPlayer.getPlaybackRate ? ytPlayer.getPlaybackRate() : 1;
+    isPlayingRef.current = ytPlayer.getPlayerState ? ytPlayer.getPlayerState() === 1 : false; 
+    lastDriftCheckRef.current = performance.now();
+  };
+
+  // 1. Mobile background sleep control (Page Visibility API)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        console.log("[SyncEngine] Tab hidden: Aggressively pausing playback to prevent desync.");
+        try {
+          if (useLocalAudio && localAudioRef.current) {
+            localAudioRef.current.pause();
+          } else if (playerRef.current && typeof playerRef.current.pauseVideo === "function") {
+            playerRef.current.pauseVideo();
+          }
+        } catch (e) {}
+        isPlayingRef.current = false;
+      } else {
+        console.log("[SyncEngine] Tab returned to view: Triggering complete resync.");
+        // Hard reset anchors
+        setTimeout(synchronizeAnchors, 150);
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [useLocalAudio, localAudioRef]);
+
+  // 2. Setup periodic sync updates and frame loop
+  useEffect(() => {
+    const updateLoop = () => {
+      const sData = songDataRef.current;
+      let elapsed = 0;
+
+      if (useLocalAudio) {
+        const audio = localAudioRef.current;
+        if (audio) {
+          elapsed = audio.currentTime;
+          isPlayingRef.current = !audio.paused;
+        }
+      } else {
+        const ytPlayer = playerRef.current;
+        if (ytPlayer && isPlayingRef.current) {
+          const now = performance.now();
+          const timeDelta = (now - anchorPerfTimeRef.current) / 1000;
+          elapsed = anchorYtTimeRef.current + timeDelta * playbackRateRef.current;
+
+          // Periodic Drift Correction (Every 2 seconds)
+          if (now - lastDriftCheckRef.current > 2000) {
+            lastDriftCheckRef.current = now;
+            try {
+              const actualYtTime = ytPlayer.getCurrentTime();
+              const drift = Math.abs(elapsed - actualYtTime);
+              if (drift > 0.1) { 
+                anchorYtTimeRef.current = actualYtTime;
+                anchorPerfTimeRef.current = now;
+                playbackRateRef.current = ytPlayer.getPlaybackRate ? ytPlayer.getPlaybackRate() : 1;
+                elapsed = actualYtTime;
+              }
+            } catch (err) {
+              console.warn("Drift check failed: ", err);
+            }
+          }
+        } else if (ytPlayer) {
+          try {
+            elapsed = ytPlayer.getCurrentTime() || 0;
+          } catch (e) {}
+        }
+      }
+
+      if (elapsed < 0) elapsed = 0;
+      setCurrentTime(elapsed);
+
+      // Apply AV Latency Compensation Offset (Shifts visual timeline relative to audio)
+      // If positive latencyOffset (e.g. 200ms Bluetooth lag), visual ticks are delayed to line up
+      const visualTime = elapsed - (latencyOffset / 1000);
+
+      // Match closest beat in JSON map
+      if (sData && sData.beats && sData.beats.length > 0) {
+        let closest = null;
+        let minDiff = Infinity;
+
+        // Tolerant window: search within +/- 150ms of visual time
+        for (let i = 0; i < sData.beats.length; i++) {
+          const beat = sData.beats[i];
+          const diff = Math.abs(visualTime - beat.timestamp);
+          if (diff < minDiff && diff < 0.150) {
+            minDiff = diff;
+            closest = beat;
+          }
+        }
+
+        if (closest) {
+          // Apply Grid Shift Correction (Shifts 8-count beat cycle modularly)
+          // Allows instant realignment if "1" sounds on "3"
+          const shiftedBeatNum = ((closest.beat - 1 + gridShift + 8) % 8) + 1;
+          setCurrentBeat({
+            ...closest,
+            beat: shiftedBeatNum
+          });
+        } else {
+          setCurrentBeat(null);
+        }
+
+        // Match active structural section
+        if (sData.sections && sData.sections.length > 0) {
+          let currentSec = sData.sections[0];
+          for (let i = 0; i < sData.sections.length; i++) {
+            const sec = sData.sections[i];
+            if (visualTime >= sec.startTimestamp) {
+              currentSec = sec;
+            }
+          }
+          setActiveSection(currentSec);
+        }
+      }
+
+      frameIdRef.current = requestAnimationFrame(updateLoop);
+    };
+
+    frameIdRef.current = requestAnimationFrame(updateLoop);
+
+    return () => {
+      if (frameIdRef.current) {
+        cancelAnimationFrame(frameIdRef.current);
+      }
+    };
+  }, [useLocalAudio, localAudioRef, latencyOffset, gridShift]);
+
+  // YT state listeners (only active when not using local audio)
+  useEffect(() => {
+    if (!player || useLocalAudio) return;
+
+    const statePollInterval = setInterval(() => {
+      const ytPlayer = playerRef.current;
+      if (!ytPlayer || typeof ytPlayer.getPlayerState !== "function") return;
+
+      const playerState = ytPlayer.getPlayerState();
+      const currentRate = ytPlayer.getPlaybackRate ? ytPlayer.getPlaybackRate() : 1;
+      const isPlaying = playerState === 1;
+
+      if (isPlaying !== isPlayingRef.current || currentRate !== playbackRateRef.current) {
+        synchronizeAnchors();
+      }
+      
+      if (isPlaying) {
+        const elapsedDelta = (performance.now() - anchorPerfTimeRef.current) / 1000;
+        const reckoned = anchorYtTimeRef.current + elapsedDelta * playbackRateRef.current;
+        const actual = ytPlayer.getCurrentTime();
+        if (Math.abs(reckoned - actual) > 0.5) { 
+          synchronizeAnchors();
+        }
+      }
+    }, 200);
+
+    return () => clearInterval(statePollInterval);
+  }, [player, useLocalAudio]);
+
+  return {
+    currentTime,
+    currentBeat,
+    activeSection,
+    synchronizeAnchors
+  };
+}

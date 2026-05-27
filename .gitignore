@@ -1,0 +1,48 @@
+# Node modules
+node_modules/
+
+# Python virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Python caches and artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+build/
+dist/
+*.egg-info/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# System Files
+.DS_Store
+Thumbs.db
+
+# Local env files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Vite/Build output
+dist/
+.vite/
+
+# Large media or documents in the root directory (excluding public folder)
+/*.mp3
+/*.mp4
+/*.docx
+/*.zip
+/*.tar.gz
