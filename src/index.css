@@ -1525,3 +1525,47 @@ body {
   height: 16px;
 }
 
+/* Responsive Workspace Layouts for Normal and Dev Modes */
+.normal-workspace-layout {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 16px;
+}
+
+.left-workspace-column {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.right-workspace-column {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-height: 90vh;
+  overflow-y: auto;
+  width: 100%;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  background: rgba(139, 92, 246, 0.03);
+  padding: 16px;
+}
+
+.dev-workspace-layout {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 20px;
+}
+
+/* Grid side-by-side layout for landscape and wide desktop screens */
+@media (orientation: landscape) and (min-width: 768px), (min-width: 1024px) {
+  .dev-workspace-layout {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 24px;
+    align-items: start;
+  }
+}
+
