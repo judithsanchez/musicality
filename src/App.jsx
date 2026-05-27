@@ -743,49 +743,7 @@ export default function App() {
         </p>
       </header>
 
-      {/* 2. Developer / Calibration Settings Panel */}
-      {showDiagnostic && (
-        <div className="glass-panel dev-panel" style={{ padding: "16px", marginBottom: "16px", display: "flex", flexDirection: "column", gap: "12px" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <span style={{ fontWeight: "800", color: "#8b5cf6", fontSize: "0.95rem" }}>🛠️ Creator Calibration Tools</span>
-            <button className="btn-diagnose-action" onClick={handleResetCalibration} style={{ background: "rgba(239, 68, 68, 0.15)", border: "1px solid rgba(239, 68, 68, 0.4)", color: "#ef4444", padding: "4px 8px", fontSize: "0.75rem", borderRadius: "8px", fontWeight: "600" }}>
-              Reset Calibration
-            </button>
-          </div>
-          
-          <div className="dev-slider-group" style={{ display: "flex", flexDirection: "column", gap: "6px", marginTop: "8px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem", fontWeight: "600" }}>
-              <span>Reaction & Bluetooth Lag:</span>
-              <span style={{ color: "#a78bfa" }}>{userDelaySetting}ms</span>
-            </div>
-            <input
-              type="range"
-              min="0"
-              max="600"
-              step="10"
-              value={userDelaySetting}
-              onChange={(e) => {
-                const val = parseInt(e.target.value);
-                setUserDelaySetting(val);
-                setTimeout(() => handleNormalizeBeatmap(), 50);
-              }}
-              style={{ width: "100%", accentColor: "#8b5cf6", cursor: "pointer" }}
-            />
-            <span style={{ fontSize: "0.7rem", color: "#6b7280" }}>
-              Standard reaction: 200-240ms. If using Bluetooth, add 150ms-300ms (typically 350-550ms total).
-            </span>
-          </div>
 
-          {calibrationStats && (
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", fontSize: "0.75rem", background: "rgba(255,255,255,0.02)", padding: "8px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.04)" }}>
-              <div>Total Taps: <strong style={{ color: "#fff" }}>{calibrationStats.totalTaps}</strong></div>
-              <div>Clean Matches: <strong style={{ color: "#10b981" }}>{calibrationStats.matchedTaps}</strong></div>
-              <div>Outliers Filtered: <strong style={{ color: "#ef4444" }}>{calibrationStats.outliersCount}</strong></div>
-              <div>Median Offset: <strong style={{ color: "#3b82f6" }}>{calibrationStats.medianDiffMs}ms</strong></div>
-            </div>
-          )}
-        </div>
-      )}
 
       {/* 5. Media Player Display */}
       <div className="video-wrapper">
