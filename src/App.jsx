@@ -114,8 +114,6 @@ export default function App() {
   // Media states
   const [player, setPlayer] = useState(null);
   const [playerState, setPlayerState] = useState(-1); 
-  const [useLocalAudio, setUseLocalAudio] = useState(false); // default to YouTube Player mode
-  const [localPlaying, setLocalPlaying] = useState(false);
   const [playbackRate, setPlaybackRate] = useState(1.0);
   const [apiReady, setApiReady] = useState(false);
 
@@ -131,7 +129,6 @@ export default function App() {
   const [toastMessage, setToastMessage] = useState(null);
 
   const playerRef = useRef(null);
-  const localAudioRef = useRef(null);
   const headerClicksRef = useRef(0);
 
   // Helper to show modern fading glass toast notifications
@@ -203,7 +200,7 @@ export default function App() {
 
   // 3. Construct YouTube Player when API is ready
   useEffect(() => {
-    if (!apiReady || !songData || player || useLocalAudio) return;
+    if (!apiReady || !songData || player) return;
 
     try {
       const ytPlayer = new window.YT.Player("yt-player", {
@@ -238,46 +235,26 @@ export default function App() {
         setPlayer(null);
       }
     };
-  }, [apiReady, songData, useLocalAudio]);
+  }, [apiReady, songData]);
 
-  // 4. Hook into the high-precision sync engine (supplying local audio ref, toggle parameter)
+  // 4. Hook into the high-precision sync engine
   const { currentTime, currentBeat, activeSection, synchronizeAnchors } = useSyncEngine(
     player,
     calibratedSongData || songData,
-    localAudioRef,
-    useLocalAudio,
+    null,
+    false,
     0, // zero AV latency offset
     0  // zero static grid count shift
   );
 
-  // 5. Sync rate changes to local audio element directly
-  useEffect(() => {
-    if (useLocalAudio && localAudioRef.current) {
-      localAudioRef.current.playbackRate = playbackRate;
-    }
-  }, [playbackRate, useLocalAudio]);
-
-  // 6. Touch Controller click handlers
+  // 5. Touch Controller click handlers
   const handlePlayToggle = () => {
     try {
-      if (useLocalAudio) {
-        const audio = localAudioRef.current;
-        if (!audio) return;
-        
-        if (audio.paused) {
-          audio.play();
-          setLocalPlaying(true);
-        } else {
-          audio.pause();
-          setLocalPlaying(false);
-        }
+      if (!player) return;
+      if (playerState === 1) {
+        player.pauseVideo();
       } else {
-        if (!player) return;
-        if (playerState === 1) {
-          player.pauseVideo();
-        } else {
-          player.playVideo();
-        }
+        player.playVideo();
       }
       setTimeout(synchronizeAnchors, 50);
     } catch (err) {
@@ -287,22 +264,12 @@ export default function App() {
 
   const handleRewind = () => {
     try {
-      if (useLocalAudio) {
-        const audio = localAudioRef.current;
-        if (!audio) return;
-        
-        let target = audio.currentTime - 10;
-        if (target < 0) target = 0;
-        audio.currentTime = target;
-        console.log(`[Local Audio] Rewinding to: ${target.toFixed(2)}s`);
-      } else {
-        if (!player) return;
-        const current = player.getCurrentTime();
-        let target = current - 10;
-        if (target < 0) target = 0;
-        player.seekTo(target, true);
-        console.log(`[YouTube] Rewinding to: ${target.toFixed(2)}s`);
-      }
+      if (!player) return;
+      const current = player.getCurrentTime();
+      let target = current - 10;
+      if (target < 0) target = 0;
+      player.seekTo(target, true);
+      console.log(`[YouTube] Rewinding to: ${target.toFixed(2)}s`);
       setTimeout(synchronizeAnchors, 100);
     } catch (err) {
       console.warn("Rewind error: ", err);
@@ -312,35 +279,13 @@ export default function App() {
   const handleSpeedChange = (rate) => {
     setPlaybackRate(rate);
     try {
-      if (useLocalAudio) {
-        const audio = localAudioRef.current;
-        if (audio) {
-          audio.playbackRate = rate;
-        }
-      } else {
-        if (player) {
-          player.setPlaybackRate(rate);
-        }
+      if (player) {
+        player.setPlaybackRate(rate);
       }
       setTimeout(synchronizeAnchors, 50);
     } catch (err) {
       console.warn("SpeedChange error: ", err);
     }
-  };
-
-  // Toggle modes dynamically
-  const toggleSourceMode = (mode) => {
-    try {
-      if (useLocalAudio && localAudioRef.current) {
-        localAudioRef.current.pause();
-        setLocalPlaying(false);
-      } else if (player) {
-        player.pauseVideo();
-      }
-    } catch (e) {}
-
-    setUseLocalAudio(mode === "local");
-    setTimeout(synchronizeAnchors, 100);
   };
 
   const getContainerClass = () => {
@@ -361,7 +306,7 @@ export default function App() {
     return {};
   };
 
-  const isActuallyPlaying = useLocalAudio ? localPlaying : playerState === 1;
+  const isActuallyPlaying = playerState === 1;
 
   // ==========================================================================
   // Creator Multi-Anchor & Permanent save Click Handlers
@@ -594,9 +539,7 @@ export default function App() {
   // Skip audio to ~30s so user can bypass the difficult intro
   const handleSkipIntro = () => {
     try {
-      if (useLocalAudio && localAudioRef.current) {
-        localAudioRef.current.currentTime = 30;
-      } else if (player) {
+      if (player) {
         player.seekTo(30, true);
       }
       showToast("⏩ Skipped to 0:30 — intro bypassed!");
@@ -653,20 +596,22 @@ export default function App() {
   };
 
   const handleSaveToDisk = () => {
-    const dataToSave = calibratedSongData || songData;
-    if (!dataToSave) return;
+    const activeBeatmap = calibratedSongData || songData;
+    const baseSong = originalSongData || songData;
+    if (!activeBeatmap || !baseSong) return;
 
-    // Build full tapCalibration block so we can analyse it later
-    const reactionDelayMs = estimatedDelay ? Math.round(estimatedDelay * 1000) : null;
+    if (rawTaps.length < 50) {
+      showToast("⚠️ At least 50 taps are required to save!");
+      return;
+    }
+
+    const reactionDelayMs = userDelaySetting;
+    const delaySec = userDelaySetting / 1000;
     const correctedTaps = rawTaps.map(t =>
-      parseFloat(Math.max(0, t - (estimatedDelay || 0)).toFixed(3))
+      parseFloat(Math.max(0, t - delaySec).toFixed(3))
     );
 
-    // Match each corrected tap to the nearest beat-1 in the ORIGINAL beatmap
-    const baseSong = originalSongData || songData;
-    const beat1Times = baseSong
-      ? baseSong.beats.filter(b => b.beat === 1).map(b => b.timestamp)
-      : [];
+    const beat1Times = baseSong.beats.filter(b => b.beat === 1).map(b => b.timestamp);
 
     const matchedAnchors = correctedTaps.map(ct => {
       let best = null;
@@ -678,16 +623,23 @@ export default function App() {
       return { correctedTapTime: ct, matchedBeat1: best, diffMs: Math.round(bestDiff * 1000) };
     });
 
+    const calibration = {
+      recordedAt: new Date().toISOString(),
+      tapCount: rawTaps.length,
+      rawTaps: rawTaps.map(t => parseFloat(t.toFixed(3))),
+      reactionDelayMs,
+      correctedTaps,
+      matchedAnchors
+    };
+
     const payload = {
-      ...dataToSave,
-      tapCalibration: {
-        recordedAt: new Date().toISOString(),
-        tapCount: rawTaps.length,
-        rawTaps: rawTaps.map(t => parseFloat(t.toFixed(3))),
-        reactionDelayMs,
-        correctedTaps,
-        matchedAnchors
-      }
+      youtubeId: baseSong.metadata?.youtubeId || 'calibrated_song',
+      activeBeatmap: {
+        ...activeBeatmap,
+        tapCalibration: calibration
+      },
+      originalBeatmap: baseSong,
+      calibration: calibration
     };
 
     showToast("💾 Saving permanently to disk...");
@@ -703,8 +655,8 @@ export default function App() {
       })
       .then(result => {
         if (result.success) {
-          setOriginalSongData(JSON.parse(JSON.stringify(dataToSave)));
-          showToast(`✅ Saved! ${rawTaps.length} taps recorded. Delay: ${reactionDelayMs ?? '?'}ms`);
+          setOriginalSongData(JSON.parse(JSON.stringify(activeBeatmap)));
+          showToast(`✅ Saved 3 safety files successfully for ${payload.youtubeId}!`);
         } else {
           throw new Error(result.error);
         }
@@ -791,95 +743,81 @@ export default function App() {
         </p>
       </header>
 
-      {/* 2. Dynamic Source Selector (Developer Only) */}
+      {/* 2. Developer / Calibration Settings Panel */}
       {showDiagnostic && (
-        <div className="source-switcher">
-          <button
-            className={`source-btn ${useLocalAudio ? "active" : ""}`}
-            onClick={() => toggleSourceMode("local")}
-          >
-            <Music size={16} />
-            <span>Local MP3 (Auto-Fallback)</span>
-          </button>
-          <button
-            className={`source-btn ${!useLocalAudio ? "active" : ""}`}
-            onClick={() => toggleSourceMode("youtube")}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ minWidth: "16px" }}><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17z"/><path d="m10 15 5-3-5-3v6z" fill="currentColor"/></svg>
-            <span>YouTube Player</span>
-          </button>
+        <div className="glass-panel dev-panel" style={{ padding: "16px", marginBottom: "16px", display: "flex", flexDirection: "column", gap: "12px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span style={{ fontWeight: "800", color: "#8b5cf6", fontSize: "0.95rem" }}>🛠️ Creator Calibration Tools</span>
+            <button className="btn-diagnose-action" onClick={handleResetCalibration} style={{ background: "rgba(239, 68, 68, 0.15)", border: "1px solid rgba(239, 68, 68, 0.4)", color: "#ef4444", padding: "4px 8px", fontSize: "0.75rem", borderRadius: "8px", fontWeight: "600" }}>
+              Reset Calibration
+            </button>
+          </div>
+          
+          <div className="dev-slider-group" style={{ display: "flex", flexDirection: "column", gap: "6px", marginTop: "8px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem", fontWeight: "600" }}>
+              <span>Reaction & Bluetooth Lag:</span>
+              <span style={{ color: "#a78bfa" }}>{userDelaySetting}ms</span>
+            </div>
+            <input
+              type="range"
+              min="0"
+              max="600"
+              step="10"
+              value={userDelaySetting}
+              onChange={(e) => {
+                const val = parseInt(e.target.value);
+                setUserDelaySetting(val);
+                setTimeout(() => handleNormalizeBeatmap(), 50);
+              }}
+              style={{ width: "100%", accentColor: "#8b5cf6", cursor: "pointer" }}
+            />
+            <span style={{ fontSize: "0.7rem", color: "#6b7280" }}>
+              Standard reaction: 200-240ms. If using Bluetooth, add 150ms-300ms (typically 350-550ms total).
+            </span>
+          </div>
+
+          {calibrationStats && (
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", fontSize: "0.75rem", background: "rgba(255,255,255,0.02)", padding: "8px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.04)" }}>
+              <div>Total Taps: <strong style={{ color: "#fff" }}>{calibrationStats.totalTaps}</strong></div>
+              <div>Clean Matches: <strong style={{ color: "#10b981" }}>{calibrationStats.matchedTaps}</strong></div>
+              <div>Outliers Filtered: <strong style={{ color: "#ef4444" }}>{calibrationStats.outliersCount}</strong></div>
+              <div>Median Offset: <strong style={{ color: "#3b82f6" }}>{calibrationStats.medianDiffMs}ms</strong></div>
+            </div>
+          )}
         </div>
       )}
-
 
       {/* 5. Media Player Display */}
-      {useLocalAudio ? (
-        /* Local Audio Fallback Card */
-        <div className="audio-card" onClick={handlePlayToggle} style={{ cursor: "pointer" }}>
-          <audio
-            ref={localAudioRef}
-            src="/songs/66HCBysrJS8.mp3"
-            style={{ display: "none" }}
-            onPlay={() => setLocalPlaying(true)}
-            onPause={() => setLocalPlaying(false)}
-            onEnded={() => setLocalPlaying(false)}
-          />
-          <div className={`vinyl-record ${isActuallyPlaying ? "spinning" : ""}`}>
-            <div className="vinyl-center"></div>
-          </div>
-          <div style={{ marginTop: "16px", fontSize: "0.85rem", fontWeight: "600", color: "#a1a1aa" }}>
-            {isActuallyPlaying ? "💿 Spinning Pobre Diablo locally..." : "💿 Local MP3 Mode Ready"}
-          </div>
-          <div style={{ fontSize: "0.75rem", color: "#6b7280", marginTop: "4px" }}>
-            No YouTube API connection required
-          </div>
-        </div>
-      ) : (
-        /* YouTube Embed IFrame */
-        <div className="video-wrapper">
-          <div id="yt-player"></div>
-          <div className="touch-shield" onClick={handlePlayToggle}></div>
-        </div>
-      )}
-
-      {/* 6. Section Banner */}
-      <div 
-        className={`section-banner ${getContainerClass()}`} 
-        style={getSectionColorStyles()}
-      >
-        {activeSection && activeSection.emoji ? (
-          <>
-            <span className="banner-emoji">{activeSection.emoji}</span>
-            <span>
-              {activeSection.name} {activeSection.focus ? `(Focus: ${activeSection.focus.toUpperCase()})` : ""}
-            </span>
-          </>
-        ) : (
-          <span>
-            {isActuallyPlaying ? "🎶 Listen to the Salsa swing..." : "⏸️ Press Play to start ear-training"}
-          </span>
-        )}
-      </div>
-
-      {/* 7. Beats Pulse Tracker (8 neon counts) */}
+      <div className="video-wrapper">
+        <div id="yt-player"></div>
+        <div className="touch-shield" onClick={handlePlayToggle}></div>
+      </div>      {/* 7. Beats Pulse Tracker (8 neon counts / Bias Shield) */}
       <div className="glass-panel" style={{ padding: "20px 10px" }}>
-        <div className="beats-container">
-          {[1, 2, 3, 4, 5, 6, 7, 8].map((beatNum) => {
-            const canLight = beatNum === 1 || beatNum === 3 || beatNum === 5;
-            const isActive = canLight && currentBeat && currentBeat.beat === beatNum;
-            const isGold = beatNum === 1 || beatNum === 5;
-            return (
-              <div key={beatNum} className={`beat-circle${isActive ? (isGold ? " accent-gold" : " accent-cyan") : ""}`}>
-                <span>{beatNum}</span>
-              </div>
-            );
-          })}
-        </div>
-
-        <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.75rem", color: "#6b7280", padding: "0 8px" }}>
-          <span>Elapsed Time: {currentTime.toFixed(3)}s</span>
-          <span>Tempo: {songData ? songData.metadata.bpm : 0} BPM</span>
-        </div>
+        {rawTaps.length > 0 ? (
+          <div className="bias-shield-card" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px", padding: "12px 6px" }}>
+            <div className="bias-shield-icon" style={{ fontSize: "1.8rem", animation: "pulse 2s infinite" }}>🔒</div>
+            <div className="bias-shield-title" style={{ fontSize: "0.95rem", fontWeight: "800", color: "#f3f4f6", letterSpacing: "0.5px" }}>Visual Counts Shielded</div>
+            <div className="bias-shield-text" style={{ fontSize: "0.75rem", color: "#9ca3af", textAlign: "center", maxWidth: "280px" }}>
+              Visual counts hidden to guarantee absolute auditory rhythm mapping.
+            </div>
+            <div className="bias-shield-counter" style={{ fontSize: "0.8rem", fontWeight: "800", color: rawTaps.length >= 50 ? "#10b981" : "#a78bfa", marginTop: "4px", background: "rgba(255,255,255,0.03)", padding: "4px 12px", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.06)" }}>
+              {rawTaps.length >= 50 ? `✅ Ready: ${rawTaps.length} Taps` : `⚡ Progress: ${rawTaps.length} / 50 Taps`}
+            </div>
+          </div>
+        ) : (
+          <div className="beats-container">
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((beatNum) => {
+              const canLight = beatNum === 1 || beatNum === 3 || beatNum === 5;
+              const isActive = canLight && currentBeat && currentBeat.beat === beatNum;
+              const isGold = beatNum === 1 || beatNum === 5;
+              return (
+                <div key={beatNum} className={`beat-circle${isActive ? (isGold ? " accent-gold" : " accent-cyan") : ""}`}>
+                  <span>{beatNum}</span>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* 7.5. Public Tapping Deck (Clean & Sleek for Tappers) */}
@@ -895,24 +833,46 @@ export default function App() {
 
         {rawTaps.length > 0 && (
           <button
-            className="btn-diagnose-action primary"
+            className={`btn-diagnose-action ${rawTaps.length >= 50 ? "active-ready" : "locked-pending"}`}
             onClick={handleSaveToDisk}
+            disabled={rawTaps.length < 50}
             style={{
               width: "100%",
-              minHeight: "44px",
-              background: anchors.length > 0 ? "linear-gradient(135deg, #10b981, #059669)" : "rgba(255,255,255,0.05)",
-              boxShadow: anchors.length > 0 ? "0 4px 12px rgba(16, 185, 129, 0.25)" : "none",
-              border: anchors.length > 0 ? "none" : "1px solid rgba(255, 255, 255, 0.1)",
-              color: anchors.length > 0 ? "#fff" : "#9ca3af",
+              minHeight: "48px",
+              background: rawTaps.length >= 50 
+                ? "linear-gradient(135deg, #10b981, #059669)" 
+                : "rgba(255,255,255,0.03)",
+              boxShadow: rawTaps.length >= 50 
+                ? "0 4px 16px rgba(16, 185, 129, 0.25)" 
+                : "none",
+              border: rawTaps.length >= 50 
+                ? "none" 
+                : "1px solid rgba(255, 255, 255, 0.05)",
+              color: rawTaps.length >= 50 ? "#fff" : "#6b7280",
               fontWeight: "800",
               textTransform: "uppercase",
               borderRadius: "12px",
-              letterSpacing: "0.5px"
+              letterSpacing: "0.5px",
+              cursor: rawTaps.length >= 50 ? "pointer" : "not-allowed",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "8px",
+              transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
             }}
-            title={anchors.length > 0 ? "Save the normalized beatmap permanently to disk" : "Taps are automatically compiled in the background"}
+            title={rawTaps.length >= 50 ? "Save the normalized beatmap permanently to disk" : `Record at least 50 taps to unlock. Current: ${rawTaps.length}/50`}
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: "6px" }}><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-            {anchors.length > 0 ? "Save Calibration to Disk" : "Taps Recorded (Auto-Normalizing...)"}
+            {rawTaps.length >= 50 ? (
+              <>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ animation: "pulse 2s infinite" }}><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                <span>Save Calibration to Disk</span>
+              </>
+            ) : (
+              <>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.5 }}><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <span>Locked: {rawTaps.length} / 50 Taps Recorded</span>
+              </>
+            )}
           </button>
         )}
       </div>
