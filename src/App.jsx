@@ -135,6 +135,9 @@ export default function App() {
   const [introStart, setIntroStart] = useState(0.0);
   const [introEnd, setIntroEnd] = useState(0.0);
   const [videoDuration, setVideoDuration] = useState(300.0);
+  const [breaks, setBreaks] = useState([]);
+  const [tempBreakStart, setTempBreakStart] = useState("");
+  const [tempBreakEnd, setTempBreakEnd] = useState("");
 
   const playerRef = useRef(null);
   const lastSeekTimeRef = useRef(0);
@@ -199,6 +202,7 @@ export default function App() {
     setRawTaps([]);
     setEstimatedDelay(null);
     setCalibrationStats(null);
+    setBreaks([]);
 
     fetch(`songs/${song.youtubeId}.json`)
       .then((res) => {
@@ -211,6 +215,7 @@ export default function App() {
         setCalibratedSongData(JSON.parse(JSON.stringify(data)));
         setIntroStart(data.metadata?.introStart || 0.0);
         setIntroEnd(data.metadata?.introEnd || 0.0);
+        setBreaks(data.breaks || []);
         setCurrentSong(song);
         setLoadingSong(false);
         console.log("[App] Loaded advanced beatmap successfully for:", data.metadata.songTitle);
@@ -242,6 +247,8 @@ export default function App() {
     setCalibrationStats(null);
     setIntroStart(0.0);
     setIntroEnd(0.0);
+    setBreaks([]);
+    setVideoDuration(300.0);
   };
 
   const throttledSeek = (timeSec, isFinal = false) => {
@@ -817,9 +824,13 @@ export default function App() {
       youtubeId: baseSong.metadata?.youtubeId || 'calibrated_song',
       activeBeatmap: {
         ...activeBeatmap,
-        tapCalibration: calibration
+        tapCalibration: calibration,
+        breaks: breaks
       },
-      originalBeatmap: baseSong,
+      originalBeatmap: {
+        ...baseSong,
+        breaks: breaks
+      },
       calibration: calibration
     };
 
@@ -848,7 +859,7 @@ export default function App() {
       });
   };
 
-  const handleSaveIntroBoundaries = () => {
+  const handleSaveMetadataAndBreaks = () => {
     const activeBeatmap = calibratedSongData || songData;
     const baseSong = originalSongData || songData;
     if (!activeBeatmap || !baseSong) return;
@@ -864,13 +875,22 @@ export default function App() {
           ...activeBeatmap.metadata,
           introStart,
           introEnd
-        }
+        },
+        breaks: breaks
       },
-      originalBeatmap: baseSong,
+      originalBeatmap: {
+        ...baseSong,
+        metadata: {
+          ...baseSong.metadata,
+          introStart,
+          introEnd
+        },
+        breaks: breaks
+      },
       calibration: calibration
     };
 
-    showToast("💾 Saving intro boundaries to disk...");
+    showToast("💾 Saving song boundaries & breaks to disk...");
 
     fetch("/api/save-beatmap", {
       method: "POST",
@@ -883,20 +903,72 @@ export default function App() {
       })
       .then(result => {
         if (result.success) {
-          // Update baseline and current states in-memory to reflect saved boundaries
+          // Update baseline and current states in-memory to reflect saved parameters
           const updatedMap = JSON.parse(JSON.stringify(payload.activeBeatmap));
           setOriginalSongData(updatedMap);
           setSongData(updatedMap);
           setCalibratedSongData(updatedMap);
-          showToast(`✅ Saved Intro boundaries successfully!`);
+          showToast(`✅ Saved boundaries & breaks successfully!`);
         } else {
           throw new Error(result.error);
         }
       })
       .catch(err => {
-        console.error("Save intro boundaries failed:", err);
+        console.error("Save boundaries & breaks failed:", err);
         showToast("❌ Save failed. Check console.");
       });
+  };
+
+  const handleMarkBreakStart = () => {
+    if (!player) return;
+    const currentPlayhead = parseFloat(player.getCurrentTime().toFixed(2));
+    setTempBreakStart(currentPlayhead.toFixed(2));
+    showToast(`🎯 Break Start marked: ${currentPlayhead}s!`);
+  };
+
+  const handleMarkBreakEnd = () => {
+    if (!player) return;
+    const currentPlayhead = parseFloat(player.getCurrentTime().toFixed(2));
+    setTempBreakEnd(currentPlayhead.toFixed(2));
+    showToast(`🎯 Break End marked: ${currentPlayhead}s!`);
+  };
+
+  const handleAddNewBreak = () => {
+    const start = parseFloat(tempBreakStart);
+    const end = parseFloat(tempBreakEnd);
+    if (isNaN(start) || isNaN(end) || start < 0 || end <= start) {
+      showToast("⚠️ Invalid break times! Start must be < End.");
+      return;
+    }
+    const newBreak = {
+      id: `break-${Date.now()}`,
+      startTimestamp: parseFloat(start.toFixed(2)),
+      endTimestamp: parseFloat(end.toFixed(2)),
+      label: "Cierre / Stop",
+      action: "freeze"
+    };
+    const updatedBreaks = [...breaks, newBreak].sort((a, b) => a.startTimestamp - b.startTimestamp);
+    setBreaks(updatedBreaks);
+    setTempBreakStart("");
+    setTempBreakEnd("");
+    showToast("➕ Added new Cierre break!");
+  };
+
+  const handleDeleteBreak = (id) => {
+    const updated = breaks.filter(b => b.id !== id);
+    setBreaks(updated);
+    showToast("❌ Removed break.");
+  };
+
+  const handleAdjustBreak = (id, field, amount) => {
+    const updated = breaks.map(b => {
+      if (b.id === id) {
+        const newVal = parseFloat(Math.max(0, b[field] + amount).toFixed(2));
+        return { ...b, [field]: newVal };
+      }
+      return b;
+    });
+    setBreaks(updated);
   };
 
   const handleHeaderClick = () => {
@@ -1031,6 +1103,15 @@ export default function App() {
     );
   }
 
+  // 1. Dynamic Active Break Check
+  const activeBreak = breaks.find(b => currentTime >= b.startTimestamp && currentTime < b.endTimestamp) || null;
+
+  // 2. Upcoming Transition Countdown
+  const sectionsList = songData?.sections || [];
+  const nextSection = sectionsList.find(sec => sec.startTimestamp > currentTime) || null;
+  const timeToNextSection = nextSection ? nextSection.startTimestamp - currentTime : null;
+  const showTransitionCue = timeToNextSection !== null && timeToNextSection > 0 && timeToNextSection <= 3.0;
+
   return (
     <div className="app-container" style={{ display: "flex", flexDirection: "column", height: "100%" }}>
       {/* Back button link */}
@@ -1048,6 +1129,14 @@ export default function App() {
           {songData ? `${songData.metadata.artist} — ${songData.metadata.danceStyle.toUpperCase()} On1` : "Ear-Training Visualizer"}
         </p>
       </header>
+
+      {/* Dynamic Section Warning banner for upcoming transitions */}
+      {showTransitionCue && nextSection && (
+        <div className="next-section-banner">
+          <span className="banner-emoji">{nextSection.emoji || "🎵"}</span>
+          <span>Next: <strong>{nextSection.name}</strong> in {timeToNextSection.toFixed(1)}s...</span>
+        </div>
+      )}
 
 
 
@@ -1073,6 +1162,15 @@ export default function App() {
             </div>
             <div className="intro-countdown">
               Groove starts in {Math.max(0, introEnd - currentTime).toFixed(1)}s
+            </div>
+          </div>
+        ) : activeBreak ? (
+          <div className="break-freeze-overlay">
+            <div className="break-freeze-title">
+              <span>❄️ HOLD POSE / BREAK</span>
+            </div>
+            <div className="break-freeze-countdown">
+              Groove resumes in {Math.max(0, activeBreak.endTimestamp - currentTime).toFixed(1)}s
             </div>
           </div>
         ) : rawTaps.length > 0 ? (
@@ -1114,6 +1212,67 @@ export default function App() {
             })}
           </div>
         )}
+      </div>
+
+      {/* 7.3. Segmented Roadmap Progress Scrubber */}
+      <div className="glass-panel" style={{ padding: "14px 16px", marginBottom: "16px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.75rem", fontWeight: "600", color: "#9ca3af", marginBottom: "8px" }}>
+          <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>🎵 Song Roadmap Scrubber</span>
+          <span style={{ color: "#a78bfa" }}>
+            {Math.floor(currentTime / 60)}:{(Math.floor(currentTime % 60)).toString().padStart(2, "0")} / {Math.floor(videoDuration / 60)}:{(Math.floor(videoDuration % 60)).toString().padStart(2, "0")}
+          </span>
+        </div>
+        
+        <div className="roadmap-scrubber-wrapper">
+          <div 
+            className="roadmap-scrubber-track"
+            onClick={(e) => {
+              const rect = e.currentTarget.getBoundingClientRect();
+              const clickPercent = (e.clientX - rect.left) / rect.width;
+              const targetTime = clickPercent * videoDuration;
+              throttledSeek(targetTime, true);
+            }}
+          >
+            {/* 1. Dynamic Intro Highlight Segment */}
+            <div 
+              className="roadmap-segment segment-intro"
+              style={{
+                left: `${(introStart / videoDuration) * 100}%`,
+                width: `${((introEnd - introStart) / videoDuration) * 100}%`
+              }}
+              title="Song Intro Region"
+            ></div>
+
+            {/* 2. Dynamic Section markers */}
+            {sectionsList.map((sec, idx) => (
+              <div
+                key={idx}
+                className="roadmap-section-marker"
+                style={{ left: `${(sec.startTimestamp / videoDuration) * 100}%` }}
+                title={`${sec.name} Start`}
+              ></div>
+            ))}
+
+            {/* 3. Dynamic Breaks highlight segments */}
+            {breaks.map((b) => (
+              <div
+                key={b.id}
+                className="roadmap-segment segment-break"
+                style={{
+                  left: `${(b.startTimestamp / videoDuration) * 100}%`,
+                  width: `${((b.endTimestamp - b.startTimestamp) / videoDuration) * 100}%`
+                }}
+                title={`Cierre Stop: ${b.startTimestamp}s - ${b.endTimestamp}s`}
+              ></div>
+            ))}
+
+            {/* 4. Glowing Playhead Handle */}
+            <div 
+              className="roadmap-playhead"
+              style={{ left: `${(currentTime / videoDuration) * 100}%` }}
+            ></div>
+          </div>
+        </div>
       </div>
 
       {/* Developer Calibration & Diagnostics Panel */}
@@ -1220,6 +1379,66 @@ export default function App() {
             </span>
           </div>
 
+          {/* 3.5. Song Breaks & Cuts Editor */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "8px", borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "12px" }}>
+            <span style={{ fontSize: "0.8rem", fontWeight: "800", color: "#f43f5e", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+              🛑 Song Breaks & Cuts Editor (Cierres)
+            </span>
+
+            {/* Live capture markers */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+              <button className="btn-dev-sync" onClick={handleMarkBreakStart} style={{ minHeight: "36px", background: "rgba(244, 63, 94, 0.15)", border: "1px solid rgba(244, 63, 94, 0.3)", color: "#f43f5e" }}>
+                🎯 Start: {tempBreakStart ? `${tempBreakStart}s` : "Mark"}
+              </button>
+              <button className="btn-dev-sync" onClick={handleMarkBreakEnd} style={{ minHeight: "36px", background: "rgba(16, 185, 129, 0.15)", border: "1px solid rgba(16, 185, 129, 0.3)", color: "#10b981" }}>
+                🎯 End: {tempBreakEnd ? `${tempBreakEnd}s` : "Mark"}
+              </button>
+            </div>
+
+            {/* Add Break Button */}
+            {tempBreakStart && tempBreakEnd && (
+              <button 
+                className="btn-dev-sync" 
+                onClick={handleAddNewBreak}
+                style={{ width: "100%", minHeight: "32px", background: "linear-gradient(135deg, #f43f5e, #e11d48)", justifyContent: "center" }}
+              >
+                ➕ Add Cierre Break ({tempBreakStart}s - {tempBreakEnd}s)
+              </button>
+            )}
+
+            {/* Calibrated Breaks List */}
+            {breaks.length > 0 ? (
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px", background: "rgba(255,255,255,0.02)", padding: "8px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.04)", maxHeight: "140px", overflowY: "auto" }}>
+                {breaks.map((b, idx) => (
+                  <div key={b.id} style={{ display: "flex", flexDirection: "column", gap: "4px", paddingBottom: "6px", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "0.75rem" }}>
+                      <span style={{ fontWeight: "700", color: "#e5e7eb" }}>Break #{idx + 1}</span>
+                      <button onClick={() => handleDeleteBreak(b.id)} style={{ background: "none", border: "none", color: "#f87171", cursor: "pointer", fontSize: "0.7rem", fontWeight: "700" }}>❌ Delete</button>
+                    </div>
+                    {/* Start fine tuning */}
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px" }}>
+                      <span style={{ fontSize: "0.65rem", color: "#9ca3af" }}>Start: <strong style={{ color: "#38bdf8" }}>{b.startTimestamp.toFixed(2)}s</strong></span>
+                      <div style={{ display: "flex", gap: "4px" }}>
+                        <button className="btn-step" onClick={() => handleAdjustBreak(b.id, "startTimestamp", -0.1)} style={{ padding: "1px 4px", fontSize: "0.6rem" }}>-0.1s</button>
+                        <button className="btn-step" onClick={() => handleAdjustBreak(b.id, "startTimestamp", 0.1)} style={{ padding: "1px 4px", fontSize: "0.6rem" }}>+0.1s</button>
+                      </div>
+                    </div>
+                    {/* End fine tuning */}
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px" }}>
+                      <span style={{ fontSize: "0.65rem", color: "#9ca3af" }}>End: <strong style={{ color: "#f43f5e" }}>{b.endTimestamp.toFixed(2)}s</strong></span>
+                      <div style={{ display: "flex", gap: "4px" }}>
+                        <button className="btn-step" onClick={() => handleAdjustBreak(b.id, "endTimestamp", -0.1)} style={{ padding: "1px 4px", fontSize: "0.6rem" }}>-0.1s</button>
+                        <button className="btn-step" onClick={() => handleAdjustBreak(b.id, "endTimestamp", 0.1)} style={{ padding: "1px 4px", fontSize: "0.6rem" }}>+0.1s</button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <span style={{ fontSize: "0.65rem", color: "#6b7280", fontStyle: "italic", textAlign: "center" }}>No cierres/breaks calibrated yet.</span>
+            )}
+          </div>
+
           {/* 3. Utility Button Deck */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", marginTop: "4px" }}>
             <button className="btn-touch" onClick={handleSkipIntro} style={{ minHeight: "36px", fontSize: "0.75rem", background: "rgba(255,255,255,0.03)" }}>
@@ -1239,7 +1458,7 @@ export default function App() {
           {/* 4. Save Boundaries Dedicated Button */}
           <button 
             className="btn-diagnose-action" 
-            onClick={handleSaveIntroBoundaries}
+            onClick={handleSaveMetadataAndBreaks}
             style={{
               width: "100%",
               minHeight: "42px",
@@ -1260,10 +1479,10 @@ export default function App() {
               marginTop: "8px",
               transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
             }}
-            title="Save the intro start and end times directly to the JSON configuration file on disk"
+            title="Save the song intro boundaries and calibrated breaks directly to disk"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-            <span>Save Intro Boundaries to Disk</span>
+            <span>Save Song Boundaries & Breaks</span>
           </button>
         </div>
       )}

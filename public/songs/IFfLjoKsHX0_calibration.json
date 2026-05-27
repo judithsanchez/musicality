@@ -1,1 +1,361 @@
-null
+{
+  "recordedAt": "2026-05-27T20:53:37.560Z",
+  "tapCount": 50,
+  "rawTaps": [
+    29.477,
+    32.609,
+    36.175,
+    39.576,
+    43.108,
+    46.741,
+    53.473,
+    57.039,
+    62.206,
+    67.904,
+    72.542,
+    74.808,
+    78.407,
+    83.007,
+    88.373,
+    92.073,
+    93.973,
+    96.938,
+    100.338,
+    103.971,
+    107.97,
+    112.67,
+    116.302,
+    122.901,
+    127.168,
+    130.467,
+    133.467,
+    137.066,
+    141.099,
+    143.965,
+    147.731,
+    151.398,
+    154.764,
+    157.797,
+    161.696,
+    165.229,
+    168.328,
+    171.928,
+    175.195,
+    178.661,
+    182.227,
+    185.66,
+    189.326,
+    193.059,
+    196.492,
+    200.525,
+    203.624,
+    206.99,
+    210.457,
+    213.923
+  ],
+  "reactionDelayMs": 220,
+  "correctedTaps": [
+    29.257,
+    32.389,
+    35.955,
+    39.356,
+    42.888,
+    46.521,
+    53.253,
+    56.819,
+    61.986,
+    67.684,
+    72.322,
+    74.588,
+    78.187,
+    82.787,
+    88.153,
+    91.853,
+    93.753,
+    96.718,
+    100.118,
+    103.751,
+    107.75,
+    112.45,
+    116.082,
+    122.681,
+    126.948,
+    130.247,
+    133.247,
+    136.846,
+    140.879,
+    143.745,
+    147.511,
+    151.178,
+    154.544,
+    157.577,
+    161.476,
+    165.009,
+    168.108,
+    171.708,
+    174.975,
+    178.441,
+    182.007,
+    185.44,
+    189.106,
+    192.839,
+    196.272,
+    200.305,
+    203.404,
+    206.77,
+    210.237,
+    213.703
+  ],
+  "matchedAnchors": [
+    {
+      "correctedTapTime": 29.257,
+      "matchedBeat1": 29.257,
+      "diffMs": 0
+    },
+    {
+      "correctedTapTime": 32.389,
+      "matchedBeat1": 32.606,
+      "diffMs": 217
+    },
+    {
+      "correctedTapTime": 35.955,
+      "matchedBeat1": 35.955,
+      "diffMs": 0
+    },
+    {
+      "correctedTapTime": 39.356,
+      "matchedBeat1": 39.477,
+      "diffMs": 121
+    },
+    {
+      "correctedTapTime": 42.888,
+      "matchedBeat1": 42.999,
+      "diffMs": 111
+    },
+    {
+      "correctedTapTime": 46.521,
+      "matchedBeat1": 46.521,
+      "diffMs": 0
+    },
+    {
+      "correctedTapTime": 53.253,
+      "matchedBeat1": 53.387,
+      "diffMs": 134
+    },
+    {
+      "correctedTapTime": 56.819,
+      "matchedBeat1": 56.819,
+      "diffMs": 0
+    },
+    {
+      "correctedTapTime": 61.986,
+      "matchedBeat1": 60.301,
+      "diffMs": 1685
+    },
+    {
+      "correctedTapTime": 67.684,
+      "matchedBeat1": 67.264,
+      "diffMs": 420
+    },
+    {
+      "correctedTapTime": 72.322,
+      "matchedBeat1": 70.745,
+      "diffMs": 1577
+    },
+    {
+      "correctedTapTime": 74.588,
+      "matchedBeat1": 74.226,
+      "diffMs": 362
+    },
+    {
+      "correctedTapTime": 78.187,
+      "matchedBeat1": 77.708,
+      "diffMs": 479
+    },
+    {
+      "correctedTapTime": 82.787,
+      "matchedBeat1": 81.19,
+      "diffMs": 1597
+    },
+    {
+      "correctedTapTime": 88.153,
+      "matchedBeat1": 88.153,
+      "diffMs": 0
+    },
+    {
+      "correctedTapTime": 91.853,
+      "matchedBeat1": 91.853,
+      "diffMs": 0
+    },
+    {
+      "correctedTapTime": 93.753,
+      "matchedBeat1": 95.314,
+      "diffMs": 1561
+    },
+    {
+      "correctedTapTime": 96.718,
+      "matchedBeat1": 95.314,
+      "diffMs": 1404
+    },
+    {
+      "correctedTapTime": 100.118,
+      "matchedBeat1": 98.775,
+      "diffMs": 1343
+    },
+    {
+      "correctedTapTime": 103.751,
+      "matchedBeat1": 102.237,
+      "diffMs": 1514
+    },
+    {
+      "correctedTapTime": 107.75,
+      "matchedBeat1": 109.159,
+      "diffMs": 1409
+    },
+    {
+      "correctedTapTime": 112.45,
+      "matchedBeat1": 112.62,
+      "diffMs": 170
+    },
+    {
+      "correctedTapTime": 116.082,
+      "matchedBeat1": 116.082,
+      "diffMs": 0
+    },
+    {
+      "correctedTapTime": 122.681,
+      "matchedBeat1": 123.003,
+      "diffMs": 322
+    },
+    {
+      "correctedTapTime": 126.948,
+      "matchedBeat1": 126.464,
+      "diffMs": 484
+    },
+    {
+      "correctedTapTime": 130.247,
+      "matchedBeat1": 129.925,
+      "diffMs": 322
+    },
+    {
+      "correctedTapTime": 133.247,
+      "matchedBeat1": 133.386,
+      "diffMs": 139
+    },
+    {
+      "correctedTapTime": 136.846,
+      "matchedBeat1": 136.846,
+      "diffMs": 0
+    },
+    {
+      "correctedTapTime": 140.879,
+      "matchedBeat1": 140.401,
+      "diffMs": 478
+    },
+    {
+      "correctedTapTime": 143.745,
+      "matchedBeat1": 143.957,
+      "diffMs": 212
+    },
+    {
+      "correctedTapTime": 147.511,
+      "matchedBeat1": 147.511,
+      "diffMs": 0
+    },
+    {
+      "correctedTapTime": 151.178,
+      "matchedBeat1": 150.968,
+      "diffMs": 210
+    },
+    {
+      "correctedTapTime": 154.544,
+      "matchedBeat1": 154.424,
+      "diffMs": 120
+    },
+    {
+      "correctedTapTime": 157.577,
+      "matchedBeat1": 157.882,
+      "diffMs": 305
+    },
+    {
+      "correctedTapTime": 161.476,
+      "matchedBeat1": 161.338,
+      "diffMs": 138
+    },
+    {
+      "correctedTapTime": 165.009,
+      "matchedBeat1": 164.794,
+      "diffMs": 215
+    },
+    {
+      "correctedTapTime": 168.108,
+      "matchedBeat1": 168.252,
+      "diffMs": 144
+    },
+    {
+      "correctedTapTime": 171.708,
+      "matchedBeat1": 171.708,
+      "diffMs": 0
+    },
+    {
+      "correctedTapTime": 174.975,
+      "matchedBeat1": 175.188,
+      "diffMs": 213
+    },
+    {
+      "correctedTapTime": 178.441,
+      "matchedBeat1": 178.667,
+      "diffMs": 226
+    },
+    {
+      "correctedTapTime": 182.007,
+      "matchedBeat1": 182.147,
+      "diffMs": 140
+    },
+    {
+      "correctedTapTime": 185.44,
+      "matchedBeat1": 185.627,
+      "diffMs": 187
+    },
+    {
+      "correctedTapTime": 189.106,
+      "matchedBeat1": 189.106,
+      "diffMs": 0
+    },
+    {
+      "correctedTapTime": 192.839,
+      "matchedBeat1": 192.584,
+      "diffMs": 255
+    },
+    {
+      "correctedTapTime": 196.272,
+      "matchedBeat1": 196.063,
+      "diffMs": 209
+    },
+    {
+      "correctedTapTime": 200.305,
+      "matchedBeat1": 199.541,
+      "diffMs": 764
+    },
+    {
+      "correctedTapTime": 203.404,
+      "matchedBeat1": 203.019,
+      "diffMs": 385
+    },
+    {
+      "correctedTapTime": 206.77,
+      "matchedBeat1": 206.497,
+      "diffMs": 273
+    },
+    {
+      "correctedTapTime": 210.237,
+      "matchedBeat1": 209.976,
+      "diffMs": 261
+    },
+    {
+      "correctedTapTime": 213.703,
+      "matchedBeat1": 213.454,
+      "diffMs": 249
+    }
+  ]
+}

@@ -1355,3 +1355,168 @@ body {
   transform: translateY(1px);
 }
 
+/* Dynamic Next Section Transition Cue Warning Banner */
+.next-section-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(99, 102, 241, 0.15));
+  border: 1px solid rgba(139, 92, 246, 0.35);
+  box-shadow: 0 0 15px rgba(139, 92, 246, 0.15);
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #c084fc;
+  margin-bottom: 16px;
+  animation: bounce-slide 1.5s infinite ease-in-out;
+}
+
+.banner-emoji {
+  font-size: 1.3rem;
+  animation: spin-pulse 2s infinite ease-in-out;
+}
+
+@keyframes bounce-slide {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes spin-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
+}
+
+/* High-Contrast Ice-Glassmorphic Break Freeze Overlay */
+.break-freeze-overlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 6px;
+  background: radial-gradient(circle at 50% 50%, rgba(244, 63, 94, 0.25) 0%, rgba(0, 0, 0, 0.6) 100%);
+  border: 2px dashed rgba(244, 63, 94, 0.45);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(244, 63, 94, 0.15);
+  animation: freeze-pulse-border 2s infinite ease-in-out;
+}
+
+.break-freeze-title {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #fda4af;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-shadow: 0 0 10px rgba(244, 63, 94, 0.5);
+}
+
+.break-freeze-countdown {
+  font-size: 0.75rem;
+  color: #f43f5e;
+  font-weight: 700;
+  background: rgba(244, 63, 94, 0.08);
+  border: 1px solid rgba(244, 63, 94, 0.2);
+  padding: 3px 10px;
+  border-radius: 8px;
+}
+
+@keyframes freeze-pulse-border {
+  0%, 100% {
+    border-color: rgba(244, 63, 94, 0.25);
+    box-shadow: 0 4px 16px rgba(244, 63, 94, 0.05);
+  }
+  50% {
+    border-color: rgba(244, 63, 94, 0.6);
+    box-shadow: 0 4px 24px rgba(244, 63, 94, 0.35);
+  }
+}
+
+/* Dynamic Segmented Roadmap Progress Scrubber Timeline */
+.roadmap-scrubber-wrapper {
+  position: relative;
+  width: 100%;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.roadmap-scrubber-track {
+  position: relative;
+  width: 100%;
+  height: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.roadmap-scrubber-wrapper:hover .roadmap-scrubber-track {
+  height: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Colored segments overlays inside timeline */
+.roadmap-segment {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  pointer-events: none;
+}
+
+.segment-intro {
+  background: rgba(139, 92, 246, 0.25);
+  border-right: 1px solid rgba(139, 92, 246, 0.4);
+}
+
+.segment-break {
+  background: rgba(244, 63, 94, 0.4);
+  border-left: 1px solid rgba(244, 63, 94, 0.6);
+  border-right: 1px solid rgba(244, 63, 94, 0.6);
+}
+
+/* Vertical section markers */
+.roadmap-section-marker {
+  position: absolute;
+  top: 0;
+  width: 2px;
+  height: 100%;
+  background: rgba(56, 189, 248, 0.6);
+  pointer-events: none;
+}
+
+/* Glowing Playhead dot */
+.roadmap-playhead {
+  position: absolute;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #a78bfa;
+  border: 2px solid #fff;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  box-shadow: 0 0 10px rgba(167, 139, 250, 0.8), 0 0 4px #fff;
+  transition: width 0.15s ease, height 0.15s ease;
+}
+
+.roadmap-scrubber-wrapper:hover .roadmap-playhead {
+  width: 16px;
+  height: 16px;
+}
+
