@@ -138,7 +138,7 @@ export default function App() {
   const [breaks, setBreaks] = useState([]);
   const [tempBreakStart, setTempBreakStart] = useState("");
   const [tempBreakEnd, setTempBreakEnd] = useState("");
-  const [bypassShield, setBypassShield] = useState(false);
+
 
   const playerRef = useRef(null);
   const lastSeekTimeRef = useRef(0);
@@ -1196,7 +1196,7 @@ export default function App() {
               Groove resumes in {Math.max(0, activeBreak.endTimestamp - currentTime).toFixed(1)}s
             </div>
           </div>
-        ) : showDiagnostic && rawTaps.length > 0 && !bypassShield ? (
+        ) : showDiagnostic ? (
           <div className="bias-shield-card" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px", padding: "12px 6px" }}>
             <div className="bias-shield-icon" style={{ fontSize: "1.8rem", animation: "pulse 2s infinite" }}>🔒</div>
             <div className="bias-shield-title" style={{ fontSize: "0.95rem", fontWeight: "800", color: "#f3f4f6", letterSpacing: "0.5px" }}>Visual Counts Shielded</div>
@@ -1340,19 +1340,7 @@ export default function App() {
             </span>
           </div>
 
-          {/* 1.5. Audition Bypass Shield Toggle */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px", background: "rgba(255,255,255,0.02)", padding: "8px 12px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.04)" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-              <span style={{ fontSize: "0.8rem", fontWeight: "600", color: "#e5e7eb" }}>Audition Mode (Bypass Shield)</span>
-              <span style={{ fontSize: "0.65rem", color: "#9ca3af" }}>Show pulsing counts even while tapping.</span>
-            </div>
-            <input 
-              type="checkbox" 
-              checked={bypassShield} 
-              onChange={(e) => setBypassShield(e.target.checked)} 
-              style={{ width: "18px", height: "18px", cursor: "pointer", accentColor: "#8b5cf6" }}
-            />
-          </div>
+
 
           {/* 2. Intro Start Marker */}
           <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
