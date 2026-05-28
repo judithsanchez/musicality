@@ -1,6 +1,13 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSyncEngine } from "./hooks/useSyncEngine";
-import { Play, Pause, RotateCcw, Music, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+
+// Subcomponents
+import SongSelector from "./components/SongSelector";
+import ControlBar from "./components/ControlBar";
+import AudioShield from "./components/AudioShield";
+import Visualizer from "./components/Visualizer";
+import GameCanvas from "./components/GameCanvas";
 
 // ==========================================================================
 // Piecewise-Linear Warping Helper Algorithms
@@ -91,7 +98,7 @@ const applyWarpToSections = (originalSections, originalBeats, warpedBeats) => {
     const wLeft = warpedBeats[leftIdx].timestamp;
     const wRight = warpedBeats[rightIdx].timestamp;
 
-    let sNew = wLeft;
+    let sNew;
     const dO = oRight - oLeft;
     
     if (dO > 0) {
@@ -125,7 +132,7 @@ const populateEditorSections = (sections, duration) => {
   });
 };
 
-const convertToDatabaseSections = (editorSecs) => {
+const _convertToDatabaseSections = (editorSecs) => {
   return editorSecs.map(sec => ({
     name: sec.name,
     startTimestamp: parseFloat(parseFloat(sec.startTimestamp).toFixed(3)),
@@ -139,6 +146,9 @@ export default function App() {
   const [editorSections, setEditorSections] = useState([]);
   const [activeEditingSectionId, setActiveEditingSectionId] = useState(null);
   
+  // High-level Learning Mode vs Practice Mode state
+  const [mode, setMode] = useState("learn"); // 'learn' or 'practice'
+
   // Media states
   const [player, setPlayer] = useState(null);
   const [playerState, setPlayerState] = useState(-1); 
@@ -146,7 +156,10 @@ export default function App() {
   const [apiReady, setApiReady] = useState(false);
 
   // Creator Diagnostic & Calibration states
-  const [showDiagnostic, setShowDiagnostic] = useState(false);
+  const [showDiagnostic, setShowDiagnostic] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("dev") === "true";
+  });
   const [originalSongData, setOriginalSongData] = useState(null);
   const [calibratedSongData, setCalibratedSongData] = useState(null);
   const [calibrationStats, setCalibrationStats] = useState(null);
@@ -157,7 +170,6 @@ export default function App() {
   const [toastMessage, setToastMessage] = useState(null);
 
   // Song Selection States
-  const [catalog, setCatalog] = useState([]);
   const [currentSong, setCurrentSong] = useState(null);
   const [loadingSong, setLoadingSong] = useState(false);
   const [introStart, setIntroStart] = useState(0.0);
@@ -166,7 +178,6 @@ export default function App() {
   const [breaks, setBreaks] = useState([]);
   const [tempBreakStart, setTempBreakStart] = useState("");
   const [tempBreakEnd, setTempBreakEnd] = useState("");
-
 
   const playerRef = useRef(null);
   const lastSeekTimeRef = useRef(0);
@@ -204,23 +215,7 @@ export default function App() {
     return sorted[Math.floor(sorted.length / 2)]; // median in seconds
   };
 
-  // 1. Fetch song catalog on startup
-  useEffect(() => {
-    fetch("songs/catalog.json")
-      .then((res) => {
-        if (!res.ok) throw new Error("Catalog fetch failed");
-        return res.json();
-      })
-      .then((data) => {
-        setCatalog(data);
-        console.log("[App] Catalog loaded successfully:", data);
-      })
-      .catch((err) => {
-        console.error("[App] Failed to load catalog JSON:", err);
-      });
-  }, []);
-
-  // 1.5 Sync showDiagnostic to root container width
+  // Sync showDiagnostic to root container width
   useEffect(() => {
     const rootEl = document.getElementById("root");
     if (rootEl) {
@@ -246,6 +241,7 @@ export default function App() {
     setBreaks([]);
     setEditorSections([]);
     setActiveEditingSectionId(null);
+    setMode("learn"); // Reset to Learn Mode
 
     fetch(`songs/${song.youtubeId}.json`)
       .then((res) => {
@@ -273,7 +269,7 @@ export default function App() {
             } else {
               setEditorSections(populateEditorSections(data.sections, duration));
             }
-          } catch (e) {
+          } catch {
             setEditorSections(populateEditorSections(data.sections, duration));
           }
         } else {
@@ -282,6 +278,25 @@ export default function App() {
 
         setCurrentSong(song);
         setLoadingSong(false);
+
+        // Restore backup taps if dev mode is active
+        if (showDiagnostic) {
+          const backup = localStorage.getItem(`armada_raw_taps_${youtubeId}`);
+          if (backup) {
+            try {
+              const parsed = JSON.parse(backup);
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                setRawTaps(parsed);
+                setTimeout(() => {
+                  handleNormalizeBeatmapRef.current(true); // SILENT!
+                }, 400);
+              }
+            } catch (e) {
+              console.warn("Restore backup failed:", e);
+            }
+          }
+        }
+
         console.log("[App] Loaded advanced beatmap successfully for:", data.metadata.songTitle);
       })
       .catch((err) => {
@@ -365,10 +380,16 @@ export default function App() {
     
     // Sync to active song metadata so that saving handles it
     if (songData && songData.metadata) {
-      songData.metadata.introStart = numericVal;
+      setSongData(prev => prev ? {
+        ...prev,
+        metadata: { ...prev.metadata, introStart: numericVal }
+      } : null);
     }
     if (calibratedSongData && calibratedSongData.metadata) {
-      calibratedSongData.metadata.introStart = numericVal;
+      setCalibratedSongData(prev => prev ? {
+        ...prev,
+        metadata: { ...prev.metadata, introStart: numericVal }
+      } : null);
     }
 
     throttledSeek(numericVal, isFinal);
@@ -380,10 +401,16 @@ export default function App() {
     
     // Sync to active song metadata so that saving handles it
     if (songData && songData.metadata) {
-      songData.metadata.introEnd = numericVal;
+      setSongData(prev => prev ? {
+        ...prev,
+        metadata: { ...prev.metadata, introEnd: numericVal }
+      } : null);
     }
     if (calibratedSongData && calibratedSongData.metadata) {
-      calibratedSongData.metadata.introEnd = numericVal;
+      setCalibratedSongData(prev => prev ? {
+        ...prev,
+        metadata: { ...prev.metadata, introEnd: numericVal }
+      } : null);
     }
 
     throttledSeek(numericVal, isFinal);
@@ -403,10 +430,10 @@ export default function App() {
     showToast(`🎯 Intro End set to ${currentPlayhead}s!`);
   };
 
-  // 2. Load the YouTube Player API script dynamically in background
+  // Load the YouTube Player API script dynamically in background
   useEffect(() => {
     if (window.YT && window.YT.Player) {
-      setApiReady(true);
+      setTimeout(() => setApiReady(true), 0);
       return;
     }
 
@@ -421,7 +448,7 @@ export default function App() {
     };
   }, []);
 
-  // 3. Construct YouTube Player when API is ready
+  // Construct YouTube Player when API is ready
   useEffect(() => {
     if (!apiReady || !songData) return;
 
@@ -448,7 +475,6 @@ export default function App() {
           disablekb: 1,
           fs: 0,
           rel: 0,
-          showinfo: 0,
           enablejsapi: 1
         },
         events: {
@@ -488,18 +514,20 @@ export default function App() {
       try {
         const duration = player.getDuration();
         if (duration > 0) {
-          setVideoDuration(duration);
-          console.log(`[App] Synced YouTube Video Duration: ${duration}s`);
+          setTimeout(() => {
+            setVideoDuration(duration);
+            console.log(`[App] Synced YouTube Video Duration: ${duration}s`);
 
-          setEditorSections(prev => {
-            if (prev.length === 0) return prev;
-            return prev.map((sec, idx) => {
-              if (idx === prev.length - 1) {
-                return { ...sec, endTimestamp: duration };
-              }
-              return sec;
+            setEditorSections(prev => {
+              if (prev.length === 0) return prev;
+              return prev.map((sec, idx) => {
+                if (idx === prev.length - 1) {
+                  return { ...sec, endTimestamp: duration };
+                }
+                return sec;
+              });
             });
-          });
+          }, 0);
         }
       } catch (e) {
         console.warn("Error getting player duration:", e);
@@ -507,7 +535,7 @@ export default function App() {
     }
   }, [player, currentSong, playerState]);
 
-  // 4. Hook into the high-precision sync engine
+  // Hook into the high-precision sync engine
   const { currentTime, currentBeat, activeSection, synchronizeAnchors } = useSyncEngine(
     player,
     calibratedSongData || songData,
@@ -517,7 +545,7 @@ export default function App() {
     0  // zero static grid count shift
   );
 
-  // 5. Touch Controller click handlers
+  // Touch Controller click handlers
   const handlePlayToggle = () => {
     try {
       if (!player) return;
@@ -558,23 +586,7 @@ export default function App() {
     }
   };
 
-  const getContainerClass = () => {
-    if (!activeSection) return "";
-    const name = activeSection.name.toLowerCase();
-    if (name.includes("intro")) return "active-intro";
-    if (name.includes("verse") || name.includes("groove")) return "active-verse";
-    if (name.includes("chorus") || name.includes("montuno") || name.includes("mambo")) return "active-montuno";
-    return "";
-  };
-
-  const getSectionColorStyles = () => {
-    if (!activeSection) return {};
-    const name = activeSection.name.toLowerCase();
-    if (name.includes("intro")) return { background: "hsl(var(--salsa-intro-bg))", border: "1px solid hsl(var(--salsa-intro-accent) / 0.15)" };
-    if (name.includes("verse") || name.includes("groove")) return { background: "hsl(var(--salsa-verse-bg))", border: "1px solid hsl(var(--salsa-verse-accent) / 0.15)" };
-    if (name.includes("chorus") || name.includes("montuno") || name.includes("mambo")) return { background: "hsl(var(--salsa-montuno-bg))", border: "1px solid hsl(var(--salsa-montuno-accent) / 0.15)" };
-    return {};
-  };
+  // getContainerClass deleted (defined in Visualizer.jsx)
 
   const isActuallyPlaying = playerState === 1;
 
@@ -592,15 +604,14 @@ export default function App() {
     const baseSong = originalSongData || songData;
     if (!baseSong || !baseSong.beats || baseSong.beats.length === 0) return;
 
-    // 1. Record the raw tap timestamp FIRST — this is the ground truth
+    // Record the raw tap timestamp FIRST
     const newRawTaps = [...rawTaps, tapTime];
     setRawTaps(newRawTaps);
 
-    // 2. Auto-update reaction delay estimate (live, after each tap)
+    // Auto-update reaction delay estimate (live, after each tap)
     const delay = computeReactionDelay(newRawTaps, baseSong.beats);
     setEstimatedDelay(delay);
 
-    const delayMs = delay ? Math.round(delay * 1000) : '?';
     showToast(`🎯 Tap #${newRawTaps.length} recorded!`);
   };
 
@@ -615,7 +626,7 @@ export default function App() {
 
     const delay = userDelaySetting / 1000; // in seconds
 
-    // 1. Compute global shift based on the first tap to align the baseline phase
+    // Compute global shift based on the first tap to align the baseline phase
     const firstTapCorrected = rawTaps[0] - delay;
     const originalBeat1Times = baseSong.beats
       .map((b, idx) => ({ ...b, originalIndex: idx }))
@@ -670,7 +681,7 @@ export default function App() {
       return;
     }
 
-    // 2. Multi-Tap Mode: Piecewise-Linear Warping on the pre-aligned shifted grid
+    // Multi-Tap Mode: Piecewise-Linear Warping on the pre-aligned shifted grid
     const correctedTaps = rawTaps.map(t => t - delay);
 
     // Match each corrected tap to the nearest beat-1 in the pre-aligned grid
@@ -691,7 +702,7 @@ export default function App() {
         }
       }
 
-      if (bestBeat1 && minDiff < 0.400) { // now perfectly in-phase, so easily matches within 400ms!
+      if (bestBeat1 && minDiff < 0.400) {
         matchedPairs.push({
           correctedTime: ct,
           originalTime: bestBeat1.timestamp,
@@ -790,7 +801,9 @@ export default function App() {
     } else {
       console.log(`[Normalization] ${cleanPairs.length}/${rawTaps.length} taps matched. Outliers: ${outlierCount}`);
     }
-  };  const handleResetCalibration = () => {
+  };
+
+  const handleResetCalibration = () => {
     if (originalSongData) {
       setCalibratedSongData(JSON.parse(JSON.stringify(originalSongData)));
     }
@@ -991,7 +1004,6 @@ export default function App() {
       })
       .then(result => {
         if (result.success) {
-          // Update baseline and current states in-memory to reflect saved parameters
           const updatedMap = JSON.parse(JSON.stringify(payload.activeBeatmap));
           setOriginalSongData(updatedMap);
           setSongData(updatedMap);
@@ -1036,7 +1048,6 @@ export default function App() {
       return list;
     });
 
-    // Seek the player so the user gets instant visual playhead feedback
     throttledSeek(numericVal, false);
   };
 
@@ -1192,96 +1203,80 @@ export default function App() {
     showToast("❌ Removed break.");
   };
 
-  const handleAdjustBreak = (id, field, amount) => {
-    const updated = breaks.map(b => {
-      if (b.id === id) {
-        const newVal = parseFloat(Math.max(0, b[field] + amount).toFixed(2));
-        return { ...b, [field]: newVal };
-      }
-      return b;
-    });
-    setBreaks(updated);
-  };
+
 
   const handleHeaderClick = () => {
     headerClicksRef.current += 1;
     if (headerClicksRef.current >= 5) {
-      setShowDiagnostic(prev => !prev);
       headerClicksRef.current = 0;
-      showToast(showDiagnostic ? "🔒 Dev Panel Locked!" : "🛠️ Developer Panel Toggled!");
+      const nextVal = !showDiagnostic;
+      setShowDiagnostic(nextVal);
+      showToast(nextVal ? "🛠️ Developer Panel Toggled!" : "🔒 Dev Panel Locked!");
+
+      if (!nextVal) {
+        setRawTaps([]);
+        setAnchors([]);
+        setCalibrationStats(null);
+        setEstimatedDelay(null);
+      } else {
+        // Restore from LocalStorage
+        if (songData?.metadata?.youtubeId) {
+          const youtubeId = songData.metadata.youtubeId;
+          const backup = localStorage.getItem(`armada_raw_taps_${youtubeId}`);
+          if (backup) {
+            try {
+              const parsed = JSON.parse(backup);
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                setRawTaps(parsed);
+                setTimeout(() => {
+                  handleNormalizeBeatmapRef.current(true); // SILENT!
+                  showToast(`⚡ Restored ${parsed.length} taps from local backup!`);
+                }, 600);
+              }
+            } catch (e) {
+              console.warn("Restore backup failed:", e);
+            }
+          }
+        }
+      }
     }
   };
 
-  // Check URL parameters for ?dev=true to auto-unlock dev features
+  // Toast notification if unlocked via URL on mount
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get("dev") === "true") {
-      setShowDiagnostic(true);
-      showToast("🛠️ Developer Mode Unlocked via URL!");
+      setTimeout(() => {
+        showToast("🛠️ Developer Mode Unlocked via URL!");
+      }, 0);
     }
   }, []);
 
-  // Backup taps to LocalStorage to protect the creator's job!
+  // Backup taps to LocalStorage
   useEffect(() => {
     if (rawTaps.length > 0 && songData?.metadata?.youtubeId) {
       localStorage.setItem(`armada_raw_taps_${songData.metadata.youtubeId}`, JSON.stringify(rawTaps));
     }
   }, [rawTaps, songData]);
 
-  // Restore taps from LocalStorage on initial load / Dev Mode toggle
+  const handleNormalizeBeatmapRef = useRef(handleNormalizeBeatmap);
   useEffect(() => {
-    if (!songData?.metadata?.youtubeId) return;
-    
-    const youtubeId = songData.metadata.youtubeId;
+    handleNormalizeBeatmapRef.current = handleNormalizeBeatmap;
+  });
 
-    if (!showDiagnostic) {
-      // Clear tap state in memory immediately when leaving Dev Mode
-      setRawTaps([]);
-      setAnchors([]);
-      setCalibrationStats(null);
-      setEstimatedDelay(null);
-      return;
-    }
-    
-    // We are in Dev Mode, restore from LocalStorage if there are backup taps
-    const backup = localStorage.getItem(`armada_raw_taps_${youtubeId}`);
-    if (backup) {
-      try {
-        const parsed = JSON.parse(backup);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setRawTaps(parsed);
-          // Wait briefly for songData to load, then normalize to recreate anchors/calibrationStats!
-          setTimeout(() => {
-            handleNormalizeBeatmap(true); // SILENT!
-            showToast(`⚡ Restored ${parsed.length} taps from local backup!`);
-          }, 600);
-        }
-      } catch (e) {
-        console.warn("Restore backup failed:", e);
-      }
-    } else {
-      // If no backup, clear memory anyway just in case
-      setRawTaps([]);
-      setAnchors([]);
-      setCalibrationStats(null);
-      setEstimatedDelay(null);
-    }
-  }, [originalSongData, showDiagnostic]);
-
-  // Auto-Normalization Debounce: Automatically runs the normalization engine in the background
-  // whenever the user pauses the playback, the song ends, or stops tapping for 2 seconds.
+  // Auto-Normalization Debounce
   useEffect(() => {
     if (rawTaps.length === 0) return;
 
-    // 1. If paused, run normalization instantly
     if (!isActuallyPlaying) {
-      handleNormalizeBeatmap(true); // SILENT!
-      return;
+      const timer = setTimeout(() => {
+        handleNormalizeBeatmapRef.current(true);
+      }, 0);
+      return () => clearTimeout(timer);
     }
 
-    // 2. If playing, run normalization after 2 seconds of no new taps (idle-debounce)
     const timer = setTimeout(() => {
-      handleNormalizeBeatmap(true); // SILENT!
+      handleNormalizeBeatmapRef.current(true);
     }, 2000);
 
     return () => clearTimeout(timer);
@@ -1302,40 +1297,11 @@ export default function App() {
     );
   }
 
+  // Render Catalog Selector View
   if (!currentSong) {
     return (
       <div className="app-container" style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-        <div className="catalog-title-wrapper">
-          <h1 className="catalog-title">Salsa Rhythm Hub</h1>
-          <p className="catalog-subtitle">
-            Master the Latin count structure and calibrate micro-timings with absolute auditory precision.
-          </p>
-        </div>
-
-        <div className="catalog-grid">
-          {catalog.map((song) => (
-            <div
-              key={song.id}
-              className="song-card"
-              onClick={() => handleSelectSong(song)}
-            >
-              <div className="song-card-icon-container">
-                <Music size={24} />
-              </div>
-              <div className="song-card-details">
-                <h3 className="song-card-title">{song.songTitle}</h3>
-                <p className="song-card-artist">{song.artist}</p>
-                <div className="song-card-meta">
-                  <span className="badge badge-bpm">{song.bpm} BPM</span>
-                  <span className={`badge badge-${song.difficulty}`}>{song.difficulty}</span>
-                  <span className="badge badge-style">{song.danceStyle} On1</span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-        
-        {/* Floating Toast Notification */}
+        <SongSelector onSelectSong={handleSelectSong} />
         {toastMessage && (
           <div className="toast-notification">
             {toastMessage}
@@ -1345,100 +1311,117 @@ export default function App() {
     );
   }
 
-  // 1. Dynamic Active Break Check
+  // Active Break and Transitions Indicators
   const activeBreak = breaks.find(b => currentTime >= b.startTimestamp && currentTime < b.endTimestamp) || null;
-
-  // 2. Upcoming Transition Countdown
   const sectionsList = songData?.sections || [];
   const nextSection = sectionsList.find(sec => sec.startTimestamp > currentTime) || null;
   const timeToNextSection = nextSection ? nextSection.startTimestamp - currentTime : null;
-  const showTransitionCue = timeToNextSection !== null && timeToNextSection > 0 && timeToNextSection <= 3.0;
 
   return (
     <div className="app-container" style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-      {/* Back button link */}
-      <button className="back-button" onClick={handleBackToCatalog}>
-        <ArrowLeft size={16} />
-        <span>Back to Catalog</span>
-      </button>
+      
+      {/* Upper Navigation & Mode Selector Tabs */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px", gap: "12px", width: "100%" }}>
+        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+          <button className="back-button" onClick={handleBackToCatalog} style={{ margin: 0 }}>
+            <ArrowLeft size={16} />
+            <span>Back</span>
+          </button>
+          {currentTime < introEnd && (
+            <button 
+              className="btn-step" 
+              onClick={handleSkipIntro}
+              style={{ 
+                margin: 0, 
+                padding: "6px 12px",
+                fontSize: "0.75rem",
+                background: "linear-gradient(135deg, #a78bfa, #8b5cf6)", 
+                color: "#fff", 
+                fontWeight: "700",
+                boxShadow: "0 4px 12px rgba(139, 92, 246, 0.2)",
+                animation: "pulse 2s infinite"
+              }}
+            >
+              ⏩ Skip Intro
+            </button>
+          )}
+        </div>
 
-      {/* 1. Header Section */}
-      <header className="header glass-panel" onClick={handleHeaderClick} style={{ cursor: "pointer" }} title="Click 5 times for Developer Panel">
+        {/* Learning vs Practice Tabs */}
+        <div className="mode-tabs-container" style={{ margin: 0, flexGrow: 1, maxWidth: "300px" }}>
+          <button 
+            className={`mode-tab-btn ${mode === "learn" ? "active" : ""}`}
+            onClick={() => setMode("learn")}
+          >
+            🎓 Learn
+          </button>
+          <button 
+            className={`mode-tab-btn ${mode === "practice" ? "active" : ""}`}
+            onClick={() => setMode("practice")}
+          >
+            🎯 Play
+          </button>
+        </div>
+      </div>
+
+      {/* Header Section */}
+      <header 
+        className="header glass-panel" 
+        onClick={handleHeaderClick} 
+        style={{ cursor: "pointer" }} 
+        title="Click 5 times for Developer Panel"
+      >
         <h1 className="song-title">
           {songData ? songData.metadata.songTitle : "Salsa Rhythm Hub"}
         </h1>
         <p className="song-artist">
-          {songData ? `${songData.metadata.artist} — ${songData.metadata.danceStyle.toUpperCase()} On1` : "Ear-Training Visualizer"}
+          {songData ? `${songData.metadata.artist} — ${songData.metadata.danceStyle.toUpperCase()}` : "Ear-Training Visualizer"}
         </p>
       </header>
 
-      {/* Main workspace layout wrapper */}
+      {/* Main workspace layout */}
       <div className={showDiagnostic ? "dev-workspace-layout" : "normal-workspace-layout"}>
 
-        {/* Left Column: Player, visualizer tracker, scrubber, public tapping deck */}
+        {/* Left Workspace Column: Video, Tapping/Flash decks, bottom touchbars */}
         <div className="left-workspace-column">
-          {/* 5. Media Player Display */}
+          
+          {/* Defensive IFrame Player & Overlay Protection */}
           <div className="video-wrapper">
             <div key={songData?.metadata?.youtubeId || "yt-player"} id="yt-player"></div>
-            <div className="touch-shield" onClick={handlePlayToggle}></div>
+            <AudioShield onPlayToggle={handlePlayToggle} />
           </div>
 
-          {/* 7. Beats Pulse Tracker (8 neon counts / Bias Shield) */}
-          <div className="glass-panel" style={{ padding: "20px 10px" }}>
-            {activeBreak ? (
-              <div className="break-freeze-overlay">
-                <div className="break-freeze-title">
-                  <span>❄️ HOLD POSE / BREAK</span>
-                </div>
-                <div className="break-freeze-countdown">
-                  Groove resumes in {Math.max(0, activeBreak.endTimestamp - currentTime).toFixed(1)}s
-                </div>
-              </div>
-            ) : showDiagnostic ? (
-              <div className="bias-shield-card" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px", padding: "12px 6px" }}>
-                <div className="bias-shield-icon" style={{ fontSize: "1.8rem", animation: "pulse 2s infinite" }}>🔒</div>
-                <div className="bias-shield-title" style={{ fontSize: "0.95rem", fontWeight: "800", color: "#f3f4f6", letterSpacing: "0.5px" }}>Visual Counts Shielded</div>
-                <div className="bias-shield-text" style={{ fontSize: "0.75rem", color: "#9ca3af", textAlign: "center", maxWidth: "280px" }}>
-                  Visual counts hidden to guarantee absolute auditory rhythm mapping.
-                </div>
-                <div className="bias-shield-counter" style={{ fontSize: "0.8rem", fontWeight: "800", color: rawTaps.length >= 50 ? "#10b981" : "#a78bfa", marginTop: "4px", background: "rgba(255,255,255,0.03)", padding: "4px 12px", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.06)" }}>
-                  {rawTaps.length >= 50 ? `✅ Ready: ${rawTaps.length} Taps` : `⚡ Progress: ${rawTaps.length} / 50 Taps`}
-                </div>
-              </div>
-            ) : (
-              <div className="beats-container">
-                {[1, 2, 3, 4, 5, 6, 7, 8].map((beatNum) => {
-                  const isBachata = songData?.metadata?.danceStyle === "bachata";
-                  let canLight, isGold;
-                  if (isBachata) {
-                    canLight = true;
-                    isGold = beatNum === 4 || beatNum === 8;
-                  } else {
-                    canLight = beatNum === 1 || beatNum === 3 || beatNum === 5;
-                    isGold = beatNum === 1 || beatNum === 5;
-                  }
-                  const isActive = canLight && currentTime >= introEnd && currentBeat && currentBeat.beat === beatNum;
-                  const isPause = !isBachata && (beatNum === 4 || beatNum === 8);
-                  return (
-                    <div
-                      key={beatNum}
-                      className={`beat-circle ${isPause ? "beat-pause" : ""}${isActive ? (isGold ? " accent-gold" : " accent-cyan") : ""}`}
-                    >
-                      <span>{beatNum}</span>
-                      {isBachata && (beatNum === 4 || beatNum === 8) && (
-                        <span className="beat-label" style={{ fontSize: "0.55rem", opacity: 0.8, color: "hsl(var(--accent-gold))" }}>TAP</span>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
+          {/* Dynamic Interface: Learn Mode beats pulses OR Practice Mode gamified tapping zone */}
+          {mode === "practice" ? (
+            <GameCanvas 
+              key={calibratedSongData?.metadata?.youtubeId || songData?.metadata?.youtubeId}
+              songData={calibratedSongData || songData}
+              currentTime={currentTime}
+              isPlaying={isActuallyPlaying}
+              onPlayToggle={handlePlayToggle}
+            />
+          ) : (
+            <Visualizer 
+              danceStyle={songData?.metadata?.danceStyle || "salsa"}
+              currentTime={currentTime}
+              introEnd={introEnd}
+              currentBeat={currentBeat}
+              activeSection={activeSection}
+              activeBreak={activeBreak}
+            />
+          )}
 
-          {/* 7.3. Segmented Roadmap Progress Scrubber */}
-          <div className="glass-panel" style={{ padding: "14px 16px", marginBottom: "16px" }}>
+          {/* Segmented Roadmap Progress Scrubber */}
+          <div className="glass-panel" style={{ padding: "14px 16px", marginBottom: "0px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.75rem", fontWeight: "600", color: "#9ca3af", marginBottom: "8px" }}>
-              <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>Song Roadmap</span>
+              <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                Song Roadmap
+                {nextSection && timeToNextSection <= 10 && (
+                  <span style={{ fontSize: "0.65rem", color: "#fb7185", marginLeft: "8px", fontWeight: "bold" }}>
+                    ➡️ {nextSection.name} in {timeToNextSection.toFixed(1)}s
+                  </span>
+                )}
+              </span>
               <span style={{ color: "#a78bfa" }}>
                 {Math.floor(currentTime / 60)}:{(Math.floor(currentTime % 60)).toString().padStart(2, "0")} / {Math.floor(videoDuration / 60)}:{(Math.floor(videoDuration % 60)).toString().padStart(2, "0")}
               </span>
@@ -1454,7 +1437,7 @@ export default function App() {
                   throttledSeek(targetTime, true);
                 }}
               >
-                {/* 1. Dynamic Intro Highlight Segment */}
+                {/* Dynamic Intro Highlight Segment */}
                 <div 
                   className="roadmap-segment segment-intro"
                   style={{
@@ -1464,7 +1447,7 @@ export default function App() {
                   title="Song Intro Region"
                 ></div>
 
-                {/* 2. Dynamic Section markers */}
+                {/* Dynamic Section markers */}
                 {(showDiagnostic ? editorSections : sectionsList).map((sec, idx) => (
                   <div
                     key={idx}
@@ -1474,7 +1457,7 @@ export default function App() {
                   ></div>
                 ))}
 
-                {/* 3. Dynamic Breaks highlight segments */}
+                {/* Dynamic Breaks highlight segments */}
                 {breaks.map((b) => (
                   <div
                     key={b.id}
@@ -1487,7 +1470,7 @@ export default function App() {
                   ></div>
                 ))}
 
-                {/* 4. Glowing Playhead Handle */}
+                {/* Glowing Playhead Handle */}
                 <div 
                   className="roadmap-playhead"
                   style={{ left: `${(currentTime / videoDuration) * 100}%` }}
@@ -1496,26 +1479,16 @@ export default function App() {
             </div>
           </div>
 
-          {/* 8. Custom bottom touch controls (Simplified Play/Pause Only) */}
-          <div className="glass-panel" style={{ padding: "16px" }}>
-            <div className="controls-panel">
-              <button className="btn-touch btn-play" onClick={handlePlayToggle} style={{ width: "100%", flex: "none" }}>
-                {isActuallyPlaying ? (
-                  <>
-                    <Pause size={20} fill="#fff" />
-                    <span>Pause Song</span>
-                  </>
-                ) : (
-                  <>
-                    <Play size={20} fill="#fff" />
-                    <span>Play Song</span>
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
+          {/* Unified Touch Controlbar */}
+          <ControlBar 
+            isActuallyPlaying={isActuallyPlaying}
+            onPlayToggle={handlePlayToggle}
+            playbackRate={playbackRate}
+            onSpeedChange={handleSpeedChange}
+            onRewind={handleRewind}
+          />
 
-          {/* 7.5. Public Tapping Deck (Clean & Sleek for Tappers) */}
+          {/* Public Tapping Deck (Diagnostic downbeats calibrator helper) */}
           {showDiagnostic && (
             <div className="glass-panel" style={{ padding: "16px", display: "flex", flexDirection: "column", gap: "12px", alignItems: "center" }}>
               <button
@@ -1605,6 +1578,7 @@ export default function App() {
             </div>
           )}
         </div>
+
         {/* Right Column: Developer Calibration Panel */}
         {showDiagnostic && (
           <div className="glass-panel dev-panel right-workspace-column">
@@ -1617,6 +1591,10 @@ export default function App() {
                 <button 
                   onClick={() => {
                     setShowDiagnostic(false);
+                    setRawTaps([]);
+                    setAnchors([]);
+                    setCalibrationStats(null);
+                    setEstimatedDelay(null);
                     showToast("🔒 Dev Panel Locked!");
                   }}
                   style={{ background: "rgba(239, 68, 68, 0.15)", border: "1px solid rgba(239, 68, 68, 0.3)", color: "#f87171", padding: "2px 8px", borderRadius: "6px", fontSize: "0.7rem", fontWeight: "700", cursor: "pointer", transition: "all 0.2s ease" }}
@@ -1627,7 +1605,156 @@ export default function App() {
               </div>
             </div>
 
-            {/* Song Sections Editor — Intro pinned at top, then all song sections */}
+            {/* Calibration Stats Card */}
+            {calibrationStats && (
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px", borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "12px" }}>
+                <span style={{ fontSize: "0.8rem", fontWeight: "800", color: "#10b981", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                  📊 Calibration Stats
+                </span>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", background: "rgba(16, 185, 129, 0.05)", padding: "10px", borderRadius: "10px", border: "1px solid rgba(16, 185, 129, 0.15)", fontSize: "0.75rem" }}>
+                  <div style={{ display: "flex", flexDirection: "column" }}>
+                    <span style={{ color: "#9ca3af", fontSize: "0.65rem" }}>Total Taps</span>
+                    <span style={{ fontWeight: "700", color: "#fff" }}>{calibrationStats.totalTaps}</span>
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column" }}>
+                    <span style={{ color: "#9ca3af", fontSize: "0.65rem" }}>Matched Taps</span>
+                    <span style={{ fontWeight: "700", color: "#34d399" }}>{calibrationStats.matchedTaps}</span>
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column" }}>
+                    <span style={{ color: "#9ca3af", fontSize: "0.65rem" }}>Outliers</span>
+                    <span style={{ fontWeight: "700", color: "#f87171" }}>{calibrationStats.outliersCount}</span>
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column" }}>
+                    <span style={{ color: "#9ca3af", fontSize: "0.65rem" }}>Median Diff</span>
+                    <span style={{ fontWeight: "700", color: "#60a5fa" }}>{calibrationStats.medianDiffMs}ms</span>
+                  </div>
+                  {estimatedDelay !== null && (
+                    <div style={{ display: "flex", flexDirection: "column" }}>
+                      <span style={{ color: "#9ca3af", fontSize: "0.65rem" }}>Est. Reaction Delay</span>
+                      <span style={{ fontWeight: "700", color: "#fb923c" }}>{Math.round(estimatedDelay * 1000)}ms</span>
+                    </div>
+                  )}
+                  {anchors.length > 0 && (
+                    <div style={{ display: "flex", flexDirection: "column" }}>
+                      <span style={{ color: "#9ca3af", fontSize: "0.65rem" }}>Warp Anchors</span>
+                      <span style={{ fontWeight: "700", color: "#fbbf24" }}>{anchors.length} active</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Reaction Delay Config */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "6px", borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "12px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem", fontWeight: "800", color: "#a78bfa", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                <span>Reaction Delay</span>
+                <span>{userDelaySetting}ms</span>
+              </div>
+              <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                <input 
+                  type="range" 
+                  min="0" 
+                  max="500" 
+                  step="10" 
+                  value={userDelaySetting}
+                  onChange={(e) => setUserDelaySetting(parseInt(e.target.value))}
+                  style={{ flexGrow: 1, accentColor: "#a78bfa" }}
+                />
+              </div>
+              <span style={{ fontSize: "0.6rem", color: "#6b7280", fontStyle: "italic" }}>
+                Compensates for reaction lag when tapping counts.
+              </span>
+            </div>
+
+            {/* Calibration Action buttons */}
+            <div style={{ display: "flex", gap: "8px", marginTop: "12px", borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "12px" }}>
+              <button 
+                className="btn-step" 
+                onClick={handleResetCalibration} 
+                style={{ flexGrow: 1, padding: "8px 12px", fontSize: "0.75rem", fontWeight: "700", background: "rgba(239, 68, 68, 0.15)", border: "1px solid rgba(239, 68, 68, 0.3)", color: "#f87171" }}
+              >
+                🔄 Reset Calibration Grid
+              </button>
+            </div>
+
+            {/* JSON Export actions */}
+            <div style={{ display: "flex", gap: "8px", marginTop: "8px" }}>
+              <button 
+                className="btn-step" 
+                onClick={handleCopyCalibratedJson} 
+                style={{ flexGrow: 1, padding: "6px 10px", fontSize: "0.7rem", fontWeight: "700", background: "rgba(255, 255, 255, 0.05)", border: "1px solid rgba(255, 255, 255, 0.1)", color: "#fff" }}
+                title="Copy current calibrated beatmap JSON to clipboard"
+              >
+                📋 Copy JSON
+              </button>
+              <button 
+                className="btn-step" 
+                onClick={handleDownloadCalibratedJson} 
+                style={{ flexGrow: 1, padding: "6px 10px", fontSize: "0.7rem", fontWeight: "700", background: "rgba(255, 255, 255, 0.05)", border: "1px solid rgba(255, 255, 255, 0.1)", color: "#fff" }}
+                title="Download calibrated beatmap as a JSON file"
+              >
+                💾 Download JSON
+              </button>
+            </div>
+
+            {/* Cierre Breaks Editor */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px", borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "12px" }}>
+              <span style={{ fontSize: "0.8rem", fontWeight: "800", color: "#f43f5e", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                ❄️ Cierre Breaks Editor
+              </span>
+              
+              <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+                <div style={{ display: "flex", flexDirection: "column", flexGrow: 1, gap: "4px" }}>
+                  <div style={{ display: "flex", gap: "4px" }}>
+                    <input 
+                      type="text" 
+                      placeholder="Start (s)" 
+                      value={tempBreakStart}
+                      onChange={(e) => setTempBreakStart(e.target.value)}
+                      style={{ width: "100%", padding: "4px 8px", fontSize: "0.75rem", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.1)", background: "rgba(0,0,0,0.2)", color: "#fff" }}
+                    />
+                    <button className="btn-dev-sync" style={{ padding: "4px 8px", fontSize: "0.65rem", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }} onClick={handleMarkBreakStart} title="Mark break start">Mark</button>
+                  </div>
+                  <div style={{ display: "flex", gap: "4px" }}>
+                    <input 
+                      type="text" 
+                      placeholder="End (s)" 
+                      value={tempBreakEnd}
+                      onChange={(e) => setTempBreakEnd(e.target.value)}
+                      style={{ width: "100%", padding: "4px 8px", fontSize: "0.75rem", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.1)", background: "rgba(0,0,0,0.2)", color: "#fff" }}
+                    />
+                    <button className="btn-dev-sync" style={{ padding: "4px 8px", fontSize: "0.65rem", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }} onClick={handleMarkBreakEnd} title="Mark break end">Mark</button>
+                  </div>
+                </div>
+                <button 
+                  className="btn-step" 
+                  onClick={handleAddNewBreak}
+                  style={{ height: "48px", background: "rgba(244, 63, 94, 0.15)", border: "1px solid rgba(244, 63, 94, 0.3)", color: "#f43f5e", fontSize: "0.7rem", fontWeight: "700" }}
+                >
+                  ➕ Add
+                </button>
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: "4px", maxHeight: "120px", overflowY: "auto", background: "rgba(0,0,0,0.1)", padding: "6px", borderRadius: "8px" }}>
+                {breaks.map((b) => (
+                  <div key={b.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "0.65rem", padding: "4px 6px", borderRadius: "4px", background: "rgba(255,255,255,0.03)" }}>
+                    <span style={{ color: "#e5e7eb" }}>❄️ {b.startTimestamp.toFixed(2)}s - {b.endTimestamp.toFixed(2)}s</span>
+                    <button 
+                      onClick={() => handleDeleteBreak(b.id)}
+                      style={{ background: "none", border: "none", color: "#f87171", cursor: "pointer", fontSize: "0.75rem" }}
+                      title="Delete break"
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                ))}
+                {breaks.length === 0 && (
+                  <span style={{ fontSize: "0.6rem", color: "#6b7280", fontStyle: "italic", textAlign: "center" }}>No cierre breaks set.</span>
+                )}
+              </div>
+            </div>
+
+            {/* Song Sections Editor */}
             <div style={{ display: "flex", flexDirection: "column", gap: "8px", borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "12px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <span style={{ fontSize: "0.8rem", fontWeight: "800", color: "#38bdf8", textTransform: "uppercase", letterSpacing: "0.5px" }}>
@@ -1644,7 +1771,7 @@ export default function App() {
 
               <div style={{ display: "flex", flexDirection: "column", gap: "8px", background: "rgba(255,255,255,0.02)", padding: "8px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.04)" }}>
 
-                {/* ── Pinned Intro section ── */}
+                {/* Pinned Intro section */}
                 {(() => {
                   const introId = "__intro__";
                   const isEditingIntro = activeEditingSectionId === introId;
@@ -1723,7 +1850,7 @@ export default function App() {
                   );
                 })()}
 
-                {/* ── Song sections ── */}
+                {/* Song sections */}
                 {editorSections.map((sec) => {
                   const isEditing = activeEditingSectionId === sec.id;
                   return (
@@ -1850,7 +1977,7 @@ export default function App() {
         )}
       </div>
 
-      {/* 9. Floating Toast Notification */}
+      {/* Floating Toast Notification */}
       {toastMessage && (
         <div className="toast-notification">
           {toastMessage}
