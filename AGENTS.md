@@ -67,8 +67,13 @@ To prevent timing regressions and type mismatches, enforce the following type co
 
 ## 6. Git Hygiene & AI Agent Guidelines
 - **TDD (Test-Driven Development)**: Utilize TDD for all core calculations (scoring, timing filters, and grid shift mathematics). Write unit tests *before* writing execution code.
+- **Package Safety**:
+  - Use `pnpm` only. Do not use `npm` or `yarn`.
+  - AI agents must not run dependency installs, package-manager commands, dev-server commands, or build/test commands that may download packages, rewrite `pnpm-lock.yaml`, modify `package.json`, mutate `node_modules`, or otherwise change dependency state without stopping first and notifying the user.
+  - When package state might change, provide the exact command for the user to run or explicitly approve. Package additions/upgrades must use exact versions and happen as deliberate, separate commands.
 - **Git Hygiene**:
   - **Branching Policy**: All work must be performed on dedicated feature branches. Branch names must strictly mention the issue number and title in lowercase separated by hyphens, following the pattern: `issue-[number]-[hyphenated-issue-title]` (e.g., `issue-3-typescript-environment-setup`).
+  - **Codex Branch Discipline**: Codex must never make implementation changes directly on `main`. Before editing code, tests, workflow files, or project configuration, Codex must create or switch to the correct issue-scoped branch/worktree branch, verify it with `git branch --show-current`, and keep all task changes isolated there.
   - Keep test scripts and XML dumps ignored.
   - Allow production beatmaps under `/public/songs/` to be committed by ensuring `.gitignore` unignores them explicitly:
     ```git
@@ -94,4 +99,3 @@ To prevent timing regressions and type mismatches, enforce the following type co
 ## 9. Production Bundler Stripping
 - **Zero Leakage**: All dev-only calibrator components must be loaded dynamically via conditional lazy loading using `import.meta.env.VITE_DEV_MODE === 'true'`.
 - **Tree-Shaking Validation**: During `vite build`, verify that the resulting static JS bundles do not contain any dev calibration UI templates or tap-matching calculations.
-
