@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useSyncEngine } from "./hooks/useSyncEngine";
 import { ArrowLeft } from "lucide-react";
+import { isDevMode } from "./config/env";
 
 // Subcomponents
 import SongSelector from "./components/SongSelector";
@@ -155,11 +156,7 @@ export default function App() {
   const [playbackRate, setPlaybackRate] = useState(1.0);
   const [apiReady, setApiReady] = useState(false);
 
-  // Creator Diagnostic & Calibration states
-  const [showDiagnostic, setShowDiagnostic] = useState(() => {
-    const params = new URLSearchParams(window.location.search);
-    return params.get("dev") === "true";
-  });
+  const [showDiagnostic, setShowDiagnostic] = useState(false);
   const [originalSongData, setOriginalSongData] = useState(null);
   const [calibratedSongData, setCalibratedSongData] = useState(null);
   const [calibrationStats, setCalibrationStats] = useState(null);
@@ -1206,6 +1203,10 @@ export default function App() {
 
 
   const handleHeaderClick = () => {
+    if (!isDevMode) {
+      return;
+    }
+
     headerClicksRef.current += 1;
     if (headerClicksRef.current >= 5) {
       headerClicksRef.current = 0;
@@ -1245,8 +1246,9 @@ export default function App() {
   // Toast notification if unlocked via URL on mount
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (params.get("dev") === "true") {
+    if (isDevMode && params.get("dev") === "true") {
       setTimeout(() => {
+        setShowDiagnostic(true);
         showToast("🛠️ Developer Mode Unlocked via URL!");
       }, 0);
     }
