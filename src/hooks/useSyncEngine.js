@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 
 export function useSyncEngine(player, songData, localAudioRef, useLocalAudio, latencyOffset = 0, gridShift = 0) {
   const [currentTime, setCurrentTime] = useState(0);
@@ -26,7 +26,7 @@ export function useSyncEngine(player, songData, localAudioRef, useLocalAudio, la
   }, [songData]);
 
   // Synchronize state trigger: resets anchors when play state changes for YT
-  const synchronizeAnchors = () => {
+  const synchronizeAnchors = useCallback(() => {
     if (useLocalAudio) {
       const audio = localAudioRef.current;
       if (audio) {
@@ -43,7 +43,7 @@ export function useSyncEngine(player, songData, localAudioRef, useLocalAudio, la
     playbackRateRef.current = ytPlayer.getPlaybackRate ? ytPlayer.getPlaybackRate() : 1;
     isPlayingRef.current = ytPlayer.getPlayerState ? ytPlayer.getPlayerState() === 1 : false; 
     lastDriftCheckRef.current = performance.now();
-  };
+  }, [useLocalAudio, localAudioRef]);
 
   // 1. Mobile background sleep control (Page Visibility API)
   useEffect(() => {
@@ -56,7 +56,9 @@ export function useSyncEngine(player, songData, localAudioRef, useLocalAudio, la
           } else if (playerRef.current && typeof playerRef.current.pauseVideo === "function") {
             playerRef.current.pauseVideo();
           }
-        } catch (e) {}
+        } catch {
+          // ignore player pause error
+        }
         isPlayingRef.current = false;
       } else {
         console.log("[SyncEngine] Tab returned to view: Triggering complete resync.");
@@ -69,7 +71,7 @@ export function useSyncEngine(player, songData, localAudioRef, useLocalAudio, la
     return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [useLocalAudio, localAudioRef]);
+  }, [useLocalAudio, localAudioRef, synchronizeAnchors]);
 
   // 2. Setup periodic sync updates and frame loop
   useEffect(() => {
@@ -109,7 +111,9 @@ export function useSyncEngine(player, songData, localAudioRef, useLocalAudio, la
         } else if (ytPlayer) {
           try {
             elapsed = ytPlayer.getCurrentTime() || 0;
-          } catch (e) {}
+          } catch {
+            // ignore player timing fetch error
+          }
         }
       }
 
@@ -202,7 +206,7 @@ export function useSyncEngine(player, songData, localAudioRef, useLocalAudio, la
     }, 200);
 
     return () => clearInterval(statePollInterval);
-  }, [player, useLocalAudio]);
+  }, [player, useLocalAudio, synchronizeAnchors]);
 
   return {
     currentTime,
