@@ -1,5 +1,6 @@
-import { useState, useEffect, useRef, lazy, Suspense } from "react";
+import { useState, useEffect, useRef, useCallback, lazy, Suspense } from "react";
 import { useSyncEngine } from "./hooks/useSyncEngine";
+import { adaptToAgnosticSong } from "./utils/schemaAdapter";
 import { ArrowLeft } from "lucide-react";
 import { isDevMode } from "./config/env";
 
@@ -12,6 +13,7 @@ import GameCanvas from "./components/GameCanvas";
 import RoadmapScrubber from "./components/RoadmapScrubber";
 import CalibrationTapDeck from "./components/CalibrationTapDeck";
 import DevCalibrationPanel from "./components/DevCalibrationPanel";
+import DevDashboard from "./components/DevDashboard";
 
 const DevCalibrator = lazy(() => {
   if (isDevMode) {
@@ -154,9 +156,11 @@ const _convertToDatabaseSections = (editorSecs) => {
 };
 
 export default function App() {
+  const isInitialRestoreRef = useRef(true);
   const [songData, setSongData] = useState(null);
   const [editorSections, setEditorSections] = useState([]);
   const [activeEditingSectionId, setActiveEditingSectionId] = useState(null);
+  const [viewingDevDashboard, setViewingDevDashboard] = useState(false);
   
   // High-level Learning Mode vs Practice Mode state
   const [mode, setMode] = useState("learn"); // 'learn' or 'practice'
@@ -191,6 +195,14 @@ export default function App() {
   const lastSeekTimeRef = useRef(0);
   const seekThrottleTimeoutRef = useRef(null);
   const headerClicksRef = useRef(0);
+
+  const [ytPlayerMountedVal, setYtPlayerMountedVal] = useState(0);
+  const ytPlayerRefCallback = useCallback((node) => {
+    if (node) {
+      console.log("[App] yt-player DOM element mounted!");
+      setYtPlayerMountedVal(prev => prev + 1);
+    }
+  }, []);
 
   // Helper to show modern fading glass toast notifications
   const showToast = (msg) => {
@@ -235,6 +247,97 @@ export default function App() {
     }
   }, [showDiagnostic]);
 
+  // GITHUB PAGES WORKAROUND (see issue #25):
+  // Vite injects BASE_URL at build time: '/' locally, '/armada-movement/' on GitHub Pages.
+  // The router must strip this prefix before matching routes and re-prepend it when
+  // calling pushState, because window.location.pathname includes the base on GH Pages.
+  // If hosting moves to Netlify/Vercel/etc with server-side rewrites, remove this
+  // variable and all BASE references below, and delete public/404.html + the ?p= script
+  // in index.html. Tracked: https://github.com/judithsanchez/armada-movement/issues/25
+  const BASE = (import.meta.env.BASE_URL || '/').replace(/\/$/, ''); // strip trailing slash
+
+  // 1. Sync React state → browser URL (pathname-based, base-aware)
+  useEffect(() => {
+    if (isInitialRestoreRef.current) {
+      return;
+    }
+    let targetPath;
+    if (viewingDevDashboard) {
+      targetPath = BASE + "/dashboard";
+    } else if (currentSong) {
+      targetPath = showDiagnostic
+        ? `${BASE}/song/${currentSong.youtubeId}/calibrate`
+        : `${BASE}/song/${currentSong.youtubeId}`;
+    } else {
+      targetPath = BASE + "/" || "/";
+    }
+
+    if (window.location.pathname !== targetPath) {
+      window.history.pushState(null, "", targetPath);
+    }
+  }, [viewingDevDashboard, currentSong, showDiagnostic]);
+
+  // 2. Restore state from URL on mount + handle browser back/forward
+  useEffect(() => {
+    const handleNavigationRestore = () => {
+      // Strip base prefix to get the route segment
+      const rawPath = window.location.pathname;
+      const route = rawPath.startsWith(BASE) ? rawPath.slice(BASE.length) || '/' : rawPath;
+
+      // /dashboard
+      if (route === "/dashboard") {
+        setViewingDevDashboard(true);
+        setCurrentSong(null);
+        setShowDiagnostic(false);
+        isInitialRestoreRef.current = false;
+        return;
+      }
+
+      // /song/:youtubeId  or  /song/:youtubeId/calibrate
+      const songMatch = route.match(/^\/song\/([^/]+)(\/calibrate)?$/);
+      if (songMatch) {
+        const songId = songMatch[1];
+        const calibrate = Boolean(songMatch[2]);
+        setViewingDevDashboard(false);
+
+        if (!currentSong || currentSong.youtubeId !== songId) {
+          fetch(import.meta.env.BASE_URL + "songs/catalog.json")
+            .then(res => res.json())
+            .then(catalog => {
+              const matched = catalog.find(s => s.youtubeId === songId);
+              if (matched) {
+                handleSelectSong(matched);
+                if (calibrate) setShowDiagnostic(true);
+              } else {
+                // Song not found — fall back to root
+                window.history.replaceState(null, "", BASE + "/" || "/");
+                setCurrentSong(null);
+              }
+              isInitialRestoreRef.current = false;
+            })
+            .catch(err => {
+              console.error("[Navigation] Catalog restore failed:", err);
+              isInitialRestoreRef.current = false;
+            });
+        } else {
+          setShowDiagnostic(calibrate);
+          isInitialRestoreRef.current = false;
+        }
+        return;
+      }
+
+      // / or anything else → catalog
+      setViewingDevDashboard(false);
+      setCurrentSong(null);
+      setShowDiagnostic(false);
+      isInitialRestoreRef.current = false;
+    };
+
+    handleNavigationRestore();
+    window.addEventListener("popstate", handleNavigationRestore);
+    return () => window.removeEventListener("popstate", handleNavigationRestore);
+  }, [currentSong]);
+
   const handleSelectSong = (song) => {
     setLoadingSong(true);
     
@@ -251,39 +354,20 @@ export default function App() {
     setActiveEditingSectionId(null);
     setMode("learn"); // Reset to Learn Mode
 
-    fetch(`songs/${song.youtubeId}.json`)
+    fetch(import.meta.env.BASE_URL + `songs/${song.youtubeId}.json`)
       .then((res) => {
         if (!res.ok) throw new Error("Beatmap load failed");
         return res.json();
       })
       .then((data) => {
-        setSongData(data);
-        setOriginalSongData(JSON.parse(JSON.stringify(data)));
-        setCalibratedSongData(JSON.parse(JSON.stringify(data)));
+        const adapted = adaptToAgnosticSong(data);
+        setSongData(adapted);
+        setOriginalSongData(JSON.parse(JSON.stringify(adapted)));
+        setCalibratedSongData(JSON.parse(JSON.stringify(adapted)));
         setIntroStart(data.metadata?.introStart || 0.0);
         setIntroEnd(data.metadata?.introEnd || 0.0);
         setBreaks(data.breaks || []);
         
-        // Populate editor sections from LocalStorage or song JSON
-        const youtubeId = song.youtubeId;
-        const duration = data.metadata?.duration || 300.0;
-        const backupSections = localStorage.getItem(`armada_sections_${youtubeId}`);
-        if (backupSections) {
-          try {
-            const parsed = JSON.parse(backupSections);
-            if (Array.isArray(parsed) && parsed.length > 0) {
-              setEditorSections(parsed);
-              console.log("[App] Restored sections from LocalStorage backup.");
-            } else {
-              setEditorSections(populateEditorSections(data.sections, duration));
-            }
-          } catch {
-            setEditorSections(populateEditorSections(data.sections, duration));
-          }
-        } else {
-          setEditorSections(populateEditorSections(data.sections, duration));
-        }
-
         setCurrentSong(song);
         setLoadingSong(false);
 
@@ -514,7 +598,7 @@ export default function App() {
         setPlayer(null);
       }
     };
-  }, [apiReady, songData]);
+  }, [apiReady, songData, ytPlayerMountedVal]);
 
   // Dynamic Duration Sync: query player's duration once ready
   useEffect(() => {
@@ -1038,12 +1122,6 @@ export default function App() {
       });
   };
 
-  // Backup sections to LocalStorage
-  useEffect(() => {
-    if (editorSections.length > 0 && songData?.metadata?.youtubeId) {
-      localStorage.setItem(`armada_sections_${songData.metadata.youtubeId}`, JSON.stringify(editorSections));
-    }
-  }, [editorSections, songData]);
 
   const handleUpdateSectionTimes = (id, field, value) => {
     const numericVal = parseFloat(parseFloat(value).toFixed(2));
@@ -1165,11 +1243,6 @@ export default function App() {
   const handleDeleteSection = (id) => {
     const updated = editorSections.filter(sec => sec.id !== id);
     setEditorSections(updated);
-    
-    // Save to LocalStorage immediately
-    if (songData?.metadata?.youtubeId) {
-      localStorage.setItem(`armada_sections_${songData.metadata.youtubeId}`, JSON.stringify(updated));
-    }
     
     // Sync to disk
     handleSaveSectionsToDiskDirect(updated);
@@ -1321,8 +1394,30 @@ export default function App() {
         </header>
         <div className="glass-panel loading-container">
           <div className="loading-spinner"></div>
-          <div style={{ fontWeight: 600, color: "#a78bfa" }}>Loading Beatmap...</div>
+          <div style={{ fontWeight: 600, color: "#e5e7eb" }}>Loading Beatmap...</div>
         </div>
+      </div>
+    );
+  }
+
+  // Render Developer Dashboard View
+  if (viewingDevDashboard) {
+    return (
+      <div className="app-container" style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+        <DevDashboard 
+          onBack={() => setViewingDevDashboard(false)} 
+          onIngestSuccess={(song) => {
+            setViewingDevDashboard(false);
+            handleSelectSong(song);
+            setShowDiagnostic(true);
+            showToast("🚀 Ingestion successful! Calibration workbench opened.");
+          }} 
+        />
+        {toastMessage && (
+          <div className="toast-notification">
+            {toastMessage}
+          </div>
+        )}
       </div>
     );
   }
@@ -1331,7 +1426,10 @@ export default function App() {
   if (!currentSong) {
     return (
       <div className="app-container" style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-        <SongSelector onSelectSong={handleSelectSong} />
+        <SongSelector 
+          onSelectSong={handleSelectSong} 
+          onOpenDevDashboard={isDevMode ? () => setViewingDevDashboard(true) : null}
+        />
         {toastMessage && (
           <div className="toast-notification">
             {toastMessage}
@@ -1350,49 +1448,27 @@ export default function App() {
   return (
     <div className="app-container" style={{ display: "flex", flexDirection: "column", height: "100%" }}>
       
-      {/* Upper Navigation & Mode Selector Tabs */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px", gap: "12px", width: "100%" }}>
-        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-          <button className="back-button" onClick={handleBackToCatalog} style={{ margin: 0 }}>
-            <ArrowLeft size={16} />
-            <span>Back</span>
-          </button>
-          {currentTime < introEnd && (
-            <button 
-              className="btn-step" 
-              onClick={handleSkipIntro}
-              style={{ 
-                margin: 0, 
-                padding: "6px 12px",
-                fontSize: "0.75rem",
-                background: "linear-gradient(135deg, #a78bfa, #8b5cf6)", 
-                color: "#fff", 
-                fontWeight: "700",
-                boxShadow: "0 4px 12px rgba(139, 92, 246, 0.2)",
-                animation: "pulse 2s infinite"
-              }}
-            >
-              ⏩ Skip Intro
-            </button>
-          )}
-        </div>
-
-        {/* Learning vs Practice Tabs */}
-        <div className="mode-tabs-container" style={{ margin: 0, flexGrow: 1, maxWidth: "300px" }}>
+      {/* Upper Navigation & Skip Intro */}
+      {currentTime < introEnd && (
+        <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "16px", width: "100%" }}>
           <button 
-            className={`mode-tab-btn ${mode === "learn" ? "active" : ""}`}
-            onClick={() => setMode("learn")}
+            className="btn-step" 
+            onClick={handleSkipIntro}
+            style={{ 
+              margin: 0, 
+              padding: "6px 12px",
+              fontSize: "0.75rem",
+              background: "linear-gradient(135deg, #ffffff, #d1d5db)", 
+              color: "#000000", 
+              fontWeight: "800",
+              boxShadow: "0 4px 12px rgba(255, 255, 255, 0.25)",
+              animation: "pulse 2s infinite"
+            }}
           >
-            🎓 Learn
-          </button>
-          <button 
-            className={`mode-tab-btn ${mode === "practice" ? "active" : ""}`}
-            onClick={() => setMode("practice")}
-          >
-            🎯 Play
+            ⏩ Skip Intro
           </button>
         </div>
-      </div>
+      )}
 
       {/* Header Section */}
       <header 
@@ -1410,58 +1486,55 @@ export default function App() {
       </header>
 
       {/* Main workspace layout */}
-      <div className={showDiagnostic ? "dev-workspace-layout" : "normal-workspace-layout"}>
+      <div className={showDiagnostic ? "dev-workspace-layout-full" : "normal-workspace-layout"}>
         {showDiagnostic ? (
-          <>
-            {/* Left Workspace Column: Video player ONLY */}
-            <div className="left-workspace-column">
-              {/* Defensive IFrame Player & Overlay Protection */}
-              <div className="video-wrapper">
-                <div key={songData?.metadata?.youtubeId || "yt-player"} id="yt-player"></div>
-                <AudioShield onPlayToggle={handlePlayToggle} />
-              </div>
+          <Suspense fallback={
+            <div className="glass-panel loading-container" style={{ minHeight: "300px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+              <div className="loading-spinner"></div>
+              <div style={{ fontWeight: 600, color: "#e5e7eb" }}>Loading Calibration Workbench...</div>
             </div>
-
-            {/* Right Column: Secure DevCalibrator */}
-            <Suspense fallback={
-              <div className="glass-panel loading-container" style={{ minHeight: "300px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-                <div className="loading-spinner"></div>
-                <div style={{ fontWeight: 600, color: "#a78bfa" }}>Loading Calibration Workbench...</div>
-              </div>
-            }>
-              <DevCalibrator
-                songData={songData}
-                originalSongData={originalSongData}
-                calibratedSongData={calibratedSongData}
-                setCalibratedSongData={setCalibratedSongData}
-                setSongData={setSongData}
-                setOriginalSongData={setOriginalSongData}
-                breaks={breaks}
-                setBreaks={setBreaks}
-                currentTime={currentTime}
-                videoDuration={videoDuration}
-                player={player}
-                throttledSeek={throttledSeek}
-                userDelaySetting={userDelaySetting}
-                setUserDelaySetting={setUserDelaySetting}
-                onBackToCatalog={() => {
-                  setShowDiagnostic(false);
-                  setRawTaps([]);
-                  setAnchors([]);
-                  setCalibrationStats(null);
-                  setEstimatedDelay(null);
-                  showToast("🔒 Dev Panel Locked!");
-                }}
-                showToast={showToast}
-              />
-            </Suspense>
-          </>
+          }>
+            <DevCalibrator
+              songData={songData}
+              originalSongData={originalSongData}
+              calibratedSongData={calibratedSongData}
+              setCalibratedSongData={setCalibratedSongData}
+              setSongData={setSongData}
+              setOriginalSongData={setOriginalSongData}
+              breaks={breaks}
+              setBreaks={setBreaks}
+              currentTime={currentTime}
+              videoDuration={videoDuration}
+              player={player}
+              throttledSeek={throttledSeek}
+              userDelaySetting={userDelaySetting}
+              setUserDelaySetting={setUserDelaySetting}
+              onBackToCatalog={() => {
+                setShowDiagnostic(false);
+                setRawTaps([]);
+                setAnchors([]);
+                setCalibrationStats(null);
+                setEstimatedDelay(null);
+                showToast("🔒 Dev Panel Locked!");
+              }}
+              showToast={showToast}
+              videoElement={
+                <div className="left-workspace-column" style={{ margin: 0, width: "100%" }}>
+                  {/* Defensive IFrame Player & Overlay Protection */}
+                  <div className="video-wrapper">
+                    <div key={songData?.metadata?.youtubeId || "yt-player"} id="yt-player" ref={ytPlayerRefCallback}></div>
+                    <AudioShield onPlayToggle={handlePlayToggle} />
+                  </div>
+                </div>
+              }
+            />
+          </Suspense>
         ) : (
           <div className="left-workspace-column">
               
             {/* Defensive IFrame Player & Overlay Protection */}
             <div className="video-wrapper">
-              <div key={songData?.metadata?.youtubeId || "yt-player"} id="yt-player"></div>
+              <div key={songData?.metadata?.youtubeId || "yt-player"} id="yt-player" ref={ytPlayerRefCallback}></div>
               <AudioShield onPlayToggle={handlePlayToggle} />
             </div>
 
@@ -1482,6 +1555,7 @@ export default function App() {
                 currentBeat={currentBeat}
                 activeSection={activeSection}
                 activeBreak={activeBreak}
+                isPlaying={isActuallyPlaying}
               />
             )}
 
@@ -1494,7 +1568,7 @@ export default function App() {
               nextSection={nextSection}
               timeToNextSection={timeToNextSection}
               showDiagnostic={showDiagnostic}
-              editorSections={editorSections}
+              editorSections={sectionsList}
               sectionsList={sectionsList}
               breaks={breaks}
               onSeek={throttledSeek}

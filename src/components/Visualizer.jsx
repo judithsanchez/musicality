@@ -6,7 +6,8 @@ export default function Visualizer({
   introEnd = 0,
   currentBeat = null,
   activeSection = null,
-  activeBreak = null
+  activeBreak = null,
+  isPlaying = false
 }) {
   
   // Helper to map section name to CSS class
@@ -25,20 +26,7 @@ export default function Visualizer({
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "16px", marginBottom: "16px" }}>
       
-      {/* 1. Structural Section Reminder Banner */}
-      {activeSection && (
-        <div className={`section-banner ${getContainerClass()}`}>
-          <span className="banner-emoji">{activeSection.emoji || "🎵"}</span>
-          <span style={{ textTransform: "uppercase", fontSize: "0.85rem", letterSpacing: "0.5px" }}>
-            {activeSection.name}
-            {activeSection.focus && (
-              <strong style={{ marginLeft: "8px", color: "rgba(255,255,255,0.9)" }}>
-                 — Focus: {activeSection.focus}
-              </strong>
-            )}
-          </span>
-        </div>
-      )}
+
 
       {/* 2. Beats Pulsing Track */}
       <div className="glass-panel" style={{ padding: "20px 10px", margin: 0 }}>
@@ -71,6 +59,7 @@ export default function Visualizer({
               }
 
               const isActive = 
+                isPlaying &&
                 canLight && 
                 currentTime >= introEnd && 
                 currentBeat && 
@@ -78,18 +67,42 @@ export default function Visualizer({
 
               const isPause = !isBachata && (beatNum === 4 || beatNum === 8);
 
+              let highlightStyle = {};
+              if (isActive) {
+                if (isGold) {
+                  // Marked downbeats (brighter, white background, black text, huge outer white glow, scaled up)
+                  highlightStyle = {
+                    background: "#ffffff",
+                    color: "#000000",
+                    borderColor: "#ffffff",
+                    boxShadow: "0 0 28px 8px rgba(255, 255, 255, 0.95), inset 0 0 8px rgba(255, 255, 255, 0.5)",
+                    transform: "scale(1.15)",
+                    transition: "all 0.08s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+                  };
+                } else {
+                  // Other active counts (dimmer white background, white text, subtle glow, smaller scale)
+                  highlightStyle = {
+                    background: "rgba(255, 255, 255, 0.25)",
+                    color: "#ffffff",
+                    borderColor: "rgba(255, 255, 255, 0.5)",
+                    boxShadow: "0 0 14px 2px rgba(255, 255, 255, 0.35)",
+                    transform: "scale(1.05)",
+                    transition: "all 0.08s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+                  };
+                }
+              }
+
               return (
                 <div
                   key={beatNum}
-                  className={`beat-circle ${isPause ? "beat-pause" : ""}${
-                    isActive ? (isGold ? " accent-gold" : " accent-cyan") : ""
-                  }`}
+                  className={`beat-circle ${isPause ? "beat-pause" : ""}`}
+                  style={highlightStyle}
                 >
                   <span>{beatNum}</span>
                   {isBachata && (beatNum === 4 || beatNum === 8) && (
                     <span 
                       className="beat-label" 
-                      style={{ fontSize: "0.55rem", opacity: 0.8, color: "hsl(var(--accent-gold))" }}
+                      style={{ fontSize: "0.55rem", opacity: 0.8, color: isActive ? (isGold ? "#000000" : "rgba(255, 255, 255, 0.8)") : "rgba(255, 255, 255, 0.4)" }}
                     >
                       TAP
                     </span>

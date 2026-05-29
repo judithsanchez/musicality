@@ -46,9 +46,25 @@ An interactive, serverless ear-training tool and rhythm game designed for Salsa 
 ## Commands
 
 ### Setup
+
+#### 1. Frontend & Core Environment
 ```bash
 pnpm install
 ```
+
+#### 2. Ingestion Pipeline & Audio Analysis (Python 3.9+ & FFmpeg)
+To use the **Developer Ingestion Console** for uploading and automatically analyzing new tracks via our advanced Salsa-AI signal-processing engine, you must install the system audio decoders and the Python Signal Processing stack:
+
+1. **Install FFmpeg (System audio decoder)**:
+   * **macOS (via Homebrew)**: `brew install ffmpeg`
+   * **Windows**: Download and add FFmpeg to your system PATH.
+   * **Linux (Ubuntu/Debian)**: `sudo apt update && sudo apt install ffmpeg`
+
+2. **Install Python Packages**:
+   ```bash
+   pip3 install -r requirements.txt
+   ```
+*(FFmpeg is strictly required by the `librosa` decoding backend to decompress and load compressed formats like MP3/MP4 natively on your system.)*
 
 ### Run Locally (Dev Server)
 ```bash

@@ -2,3 +2,4 @@ numpy
 scipy
 librosa
 aubio
+scikit-learn

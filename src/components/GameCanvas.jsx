@@ -162,14 +162,14 @@ export default function GameCanvas({
         
         {/* Score Card */}
         <div style={{ display: "flex", flexDirection: "column" }}>
-          <span style={{ fontSize: "0.7rem", fontWeight: 800, color: "#a78bfa", textTransform: "uppercase", letterSpacing: "0.5px" }}>Score</span>
-          <span style={{ fontSize: "1.3rem", fontWeight: 800, color: "#fff", fontFamily: "monospace" }}>{score.toString().padStart(6, "0")}</span>
+          <span style={{ fontSize: "0.7rem", fontWeight: 800, color: "#a1a1aa", textTransform: "uppercase", letterSpacing: "0.5px" }}>Score</span>
+          <span style={{ fontSize: "1.3rem", fontWeight: 800, color: "#ffffff", fontFamily: "monospace" }}>{score.toString().padStart(6, "0")}</span>
         </div>
 
         {/* Combo Card */}
         <div style={{ display: "flex", flexDirection: "column", borderLeft: "1px solid rgba(255,255,255,0.08)", borderRight: "1px solid rgba(255,255,255,0.08)" }}>
-          <span style={{ fontSize: "0.7rem", fontWeight: 800, color: "#38bdf8", textTransform: "uppercase", letterSpacing: "0.5px" }}>Combo</span>
-          <span style={{ fontSize: "1.3rem", fontWeight: 800, color: combo > 0 ? "#38bdf8" : "#fff" }}>
+          <span style={{ fontSize: "0.7rem", fontWeight: 800, color: "#a1a1aa", textTransform: "uppercase", letterSpacing: "0.5px" }}>Combo</span>
+          <span style={{ fontSize: "1.3rem", fontWeight: 800, color: "#ffffff" }}>
             {combo}
             <span style={{ fontSize: "0.65rem", color: "#6b7280", fontWeight: 400, marginLeft: "4px" }}>
               (Max {maxCombo})
@@ -179,8 +179,8 @@ export default function GameCanvas({
 
         {/* Multiplier Card */}
         <div style={{ display: "flex", flexDirection: "column" }}>
-          <span style={{ fontSize: "0.7rem", fontWeight: 800, color: "#fbbf24", textTransform: "uppercase", letterSpacing: "0.5px" }}>Multiplier</span>
-          <span style={{ fontSize: "1.3rem", fontWeight: 800, color: multiplier > 1 ? "#fbbf24" : "#fff", textShadow: multiplier > 1 ? "0 0 10px rgba(251, 191, 36, 0.4)" : "none" }}>
+          <span style={{ fontSize: "0.7rem", fontWeight: 800, color: "#a1a1aa", textTransform: "uppercase", letterSpacing: "0.5px" }}>Multiplier</span>
+          <span style={{ fontSize: "1.3rem", fontWeight: 800, color: "#ffffff", textShadow: multiplier > 1 ? "0 0 10px rgba(255, 255, 255, 0.4)" : "none" }}>
             {multiplier}x
           </span>
         </div>
@@ -202,8 +202,8 @@ export default function GameCanvas({
           userSelect: "none",
           position: "relative",
           margin: 0,
-          background: "radial-gradient(circle, rgba(139,92,246,0.08) 0%, rgba(15,12,30,0.6) 100%)",
-          border: "1.5px dashed rgba(139, 92, 246, 0.3)",
+          background: "radial-gradient(circle, rgba(255,255,255,0.04) 0%, rgba(9,9,11,0.85) 100%)",
+          border: "1.5px dashed #27272a",
           borderRadius: "24px",
           transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
         }}
@@ -216,20 +216,20 @@ export default function GameCanvas({
             width: "160px",
             height: "160px",
             borderRadius: "50%",
-            border: "4px solid rgba(139, 92, 246, 0.5)",
+            border: "4px solid #27272a",
             display: "flex",
             flexDirection: "column",
             justifyContent: "center",
             alignItems: "center",
             boxShadow: combo > 0 
-              ? `0 0 ${Math.min(40, 10 + combo)}px rgba(139, 92, 246, 0.4)`
+              ? `0 0 ${Math.min(40, 10 + combo)}px rgba(255, 255, 255, 0.35)`
               : "0 0 15px rgba(255, 255, 255, 0.05)",
             background: "rgba(0, 0, 0, 0.4)",
             transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)"
           }}
         >
           <span style={{ fontSize: "1.2rem", fontWeight: 800, color: "#fff", letterSpacing: "1px" }}>TAP HERE</span>
-          <span style={{ fontSize: "0.6rem", color: "#a78bfa", marginTop: "4px", textTransform: "uppercase" }}>Blind Rhythm Mode</span>
+          <span style={{ fontSize: "0.6rem", color: "#a1a1aa", marginTop: "4px", textTransform: "uppercase" }}>Blind Rhythm Mode</span>
         </div>
 
         {/* Real-time Hit feedback Popups */}

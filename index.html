@@ -4,7 +4,37 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>tmp-vite</title>
+    <title>Salsa Rhythm Hub</title>
+    <script>
+      /**
+       * GITHUB PAGES SPA ROUTING WORKAROUND — Part 2 of 2
+       * ─────────────────────────────────────────────────────────────────────
+       * This is the receiving end of the redirect initiated by public/404.html.
+       *
+       * How it works:
+       *   When GitHub Pages serves 404.html for an unknown path, that file
+       *   redirects to /?p=<encoded-path>. This script runs before React
+       *   mounts, reads the ?p= query param, and calls history.replaceState()
+       *   to silently restore the original URL. React and the router then
+       *   see the correct pathname as if no redirect ever happened.
+       *
+       * Long-term fix needed:
+       *   If hosting moves to a platform with server-side rewrite support
+       *   (Netlify, Vercel, Cloudflare Pages), remove this script block AND
+       *   public/404.html entirely — they are only needed for GitHub Pages.
+       *   See also: the BASE variable and base-stripping logic in App.jsx.
+       *
+       * Tracked in: https://github.com/judithsanchez/armada-movement/issues/25
+       * ─────────────────────────────────────────────────────────────────────
+       */
+      (function () {
+        var p = new URLSearchParams(window.location.search).get('p');
+        if (p) {
+          var base = '/armada-movement';
+          window.history.replaceState(null, '', base + p);
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
