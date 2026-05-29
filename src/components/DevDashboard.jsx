@@ -177,7 +177,7 @@ export default function DevDashboard({ onBack, onIngestSuccess }) {
           gap: "8px",
           background: "none",
           border: "none",
-          color: "#a78bfa",
+          color: "#ffffff",
           fontSize: "0.9rem",
           fontWeight: "bold",
           cursor: "pointer",
@@ -188,7 +188,7 @@ export default function DevDashboard({ onBack, onIngestSuccess }) {
         <ArrowLeft size={16} /> Back to Song Library
       </button>
 
-      <div className="glass-panel" style={{ padding: "30px", borderRadius: "20px", border: "1px solid rgba(139, 92, 246, 0.3)", background: "rgba(10, 5, 20, 0.75)", backdropFilter: "blur(12px)" }}>
+      <div className="glass-panel" style={{ padding: "30px", borderRadius: "20px", border: "1px solid #27272a", background: "rgba(9, 9, 11, 0.85)", backdropFilter: "blur(12px)" }}>
         <h2 style={{ margin: "0 0 8px 0", fontSize: "1.5rem", fontWeight: "900", color: "#fff", display: "flex", alignItems: "center", gap: "10px" }}>
           🚀 Developer Ingestion Console
         </h2>
@@ -249,7 +249,7 @@ export default function DevDashboard({ onBack, onIngestSuccess }) {
                 ) : null}
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                <label style={{ fontSize: "0.75rem", fontWeight: "bold", color: "#c084fc", textTransform: "uppercase" }}>Difficulty</label>
+                  <label style={{ fontSize: "0.75rem", fontWeight: "bold", color: "#ffffff", textTransform: "uppercase" }}>Difficulty</label>
                 <select 
                   value={difficulty} 
                   onChange={(e) => setDifficulty(e.target.value)}
@@ -264,8 +264,8 @@ export default function DevDashboard({ onBack, onIngestSuccess }) {
 
             {/* Legal Embed Preview Check iframe (Instantly highlights third-party restrictions) */}
             {youtubeId && (
-              <div style={{ display: "flex", flexDirection: "column", gap: "6px", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(139, 92, 246, 0.2)", padding: "14px", borderRadius: "12px" }}>
-                <span style={{ fontSize: "0.7rem", fontWeight: "900", color: "#a78bfa", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px", background: "rgba(255,255,255,0.02)", border: "1px solid #27272a", padding: "14px", borderRadius: "12px" }}>
+                <span style={{ fontSize: "0.7rem", fontWeight: "900", color: "#ffffff", textTransform: "uppercase", letterSpacing: "0.5px" }}>
                   📺 Legal Embed Verification Preview
                 </span>
                 <iframe
@@ -328,13 +328,13 @@ export default function DevDashboard({ onBack, onIngestSuccess }) {
                 />
                 {audioFile ? (
                   <>
-                    <FileAudio size={36} style={{ color: "#34d399" }} />
-                    <span style={{ fontSize: "0.9rem", color: "#34d399", fontWeight: "bold" }}>{audioFile.name}</span>
+                    <FileAudio size={36} style={{ color: "#ffffff" }} />
+                    <span style={{ fontSize: "0.9rem", color: "#ffffff", fontWeight: "bold" }}>{audioFile.name}</span>
                     <span style={{ fontSize: "0.75rem", color: "#6b7280" }}>Click or drop another file to replace</span>
                   </>
                 ) : (
                   <>
-                    <Upload size={36} style={{ color: "#a78bfa" }} />
+                    <Upload size={36} style={{ color: "#ffffff" }} />
                     <span style={{ fontSize: "0.9rem", color: "#e5e7eb", fontWeight: "bold" }}>Drag & Drop MP3 file here</span>
                     <span style={{ fontSize: "0.75rem", color: "#6b7280" }}>Or click to browse your files</span>
                   </>
@@ -346,15 +346,15 @@ export default function DevDashboard({ onBack, onIngestSuccess }) {
             <button 
               type="submit"
               style={{
-                background: "linear-gradient(135deg, #a78bfa, #8b5cf6)",
+                background: "linear-gradient(135deg, #ffffff, #d1d5db)",
                 border: "none",
                 borderRadius: "12px",
-                color: "#fff",
+                color: "#000000",
                 padding: "12px 24px",
                 fontSize: "0.95rem",
                 fontWeight: "900",
                 cursor: "pointer",
-                boxShadow: "0 4px 15px rgba(139, 92, 246, 0.3)",
+                boxShadow: "0 4px 15px rgba(255, 255, 255, 0.15)",
                 transition: "all 0.2s ease",
                 marginTop: "10px",
                 display: "flex",
@@ -371,32 +371,32 @@ export default function DevDashboard({ onBack, onIngestSuccess }) {
           <div style={{ display: "flex", flexDirection: "column", gap: "20px", padding: "20px 10px", alignItems: "center", textAlign: "center" }}>
             {status === "uploading" && (
               <>
-                <Loader2 className="animate-spin" size={48} style={{ color: "#a78bfa" }} />
+                <Loader2 className="animate-spin" size={48} style={{ color: "#ffffff" }} />
                 <div style={{ width: "100%", background: "rgba(255,255,255,0.05)", borderRadius: "10px", height: "12px", overflow: "hidden", border: "1px solid rgba(255,255,255,0.1)" }}>
-                  <div style={{ width: `${progress}%`, background: "linear-gradient(90deg, #a78bfa, #8b5cf6)", height: "100%", transition: "width 0.2s ease" }}></div>
+                  <div style={{ width: `${progress}%`, background: "#ffffff", height: "100%", transition: "width 0.2s ease" }}></div>
                 </div>
               </>
             )}
 
             {status === "analyzing" && (
-              <Loader2 className="animate-spin" size={48} style={{ color: "#fb923c" }} />
+              <Loader2 className="animate-spin" size={48} style={{ color: "#ffffff" }} />
             )}
 
             {status === "success" && (
-              <CheckCircle size={48} style={{ color: "#34d399" }} />
+              <CheckCircle size={48} style={{ color: "#ffffff" }} />
             )}
 
             {status === "error" && (
-              <AlertTriangle size={48} style={{ color: "#f87171" }} />
+              <AlertTriangle size={48} style={{ color: "#a1a1aa" }} />
             )}
 
             <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-              <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: "bold", color: status === "error" ? "#f87171" : status === "success" ? "#34d399" : "#fff" }}>
+              <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: "bold", color: "#ffffff" }}>
                 {statusMessage}
               </h3>
               {status === "error" ? (
                 <>
-                  <p style={{ margin: "4px 0 16px 0", fontSize: "0.85rem", color: "#ef4444", background: "rgba(239, 68, 68, 0.08)", padding: "10px 14px", borderRadius: "8px", border: "1px solid rgba(239, 68, 68, 0.2)", wordBreak: "break-word" }}>
+                  <p style={{ margin: "4px 0 16px 0", fontSize: "0.85rem", color: "#e5e7eb", background: "rgba(255, 255, 255, 0.02)", padding: "10px 14px", borderRadius: "8px", border: "1px solid #27272a", wordBreak: "break-word" }}>
                     {errorMessage}
                   </p>
                   <button 

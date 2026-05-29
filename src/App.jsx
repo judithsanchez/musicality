@@ -1394,7 +1394,7 @@ export default function App() {
         </header>
         <div className="glass-panel loading-container">
           <div className="loading-spinner"></div>
-          <div style={{ fontWeight: 600, color: "#a78bfa" }}>Loading Beatmap...</div>
+          <div style={{ fontWeight: 600, color: "#e5e7eb" }}>Loading Beatmap...</div>
         </div>
       </div>
     );
@@ -1458,10 +1458,10 @@ export default function App() {
               margin: 0, 
               padding: "6px 12px",
               fontSize: "0.75rem",
-              background: "linear-gradient(135deg, #a78bfa, #8b5cf6)", 
-              color: "#fff", 
-              fontWeight: "700",
-              boxShadow: "0 4px 12px rgba(139, 92, 246, 0.2)",
+              background: "linear-gradient(135deg, #ffffff, #d1d5db)", 
+              color: "#000000", 
+              fontWeight: "800",
+              boxShadow: "0 4px 12px rgba(255, 255, 255, 0.25)",
               animation: "pulse 2s infinite"
             }}
           >
@@ -1491,7 +1491,7 @@ export default function App() {
           <Suspense fallback={
             <div className="glass-panel loading-container" style={{ minHeight: "300px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
               <div className="loading-spinner"></div>
-              <div style={{ fontWeight: 600, color: "#a78bfa" }}>Loading Calibration Workbench...</div>
+              <div style={{ fontWeight: 600, color: "#e5e7eb" }}>Loading Calibration Workbench...</div>
             </div>
           }>
             <DevCalibrator

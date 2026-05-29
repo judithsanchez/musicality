@@ -52,7 +52,7 @@ export default function SongSelector({ onSelectSong, onOpenDevDashboard }) {
     return (
       <div className="glass-panel loading-container" style={{ padding: "40px", textAlign: "center" }}>
         <div className="loading-spinner"></div>
-        <div style={{ marginTop: "12px", fontWeight: 600, color: "#a78bfa" }}>Loading Catalog...</div>
+        <div style={{ marginTop: "12px", fontWeight: 600, color: "#e5e7eb" }}>Loading Catalog...</div>
       </div>
     );
   }

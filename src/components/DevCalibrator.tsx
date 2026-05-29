@@ -42,12 +42,12 @@ interface EditorSection {
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const SECTION_PALETTE = [
-  { bg: "rgba(59,130,246,0.30)",  border: "#3b82f6", text: "#93c5fd" },
-  { bg: "rgba(168,85,247,0.30)",  border: "#a855f7", text: "#d8b4fe" },
-  { bg: "rgba(20,184,166,0.30)",  border: "#14b8a6", text: "#5eead4" },
-  { bg: "rgba(236,72,153,0.30)",  border: "#ec4899", text: "#f9a8d4" },
-  { bg: "rgba(251,146,60,0.30)",  border: "#fb923c", text: "#fdba74" },
-  { bg: "rgba(34,197,94,0.30)",   border: "#22c55e", text: "#86efac" },
+  { bg: "rgba(255,255,255,0.04)",  border: "rgba(255,255,255,0.12)", text: "#9ca3af" },
+  { bg: "rgba(255,255,255,0.08)",  border: "rgba(255,255,255,0.22)", text: "#d1d5db" },
+  { bg: "rgba(255,255,255,0.12)",  border: "rgba(255,255,255,0.32)", text: "#e5e7eb" },
+  { bg: "rgba(255,255,255,0.06)",  border: "rgba(255,255,255,0.17)", text: "#a1a1aa" },
+  { bg: "rgba(255,255,255,0.10)",  border: "rgba(255,255,255,0.27)", text: "#f3f4f6" },
+  { bg: "rgba(255,255,255,0.14)",  border: "rgba(255,255,255,0.37)", text: "#ffffff" },
 ];
 
 const BEAT_COUNT_OPTIONS: { value: BeatCountType; label: string }[] = [
@@ -572,7 +572,7 @@ export default function DevCalibrator({
       style={{
         display: "flex", flexDirection: "column", gap: "24px",
         padding: "24px", width: "100%",
-        border: "1px solid rgba(139,92,246,0.3)",
+        border: "1px solid #27272a",
         background: "rgba(9,9,11,0.85)",
         backdropFilter: "blur(12px)", borderRadius: "20px",
         fontFamily: "inherit",
@@ -591,16 +591,16 @@ export default function DevCalibrator({
               className={tapFlash ? "active-flash" : ""}
               style={{
                 padding: "20px 16px",
-                background: "linear-gradient(135deg,rgba(139,92,246,0.08),rgba(99,102,241,0.03))",
-                border: `2px solid ${tapFlash ? "#8b5cf6" : "rgba(139,92,246,0.35)"}`,
+                background: "rgba(255,255,255,0.02)",
+                border: `2px solid ${tapFlash ? "#ffffff" : "#27272a"}`,
                 borderRadius: "16px",
                 display: "flex", flexDirection: "column", gap: "14px", alignItems: "center",
-                boxShadow: tapFlash ? "0 0 36px rgba(139,92,246,0.28)" : "none",
+                boxShadow: tapFlash ? "0 0 36px rgba(255,255,255,0.35)" : "none",
                 transition: "all 0.08s ease",
               }}
             >
               <div style={{
-                fontSize: "0.7rem", fontWeight: 700, color: "#a78bfa",
+                fontSize: "0.7rem", fontWeight: 700, color: "#a1a1aa",
                 textTransform: "uppercase", letterSpacing: "0.5px",
               }}>
                 🎧 Tap Calibration — {activeSec?.name}
@@ -610,8 +610,8 @@ export default function DevCalibrator({
                 onClick={handleTap}
                 style={{
                   width: "100%", height: "90px", borderRadius: "14px",
-                  border: `2px solid ${tapFlash ? "#a78bfa" : "#8b5cf6"}`,
-                  background: tapFlash ? "linear-gradient(135deg,#a78bfa,#8b5cf6)" : "rgba(139,92,246,0.1)",
+                  border: `2px solid ${tapFlash ? "#ffffff" : "#3f3f46"}`,
+                  background: tapFlash ? "#ffffff" : "rgba(255,255,255,0.04)",
                   cursor: "pointer",
                   display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "4px",
                   transition: "all 0.08s ease",
@@ -620,17 +620,17 @@ export default function DevCalibrator({
                 <span style={{ fontSize: "1.35rem", fontWeight: 900, color: tapFlash ? "#000" : "#fff", textTransform: "uppercase", letterSpacing: "1px" }}>
                   TAP ON "1"
                 </span>
-                <span style={{ fontSize: "0.68rem", color: tapFlash ? "rgba(0,0,0,0.55)" : "#7c3aed" }}>
+                <span style={{ fontSize: "0.68rem", color: tapFlash ? "rgba(0,0,0,0.6)" : "#71717a" }}>
                   Click here or press <kbd style={{ background: "rgba(255,255,255,0.12)", borderRadius: "3px", padding: "0 3px" }}>T</kbd>
                 </span>
               </button>
 
               <div style={{ display: "flex", justifyContent: "space-between", width: "100%", fontSize: "0.75rem", color: "#d1d5db" }}>
-                <span>Taps logged: <strong style={{ color: "#34d399" }}>{globalTapLog.length}</strong></span>
+                <span>Taps logged: <strong style={{ color: "#ffffff" }}>{globalTapLog.length}</strong></span>
                 {globalTapLog.length > 0 && (
                   <button
                     onClick={handleClearTaps}
-                    style={{ background: "none", border: "none", color: "#f87171", cursor: "pointer", fontSize: "0.7rem", display: "flex", alignItems: "center", gap: "4px" }}
+                    style={{ background: "none", border: "none", color: "#a1a1aa", cursor: "pointer", fontSize: "0.7rem", display: "flex", alignItems: "center", gap: "4px" }}
                   >
                     <RotateCcw size={11} /> Clear
                   </button>
@@ -645,20 +645,20 @@ export default function DevCalibrator({
           
           {/* Header Panel */}
           <div style={{
-            background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)",
+            background: "rgba(255,255,255,0.02)", border: "1px solid #27272a",
             borderRadius: "14px", padding: "16px",
             display: "flex", flexDirection: "column", gap: "12px"
           }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span style={{ fontSize: "0.95rem", fontWeight: 900, color: "#c084fc", textTransform: "uppercase", letterSpacing: "1px" }}>
+              <span style={{ fontSize: "0.95rem", fontWeight: 900, color: "#ffffff", textTransform: "uppercase", letterSpacing: "1px" }}>
                 🛠️ Downbeat Workbench
               </span>
               <div style={{ display: "flex", gap: "8px" }}>
                 <button
                   onClick={handleFinalSaveToDisk}
                   style={{
-                    background: "linear-gradient(135deg,#34d399,#059669)",
-                    border: "none", color: "#fff",
+                    background: "#ffffff",
+                    border: "none", color: "#000000",
                     padding: "6px 14px", borderRadius: "8px",
                     fontSize: "0.75rem", fontWeight: 900, cursor: "pointer",
                     display: "flex", alignItems: "center", gap: "6px",
@@ -669,8 +669,8 @@ export default function DevCalibrator({
                 <button
                   onClick={onBackToCatalog}
                   style={{
-                    background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)",
-                    color: "#f87171", padding: "6px 12px", borderRadius: "8px",
+                    background: "rgba(255,255,255,0.04)", border: "1px solid #27272a",
+                    color: "#a1a1aa", padding: "6px 12px", borderRadius: "8px",
                     fontSize: "0.75rem", fontWeight: 700, cursor: "pointer",
                   }}
                 >
@@ -679,10 +679,10 @@ export default function DevCalibrator({
               </div>
             </div>
             {/* Global parameters / details */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "0.72rem", color: "#9ca3af", paddingTop: "8px", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
-              <span>BPM: <strong style={{ color: "#c084fc" }}>{agnosticSong.calibratedBeatmap?.bpm || (agnosticSong as any).metadata?.bpm || 120}</strong></span>
-              <span>Delay: <strong style={{ color: "#38bdf8" }}>{userDelaySetting}ms</strong></span>
-              <span>Sections: <strong style={{ color: "#34d399" }}>{editorSections.length}</strong></span>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "0.72rem", color: "#71717a", paddingTop: "8px", borderTop: "1px solid #27272a" }}>
+              <span>BPM: <strong style={{ color: "#ffffff" }}>{agnosticSong.calibratedBeatmap?.bpm || (agnosticSong as any).metadata?.bpm || 120}</strong></span>
+              <span>Delay: <strong style={{ color: "#ffffff" }}>{userDelaySetting}ms</strong></span>
+              <span>Sections: <strong style={{ color: "#ffffff" }}>{editorSections.length}</strong></span>
             </div>
 
             {/* Mode Segmented Selector */}
@@ -691,9 +691,9 @@ export default function DevCalibrator({
               flexDirection: "column",
               gap: "6px",
               paddingTop: "10px",
-              borderTop: "1px solid rgba(255,255,255,0.05)"
+              borderTop: "1px solid #27272a"
             }}>
-              <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.4px" }}>
+              <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "#71717a", textTransform: "uppercase", letterSpacing: "0.4px" }}>
                 Select Workbench Mode
               </span>
               <div style={{
@@ -701,7 +701,7 @@ export default function DevCalibrator({
                 background: "rgba(0,0,0,0.4)",
                 padding: "2px",
                 borderRadius: "8px",
-                border: "1px solid rgba(255,255,255,0.06)",
+                border: "1px solid #27272a",
               }}>
                 <button
                   onClick={() => setIsTappingModeActive(false)}
@@ -711,7 +711,7 @@ export default function DevCalibrator({
                     borderRadius: "6px",
                     border: "none",
                     background: !isTappingModeActive ? "rgba(255,255,255,0.08)" : "transparent",
-                    color: !isTappingModeActive ? "#fff" : "#9ca3af",
+                    color: !isTappingModeActive ? "#fff" : "#71717a",
                     fontSize: "0.72rem",
                     fontWeight: 700,
                     cursor: "pointer",
@@ -723,7 +723,7 @@ export default function DevCalibrator({
                     boxShadow: !isTappingModeActive ? "0 1px 3px rgba(0,0,0,0.3)" : "none",
                   }}
                 >
-                  <span style={{ display: "inline-block", width: "5px", height: "5px", borderRadius: "50%", background: !isTappingModeActive ? "#38bdf8" : "transparent" }} />
+                  <span style={{ display: "inline-block", width: "5px", height: "5px", borderRadius: "50%", background: !isTappingModeActive ? "#ffffff" : "transparent" }} />
                   Sections Mode
                 </button>
                 <button
@@ -733,8 +733,8 @@ export default function DevCalibrator({
                     padding: "6px 10px",
                     borderRadius: "6px",
                     border: "none",
-                    background: isTappingModeActive ? "rgba(139,92,246,0.2)" : "transparent",
-                    color: isTappingModeActive ? "#c084fc" : "#9ca3af",
+                    background: isTappingModeActive ? "rgba(255,255,255,0.08)" : "transparent",
+                    color: isTappingModeActive ? "#ffffff" : "#71717a",
                     fontSize: "0.72rem",
                     fontWeight: 700,
                     cursor: "pointer",
@@ -746,7 +746,7 @@ export default function DevCalibrator({
                     boxShadow: isTappingModeActive ? "0 1px 3px rgba(0,0,0,0.3)" : "none",
                   }}
                 >
-                  <span style={{ display: "inline-block", width: "5px", height: "5px", borderRadius: "50%", background: isTappingModeActive ? "#a78bfa" : "transparent", boxShadow: isTappingModeActive ? "0 0 6px #a78bfa" : "none" }} />
+                  <span style={{ display: "inline-block", width: "5px", height: "5px", borderRadius: "50%", background: isTappingModeActive ? "#ffffff" : "transparent", boxShadow: isTappingModeActive ? "0 0 6px #ffffff" : "none" }} />
                   Tapping Mode
                 </button>
               </div>
@@ -758,7 +758,7 @@ export default function DevCalibrator({
             /* Tapping Calibration Deck */
             <div style={{
               background: "rgba(255,255,255,0.02)",
-              border: "1px solid rgba(139,92,246,0.3)",
+              border: "1px solid #27272a",
               borderRadius: "14px",
               padding: "16px",
               display: "flex",
@@ -767,7 +767,7 @@ export default function DevCalibrator({
               boxShadow: "0 4px 20px rgba(0,0,0,0.2)",
             }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span style={{ fontSize: "0.8rem", fontWeight: 800, color: "#a78bfa", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                <span style={{ fontSize: "0.8rem", fontWeight: 800, color: "#ffffff", textTransform: "uppercase", letterSpacing: "0.5px" }}>
                   🎧 Downbeat Tap Deck
                 </span>
                 {globalTapLog.length > 0 && (
@@ -776,7 +776,7 @@ export default function DevCalibrator({
                     style={{
                       background: "none",
                       border: "none",
-                      color: "#f87171",
+                      color: "#a1a1aa",
                       cursor: "pointer",
                       fontSize: "0.72rem",
                       fontWeight: 600,
@@ -797,30 +797,30 @@ export default function DevCalibrator({
                   width: "100%",
                   height: "100px",
                   borderRadius: "14px",
-                  border: `2px solid ${tapFlash ? "#a78bfa" : "#8b5cf6"}`,
-                  background: tapFlash ? "linear-gradient(135deg,#a78bfa,#8b5cf6)" : "rgba(139,92,246,0.1)",
+                  border: `2px solid ${tapFlash ? "#ffffff" : "#27272a"}`,
+                  background: tapFlash ? "#ffffff" : "rgba(255,255,255,0.04)",
                   cursor: "pointer",
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
                   justifyContent: "center",
                   gap: "4px",
-                  boxShadow: tapFlash ? "0 0 30px rgba(139,92,246,0.35)" : "none",
+                  boxShadow: tapFlash ? "0 0 30px rgba(255,255,255,0.4)" : "none",
                   transition: "all 0.08s ease",
                 }}
               >
                 <span style={{ fontSize: "1.4rem", fontWeight: 900, color: tapFlash ? "#000" : "#fff", textTransform: "uppercase", letterSpacing: "1px" }}>
                   TAP ON "1"
                 </span>
-                <span style={{ fontSize: "0.7rem", color: tapFlash ? "rgba(0,0,0,0.6)" : "#7c3aed" }}>
+                <span style={{ fontSize: "0.7rem", color: tapFlash ? "rgba(0,0,0,0.6)" : "#71717a" }}>
                   Click here or press <kbd style={{ background: "rgba(255,255,255,0.12)", borderRadius: "3px", padding: "0 3px" }}>T</kbd>
                 </span>
               </button>
 
               {/* Progress and Target Banner */}
               <div style={{
-                background: globalTapLog.length >= 25 ? "rgba(16,185,129,0.1)" : "rgba(245,158,11,0.1)",
-                border: `1px solid ${globalTapLog.length >= 25 ? "rgba(16,185,129,0.3)" : "rgba(245,158,11,0.3)"}`,
+                background: "rgba(255,255,255,0.02)",
+                border: "1px solid #27272a",
                 borderRadius: "10px",
                 padding: "10px 12px",
                 display: "flex",
@@ -828,7 +828,7 @@ export default function DevCalibrator({
                 gap: "6px"
               }}>
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.75rem", fontWeight: 700 }}>
-                  <span style={{ color: globalTapLog.length >= 25 ? "#34d399" : "#fbbf24" }}>
+                  <span style={{ color: "#ffffff" }}>
                     {globalTapLog.length >= 25 ? "🎉 Precision target reached!" : "⚠️ Keep tapping!"}
                   </span>
                   <span style={{ color: "#fff" }}>{globalTapLog.length} / 25 taps</span>
@@ -839,13 +839,13 @@ export default function DevCalibrator({
                   <div style={{
                     width: `${Math.min(100, (globalTapLog.length / 25) * 100)}%`,
                     height: "100%",
-                    background: globalTapLog.length >= 25 ? "#10b981" : "#f59e0b",
+                    background: "#ffffff",
                     borderRadius: "3px",
                     transition: "width 0.2s ease",
                   }} />
                 </div>
                 
-                <span style={{ fontSize: "0.65rem", color: "#9ca3af", fontStyle: "italic" }}>
+                <span style={{ fontSize: "0.65rem", color: "#71717a", fontStyle: "italic" }}>
                   {globalTapLog.length >= 25
                     ? "Ideal downbeat coverage achieved. You can save anytime!"
                     : "Record at least 25 taps to auto-average reaction delay accurately."}
@@ -888,9 +888,9 @@ export default function DevCalibrator({
                   onClick={() => setFocusedSectionId(focusedSectionId === activeSec.id ? null : activeSec.id)}
                   title={isTapDeckOpen ? "Release to close tap deck" : "Open tap calibration deck"}
                   style={{
-                    background: isTapDeckOpen ? "rgba(139,92,246,0.22)" : "rgba(255,255,255,0.05)",
-                    border: `1px solid ${isTapDeckOpen ? "rgba(139,92,246,0.5)" : "rgba(255,255,255,0.1)"}`,
-                    color: isTapDeckOpen ? "#c084fc" : "#9ca3af",
+                    background: isTapDeckOpen ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.05)",
+                    border: `1px solid ${isTapDeckOpen ? "#ffffff" : "#27272a"}`,
+                    color: isTapDeckOpen ? "#ffffff" : "#a1a1aa",
                     padding: "6px 10px", borderRadius: "8px",
                     fontSize: "0.7rem", fontWeight: 700, cursor: "pointer",
                     display: "flex", alignItems: "center", gap: "5px",
@@ -904,8 +904,8 @@ export default function DevCalibrator({
                   onClick={() => handleDeleteSection(activeSec.id)}
                   title="Delete section (extends neighbor)"
                   style={{
-                    background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)",
-                    color: "#f87171", padding: "6px 8px", borderRadius: "8px",
+                    background: "rgba(255,255,255,0.02)", border: "1px solid #27272a",
+                    color: "#a1a1aa", padding: "6px 8px", borderRadius: "8px",
                     cursor: "pointer",
                   }}
                 >
@@ -917,7 +917,7 @@ export default function DevCalibrator({
               <NudgerRow
                 label="Start"
                 value={activeSec.startTimestamp}
-                color="#38bdf8"
+                color="#ffffff"
                 onNudge={(ms) => nudgeBoundary(activeSec.id, ms, true)}
                 onMarkFromPlayhead={() => handleUpdateSectionTimes(activeSec.id, "startTimestamp", currentTime)}
                 disabled={editorSections.findIndex(s => s.id === activeSec.id) === 0}
@@ -927,7 +927,7 @@ export default function DevCalibrator({
               <NudgerRow
                 label="End"
                 value={activeSec.endTimestamp}
-                color="#f43f5e"
+                color="#ffffff"
                 onNudge={(ms) => nudgeBoundary(activeSec.id, ms, false)}
                 onMarkFromPlayhead={() => handleUpdateSectionTimes(activeSec.id, "endTimestamp", currentTime)}
                 disabled={false}
@@ -944,10 +944,10 @@ export default function DevCalibrator({
                 padding: "6px 10px",
                 gap: "8px",
               }}>
-                <span style={{ fontSize: "0.68rem", color: "#9ca3af", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.4px" }}>
+                <span style={{ fontSize: "0.68rem", color: "#71717a", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.4px" }}>
                   Grid Offset
                 </span>
-                <span style={{ fontFamily: "monospace", fontSize: "0.75rem", fontWeight: 700, color: "#a78bfa", marginLeft: "auto", marginRight: "8px" }}>
+                <span style={{ fontFamily: "monospace", fontSize: "0.75rem", fontWeight: 700, color: "#ffffff", marginLeft: "auto", marginRight: "8px" }}>
                   {activeSec.localOffsetMs >= 0 ? "+" : ""}{activeSec.localOffsetMs}ms
                 </span>
                 <div style={{ display: "flex", gap: "4px" }}>
@@ -970,14 +970,14 @@ export default function DevCalibrator({
                     title="Reset offset to 0ms"
                     style={{
                       padding: "4px 8px", borderRadius: "5px", fontSize: "0.65rem", fontWeight: 700,
-                      background: activeSec.localOffsetMs === 0 ? "rgba(255,255,255,0.01)" : "rgba(239,68,68,0.12)",
-                      border: `1px solid ${activeSec.localOffsetMs === 0 ? "rgba(255,255,255,0.05)" : "rgba(239,68,68,0.3)"}`,
-                      color: activeSec.localOffsetMs === 0 ? "#374151" : "#f87171",
+                      background: activeSec.localOffsetMs === 0 ? "rgba(255,255,255,0.01)" : "rgba(255,255,255,0.05)",
+                      border: `1px solid ${activeSec.localOffsetMs === 0 ? "rgba(255,255,255,0.05)" : "#27272a"}`,
+                      color: activeSec.localOffsetMs === 0 ? "#3f3f46" : "#ffffff",
                       cursor: activeSec.localOffsetMs === 0 ? "not-allowed" : "pointer",
                       transition: "all 0.1s ease",
                     }}
-                    onMouseEnter={(e) => { if (activeSec.localOffsetMs !== 0) e.currentTarget.style.background = "rgba(239,68,68,0.2)"; }}
-                    onMouseLeave={(e) => { if (activeSec.localOffsetMs !== 0) e.currentTarget.style.background = "rgba(239,68,68,0.12)"; }}
+                    onMouseEnter={(e) => { if (activeSec.localOffsetMs !== 0) e.currentTarget.style.background = "rgba(255,255,255,0.1)"; }}
+                    onMouseLeave={(e) => { if (activeSec.localOffsetMs !== 0) e.currentTarget.style.background = "rgba(255,255,255,0.05)"; }}
                   >
                     Reset
                   </button>
@@ -1059,10 +1059,10 @@ export default function DevCalibrator({
         {/* Timeline Header controls */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.5px", display: "flex", alignItems: "center", gap: "6px" }}>
-            <Music size={12} style={{ color: "#a78bfa" }} /> Song Timeline Editing Console
+            <Music size={12} style={{ color: "#ffffff" }} /> Song Timeline Editing Console
           </span>
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <span style={{ fontFamily: "monospace", fontSize: "0.78rem", color: "#a78bfa", fontWeight: 600 }}>
+            <span style={{ fontFamily: "monospace", fontSize: "0.78rem", color: "#ffffff", fontWeight: 600 }}>
               {formatTime(currentTime)} / {formatTime(duration)}
             </span>
             {!isTappingModeActive && (
@@ -1072,19 +1072,19 @@ export default function DevCalibrator({
                 style={{
                   display: "flex", alignItems: "center", gap: "5px",
                   fontSize: "0.72rem", fontWeight: 700,
-                  background: "rgba(99,102,241,0.18)", border: "1px solid rgba(99,102,241,0.4)",
-                  color: "#a5b4fc", padding: "4px 12px", borderRadius: "6px",
+                  background: "rgba(255,255,255,0.05)", border: "1px solid #27272a",
+                  color: "#ffffff", padding: "4px 12px", borderRadius: "6px",
                   cursor: "pointer", transition: "all 0.15s ease",
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.background = "rgba(99,102,241,0.28)"}
-                onMouseLeave={(e) => e.currentTarget.style.background = "rgba(99,102,241,0.18)"}
+                onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.1)"}
+                onMouseLeave={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.05)"}
               >
                 <Scissors size={12} /> Slice Here
                 <kbd style={{ background: "rgba(255,255,255,0.08)", borderRadius: "3px", padding: "0 4px", fontSize: "0.65rem" }}>M</kbd>
               </button>
             )}
             {isTappingModeActive ? (
-              <span style={{ fontSize: "0.65rem", color: "#a78bfa", fontWeight: 600 }}>
+              <span style={{ fontSize: "0.65rem", color: "#ffffff", fontWeight: 600 }}>
                 🎯 Tapping Mode Active: Press <kbd style={{ background: "rgba(255,255,255,0.12)", borderRadius: "3px", padding: "0 4px", color: "#fff" }}>T</kbd> to tap downbeats · <kbd style={{ background: "rgba(255,255,255,0.12)", borderRadius: "3px", padding: "0 4px", color: "#fff" }}>Space</kbd> play/pause
               </span>
             ) : (
@@ -1134,7 +1134,7 @@ export default function DevCalibrator({
                   alignItems: "center", justifyContent: "center",
                   fontSize: "0.75rem", color: "#6b7280", fontStyle: "italic", pointerEvents: "none",
                 }}>
-                  Press <strong style={{ color: "#a5b4fc", margin: "0 4px" }}>M</strong> or click "Slice Here" to start sectioning
+                  Press <strong style={{ color: "#ffffff", margin: "0 4px" }}>M</strong> or click "Slice Here" to start sectioning
                 </div>
               ) : (
                 editorSections.map((sec, idx) => {
@@ -1181,15 +1181,15 @@ export default function DevCalibrator({
                 style={{
                   position: "absolute", top: 0, bottom: 0,
                   left: `${playheadPct}%`, width: "2px",
-                  background: "#ef4444", zIndex: 10, pointerEvents: "none",
-                  boxShadow: "0 0 10px rgba(239,68,68,0.8)",
+                  background: "#ffffff", zIndex: 10, pointerEvents: "none",
+                  boxShadow: "0 0 10px rgba(255,255,255,0.8)",
                 }}
               >
                 <div style={{
                   position: "absolute", top: 0, left: "50%",
                   transform: "translateX(-50%)",
                   width: "10px", height: "10px",
-                  background: "#ef4444", borderRadius: "50%",
+                  background: "#ffffff", borderRadius: "50%",
                 }} />
               </div>
 
@@ -1234,14 +1234,14 @@ export default function DevCalibrator({
                       height: "100%",
                       borderRadius: "1.5px",
                       background: isSelected 
-                        ? "linear-gradient(to bottom, #fbbf24, #f59e0b)" // Golden Amber
+                        ? "linear-gradient(to bottom, #ffffff, #d1d5db)" // Bright White
                         : isDragging
-                        ? "#c084fc" // Light Purple/Lavender
-                        : "rgba(255,255,255,0.35)", // Subtle translucent
+                        ? "#e5e7eb" // Light gray
+                        : "rgba(255,255,255,0.2)", // Subtle translucent
                       boxShadow: isSelected
-                        ? "0 0 8px #fbbf24, 0 0 16px #f59e0b"
+                        ? "0 0 8px #ffffff, 0 0 16px rgba(255,255,255,0.6)"
                         : isDragging
-                        ? "0 0 6px #c084fc"
+                        ? "0 0 6px rgba(255,255,255,0.4)"
                         : "0 1px 3px rgba(0,0,0,0.4)",
                       transition: "all 0.15s ease",
                     }}
@@ -1253,8 +1253,8 @@ export default function DevCalibrator({
                       width: "8px",
                       height: "8px",
                       borderRadius: "50%",
-                      background: isSelected ? "#fbbf24" : "#fff",
-                      border: `1.5px solid ${isSelected ? "#d97706" : "#4b5563"}`,
+                      background: isSelected ? "#ffffff" : "#a1a1aa",
+                      border: `1.5px solid ${isSelected ? "#d1d5db" : "#27272a"}`,
                       boxShadow: "0 1px 3px rgba(0,0,0,0.5)",
                     }}
                   />
@@ -1351,14 +1351,14 @@ function NudgerRow({ label, value, color, onNudge, onMarkFromPlayhead, disabled 
           title="Snap to current playhead position"
           style={{
             padding: "4px 8px", borderRadius: "5px", fontSize: "0.65rem", fontWeight: 700,
-            background: `rgba(${color === "#38bdf8" ? "56,189,248" : "244,63,94"},0.12)`,
-            border: `1px solid ${color}44`,
-            color, cursor: "pointer",
+            background: "rgba(255,255,255,0.05)",
+            border: "1px solid #27272a",
+            color: "#ffffff", cursor: "pointer",
             display: "flex", alignItems: "center", gap: "4px",
             transition: "all 0.1s ease",
           }}
-          onMouseEnter={(e) => e.currentTarget.style.background = `rgba(${color === "#38bdf8" ? "56,189,248" : "244,63,94"},0.2)`}
-          onMouseLeave={(e) => e.currentTarget.style.background = `rgba(${color === "#38bdf8" ? "56,189,248" : "244,63,94"},0.12)`}
+          onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.1)"}
+          onMouseLeave={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.05)"}
         >
           <Clock size={10} /> Mark
         </button>

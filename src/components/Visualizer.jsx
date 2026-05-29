@@ -67,26 +67,42 @@ export default function Visualizer({
 
               const isPause = !isBachata && (beatNum === 4 || beatNum === 8);
 
-              const highlightStyle = (isActive && isGold && isBachata) ? {
-                transform: "scale(1.1)",
-                boxShadow: "0 0 24px 4px hsl(var(--accent-gold)), inset 0 0 10px rgba(255,255,255,0.4)",
-                borderColor: "#ffffff",
-                transition: "all 0.08s ease",
-              } : {};
+              let highlightStyle = {};
+              if (isActive) {
+                if (isGold) {
+                  // Marked downbeats (brighter, white background, black text, huge outer white glow, scaled up)
+                  highlightStyle = {
+                    background: "#ffffff",
+                    color: "#000000",
+                    borderColor: "#ffffff",
+                    boxShadow: "0 0 28px 8px rgba(255, 255, 255, 0.95), inset 0 0 8px rgba(255, 255, 255, 0.5)",
+                    transform: "scale(1.15)",
+                    transition: "all 0.08s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+                  };
+                } else {
+                  // Other active counts (dimmer white background, white text, subtle glow, smaller scale)
+                  highlightStyle = {
+                    background: "rgba(255, 255, 255, 0.25)",
+                    color: "#ffffff",
+                    borderColor: "rgba(255, 255, 255, 0.5)",
+                    boxShadow: "0 0 14px 2px rgba(255, 255, 255, 0.35)",
+                    transform: "scale(1.05)",
+                    transition: "all 0.08s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+                  };
+                }
+              }
 
               return (
                 <div
                   key={beatNum}
-                  className={`beat-circle ${isPause ? "beat-pause" : ""}${
-                    isActive ? (isGold ? " accent-gold" : " accent-cyan") : ""
-                  }`}
+                  className={`beat-circle ${isPause ? "beat-pause" : ""}`}
                   style={highlightStyle}
                 >
                   <span>{beatNum}</span>
                   {isBachata && (beatNum === 4 || beatNum === 8) && (
                     <span 
                       className="beat-label" 
-                      style={{ fontSize: "0.55rem", opacity: 0.8, color: "hsl(var(--accent-gold))" }}
+                      style={{ fontSize: "0.55rem", opacity: 0.8, color: isActive ? (isGold ? "#000000" : "rgba(255, 255, 255, 0.8)") : "rgba(255, 255, 255, 0.4)" }}
                     >
                       TAP
                     </span>
