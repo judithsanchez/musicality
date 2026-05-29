@@ -78,12 +78,20 @@ export default function Visualizer({
 
               const isPause = !isBachata && (beatNum === 4 || beatNum === 8);
 
+              const highlightStyle = (isActive && isGold && isBachata) ? {
+                transform: "scale(1.1)",
+                boxShadow: "0 0 24px 4px hsl(var(--accent-gold)), inset 0 0 10px rgba(255,255,255,0.4)",
+                borderColor: "#ffffff",
+                transition: "all 0.08s ease",
+              } : {};
+
               return (
                 <div
                   key={beatNum}
                   className={`beat-circle ${isPause ? "beat-pause" : ""}${
                     isActive ? (isGold ? " accent-gold" : " accent-cyan") : ""
                   }`}
+                  style={highlightStyle}
                 >
                   <span>{beatNum}</span>
                   {isBachata && (beatNum === 4 || beatNum === 8) && (

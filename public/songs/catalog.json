@@ -30,10 +30,10 @@
     "id": "song-G_FuyWxTapo",
     "songTitle": "Chacha",
     "artist": "Jean & Alex, Pinto Picasso",
-    "danceStyle": "salsa",
+    "danceStyle": "bachata",
     "youtubeId": "G_FuyWxTapo",
     "bpm": 129.2,
     "difficulty": "medium",
-    "isCalibrated": false
+    "isCalibrated": true
   }
 ]
