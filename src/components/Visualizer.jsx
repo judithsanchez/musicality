@@ -25,20 +25,7 @@ export default function Visualizer({
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "16px", marginBottom: "16px" }}>
       
-      {/* 1. Structural Section Reminder Banner */}
-      {activeSection && (
-        <div className={`section-banner ${getContainerClass()}`}>
-          <span className="banner-emoji">{activeSection.emoji || "🎵"}</span>
-          <span style={{ textTransform: "uppercase", fontSize: "0.85rem", letterSpacing: "0.5px" }}>
-            {activeSection.name}
-            {activeSection.focus && (
-              <strong style={{ marginLeft: "8px", color: "rgba(255,255,255,0.9)" }}>
-                 — Focus: {activeSection.focus}
-              </strong>
-            )}
-          </span>
-        </div>
-      )}
+
 
       {/* 2. Beats Pulsing Track */}
       <div className="glass-panel" style={{ padding: "20px 10px", margin: 0 }}>

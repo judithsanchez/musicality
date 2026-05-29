@@ -1448,51 +1448,27 @@ export default function App() {
   return (
     <div className="app-container" style={{ display: "flex", flexDirection: "column", height: "100%" }}>
       
-      {/* Upper Navigation & Mode Selector Tabs */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px", gap: "12px", width: "100%" }}>
-        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-          <button className="back-button" onClick={handleBackToCatalog} style={{ margin: 0 }}>
-            <ArrowLeft size={16} />
-            <span>Back</span>
+      {/* Upper Navigation & Skip Intro */}
+      {currentTime < introEnd && (
+        <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "16px", width: "100%" }}>
+          <button 
+            className="btn-step" 
+            onClick={handleSkipIntro}
+            style={{ 
+              margin: 0, 
+              padding: "6px 12px",
+              fontSize: "0.75rem",
+              background: "linear-gradient(135deg, #a78bfa, #8b5cf6)", 
+              color: "#fff", 
+              fontWeight: "700",
+              boxShadow: "0 4px 12px rgba(139, 92, 246, 0.2)",
+              animation: "pulse 2s infinite"
+            }}
+          >
+            ⏩ Skip Intro
           </button>
-          {currentTime < introEnd && (
-            <button 
-              className="btn-step" 
-              onClick={handleSkipIntro}
-              style={{ 
-                margin: 0, 
-                padding: "6px 12px",
-                fontSize: "0.75rem",
-                background: "linear-gradient(135deg, #a78bfa, #8b5cf6)", 
-                color: "#fff", 
-                fontWeight: "700",
-                boxShadow: "0 4px 12px rgba(139, 92, 246, 0.2)",
-                animation: "pulse 2s infinite"
-              }}
-            >
-              ⏩ Skip Intro
-            </button>
-          )}
         </div>
-
-        {/* Learning vs Practice Tabs */}
-        {!showDiagnostic && (
-          <div className="mode-tabs-container" style={{ margin: 0, flexGrow: 1, maxWidth: "300px" }}>
-            <button 
-              className={`mode-tab-btn ${mode === "learn" ? "active" : ""}`}
-              onClick={() => setMode("learn")}
-            >
-              🎓 Learn
-            </button>
-            <button 
-              className={`mode-tab-btn ${mode === "practice" ? "active" : ""}`}
-              onClick={() => setMode("practice")}
-            >
-              🎯 Play
-            </button>
-          </div>
-        )}
-      </div>
+      )}
 
       {/* Header Section */}
       <header 
