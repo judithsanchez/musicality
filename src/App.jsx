@@ -157,6 +157,7 @@ const _convertToDatabaseSections = (editorSecs) => {
 
 export default function App() {
   const [songData, setSongData] = useState(null);
+  const [editorSections, setEditorSections] = useState([]);
   const [activeEditingSectionId, setActiveEditingSectionId] = useState(null);
   const [viewingDevDashboard, setViewingDevDashboard] = useState(false);
   
@@ -1217,11 +1218,6 @@ export default function App() {
   const handleDeleteSection = (id) => {
     const updated = editorSections.filter(sec => sec.id !== id);
     setEditorSections(updated);
-    
-    // Save to LocalStorage immediately
-    if (songData?.metadata?.youtubeId) {
-      localStorage.setItem(`armada_sections_${songData.metadata.youtubeId}`, JSON.stringify(updated));
-    }
     
     // Sync to disk
     handleSaveSectionsToDiskDirect(updated);
