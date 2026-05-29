@@ -196,10 +196,14 @@ export default defineConfig({
                   }
 
                   if (code !== 0) {
+                    let errMsg = `Python analyzer exited with non-zero code ${code}`;
+                    if (stderrData.includes("ModuleNotFoundError")) {
+                      errMsg += ". Missing Python dependency! Please run: pip3 install -r requirements.txt";
+                    }
                     res.writeHead(500, { 'Content-Type': 'application/json' });
                     res.end(JSON.stringify({ 
                       success: false, 
-                      error: `Python analyzer exited with non-zero code ${code}`, 
+                      error: errMsg, 
                       details: stderrData || stdoutData 
                     }));
                     return;
