@@ -46,9 +46,18 @@ An interactive, serverless ear-training tool and rhythm game designed for Salsa 
 ## Commands
 
 ### Setup
+
+#### 1. Frontend & Core Environment
 ```bash
 pnpm install
 ```
+
+#### 2. Ingestion Pipeline & Audio Analysis (Python 3.9+)
+To use the **Developer Ingestion Console** for uploading and automatically analyzing new tracks via our advanced Salsa-AI signal-processing engine, you must install the Python Signal Processing stack:
+```bash
+pip3 install -r requirements.txt
+```
+*(This installs the core signal parsing libraries, including `numpy`, `scipy`, `librosa`, and `scikit-learn` to allow seamless Node/Vite backend spawning.)*
 
 ### Run Locally (Dev Server)
 ```bash
