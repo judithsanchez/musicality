@@ -1,10 +1,45 @@
 import { useState, useRef } from "react";
 import { ArrowLeft, Upload, FileAudio, Youtube, CheckCircle, AlertTriangle, Loader2 } from "lucide-react";
 
+function extractYoutubeId(input) {
+  if (!input) return "";
+  const trimmed = input.trim();
+  
+  // 1. Check if exactly 11 characters
+  if (/^[a-zA-Z0-9_-]{11}$/.test(trimmed)) {
+    return trimmed;
+  }
+  
+  // 2. Check standard URL patterns
+  const patterns = [
+    /youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})/,
+    /youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/,
+    /youtu\.be\/([a-zA-Z0-9_-]{11})/,
+    /youtube\.com\/v\/([a-zA-Z0-9_-]{11})/,
+    /youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/
+  ];
+  
+  for (const pattern of patterns) {
+    const match = trimmed.match(pattern);
+    if (match && match[1]) {
+      return match[1];
+    }
+  }
+  
+  // 3. Fallback pattern to extract from custom raw string or iframe tags
+  const fallbackMatch = trimmed.match(/(?:\/|v=|embed\/|shorts\/)([a-zA-Z0-9_-]{11})(?:[?&]|$)/);
+  if (fallbackMatch && fallbackMatch[1]) {
+    return fallbackMatch[1];
+  }
+  
+  return "";
+}
+
 export default function DevDashboard({ onBack, onIngestSuccess }) {
   const [title, setTitle] = useState("");
   const [artist, setArtist] = useState("");
-  const [youtubeId, setYoutubeId] = useState("");
+  const [youtubeInput, setYoutubeInput] = useState("");
+  const youtubeId = extractYoutubeId(youtubeInput);
   const [difficulty, setDifficulty] = useState("medium");
   const [danceStyle, setDanceStyle] = useState("salsa");
   const [audioFile, setAudioFile] = useState(null);
@@ -42,12 +77,12 @@ export default function DevDashboard({ onBack, onIngestSuccess }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!title || !artist || !youtubeId || !audioFile) {
-      alert("Please fill in all fields and select an audio file.");
+      alert("Please fill in all fields, select a valid audio file, and provide a valid YouTube link or iframe.");
       return;
     }
 
     if (youtubeId.length !== 11) {
-      alert("YouTube ID must be exactly 11 characters.");
+      alert("Please provide a valid YouTube Link, IFrame tag, or 11-character Video ID.");
       return;
     }
 
@@ -189,21 +224,29 @@ export default function DevDashboard({ onBack, onIngestSuccess }) {
               </div>
             </div>
 
-            {/* Row 2: YouTube ID & Difficulty */}
+            {/* Row 2: YouTube ID / Link & Difficulty */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
               <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                 <label style={{ fontSize: "0.75rem", fontWeight: "bold", color: "#c084fc", textTransform: "uppercase", display: "flex", alignItems: "center", gap: "4px" }}>
-                  <Youtube size={14} style={{ color: "#ef4444" }} /> YouTube ID (11 chars)
+                  <Youtube size={14} style={{ color: "#ef4444" }} /> YouTube Link or IFrame Tag
                 </label>
                 <input 
                   type="text" 
-                  value={youtubeId} 
-                  onChange={(e) => setYoutubeId(e.target.value)} 
-                  placeholder="e.g. 66HCBysrJS8"
-                  maxLength={11}
+                  value={youtubeInput} 
+                  onChange={(e) => setYoutubeInput(e.target.value)} 
+                  placeholder="Paste URL or embed iframe..."
                   required
-                  style={{ padding: "10px 12px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#fff", outline: "none", fontFamily: "monospace" }}
+                  style={{ padding: "10px 12px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#fff", outline: "none", fontSize: "0.85rem" }}
                 />
+                {youtubeId ? (
+                  <span style={{ fontSize: "0.7rem", color: "#34d399", fontWeight: "bold", marginTop: "2px" }}>
+                    ✓ Parsed Video ID: {youtubeId}
+                  </span>
+                ) : youtubeInput ? (
+                  <span style={{ fontSize: "0.7rem", color: "#f87171", fontWeight: "bold", marginTop: "2px" }}>
+                    ✗ Invalid URL or unrecognized ID
+                  </span>
+                ) : null}
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                 <label style={{ fontSize: "0.75rem", fontWeight: "bold", color: "#c084fc", textTransform: "uppercase" }}>Difficulty</label>
@@ -218,6 +261,28 @@ export default function DevDashboard({ onBack, onIngestSuccess }) {
                 </select>
               </div>
             </div>
+
+            {/* Legal Embed Preview Check iframe (Instantly highlights third-party restrictions) */}
+            {youtubeId && (
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(139, 92, 246, 0.2)", padding: "14px", borderRadius: "12px" }}>
+                <span style={{ fontSize: "0.7rem", fontWeight: "900", color: "#a78bfa", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                  📺 Legal Embed Verification Preview
+                </span>
+                <iframe
+                  width="100%"
+                  height="220"
+                  src={`https://www.youtube.com/embed/${youtubeId}`}
+                  title="YouTube embed verification player"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                  style={{ borderRadius: "8px", background: "#000", border: "1px solid rgba(255,255,255,0.05)" }}
+                ></iframe>
+                <span style={{ fontSize: "0.65rem", color: "#9ca3af", fontStyle: "italic", lineHeight: "1.3" }}>
+                  💡 Legal embed check: Attempt playing this preview video. If YouTube shows a grey warning indicating restricted playback, this video is legally forbidden from external embedding.
+                </span>
+              </div>
+            )}
 
             {/* Row 3: Dance Style */}
             <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
