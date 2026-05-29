@@ -9,6 +9,7 @@ import ControlBar from "./components/ControlBar";
 import AudioShield from "./components/AudioShield";
 import Visualizer from "./components/Visualizer";
 import GameCanvas from "./components/GameCanvas";
+import DevCalibrator from "./components/DevCalibrator";
 import RoadmapScrubber from "./components/RoadmapScrubber";
 import CalibrationTapDeck from "./components/CalibrationTapDeck";
 import DevCalibrationPanel from "./components/DevCalibrationPanel";
@@ -1403,110 +1404,97 @@ export default function App() {
 
       {/* Main workspace layout */}
       <div className={showDiagnostic ? "dev-workspace-layout" : "normal-workspace-layout"}>
+        {showDiagnostic ? (
+          <>
+            {/* Left Workspace Column: Video player ONLY */}
+            <div className="left-workspace-column">
+              {/* Defensive IFrame Player & Overlay Protection */}
+              <div className="video-wrapper">
+                <div key={songData?.metadata?.youtubeId || "yt-player"} id="yt-player"></div>
+                <AudioShield onPlayToggle={handlePlayToggle} />
+              </div>
+            </div>
 
-        {/* Left Workspace Column: Video, Tapping/Flash decks, bottom touchbars */}
-        <div className="left-workspace-column">
-          
-          {/* Defensive IFrame Player & Overlay Protection */}
-          <div className="video-wrapper">
-            <div key={songData?.metadata?.youtubeId || "yt-player"} id="yt-player"></div>
-            <AudioShield onPlayToggle={handlePlayToggle} />
-          </div>
-
-          {/* Dynamic Interface: Learn Mode beats pulses OR Practice Mode gamified tapping zone */}
-          {mode === "practice" ? (
-            <GameCanvas 
-              key={calibratedSongData?.metadata?.youtubeId || songData?.metadata?.youtubeId}
-              songData={calibratedSongData || songData}
+            {/* Right Column: Secure DevCalibrator */}
+            <DevCalibrator
+              songData={songData}
+              originalSongData={originalSongData}
+              calibratedSongData={calibratedSongData}
+              setCalibratedSongData={setCalibratedSongData}
+              setSongData={setSongData}
+              setOriginalSongData={setOriginalSongData}
+              breaks={breaks}
+              setBreaks={setBreaks}
               currentTime={currentTime}
-              isPlaying={isActuallyPlaying}
-              onPlayToggle={handlePlayToggle}
+              videoDuration={videoDuration}
+              player={player}
+              throttledSeek={throttledSeek}
+              userDelaySetting={userDelaySetting}
+              setUserDelaySetting={setUserDelaySetting}
+              onBackToCatalog={() => {
+                setShowDiagnostic(false);
+                setRawTaps([]);
+                setAnchors([]);
+                setCalibrationStats(null);
+                setEstimatedDelay(null);
+                showToast("🔒 Dev Panel Locked!");
+              }}
+              showToast={showToast}
             />
-          ) : (
-            <Visualizer 
-              danceStyle={songData?.metadata?.danceStyle || "salsa"}
+          </>
+        ) : (
+          <div className="left-workspace-column">
+              
+            {/* Defensive IFrame Player & Overlay Protection */}
+            <div className="video-wrapper">
+              <div key={songData?.metadata?.youtubeId || "yt-player"} id="yt-player"></div>
+              <AudioShield onPlayToggle={handlePlayToggle} />
+            </div>
+
+            {/* Dynamic Interface: Learn Mode beats pulses OR Practice Mode gamified tapping zone */}
+            {mode === "practice" ? (
+              <GameCanvas 
+                key={calibratedSongData?.metadata?.youtubeId || songData?.metadata?.youtubeId}
+                songData={calibratedSongData || songData}
+                currentTime={currentTime}
+                isPlaying={isActuallyPlaying}
+                onPlayToggle={handlePlayToggle}
+              />
+            ) : (
+              <Visualizer 
+                danceStyle={songData?.metadata?.danceStyle || "salsa"}
+                currentTime={currentTime}
+                introEnd={introEnd}
+                currentBeat={currentBeat}
+                activeSection={activeSection}
+                activeBreak={activeBreak}
+              />
+            )}
+
+            {/* Segmented Roadmap Progress Scrubber */}
+            <RoadmapScrubber
               currentTime={currentTime}
+              videoDuration={videoDuration}
+              introStart={introStart}
               introEnd={introEnd}
-              currentBeat={currentBeat}
-              activeSection={activeSection}
-              activeBreak={activeBreak}
+              nextSection={nextSection}
+              timeToNextSection={timeToNextSection}
+              showDiagnostic={showDiagnostic}
+              editorSections={editorSections}
+              sectionsList={sectionsList}
+              breaks={breaks}
+              onSeek={throttledSeek}
             />
-          )}
 
-          {/* Segmented Roadmap Progress Scrubber */}
-          <RoadmapScrubber
-            currentTime={currentTime}
-            videoDuration={videoDuration}
-            introStart={introStart}
-            introEnd={introEnd}
-            nextSection={nextSection}
-            timeToNextSection={timeToNextSection}
-            showDiagnostic={showDiagnostic}
-            editorSections={editorSections}
-            sectionsList={sectionsList}
-            breaks={breaks}
-            onSeek={throttledSeek}
-          />
-
-          {/* Unified Touch Controlbar */}
-          <ControlBar 
-            isActuallyPlaying={isActuallyPlaying}
-            onPlayToggle={handlePlayToggle}
-            playbackRate={playbackRate}
-            onSpeedChange={handleSpeedChange}
-            onRewind={handleRewind}
-          />
-
-          {/* Public Tapping Deck (Diagnostic downbeats calibrator helper) */}
-          {showDiagnostic && (
-            <CalibrationTapDeck
-              rawTaps={rawTaps}
-              onTapOnOne={handleTapOnOne}
-              onSaveToDisk={handleSaveToDisk}
-              onClearTaps={handleClearTaps}
+            {/* Unified Touch Controlbar */}
+            <ControlBar 
+              isActuallyPlaying={isActuallyPlaying}
+              onPlayToggle={handlePlayToggle}
+              playbackRate={playbackRate}
+              onSpeedChange={handleSpeedChange}
+              onRewind={handleRewind}
             />
-          )}
-        </div>
-
-        {/* Right Column: Developer Calibration Panel */}
-        {showDiagnostic && (
-          <DevCalibrationPanel
-            calibrationStats={calibrationStats}
-            estimatedDelay={estimatedDelay}
-            anchors={anchors}
-            userDelaySetting={userDelaySetting}
-            onUserDelaySettingChange={setUserDelaySetting}
-            onExit={handleExitDev}
-            onResetCalibration={handleResetCalibration}
-            onCopyCalibratedJson={handleCopyCalibratedJson}
-            onDownloadCalibratedJson={handleDownloadCalibratedJson}
-            tempBreakStart={tempBreakStart}
-            tempBreakEnd={tempBreakEnd}
-            onTempBreakStartChange={setTempBreakStart}
-            onTempBreakEndChange={setTempBreakEnd}
-            onMarkBreakStart={handleMarkBreakStart}
-            onMarkBreakEnd={handleMarkBreakEnd}
-            onAddNewBreak={handleAddNewBreak}
-            breaks={breaks}
-            onDeleteBreak={handleDeleteBreak}
-            onAddNewSection={handleAddNewSection}
-            editorSections={editorSections}
-            activeEditingSectionId={activeEditingSectionId}
-            onToggleEditingSection={setActiveEditingSectionId}
-            introStart={introStart}
-            introEnd={introEnd}
-            videoDuration={videoDuration}
-            onIntroStartChange={handleIntroStartChange}
-            onIntroEndChange={handleIntroEndChange}
-            onMarkIntroStart={handleMarkIntroStart}
-            onMarkIntroEnd={handleMarkIntroEnd}
-            onSaveMetadataAndBreaks={handleSaveMetadataAndBreaks}
-            onUpdateSectionName={handleUpdateSectionName}
-            onUpdateSectionTimes={handleUpdateSectionTimes}
-            player={player}
-            onSaveSectionsToDisk={handleSaveSectionsToDisk}
-            onDeleteSection={handleDeleteSection}
-          />
+          </div>
         )}
       </div>
 
