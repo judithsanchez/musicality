@@ -9,6 +9,9 @@ import ControlBar from "./components/ControlBar";
 import AudioShield from "./components/AudioShield";
 import Visualizer from "./components/Visualizer";
 import GameCanvas from "./components/GameCanvas";
+import RoadmapScrubber from "./components/RoadmapScrubber";
+import CalibrationTapDeck from "./components/CalibrationTapDeck";
+import DevCalibrationPanel from "./components/DevCalibrationPanel";
 
 // ==========================================================================
 // Piecewise-Linear Warping Helper Algorithms
@@ -814,6 +817,17 @@ export default function App() {
     showToast("🔄 Reset all anchors and taps. Restored original raw grid.");
   };
 
+  const handleClearTaps = () => {
+    setRawTaps([]);
+    setAnchors([]);
+    setCalibrationStats(null);
+    setEstimatedDelay(null);
+    if (songData?.metadata?.youtubeId) {
+      localStorage.removeItem(`armada_raw_taps_${songData.metadata.youtubeId}`);
+    }
+    showToast("🔄 Taps cleared & visual shield lifted!");
+  };
+
   // Skip audio to ~30s so user can bypass the difficult intro
   const handleSkipIntro = () => {
     try {
@@ -1199,8 +1213,14 @@ export default function App() {
     setBreaks(updated);
     showToast("❌ Removed break.");
   };
-
-
+  const handleExitDev = () => {
+    setShowDiagnostic(false);
+    setRawTaps([]);
+    setAnchors([]);
+    setCalibrationStats(null);
+    setEstimatedDelay(null);
+    showToast("🔒 Dev Panel Locked!");
+  };
 
   const handleHeaderClick = () => {
     if (!isDevMode) {
@@ -1414,72 +1434,19 @@ export default function App() {
           )}
 
           {/* Segmented Roadmap Progress Scrubber */}
-          <div className="glass-panel" style={{ padding: "14px 16px", marginBottom: "0px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.75rem", fontWeight: "600", color: "#9ca3af", marginBottom: "8px" }}>
-              <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                Song Roadmap
-                {nextSection && timeToNextSection <= 10 && (
-                  <span style={{ fontSize: "0.65rem", color: "#fb7185", marginLeft: "8px", fontWeight: "bold" }}>
-                    ➡️ {nextSection.name} in {timeToNextSection.toFixed(1)}s
-                  </span>
-                )}
-              </span>
-              <span style={{ color: "#a78bfa" }}>
-                {Math.floor(currentTime / 60)}:{(Math.floor(currentTime % 60)).toString().padStart(2, "0")} / {Math.floor(videoDuration / 60)}:{(Math.floor(videoDuration % 60)).toString().padStart(2, "0")}
-              </span>
-            </div>
-            
-            <div className="roadmap-scrubber-wrapper">
-              <div 
-                className="roadmap-scrubber-track"
-                onClick={(e) => {
-                  const rect = e.currentTarget.getBoundingClientRect();
-                  const clickPercent = (e.clientX - rect.left) / rect.width;
-                  const targetTime = clickPercent * videoDuration;
-                  throttledSeek(targetTime, true);
-                }}
-              >
-                {/* Dynamic Intro Highlight Segment */}
-                <div 
-                  className="roadmap-segment segment-intro"
-                  style={{
-                    left: `${(introStart / videoDuration) * 100}%`,
-                    width: `${((introEnd - introStart) / videoDuration) * 100}%`
-                  }}
-                  title="Song Intro Region"
-                ></div>
-
-                {/* Dynamic Section markers */}
-                {(showDiagnostic ? editorSections : sectionsList).map((sec, idx) => (
-                  <div
-                    key={idx}
-                    className="roadmap-section-marker"
-                    style={{ left: `${(sec.startTimestamp / videoDuration) * 100}%` }}
-                    title={`${sec.name} Start`}
-                  ></div>
-                ))}
-
-                {/* Dynamic Breaks highlight segments */}
-                {breaks.map((b) => (
-                  <div
-                    key={b.id}
-                    className="roadmap-segment segment-break"
-                    style={{
-                      left: `${(b.startTimestamp / videoDuration) * 100}%`,
-                      width: `${((b.endTimestamp - b.startTimestamp) / videoDuration) * 100}%`
-                    }}
-                    title={`Cierre Stop: ${b.startTimestamp}s - ${b.endTimestamp}s`}
-                  ></div>
-                ))}
-
-                {/* Glowing Playhead Handle */}
-                <div 
-                  className="roadmap-playhead"
-                  style={{ left: `${(currentTime / videoDuration) * 100}%` }}
-                ></div>
-              </div>
-            </div>
-          </div>
+          <RoadmapScrubber
+            currentTime={currentTime}
+            videoDuration={videoDuration}
+            introStart={introStart}
+            introEnd={introEnd}
+            nextSection={nextSection}
+            timeToNextSection={timeToNextSection}
+            showDiagnostic={showDiagnostic}
+            editorSections={editorSections}
+            sectionsList={sectionsList}
+            breaks={breaks}
+            onSeek={throttledSeek}
+          />
 
           {/* Unified Touch Controlbar */}
           <ControlBar 
@@ -1492,490 +1459,54 @@ export default function App() {
 
           {/* Public Tapping Deck (Diagnostic downbeats calibrator helper) */}
           {showDiagnostic && (
-            <div className="glass-panel" style={{ padding: "16px", display: "flex", flexDirection: "column", gap: "12px", alignItems: "center" }}>
-              <button
-                className="btn-diagnose-tap"
-                onClick={handleTapOnOne}
-                style={{ width: "100%", height: "80px", borderRadius: "16px", border: "3px solid #8b5cf6" }}
-              >
-                <span style={{ fontSize: "1.2rem", fontWeight: "800" }}>TAP ON "1"</span>
-                <span style={{ fontSize: "0.65rem", opacity: 0.8, fontWeight: "400" }}>Tap every time you hear count 1</span>
-              </button>
-
-              {rawTaps.length > 0 && (
-                <div style={{ display: "flex", width: "100%", gap: "10px", marginTop: "4px" }}>
-                  <button
-                    className={`btn-diagnose-action ${rawTaps.length >= 50 ? "active-ready" : "locked-pending"}`}
-                    onClick={handleSaveToDisk}
-                    disabled={rawTaps.length < 50}
-                    style={{
-                      flexGrow: 1,
-                      minHeight: "48px",
-                      background: rawTaps.length >= 50 
-                        ? "linear-gradient(135deg, #10b981, #059669)" 
-                        : "rgba(255,255,255,0.03)",
-                      boxShadow: rawTaps.length >= 50 
-                        ? "0 4px 16px rgba(16, 185, 129, 0.25)" 
-                        : "none",
-                      border: rawTaps.length >= 50 
-                        ? "none" 
-                        : "1px solid rgba(255, 255, 255, 0.05)",
-                      color: rawTaps.length >= 50 ? "#fff" : "#6b7280",
-                      fontWeight: "800",
-                      textTransform: "uppercase",
-                      borderRadius: "12px",
-                      letterSpacing: "0.5px",
-                      cursor: rawTaps.length >= 50 ? "pointer" : "not-allowed",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: "8px",
-                      transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
-                    }}
-                    title={rawTaps.length >= 50 ? "Save the normalized beatmap permanently to disk" : `Record at least 50 taps to unlock. Current: ${rawTaps.length}/50`}
-                  >
-                    {rawTaps.length >= 50 ? (
-                      <>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ animation: "pulse 2s infinite" }}><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-                        <span>Save Calibration</span>
-                      </>
-                    ) : (
-                      <>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.5 }}><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                        <span>Locked: {rawTaps.length}/50</span>
-                      </>
-                    )}
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      setRawTaps([]);
-                      setAnchors([]);
-                      setCalibrationStats(null);
-                      setEstimatedDelay(null);
-                      if (songData?.metadata?.youtubeId) {
-                        localStorage.removeItem(`armada_raw_taps_${songData.metadata.youtubeId}`);
-                      }
-                      showToast("🔄 Taps cleared & visual shield lifted!");
-                    }}
-                    style={{
-                      width: "48px",
-                      height: "48px",
-                      background: "rgba(239, 68, 68, 0.1)",
-                      border: "1px solid rgba(239, 68, 68, 0.2)",
-                      borderRadius: "12px",
-                      color: "#f87171",
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      transition: "all 0.2s ease"
-                    }}
-                    title="Clear all recorded taps and lift the visual count shield"
-                  >
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
-                  </button>
-                </div>
-              )}
-            </div>
+            <CalibrationTapDeck
+              rawTaps={rawTaps}
+              onTapOnOne={handleTapOnOne}
+              onSaveToDisk={handleSaveToDisk}
+              onClearTaps={handleClearTaps}
+            />
           )}
         </div>
 
         {/* Right Column: Developer Calibration Panel */}
         {showDiagnostic && (
-          <div className="glass-panel dev-panel right-workspace-column">
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(255,255,255,0.08)", paddingBottom: "8px" }}>
-              <span style={{ fontSize: "0.9rem", fontWeight: "800", color: "#c084fc", textTransform: "uppercase", letterSpacing: "0.5px", display: "flex", alignItems: "center", gap: "6px" }}>
-                🛠️ Creator Calibration Desk
-              </span>
-              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <span style={{ fontSize: "0.7rem", color: "#6b7280", background: "rgba(255,255,255,0.05)", padding: "2px 8px", borderRadius: "6px" }}>DEV MODE</span>
-                <button 
-                  onClick={() => {
-                    setShowDiagnostic(false);
-                    setRawTaps([]);
-                    setAnchors([]);
-                    setCalibrationStats(null);
-                    setEstimatedDelay(null);
-                    showToast("🔒 Dev Panel Locked!");
-                  }}
-                  style={{ background: "rgba(239, 68, 68, 0.15)", border: "1px solid rgba(239, 68, 68, 0.3)", color: "#f87171", padding: "2px 8px", borderRadius: "6px", fontSize: "0.7rem", fontWeight: "700", cursor: "pointer", transition: "all 0.2s ease" }}
-                  title="Lock and hide the Developer Calibration Desk"
-                >
-                  Exit
-                </button>
-              </div>
-            </div>
-
-            {/* Calibration Stats Card */}
-            {calibrationStats && (
-              <div style={{ display: "flex", flexDirection: "column", gap: "8px", borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "12px" }}>
-                <span style={{ fontSize: "0.8rem", fontWeight: "800", color: "#10b981", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-                  📊 Calibration Stats
-                </span>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", background: "rgba(16, 185, 129, 0.05)", padding: "10px", borderRadius: "10px", border: "1px solid rgba(16, 185, 129, 0.15)", fontSize: "0.75rem" }}>
-                  <div style={{ display: "flex", flexDirection: "column" }}>
-                    <span style={{ color: "#9ca3af", fontSize: "0.65rem" }}>Total Taps</span>
-                    <span style={{ fontWeight: "700", color: "#fff" }}>{calibrationStats.totalTaps}</span>
-                  </div>
-                  <div style={{ display: "flex", flexDirection: "column" }}>
-                    <span style={{ color: "#9ca3af", fontSize: "0.65rem" }}>Matched Taps</span>
-                    <span style={{ fontWeight: "700", color: "#34d399" }}>{calibrationStats.matchedTaps}</span>
-                  </div>
-                  <div style={{ display: "flex", flexDirection: "column" }}>
-                    <span style={{ color: "#9ca3af", fontSize: "0.65rem" }}>Outliers</span>
-                    <span style={{ fontWeight: "700", color: "#f87171" }}>{calibrationStats.outliersCount}</span>
-                  </div>
-                  <div style={{ display: "flex", flexDirection: "column" }}>
-                    <span style={{ color: "#9ca3af", fontSize: "0.65rem" }}>Median Diff</span>
-                    <span style={{ fontWeight: "700", color: "#60a5fa" }}>{calibrationStats.medianDiffMs}ms</span>
-                  </div>
-                  {estimatedDelay !== null && (
-                    <div style={{ display: "flex", flexDirection: "column" }}>
-                      <span style={{ color: "#9ca3af", fontSize: "0.65rem" }}>Est. Reaction Delay</span>
-                      <span style={{ fontWeight: "700", color: "#fb923c" }}>{Math.round(estimatedDelay * 1000)}ms</span>
-                    </div>
-                  )}
-                  {anchors.length > 0 && (
-                    <div style={{ display: "flex", flexDirection: "column" }}>
-                      <span style={{ color: "#9ca3af", fontSize: "0.65rem" }}>Warp Anchors</span>
-                      <span style={{ fontWeight: "700", color: "#fbbf24" }}>{anchors.length} active</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Reaction Delay Config */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "6px", borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "12px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem", fontWeight: "800", color: "#a78bfa", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-                <span>Reaction Delay</span>
-                <span>{userDelaySetting}ms</span>
-              </div>
-              <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-                <input 
-                  type="range" 
-                  min="0" 
-                  max="500" 
-                  step="10" 
-                  value={userDelaySetting}
-                  onChange={(e) => setUserDelaySetting(parseInt(e.target.value))}
-                  style={{ flexGrow: 1, accentColor: "#a78bfa" }}
-                />
-              </div>
-              <span style={{ fontSize: "0.6rem", color: "#6b7280", fontStyle: "italic" }}>
-                Compensates for reaction lag when tapping counts.
-              </span>
-            </div>
-
-            {/* Calibration Action buttons */}
-            <div style={{ display: "flex", gap: "8px", marginTop: "12px", borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "12px" }}>
-              <button 
-                className="btn-step" 
-                onClick={handleResetCalibration} 
-                style={{ flexGrow: 1, padding: "8px 12px", fontSize: "0.75rem", fontWeight: "700", background: "rgba(239, 68, 68, 0.15)", border: "1px solid rgba(239, 68, 68, 0.3)", color: "#f87171" }}
-              >
-                🔄 Reset Calibration Grid
-              </button>
-            </div>
-
-            {/* JSON Export actions */}
-            <div style={{ display: "flex", gap: "8px", marginTop: "8px" }}>
-              <button 
-                className="btn-step" 
-                onClick={handleCopyCalibratedJson} 
-                style={{ flexGrow: 1, padding: "6px 10px", fontSize: "0.7rem", fontWeight: "700", background: "rgba(255, 255, 255, 0.05)", border: "1px solid rgba(255, 255, 255, 0.1)", color: "#fff" }}
-                title="Copy current calibrated beatmap JSON to clipboard"
-              >
-                📋 Copy JSON
-              </button>
-              <button 
-                className="btn-step" 
-                onClick={handleDownloadCalibratedJson} 
-                style={{ flexGrow: 1, padding: "6px 10px", fontSize: "0.7rem", fontWeight: "700", background: "rgba(255, 255, 255, 0.05)", border: "1px solid rgba(255, 255, 255, 0.1)", color: "#fff" }}
-                title="Download calibrated beatmap as a JSON file"
-              >
-                💾 Download JSON
-              </button>
-            </div>
-
-            {/* Cierre Breaks Editor */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "8px", borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "12px" }}>
-              <span style={{ fontSize: "0.8rem", fontWeight: "800", color: "#f43f5e", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-                ❄️ Cierre Breaks Editor
-              </span>
-              
-              <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
-                <div style={{ display: "flex", flexDirection: "column", flexGrow: 1, gap: "4px" }}>
-                  <div style={{ display: "flex", gap: "4px" }}>
-                    <input 
-                      type="text" 
-                      placeholder="Start (s)" 
-                      value={tempBreakStart}
-                      onChange={(e) => setTempBreakStart(e.target.value)}
-                      style={{ width: "100%", padding: "4px 8px", fontSize: "0.75rem", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.1)", background: "rgba(0,0,0,0.2)", color: "#fff" }}
-                    />
-                    <button className="btn-dev-sync" style={{ padding: "4px 8px", fontSize: "0.65rem", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }} onClick={handleMarkBreakStart} title="Mark break start">Mark</button>
-                  </div>
-                  <div style={{ display: "flex", gap: "4px" }}>
-                    <input 
-                      type="text" 
-                      placeholder="End (s)" 
-                      value={tempBreakEnd}
-                      onChange={(e) => setTempBreakEnd(e.target.value)}
-                      style={{ width: "100%", padding: "4px 8px", fontSize: "0.75rem", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.1)", background: "rgba(0,0,0,0.2)", color: "#fff" }}
-                    />
-                    <button className="btn-dev-sync" style={{ padding: "4px 8px", fontSize: "0.65rem", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }} onClick={handleMarkBreakEnd} title="Mark break end">Mark</button>
-                  </div>
-                </div>
-                <button 
-                  className="btn-step" 
-                  onClick={handleAddNewBreak}
-                  style={{ height: "48px", background: "rgba(244, 63, 94, 0.15)", border: "1px solid rgba(244, 63, 94, 0.3)", color: "#f43f5e", fontSize: "0.7rem", fontWeight: "700" }}
-                >
-                  ➕ Add
-                </button>
-              </div>
-
-              <div style={{ display: "flex", flexDirection: "column", gap: "4px", maxHeight: "120px", overflowY: "auto", background: "rgba(0,0,0,0.1)", padding: "6px", borderRadius: "8px" }}>
-                {breaks.map((b) => (
-                  <div key={b.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "0.65rem", padding: "4px 6px", borderRadius: "4px", background: "rgba(255,255,255,0.03)" }}>
-                    <span style={{ color: "#e5e7eb" }}>❄️ {b.startTimestamp.toFixed(2)}s - {b.endTimestamp.toFixed(2)}s</span>
-                    <button 
-                      onClick={() => handleDeleteBreak(b.id)}
-                      style={{ background: "none", border: "none", color: "#f87171", cursor: "pointer", fontSize: "0.75rem" }}
-                      title="Delete break"
-                    >
-                      🗑️
-                    </button>
-                  </div>
-                ))}
-                {breaks.length === 0 && (
-                  <span style={{ fontSize: "0.6rem", color: "#6b7280", fontStyle: "italic", textAlign: "center" }}>No cierre breaks set.</span>
-                )}
-              </div>
-            </div>
-
-            {/* Song Sections Editor */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "8px", borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "12px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span style={{ fontSize: "0.8rem", fontWeight: "800", color: "#38bdf8", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-                  🏷️ Song Sections Editor
-                </span>
-                <button 
-                  className="btn-step" 
-                  onClick={handleAddNewSection} 
-                  style={{ padding: "4px 10px", fontSize: "0.7rem", fontWeight: "700", background: "rgba(56, 189, 248, 0.15)", border: "1px solid rgba(56, 189, 248, 0.3)", color: "#38bdf8" }}
-                >
-                  ➕ Add Section
-                </button>
-              </div>
-
-              <div style={{ display: "flex", flexDirection: "column", gap: "8px", background: "rgba(255,255,255,0.02)", padding: "8px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.04)" }}>
-
-                {/* Pinned Intro section */}
-                {(() => {
-                  const introId = "__intro__";
-                  const isEditingIntro = activeEditingSectionId === introId;
-                  return (
-                    <div style={{ display: "flex", flexDirection: "column", gap: "6px", padding: "8px", borderRadius: "8px", border: `1px solid ${isEditingIntro ? "rgba(56, 189, 248, 0.4)" : "rgba(255,255,255,0.06)"}`, background: isEditingIntro ? "rgba(56, 189, 248, 0.04)" : "rgba(255,255,255,0.02)" }}>
-                      {/* Header */}
-                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                        <span style={{ flexGrow: 1, fontSize: "0.8rem", fontWeight: "700", color: "#e5e7eb" }}>🎬 Intro Region</span>
-                        <button
-                          onClick={() => setActiveEditingSectionId(isEditingIntro ? null : introId)}
-                          style={{ background: isEditingIntro ? "rgba(56, 189, 248, 0.15)" : "rgba(255,255,255,0.05)", border: `1px solid ${isEditingIntro ? "rgba(56, 189, 248, 0.4)" : "rgba(255,255,255,0.1)"}`, color: isEditingIntro ? "#38bdf8" : "#6b7280", padding: "2px 8px", borderRadius: "6px", fontSize: "0.7rem", fontWeight: "700", cursor: "pointer", whiteSpace: "nowrap" }}
-                        >
-                          {isEditingIntro ? "✏️ On" : "✏️ Off"}
-                        </button>
-                        <button
-                          onClick={handleSaveMetadataAndBreaks}
-                          style={{ background: "none", border: "none", fontSize: "0.95rem", cursor: "pointer", opacity: 0.7, transition: "opacity 0.15s ease" }}
-                          onMouseEnter={e => e.target.style.opacity = 1}
-                          onMouseLeave={e => e.target.style.opacity = 0.7}
-                          title="Save intro boundaries to disk"
-                        >💾</button>
-                      </div>
-
-                      {isEditingIntro ? (
-                        <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginTop: "4px" }}>
-                          {/* Intro Start */}
-                          <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.7rem", fontWeight: "600", color: "#9ca3af" }}>
-                              <span>Start</span><span style={{ color: "#38bdf8" }}>{introStart.toFixed(2)}s</span>
-                            </div>
-                            <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-                              <input type="range" min="0" max={videoDuration} step="0.1" value={introStart}
-                                onChange={(e) => handleIntroStartChange(e.target.value, false)}
-                                onMouseUp={(e) => handleIntroStartChange(e.target.value, true)}
-                                onTouchEnd={(e) => handleIntroStartChange(e.target.value, true)}
-                                style={{ flexGrow: 1, accentColor: "#38bdf8" }}
-                              />
-                              <button className="btn-dev-sync" onClick={handleMarkIntroStart} title="Mark current playhead as intro start">🎯 Mark</button>
-                            </div>
-                            <div style={{ display: "flex", gap: "4px" }}>
-                              <button className="btn-step" onClick={() => handleIntroStartChange(introStart - 0.5, true)}>-0.5s</button>
-                              <button className="btn-step" onClick={() => handleIntroStartChange(introStart - 0.1, true)}>-0.1s</button>
-                              <button className="btn-step" onClick={() => handleIntroStartChange(introStart + 0.1, true)}>+0.1s</button>
-                              <button className="btn-step" onClick={() => handleIntroStartChange(introStart + 0.5, true)}>+0.5s</button>
-                            </div>
-                          </div>
-                          {/* Intro End */}
-                          <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.7rem", fontWeight: "600", color: "#9ca3af" }}>
-                              <span>End</span><span style={{ color: "#f43f5e" }}>{introEnd.toFixed(2)}s</span>
-                            </div>
-                            <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-                              <input type="range" min="0" max={videoDuration} step="0.1" value={introEnd}
-                                onChange={(e) => handleIntroEndChange(e.target.value, false)}
-                                onMouseUp={(e) => handleIntroEndChange(e.target.value, true)}
-                                onTouchEnd={(e) => handleIntroEndChange(e.target.value, true)}
-                                style={{ flexGrow: 1, accentColor: "#f43f5e" }}
-                              />
-                              <button className="btn-dev-sync" onClick={handleMarkIntroEnd} title="Mark current playhead as intro end">🎯 Mark</button>
-                            </div>
-                            <div style={{ display: "flex", gap: "4px" }}>
-                              <button className="btn-step" onClick={() => handleIntroEndChange(introEnd - 0.5, true)}>-0.5s</button>
-                              <button className="btn-step" onClick={() => handleIntroEndChange(introEnd - 0.1, true)}>-0.1s</button>
-                              <button className="btn-step" onClick={() => handleIntroEndChange(introEnd + 0.1, true)}>+0.1s</button>
-                              <button className="btn-step" onClick={() => handleIntroEndChange(introEnd + 0.5, true)}>+0.5s</button>
-                            </div>
-                          </div>
-                        </div>
-                      ) : (
-                        <div style={{ display: "flex", gap: "16px", fontSize: "0.65rem", color: "#9ca3af", fontStyle: "italic", padding: "2px 4px" }}>
-                          <span>Start: <strong style={{ color: "#e5e7eb" }}>{introStart.toFixed(2)}s</strong></span>
-                          <span>End: <strong style={{ color: "#e5e7eb" }}>{introEnd.toFixed(2)}s</strong></span>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })()}
-
-                {/* Song sections */}
-                {editorSections.map((sec) => {
-                  const isEditing = activeEditingSectionId === sec.id;
-                  return (
-                    <div key={sec.id} style={{ display: "flex", flexDirection: "column", gap: "6px", padding: "8px", borderRadius: "8px", border: `1px solid ${isEditing ? "rgba(56, 189, 248, 0.4)" : "rgba(255,255,255,0.04)"}`, background: isEditing ? "rgba(56, 189, 248, 0.04)" : "rgba(0,0,0,0.15)" }}>
-                      
-                      {/* Header row */}
-                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                        <input 
-                          type="text" 
-                          value={sec.name} 
-                          onChange={(e) => handleUpdateSectionName(sec.id, e.target.value)}
-                          placeholder="Section Name (e.g. Verse, Chorus)"
-                          style={{ flexGrow: 1, padding: "4px 8px", fontSize: "0.75rem", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.1)", background: "rgba(0,0,0,0.2)", color: "#fff", fontWeight: "600" }}
-                        />
-                        <button
-                          onClick={() => setActiveEditingSectionId(isEditing ? null : sec.id)}
-                          style={{ background: isEditing ? "rgba(56, 189, 248, 0.15)" : "rgba(255,255,255,0.05)", border: `1px solid ${isEditing ? "rgba(56, 189, 248, 0.4)" : "rgba(255,255,255,0.1)"}`, color: isEditing ? "#38bdf8" : "#6b7280", padding: "2px 8px", borderRadius: "6px", fontSize: "0.7rem", fontWeight: "700", cursor: "pointer", whiteSpace: "nowrap" }}
-                          title={isEditing ? "Disable editing" : "Enable editing"}
-                        >
-                          {isEditing ? "✏️ On" : "✏️ Off"}
-                        </button>
-                        <button onClick={handleSaveSectionsToDisk}
-                          style={{ background: "none", border: "none", fontSize: "0.95rem", cursor: "pointer", opacity: 0.7, transition: "opacity 0.15s ease" }}
-                          onMouseEnter={e => e.target.style.opacity = 1} onMouseLeave={e => e.target.style.opacity = 0.7}
-                          title="Save sections to disk">💾</button>
-                        <button onClick={() => handleDeleteSection(sec.id)}
-                          style={{ background: "none", border: "none", fontSize: "0.95rem", cursor: "pointer", opacity: 0.7, transition: "opacity 0.15s ease" }}
-                          onMouseEnter={e => e.target.style.opacity = 1} onMouseLeave={e => e.target.style.opacity = 0.7}
-                          title="Delete section">🗑️</button>
-                      </div>
-
-                      {/* Sliders when enabled */}
-                      {isEditing ? (
-                        <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginTop: "4px" }}>
-                          {/* Start */}
-                          <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.7rem", fontWeight: "600", color: "#9ca3af" }}>
-                              <span>Start</span><span style={{ color: "#38bdf8" }}>{sec.startTimestamp.toFixed(2)}s</span>
-                            </div>
-                            <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-                              <input type="range" min="0" max={videoDuration} step="0.05" value={sec.startTimestamp}
-                                onChange={(e) => handleUpdateSectionTimes(sec.id, "startTimestamp", e.target.value)}
-                                onMouseUp={(e) => throttledSeek(parseFloat(e.target.value), true)}
-                                onTouchEnd={(e) => throttledSeek(parseFloat(e.target.value), true)}
-                                style={{ flexGrow: 1, height: "6px", cursor: "pointer", accentColor: "#38bdf8" }}
-                              />
-                              <button className="btn-dev-sync" onClick={() => { if (!player) return; const t = parseFloat(player.getCurrentTime().toFixed(2)); handleUpdateSectionTimes(sec.id, "startTimestamp", t); }} title="Mark current playhead as start">🎯 Mark</button>
-                            </div>
-                            <div style={{ display: "flex", gap: "4px" }}>
-                              <button className="btn-step" onClick={() => handleUpdateSectionTimes(sec.id, "startTimestamp", sec.startTimestamp - 0.5)}>-0.5s</button>
-                              <button className="btn-step" onClick={() => handleUpdateSectionTimes(sec.id, "startTimestamp", sec.startTimestamp - 0.1)}>-0.1s</button>
-                              <button className="btn-step" onClick={() => handleUpdateSectionTimes(sec.id, "startTimestamp", sec.startTimestamp + 0.1)}>+0.1s</button>
-                              <button className="btn-step" onClick={() => handleUpdateSectionTimes(sec.id, "startTimestamp", sec.startTimestamp + 0.5)}>+0.5s</button>
-                            </div>
-                          </div>
-                          {/* End */}
-                          <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.7rem", fontWeight: "600", color: "#9ca3af" }}>
-                              <span>End</span><span style={{ color: "#f43f5e" }}>{sec.endTimestamp.toFixed(2)}s</span>
-                            </div>
-                            <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-                              <input type="range" min="0" max={videoDuration} step="0.05" value={sec.endTimestamp}
-                                onChange={(e) => handleUpdateSectionTimes(sec.id, "endTimestamp", e.target.value)}
-                                onMouseUp={(e) => throttledSeek(parseFloat(e.target.value), true)}
-                                onTouchEnd={(e) => throttledSeek(parseFloat(e.target.value), true)}
-                                style={{ flexGrow: 1, height: "6px", cursor: "pointer", accentColor: "#f43f5e" }}
-                              />
-                              <button className="btn-dev-sync" onClick={() => { if (!player) return; const t = parseFloat(player.getCurrentTime().toFixed(2)); handleUpdateSectionTimes(sec.id, "endTimestamp", t); }} title="Mark current playhead as end">🎯 Mark</button>
-                            </div>
-                            <div style={{ display: "flex", gap: "4px" }}>
-                              <button className="btn-step" onClick={() => handleUpdateSectionTimes(sec.id, "endTimestamp", sec.endTimestamp - 0.5)}>-0.5s</button>
-                              <button className="btn-step" onClick={() => handleUpdateSectionTimes(sec.id, "endTimestamp", sec.endTimestamp - 0.1)}>-0.1s</button>
-                              <button className="btn-step" onClick={() => handleUpdateSectionTimes(sec.id, "endTimestamp", sec.endTimestamp + 0.1)}>+0.1s</button>
-                              <button className="btn-step" onClick={() => handleUpdateSectionTimes(sec.id, "endTimestamp", sec.endTimestamp + 0.5)}>+0.5s</button>
-                            </div>
-                          </div>
-                        </div>
-                      ) : (
-                        <div style={{ display: "flex", gap: "16px", fontSize: "0.65rem", color: "#9ca3af", fontStyle: "italic", padding: "2px 4px" }}>
-                          <span>Start: <strong style={{ color: "#e5e7eb" }}>{sec.startTimestamp.toFixed(2)}s</strong></span>
-                          <span>End: <strong style={{ color: "#e5e7eb" }}>{sec.endTimestamp.toFixed(2)}s</strong></span>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-
-                {editorSections.length === 0 && (
-                  <span style={{ fontSize: "0.65rem", color: "#6b7280", fontStyle: "italic", textAlign: "center" }}>No sections yet. Click ➕ Add Section!</span>
-                )}
-              </div>
-            </div>
-
-            {/* Save Song Boundaries Button */}
-            <button 
-              className="btn-diagnose-action" 
-              onClick={handleSaveMetadataAndBreaks}
-              style={{
-                width: "100%",
-                minHeight: "42px",
-                background: "linear-gradient(135deg, #a78bfa, #8b5cf6)",
-                boxShadow: "0 4px 14px rgba(139, 92, 246, 0.3)",
-                border: "none",
-                color: "#fff",
-                fontWeight: "800",
-                textTransform: "uppercase",
-                borderRadius: "12px",
-                fontSize: "0.8rem",
-                letterSpacing: "0.5px",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "8px",
-                marginTop: "8px",
-                transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
-              }}
-              title="Save the song intro boundaries to disk"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-              <span>Save Song Boundaries</span>
-            </button>
-          </div>
+          <DevCalibrationPanel
+            calibrationStats={calibrationStats}
+            estimatedDelay={estimatedDelay}
+            anchors={anchors}
+            userDelaySetting={userDelaySetting}
+            onUserDelaySettingChange={setUserDelaySetting}
+            onExit={handleExitDev}
+            onResetCalibration={handleResetCalibration}
+            onCopyCalibratedJson={handleCopyCalibratedJson}
+            onDownloadCalibratedJson={handleDownloadCalibratedJson}
+            tempBreakStart={tempBreakStart}
+            tempBreakEnd={tempBreakEnd}
+            onTempBreakStartChange={setTempBreakStart}
+            onTempBreakEndChange={setTempBreakEnd}
+            onMarkBreakStart={handleMarkBreakStart}
+            onMarkBreakEnd={handleMarkBreakEnd}
+            onAddNewBreak={handleAddNewBreak}
+            breaks={breaks}
+            onDeleteBreak={handleDeleteBreak}
+            onAddNewSection={handleAddNewSection}
+            editorSections={editorSections}
+            activeEditingSectionId={activeEditingSectionId}
+            onToggleEditingSection={setActiveEditingSectionId}
+            introStart={introStart}
+            introEnd={introEnd}
+            videoDuration={videoDuration}
+            onIntroStartChange={handleIntroStartChange}
+            onIntroEndChange={handleIntroEndChange}
+            onMarkIntroStart={handleMarkIntroStart}
+            onMarkIntroEnd={handleMarkIntroEnd}
+            onSaveMetadataAndBreaks={handleSaveMetadataAndBreaks}
+            onUpdateSectionName={handleUpdateSectionName}
+            onUpdateSectionTimes={handleUpdateSectionTimes}
+            player={player}
+            onSaveSectionsToDisk={handleSaveSectionsToDisk}
+            onDeleteSection={handleDeleteSection}
+          />
         )}
       </div>
 
