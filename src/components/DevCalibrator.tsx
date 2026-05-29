@@ -89,37 +89,52 @@ export default function DevCalibrator({
 
   // ── Load sections on song change ──────────────────────────────────────────
   useEffect(() => {
-    if (agnosticSong && loadedSongIdRef.current !== youtubeId) {
-      loadedSongIdRef.current = youtubeId;
+    // Wait for the YouTube player to report a real duration before initialising
+    if (!agnosticSong || videoDuration <= 0) return;
+    if (loadedSongIdRef.current === youtubeId) return;
+    loadedSongIdRef.current = youtubeId;
 
-      const activeSections = agnosticSong.calibratedBeatmap?.sections || [];
-      const sorted = [...activeSections].sort((a, b) => a.startTimestamp - b.startTimestamp);
+    const activeSections = agnosticSong.calibratedBeatmap?.sections || [];
+    const sorted = [...activeSections].sort((a, b) => a.startTimestamp - b.startTimestamp);
 
-      const formatted: EditorSection[] = sorted.map((sec, idx) => {
-        const start = sec.startTimestamp;
-        const end =
-          typeof sec.endTimestamp === "number" && sec.endTimestamp > start
-            ? sec.endTimestamp
-            : idx < sorted.length - 1
-            ? sorted[idx + 1].startTimestamp
-            : duration;
-        return {
-          id:              sec.id || `sec-${idx}-${sec.name}`,
-          name:            sec.name,
-          emoji:           sec.emoji || "🎵",
-          startTimestamp:  start,
-          endTimestamp:    end,
-          focusInstrument: sec.focusInstrument || "",
-          beatCountType:   sec.beatCountType   || "salsa-8",
-          displayCounts:   sec.displayCounts   !== false,
-          localOffsetMs:   sec.localOffsetMs   || 0,
-        };
-      });
+    const formatted: EditorSection[] = sorted.map((sec, idx) => {
+      const start = sec.startTimestamp;
+      const end =
+        typeof sec.endTimestamp === "number" && sec.endTimestamp > start
+          ? sec.endTimestamp
+          : idx < sorted.length - 1
+          ? sorted[idx + 1].startTimestamp
+          : videoDuration;
+      return {
+        id:              sec.id || `sec-${idx}-${sec.name}`,
+        name:            sec.name,
+        emoji:           sec.emoji || "🎵",
+        startTimestamp:  start,
+        endTimestamp:    end,
+        focusInstrument: sec.focusInstrument || "",
+        beatCountType:   sec.beatCountType   || "salsa-8",
+        displayCounts:   sec.displayCounts   !== false,
+        localOffsetMs:   sec.localOffsetMs   || 0,
+      };
+    });
 
-      setEditorSections(formatted);
-      setGlobalTapLog(agnosticSong.globalTapLog || []);
-      setFocusedSectionId(null);
+    // Guarantee the timeline is fully contiguous and covers the whole song.
+    // JSON sections may have gaps between them or end before the video ends.
+    if (formatted.length > 0) {
+      for (let i = 0; i < formatted.length - 1; i++) {
+        if (formatted[i].endTimestamp < formatted[i + 1].startTimestamp) {
+          formatted[i].endTimestamp = formatted[i + 1].startTimestamp;
+        }
+      }
+      const last = formatted[formatted.length - 1];
+      if (last.endTimestamp < videoDuration) {
+        formatted[formatted.length - 1] = { ...last, endTimestamp: videoDuration };
+      }
     }
+
+    setEditorSections(formatted);
+    setGlobalTapLog(agnosticSong.globalTapLog || []);
+    setFocusedSectionId(null);
   }, [songData, videoDuration, youtubeId]);
 
   // ── Beat grid application ─────────────────────────────────────────────────
@@ -237,8 +252,46 @@ export default function DevCalibrator({
     const targetIdx = base.findIndex(
       s => sliceTime > s.startTimestamp + MIN_GAP && sliceTime < s.endTimestamp - MIN_GAP
     );
+
     if (targetIdx === -1) {
-      showToast("⚠️ Playhead is at or past a section boundary — seek away from the edge and try again.");
+      // Playhead is in an uncovered gap or past all sections.
+      // Auto-fill: find the boundary just before the playhead, insert a gap section, then slice.
+      const prevSecIdx = base.reduce<number>((best, s, i) =>
+        s.endTimestamp <= sliceTime + MIN_GAP
+          ? (best === -1 || s.endTimestamp > base[best].endTimestamp ? i : best)
+          : best
+      , -1);
+
+      const gapStart = prevSecIdx >= 0 ? base[prevSecIdx].endTimestamp : 0;
+      const nextSecStart = base.find(s => s.startTimestamp >= sliceTime)?.startTimestamp ?? duration;
+
+      if (sliceTime > gapStart + MIN_GAP && sliceTime < nextSecStart - MIN_GAP) {
+        // Fill the gap: one section from gapStart→sliceTime, one from sliceTime→nextSecStart
+        const ref = prevSecIdx >= 0 ? base[prevSecIdx] : base[0];
+        const fillSec: EditorSection = {
+          id: `sec-gap-${Date.now()}`,
+          name: "New Section", emoji: "🎵",
+          startTimestamp: gapStart, endTimestamp: sliceTime,
+          focusInstrument: ref?.focusInstrument || "",
+          beatCountType: ref?.beatCountType || "salsa-8",
+          displayCounts: true, localOffsetMs: 0,
+        };
+        const afterSec: EditorSection = {
+          id: `sec-after-${Date.now()}`,
+          name: "New Section", emoji: "🎵",
+          startTimestamp: sliceTime, endTimestamp: nextSecStart,
+          focusInstrument: "", beatCountType: ref?.beatCountType || "salsa-8",
+          displayCounts: true, localOffsetMs: 0,
+        };
+        const updated = [...base];
+        updated.splice(prevSecIdx + 1, 0, fillSec, afterSec);
+        syncSections(updated.sort((a, b) => a.startTimestamp - b.startTimestamp));
+        setFocusedSectionId(afterSec.id);
+        showToast(`✂️ Gap filled and sliced at ${formatTime(sliceTime)}`);
+        return;
+      }
+
+      showToast("⚠️ Playhead is at a section boundary — seek slightly away from the edge.");
       return;
     }
 
