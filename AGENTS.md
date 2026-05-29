@@ -73,7 +73,7 @@ To prevent timing regressions and type mismatches, enforce the following type co
   - When package state might change, provide the exact command for the user to run or explicitly approve. Package additions/upgrades must use exact versions and happen as deliberate, separate commands.
 - **Git Hygiene**:
   - **Branching Policy**: All work must be performed on dedicated feature branches. Branch names must strictly mention the issue number and title in lowercase separated by hyphens, following the pattern: `issue-[number]-[hyphenated-issue-title]` (e.g., `issue-3-typescript-environment-setup`).
-  - **Codex Branch Discipline**: Codex must never make implementation changes directly on `main`. Before editing code, tests, workflow files, or project configuration, Codex must create or switch to the correct issue-scoped branch/worktree branch, verify it with `git branch --show-current`, and keep all task changes isolated there.
+  - **AI Agent Branch & Worktree Discipline**: AI agents (including Antigravity and Codex) must never make implementation changes directly on `main`. Before editing code, tests, workflow files, or project configuration, agents must work exclusively on git worktree branches, make changes there, commit, push, create a Pull Request (Merge Request) to merge back, and then remove the branch/worktree after completion. Always verify the active branch with `git branch --show-current`.
   - Keep test scripts and XML dumps ignored.
   - Allow production beatmaps under `/public/songs/` to be committed by ensuring `.gitignore` unignores them explicitly:
     ```git
