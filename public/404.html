@@ -4,11 +4,34 @@
     <meta charset="UTF-8" />
     <title>Salsa Rhythm Hub</title>
     <script>
-      // GitHub Pages SPA routing fallback.
-      // When GitHub Pages gets a request for a path that has no matching file
-      // (e.g. /armada-movement/song/ABC123) it serves this 404.html instead.
-      // We encode the intended path as a query param and redirect to the root,
-      // where index.html will decode it and restore the URL before React boots.
+      /**
+       * GITHUB PAGES SPA ROUTING WORKAROUND
+       * ─────────────────────────────────────────────────────────────────────
+       * Problem:
+       *   GitHub Pages is a static file server with no server-side routing.
+       *   When a user visits or refreshes a deep URL like:
+       *     https://judithsanchez.github.io/armada-movement/song/ABC123
+       *   GitHub Pages looks for a file at that path, finds nothing, and
+       *   serves THIS file (404.html) instead of index.html.
+       *
+       * This workaround (credit: rafgraph/spa-github-pages):
+       *   1. This 404.html captures the intended pathname + search + hash.
+       *   2. Encodes it as a query param (?p=...) on a redirect to the root.
+       *   3. index.html has a matching script that decodes ?p= and calls
+       *      history.replaceState() to restore the original URL before React
+       *      mounts, so the router sees the correct path transparently.
+       *
+       * Long-term fix needed:
+       *   This is a hack and has limitations (e.g. the redirect adds a flash,
+       *   breaks prerendering/SEO). If hosting moves away from GitHub Pages to
+       *   a platform that supports server-side rewrites (Vercel, Netlify,
+       *   Cloudflare Pages, a custom server), this file and the corresponding
+       *   script in index.html should be removed and replaced with a proper
+       *   rewrite rule (e.g. Netlify's _redirects file: "/* /index.html 200").
+       *
+       * Tracked in: https://github.com/judithsanchez/armada-movement/issues/25
+       * ─────────────────────────────────────────────────────────────────────
+       */
       var base = '/armada-movement';
       var path = window.location.pathname.replace(base, '') || '/';
       var search = window.location.search;

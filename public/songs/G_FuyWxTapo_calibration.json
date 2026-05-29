@@ -1,5 +1,5 @@
 {
-  "recordedAt": "2026-05-29T08:14:02.186Z",
+  "recordedAt": "2026-05-29T08:16:29.919Z",
   "youtubeId": "G_FuyWxTapo",
   "globalTapLog": [
     14.144874
@@ -13,7 +13,7 @@
       "startTimestamp": 0.139,
       "endTimestamp": 10.1,
       "focusInstrument": "",
-      "beatCountType": "bachata-4",
+      "beatCountType": "none",
       "displayCounts": true,
       "localOffsetMs": 0
     }

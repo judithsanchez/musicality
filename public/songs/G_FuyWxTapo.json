@@ -483,87 +483,87 @@
       },
       {
         "timestamp": 0.272,
-        "beat": 4
+        "beat": 0
       },
       {
         "timestamp": 0.69,
-        "beat": 1
+        "beat": 0
       },
       {
         "timestamp": 1.131,
-        "beat": 2
+        "beat": 0
       },
       {
         "timestamp": 1.595,
-        "beat": 3
+        "beat": 0
       },
       {
         "timestamp": 2.06,
-        "beat": 4
+        "beat": 0
       },
       {
         "timestamp": 2.524,
-        "beat": 1
+        "beat": 0
       },
       {
         "timestamp": 3.012,
-        "beat": 2
+        "beat": 0
       },
       {
         "timestamp": 3.476,
-        "beat": 3
+        "beat": 0
       },
       {
         "timestamp": 3.964,
-        "beat": 4
+        "beat": 0
       },
       {
         "timestamp": 4.428,
-        "beat": 1
+        "beat": 0
       },
       {
         "timestamp": 4.916,
-        "beat": 2
+        "beat": 0
       },
       {
         "timestamp": 5.403,
-        "beat": 3
+        "beat": 0
       },
       {
         "timestamp": 5.868,
-        "beat": 4
+        "beat": 0
       },
       {
         "timestamp": 6.332,
-        "beat": 1
+        "beat": 0
       },
       {
         "timestamp": 6.82,
-        "beat": 2
+        "beat": 0
       },
       {
         "timestamp": 7.307,
-        "beat": 3
+        "beat": 0
       },
       {
         "timestamp": 7.772,
-        "beat": 4
+        "beat": 0
       },
       {
         "timestamp": 8.259,
-        "beat": 1
+        "beat": 0
       },
       {
         "timestamp": 8.724,
-        "beat": 2
+        "beat": 0
       },
       {
         "timestamp": 9.211,
-        "beat": 3
+        "beat": 0
       },
       {
         "timestamp": 9.699,
-        "beat": 4
+        "beat": 0
       },
       {
         "timestamp": 10.163,
@@ -2278,7 +2278,7 @@
         "startTimestamp": 0.139,
         "endTimestamp": 10.1,
         "focusInstrument": "",
-        "beatCountType": "bachata-4",
+        "beatCountType": "none",
         "displayCounts": true,
         "localOffsetMs": 0
       }
@@ -2300,7 +2300,7 @@
       "startTimestamp": 0.139,
       "endTimestamp": 10.1,
       "focusInstrument": "",
-      "beatCountType": "bachata-4",
+      "beatCountType": "none",
       "displayCounts": true,
       "localOffsetMs": 0
     }
@@ -2320,87 +2320,87 @@
     },
     {
       "timestamp": 0.272,
-      "beat": 4
+      "beat": 0
     },
     {
       "timestamp": 0.69,
-      "beat": 1
+      "beat": 0
     },
     {
       "timestamp": 1.131,
-      "beat": 2
+      "beat": 0
     },
     {
       "timestamp": 1.595,
-      "beat": 3
+      "beat": 0
     },
     {
       "timestamp": 2.06,
-      "beat": 4
+      "beat": 0
     },
     {
       "timestamp": 2.524,
-      "beat": 1
+      "beat": 0
     },
     {
       "timestamp": 3.012,
-      "beat": 2
+      "beat": 0
     },
     {
       "timestamp": 3.476,
-      "beat": 3
+      "beat": 0
     },
     {
       "timestamp": 3.964,
-      "beat": 4
+      "beat": 0
     },
     {
       "timestamp": 4.428,
-      "beat": 1
+      "beat": 0
     },
     {
       "timestamp": 4.916,
-      "beat": 2
+      "beat": 0
     },
     {
       "timestamp": 5.403,
-      "beat": 3
+      "beat": 0
     },
     {
       "timestamp": 5.868,
-      "beat": 4
+      "beat": 0
     },
     {
       "timestamp": 6.332,
-      "beat": 1
+      "beat": 0
     },
     {
       "timestamp": 6.82,
-      "beat": 2
+      "beat": 0
     },
     {
       "timestamp": 7.307,
-      "beat": 3
+      "beat": 0
     },
     {
       "timestamp": 7.772,
-      "beat": 4
+      "beat": 0
     },
     {
       "timestamp": 8.259,
-      "beat": 1
+      "beat": 0
     },
     {
       "timestamp": 8.724,
-      "beat": 2
+      "beat": 0
     },
     {
       "timestamp": 9.211,
-      "beat": 3
+      "beat": 0
     },
     {
       "timestamp": 9.699,
-      "beat": 4
+      "beat": 0
     },
     {
       "timestamp": 10.163,

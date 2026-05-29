@@ -238,7 +238,13 @@ export default function App() {
     }
   }, [showDiagnostic]);
 
-  // Vite injects BASE_URL at build time: '/' locally, '/armada-movement/' on GitHub Pages
+  // GITHUB PAGES WORKAROUND (see issue #25):
+  // Vite injects BASE_URL at build time: '/' locally, '/armada-movement/' on GitHub Pages.
+  // The router must strip this prefix before matching routes and re-prepend it when
+  // calling pushState, because window.location.pathname includes the base on GH Pages.
+  // If hosting moves to Netlify/Vercel/etc with server-side rewrites, remove this
+  // variable and all BASE references below, and delete public/404.html + the ?p= script
+  // in index.html. Tracked: https://github.com/judithsanchez/armada-movement/issues/25
   const BASE = (import.meta.env.BASE_URL || '/').replace(/\/$/, ''); // strip trailing slash
 
   // 1. Sync React state → browser URL (pathname-based, base-aware)
