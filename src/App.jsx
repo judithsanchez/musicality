@@ -1555,6 +1555,7 @@ export default function App() {
                 currentBeat={currentBeat}
                 activeSection={activeSection}
                 activeBreak={activeBreak}
+                isPlaying={isActuallyPlaying}
               />
             )}
 

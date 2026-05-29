@@ -6,7 +6,8 @@ export default function Visualizer({
   introEnd = 0,
   currentBeat = null,
   activeSection = null,
-  activeBreak = null
+  activeBreak = null,
+  isPlaying = false
 }) {
   
   // Helper to map section name to CSS class
@@ -58,6 +59,7 @@ export default function Visualizer({
               }
 
               const isActive = 
+                isPlaying &&
                 canLight && 
                 currentTime >= introEnd && 
                 currentBeat && 
