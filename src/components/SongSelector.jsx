@@ -13,7 +13,7 @@ export default function SongSelector({ onSelectSong, onOpenDevDashboard }) {
 
   // Fetch song catalog on startup
   useEffect(() => {
-    fetch("songs/catalog.json")
+    fetch(import.meta.env.BASE_URL + "songs/catalog.json")
       .then((res) => {
         if (!res.ok) throw new Error("Catalog fetch failed");
         return res.json();

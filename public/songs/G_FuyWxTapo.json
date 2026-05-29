@@ -463,538 +463,489 @@
     "processedAt": "2026-05-29T07:36:03Z"
   },
   "globalTapLog": [
-    14.144874
+    11.481330011444838,
+    14.144874,
+    15.323130011441856,
+    18.806230011443347,
+    22.423130011441856,
+    28.156430011442602,
+    30.156430011442602,
+    34.49813001144186,
+    38.01463001144186,
+    41.88933001144484,
+    45.665030011444095,
+    49.33073001144335,
+    53.29803001144409,
+    56.78953001144409,
+    60.63153001144409,
+    64.9220300114441,
+    68.55653001144408,
+    72.12303001144409,
+    75.99783001144483,
+    79.54803001144408,
+    83.74823001144334,
+    87.40613001144185,
+    91.15613001144185,
+    100.0644300114426,
+    103.43933001144484,
+    110.66443001144259,
+    118.03133001144484,
+    121.87333001144484,
+    125.67303001144408,
+    129.7064300114426,
+    133.37263001144186,
+    137.05633001144483,
+    140.95623001144335,
+    145.02323001144333,
+    152.17273001144335,
+    160.02293001144258,
+    163.8229300114426,
+    171.44763001144184,
+    175.36463001144185,
+    179.13923001144335,
+    182.77293001144258,
+    186.6304300114426,
+    190.43853001144407,
+    194.35623001144333,
+    198.00583001144483,
+    202.22283001144484,
+    205.8645300114441,
+    209.54783001144483
   ],
   "globalReactionDelayMs": 220,
   "calibratedBeatmap": {
     "bpm": 129.2,
     "beats": [
       {
-        "timestamp": 0,
-        "beat": 1
+        "timestamp": 11.261,
+        "beat": 0
       },
       {
-        "timestamp": 0,
+        "timestamp": 11.261,
+        "beat": 0
+      },
+      {
+        "timestamp": 11.261,
+        "beat": 0
+      },
+      {
+        "timestamp": 11.533,
+        "beat": 0
+      },
+      {
+        "timestamp": 11.951,
+        "beat": 0
+      },
+      {
+        "timestamp": 12.392,
+        "beat": 0
+      },
+      {
+        "timestamp": 12.856,
+        "beat": 0
+      },
+      {
+        "timestamp": 13.321,
+        "beat": 0
+      },
+      {
+        "timestamp": 13.785,
+        "beat": 0
+      },
+      {
+        "timestamp": 14.273,
         "beat": 2
       },
       {
-        "timestamp": 0,
+        "timestamp": 14.737,
         "beat": 3
       },
       {
-        "timestamp": 0.272,
-        "beat": 0
-      },
-      {
-        "timestamp": 0.69,
-        "beat": 0
-      },
-      {
-        "timestamp": 1.131,
-        "beat": 0
-      },
-      {
-        "timestamp": 1.595,
-        "beat": 0
-      },
-      {
-        "timestamp": 2.06,
-        "beat": 0
-      },
-      {
-        "timestamp": 2.524,
-        "beat": 0
-      },
-      {
-        "timestamp": 3.012,
-        "beat": 0
-      },
-      {
-        "timestamp": 3.476,
-        "beat": 0
-      },
-      {
-        "timestamp": 3.964,
-        "beat": 0
-      },
-      {
-        "timestamp": 4.428,
-        "beat": 0
-      },
-      {
-        "timestamp": 4.916,
-        "beat": 0
-      },
-      {
-        "timestamp": 5.403,
-        "beat": 0
-      },
-      {
-        "timestamp": 5.868,
-        "beat": 0
-      },
-      {
-        "timestamp": 6.332,
-        "beat": 0
-      },
-      {
-        "timestamp": 6.82,
-        "beat": 0
-      },
-      {
-        "timestamp": 7.307,
-        "beat": 0
-      },
-      {
-        "timestamp": 7.772,
-        "beat": 0
-      },
-      {
-        "timestamp": 8.259,
-        "beat": 0
-      },
-      {
-        "timestamp": 8.724,
-        "beat": 0
-      },
-      {
-        "timestamp": 9.211,
-        "beat": 0
-      },
-      {
-        "timestamp": 9.699,
-        "beat": 0
-      },
-      {
-        "timestamp": 10.163,
-        "beat": 1
-      },
-      {
-        "timestamp": 10.628,
-        "beat": 2
-      },
-      {
-        "timestamp": 11.115,
-        "beat": 3
-      },
-      {
-        "timestamp": 11.58,
+        "timestamp": 15.225,
         "beat": 4
       },
       {
-        "timestamp": 12.044,
+        "timestamp": 15.689,
         "beat": 5
       },
       {
-        "timestamp": 12.509,
+        "timestamp": 16.177,
         "beat": 6
       },
       {
-        "timestamp": 12.973,
+        "timestamp": 16.664,
         "beat": 7
       },
       {
-        "timestamp": 13.437,
+        "timestamp": 17.129,
         "beat": 8
       },
       {
-        "timestamp": 13.925,
+        "timestamp": 17.593,
         "beat": 1
       },
       {
-        "timestamp": 14.436,
+        "timestamp": 18.081,
         "beat": 2
       },
       {
-        "timestamp": 14.9,
+        "timestamp": 18.568,
         "beat": 3
       },
       {
-        "timestamp": 15.341,
+        "timestamp": 19.033,
         "beat": 4
       },
       {
-        "timestamp": 15.852,
+        "timestamp": 19.52,
         "beat": 5
       },
       {
-        "timestamp": 16.34,
+        "timestamp": 19.985,
         "beat": 6
       },
       {
-        "timestamp": 16.804,
+        "timestamp": 20.472,
         "beat": 7
       },
       {
-        "timestamp": 17.292,
+        "timestamp": 20.96,
         "beat": 8
       },
       {
-        "timestamp": 17.779,
+        "timestamp": 21.424,
         "beat": 1
       },
       {
-        "timestamp": 18.244,
+        "timestamp": 21.889,
         "beat": 2
       },
       {
-        "timestamp": 18.732,
+        "timestamp": 22.376,
         "beat": 3
       },
       {
-        "timestamp": 19.196,
+        "timestamp": 22.841,
         "beat": 4
       },
       {
-        "timestamp": 19.684,
+        "timestamp": 23.305,
         "beat": 5
       },
       {
-        "timestamp": 20.148,
+        "timestamp": 23.77,
         "beat": 6
       },
       {
-        "timestamp": 20.636,
+        "timestamp": 24.234,
         "beat": 7
       },
       {
-        "timestamp": 21.123,
+        "timestamp": 24.698,
         "beat": 8
       },
       {
-        "timestamp": 21.588,
+        "timestamp": 25.186,
         "beat": 1
       },
       {
-        "timestamp": 22.075,
+        "timestamp": 25.697,
         "beat": 2
       },
       {
-        "timestamp": 22.54,
+        "timestamp": 26.161,
         "beat": 3
       },
       {
-        "timestamp": 23.004,
+        "timestamp": 26.602,
         "beat": 4
       },
       {
-        "timestamp": 23.492,
+        "timestamp": 27.113,
         "beat": 5
       },
       {
-        "timestamp": 23.956,
+        "timestamp": 27.601,
         "beat": 6
       },
       {
-        "timestamp": 24.444,
+        "timestamp": 28.065,
         "beat": 7
       },
       {
-        "timestamp": 24.908,
+        "timestamp": 28.553,
         "beat": 8
       },
       {
-        "timestamp": 25.396,
+        "timestamp": 29.04,
         "beat": 1
       },
       {
-        "timestamp": 25.86,
+        "timestamp": 29.505,
         "beat": 2
       },
       {
-        "timestamp": 26.348,
+        "timestamp": 29.993,
         "beat": 3
       },
       {
-        "timestamp": 26.835,
+        "timestamp": 30.457,
         "beat": 4
       },
       {
-        "timestamp": 27.323,
+        "timestamp": 30.945,
         "beat": 5
       },
       {
-        "timestamp": 27.787,
+        "timestamp": 31.409,
         "beat": 6
       },
       {
-        "timestamp": 28.252,
+        "timestamp": 31.897,
         "beat": 7
       },
       {
-        "timestamp": 28.716,
+        "timestamp": 32.384,
         "beat": 8
       },
       {
-        "timestamp": 29.111,
+        "timestamp": 32.849,
         "beat": 1
       },
       {
-        "timestamp": 29.552,
+        "timestamp": 33.336,
         "beat": 2
       },
       {
-        "timestamp": 29.924,
+        "timestamp": 33.801,
         "beat": 3
       },
       {
-        "timestamp": 30.388,
+        "timestamp": 34.265,
         "beat": 4
       },
       {
-        "timestamp": 30.876,
+        "timestamp": 34.753,
         "beat": 5
       },
       {
-        "timestamp": 31.317,
+        "timestamp": 35.217,
         "beat": 6
       },
       {
-        "timestamp": 31.758,
+        "timestamp": 35.705,
         "beat": 7
       },
       {
-        "timestamp": 32.199,
+        "timestamp": 36.169,
         "beat": 8
       },
       {
-        "timestamp": 32.64,
+        "timestamp": 36.657,
         "beat": 1
       },
       {
-        "timestamp": 33.058,
+        "timestamp": 37.121,
         "beat": 2
       },
       {
-        "timestamp": 33.499,
+        "timestamp": 37.609,
         "beat": 3
       },
       {
-        "timestamp": 33.964,
+        "timestamp": 38.096,
         "beat": 4
       },
       {
-        "timestamp": 34.428,
+        "timestamp": 38.584,
         "beat": 5
       },
       {
-        "timestamp": 34.916,
+        "timestamp": 39.048,
         "beat": 6
       },
       {
-        "timestamp": 35.38,
+        "timestamp": 39.513,
         "beat": 7
       },
       {
-        "timestamp": 35.868,
+        "timestamp": 39.977,
         "beat": 8
       },
       {
-        "timestamp": 36.355,
+        "timestamp": 40.372,
         "beat": 1
       },
       {
-        "timestamp": 36.82,
+        "timestamp": 40.813,
         "beat": 2
       },
       {
-        "timestamp": 37.307,
+        "timestamp": 41.185,
         "beat": 3
       },
       {
-        "timestamp": 37.772,
+        "timestamp": 41.649,
         "beat": 4
       },
       {
-        "timestamp": 38.259,
+        "timestamp": 42.137,
         "beat": 5
       },
       {
-        "timestamp": 38.724,
+        "timestamp": 42.578,
         "beat": 6
       },
       {
-        "timestamp": 39.188,
+        "timestamp": 43.019,
         "beat": 7
       },
       {
-        "timestamp": 39.676,
+        "timestamp": 43.46,
         "beat": 8
       },
       {
-        "timestamp": 40.164,
+        "timestamp": 43.901,
         "beat": 1
       },
       {
-        "timestamp": 40.628,
+        "timestamp": 44.319,
         "beat": 2
       },
       {
-        "timestamp": 41.116,
+        "timestamp": 44.76,
         "beat": 3
       },
       {
-        "timestamp": 41.58,
+        "timestamp": 45.225,
         "beat": 4
       },
       {
-        "timestamp": 42.068,
+        "timestamp": 45.689,
         "beat": 5
       },
       {
-        "timestamp": 42.555,
+        "timestamp": 46.177,
         "beat": 6
       },
       {
-        "timestamp": 43.043,
+        "timestamp": 46.641,
         "beat": 7
       },
       {
-        "timestamp": 43.507,
+        "timestamp": 47.129,
         "beat": 8
       },
       {
-        "timestamp": 43.972,
+        "timestamp": 47.616,
         "beat": 1
       },
       {
-        "timestamp": 44.459,
+        "timestamp": 48.081,
         "beat": 2
       },
       {
-        "timestamp": 44.924,
+        "timestamp": 48.568,
         "beat": 3
       },
       {
-        "timestamp": 45.388,
+        "timestamp": 49.033,
         "beat": 4
       },
       {
-        "timestamp": 45.876,
+        "timestamp": 49.52,
         "beat": 5
       },
       {
-        "timestamp": 46.34,
+        "timestamp": 49.985,
         "beat": 6
       },
       {
-        "timestamp": 46.804,
+        "timestamp": 50.449,
         "beat": 7
       },
       {
-        "timestamp": 47.315,
+        "timestamp": 50.937,
         "beat": 8
       },
       {
-        "timestamp": 47.78,
+        "timestamp": 51.425,
         "beat": 1
       },
       {
-        "timestamp": 48.244,
+        "timestamp": 51.889,
         "beat": 2
       },
       {
-        "timestamp": 48.708,
+        "timestamp": 52.377,
         "beat": 3
       },
       {
-        "timestamp": 49.196,
+        "timestamp": 52.841,
         "beat": 4
       },
       {
-        "timestamp": 49.684,
+        "timestamp": 53.329,
         "beat": 5
       },
       {
-        "timestamp": 50.148,
+        "timestamp": 53.816,
         "beat": 6
       },
       {
-        "timestamp": 50.612,
+        "timestamp": 54.304,
         "beat": 7
       },
       {
-        "timestamp": 51.1,
+        "timestamp": 54.768,
         "beat": 8
       },
       {
-        "timestamp": 51.588,
+        "timestamp": 55.233,
         "beat": 1
       },
       {
-        "timestamp": 52.052,
+        "timestamp": 55.72,
         "beat": 2
       },
       {
-        "timestamp": 52.54,
+        "timestamp": 56.185,
         "beat": 3
       },
       {
-        "timestamp": 53.004,
+        "timestamp": 56.649,
         "beat": 4
       },
       {
-        "timestamp": 53.492,
+        "timestamp": 57.137,
         "beat": 5
       },
       {
-        "timestamp": 53.956,
+        "timestamp": 57.601,
         "beat": 6
       },
       {
-        "timestamp": 54.421,
+        "timestamp": 58.065,
         "beat": 7
       },
       {
-        "timestamp": 54.908,
+        "timestamp": 58.576,
         "beat": 8
       },
       {
-        "timestamp": 55.396,
+        "timestamp": 59.041,
         "beat": 1
       },
       {
-        "timestamp": 55.883,
+        "timestamp": 59.505,
         "beat": 2
       },
       {
-        "timestamp": 56.348,
+        "timestamp": 59.969,
         "beat": 3
       },
       {
-        "timestamp": 56.812,
-        "beat": 4
-      },
-      {
-        "timestamp": 57.3,
-        "beat": 5
-      },
-      {
-        "timestamp": 57.787,
-        "beat": 6
-      },
-      {
-        "timestamp": 58.252,
-        "beat": 7
-      },
-      {
-        "timestamp": 58.716,
-        "beat": 8
-      },
-      {
-        "timestamp": 59.204,
-        "beat": 1
-      },
-      {
-        "timestamp": 59.692,
-        "beat": 2
-      },
-      {
-        "timestamp": 60.133,
-        "beat": 3
-      },
-      {
-        "timestamp": 60.551,
+        "timestamp": 60.457,
         "beat": 4
       },
       {
@@ -1002,91 +953,91 @@
         "beat": 5
       },
       {
-        "timestamp": 61.363,
+        "timestamp": 61.409,
         "beat": 6
       },
       {
-        "timestamp": 61.828,
+        "timestamp": 61.873,
         "beat": 7
       },
       {
-        "timestamp": 62.292,
+        "timestamp": 62.361,
         "beat": 8
       },
       {
-        "timestamp": 62.757,
+        "timestamp": 62.849,
         "beat": 1
       },
       {
-        "timestamp": 63.244,
+        "timestamp": 63.313,
         "beat": 2
       },
       {
-        "timestamp": 63.732,
+        "timestamp": 63.801,
         "beat": 3
       },
       {
-        "timestamp": 64.196,
+        "timestamp": 64.265,
         "beat": 4
       },
       {
-        "timestamp": 64.684,
+        "timestamp": 64.753,
         "beat": 5
       },
       {
-        "timestamp": 65.171,
+        "timestamp": 65.217,
         "beat": 6
       },
       {
-        "timestamp": 65.636,
+        "timestamp": 65.682,
         "beat": 7
       },
       {
-        "timestamp": 66.1,
+        "timestamp": 66.169,
         "beat": 8
       },
       {
-        "timestamp": 66.588,
+        "timestamp": 66.657,
         "beat": 1
       },
       {
-        "timestamp": 67.052,
+        "timestamp": 67.144,
         "beat": 2
       },
       {
-        "timestamp": 67.54,
+        "timestamp": 67.609,
         "beat": 3
       },
       {
-        "timestamp": 68.004,
+        "timestamp": 68.073,
         "beat": 4
       },
       {
-        "timestamp": 68.492,
+        "timestamp": 68.561,
         "beat": 5
       },
       {
-        "timestamp": 68.979,
+        "timestamp": 69.048,
         "beat": 6
       },
       {
-        "timestamp": 69.444,
+        "timestamp": 69.513,
         "beat": 7
       },
       {
-        "timestamp": 69.908,
+        "timestamp": 69.977,
         "beat": 8
       },
       {
-        "timestamp": 70.396,
+        "timestamp": 70.465,
         "beat": 1
       },
       {
-        "timestamp": 70.86,
+        "timestamp": 70.953,
         "beat": 2
       },
       {
-        "timestamp": 71.348,
+        "timestamp": 71.394,
         "beat": 3
       },
       {
@@ -1094,1179 +1045,1275 @@
         "beat": 4
       },
       {
-        "timestamp": 72.3,
+        "timestamp": 72.206,
         "beat": 5
       },
       {
-        "timestamp": 72.788,
+        "timestamp": 72.624,
         "beat": 6
       },
       {
-        "timestamp": 73.252,
+        "timestamp": 73.089,
         "beat": 7
       },
       {
-        "timestamp": 73.74,
+        "timestamp": 73.553,
         "beat": 8
       },
       {
-        "timestamp": 74.204,
+        "timestamp": 74.018,
         "beat": 1
       },
       {
-        "timestamp": 74.668,
+        "timestamp": 74.505,
         "beat": 2
       },
       {
-        "timestamp": 75.156,
+        "timestamp": 74.993,
         "beat": 3
       },
       {
-        "timestamp": 75.62,
+        "timestamp": 75.457,
         "beat": 4
       },
       {
-        "timestamp": 76.108,
+        "timestamp": 75.945,
         "beat": 5
       },
       {
-        "timestamp": 76.572,
+        "timestamp": 76.432,
         "beat": 6
       },
       {
-        "timestamp": 77.06,
+        "timestamp": 76.897,
         "beat": 7
       },
       {
-        "timestamp": 77.548,
+        "timestamp": 77.361,
         "beat": 8
       },
       {
-        "timestamp": 78.012,
+        "timestamp": 77.849,
         "beat": 1
       },
       {
-        "timestamp": 78.5,
+        "timestamp": 78.313,
         "beat": 2
       },
       {
-        "timestamp": 78.964,
+        "timestamp": 78.801,
         "beat": 3
       },
       {
-        "timestamp": 79.452,
+        "timestamp": 79.265,
         "beat": 4
       },
       {
-        "timestamp": 79.916,
+        "timestamp": 79.753,
         "beat": 5
       },
       {
-        "timestamp": 80.404,
+        "timestamp": 80.24,
         "beat": 6
       },
       {
-        "timestamp": 80.868,
+        "timestamp": 80.705,
         "beat": 7
       },
       {
-        "timestamp": 81.356,
+        "timestamp": 81.169,
         "beat": 8
       },
       {
-        "timestamp": 81.82,
+        "timestamp": 81.657,
         "beat": 1
       },
       {
-        "timestamp": 82.308,
+        "timestamp": 82.121,
         "beat": 2
       },
       {
-        "timestamp": 82.795,
+        "timestamp": 82.609,
         "beat": 3
       },
       {
-        "timestamp": 83.26,
+        "timestamp": 83.073,
         "beat": 4
       },
       {
-        "timestamp": 83.724,
+        "timestamp": 83.561,
         "beat": 5
       },
       {
-        "timestamp": 84.212,
+        "timestamp": 84.049,
         "beat": 6
       },
       {
-        "timestamp": 84.676,
+        "timestamp": 84.513,
         "beat": 7
       },
       {
-        "timestamp": 85.164,
+        "timestamp": 85.001,
         "beat": 8
       },
       {
-        "timestamp": 85.651,
+        "timestamp": 85.465,
         "beat": 1
       },
       {
-        "timestamp": 86.116,
+        "timestamp": 85.929,
         "beat": 2
       },
       {
-        "timestamp": 86.58,
+        "timestamp": 86.417,
         "beat": 3
       },
       {
-        "timestamp": 87.068,
+        "timestamp": 86.881,
         "beat": 4
       },
       {
-        "timestamp": 87.532,
+        "timestamp": 87.369,
         "beat": 5
       },
       {
-        "timestamp": 88.02,
+        "timestamp": 87.833,
         "beat": 6
       },
       {
-        "timestamp": 88.507,
+        "timestamp": 88.321,
         "beat": 7
       },
       {
-        "timestamp": 88.972,
+        "timestamp": 88.809,
         "beat": 8
       },
       {
-        "timestamp": 89.459,
+        "timestamp": 89.273,
         "beat": 1
       },
       {
-        "timestamp": 89.947,
+        "timestamp": 89.761,
         "beat": 2
       },
       {
-        "timestamp": 90.412,
-        "beat": 3
+        "timestamp": 90.225,
+        "beat": 0
       },
       {
-        "timestamp": 90.876,
-        "beat": 4
+        "timestamp": 90.713,
+        "beat": 0
       },
       {
-        "timestamp": 91.34,
-        "beat": 5
+        "timestamp": 91.177,
+        "beat": 0
       },
       {
-        "timestamp": 91.828,
-        "beat": 6
+        "timestamp": 91.665,
+        "beat": 0
       },
       {
-        "timestamp": 92.292,
-        "beat": 7
+        "timestamp": 92.129,
+        "beat": 0
       },
       {
-        "timestamp": 92.757,
-        "beat": 8
+        "timestamp": 92.617,
+        "beat": 0
       },
       {
-        "timestamp": 93.244,
+        "timestamp": 93.081,
         "beat": 1
       },
       {
-        "timestamp": 93.732,
+        "timestamp": 93.569,
         "beat": 2
       },
       {
-        "timestamp": 94.196,
+        "timestamp": 94.056,
         "beat": 3
       },
       {
-        "timestamp": 94.684,
+        "timestamp": 94.521,
         "beat": 4
       },
       {
-        "timestamp": 95.172,
+        "timestamp": 94.985,
         "beat": 5
       },
       {
-        "timestamp": 95.636,
+        "timestamp": 95.473,
         "beat": 6
       },
       {
-        "timestamp": 96.1,
+        "timestamp": 95.937,
         "beat": 7
       },
       {
-        "timestamp": 96.588,
+        "timestamp": 96.425,
         "beat": 8
       },
       {
-        "timestamp": 97.052,
+        "timestamp": 96.912,
         "beat": 1
       },
       {
-        "timestamp": 97.54,
+        "timestamp": 97.377,
         "beat": 2
       },
       {
-        "timestamp": 98.028,
+        "timestamp": 97.841,
         "beat": 3
       },
       {
-        "timestamp": 98.492,
+        "timestamp": 98.329,
         "beat": 4
       },
       {
-        "timestamp": 98.98,
+        "timestamp": 98.793,
         "beat": 5
       },
       {
-        "timestamp": 99.444,
+        "timestamp": 99.281,
         "beat": 6
       },
       {
-        "timestamp": 99.932,
+        "timestamp": 99.768,
         "beat": 7
       },
       {
-        "timestamp": 100.396,
+        "timestamp": 100.233,
         "beat": 8
       },
       {
-        "timestamp": 100.884,
+        "timestamp": 100.72,
         "beat": 1
       },
       {
-        "timestamp": 101.348,
+        "timestamp": 101.208,
         "beat": 2
       },
       {
-        "timestamp": 101.836,
+        "timestamp": 101.673,
         "beat": 3
       },
       {
-        "timestamp": 102.3,
+        "timestamp": 102.137,
         "beat": 4
       },
       {
-        "timestamp": 102.765,
+        "timestamp": 102.601,
         "beat": 5
       },
       {
-        "timestamp": 103.252,
+        "timestamp": 103.089,
         "beat": 6
       },
       {
-        "timestamp": 103.74,
+        "timestamp": 103.553,
         "beat": 7
       },
       {
-        "timestamp": 104.204,
+        "timestamp": 104.018,
         "beat": 8
       },
       {
-        "timestamp": 104.692,
+        "timestamp": 104.505,
         "beat": 1
       },
       {
-        "timestamp": 105.156,
+        "timestamp": 104.993,
         "beat": 2
       },
       {
-        "timestamp": 105.644,
+        "timestamp": 105.457,
         "beat": 3
       },
       {
-        "timestamp": 106.108,
+        "timestamp": 105.945,
         "beat": 4
       },
       {
-        "timestamp": 106.573,
+        "timestamp": 106.433,
         "beat": 5
       },
       {
-        "timestamp": 107.06,
+        "timestamp": 106.897,
         "beat": 6
       },
       {
-        "timestamp": 107.525,
+        "timestamp": 107.361,
         "beat": 7
       },
       {
-        "timestamp": 108.012,
+        "timestamp": 107.849,
         "beat": 8
       },
       {
-        "timestamp": 108.5,
+        "timestamp": 108.313,
         "beat": 1
       },
       {
-        "timestamp": 108.964,
+        "timestamp": 108.801,
         "beat": 2
       },
       {
-        "timestamp": 109.452,
+        "timestamp": 109.289,
         "beat": 3
       },
       {
-        "timestamp": 109.916,
+        "timestamp": 109.753,
         "beat": 4
       },
       {
-        "timestamp": 110.381,
+        "timestamp": 110.241,
         "beat": 5
       },
       {
-        "timestamp": 110.868,
+        "timestamp": 110.705,
         "beat": 6
       },
       {
-        "timestamp": 111.356,
+        "timestamp": 111.193,
         "beat": 7
       },
       {
-        "timestamp": 111.82,
+        "timestamp": 111.657,
         "beat": 8
       },
       {
-        "timestamp": 112.308,
+        "timestamp": 112.145,
         "beat": 1
       },
       {
-        "timestamp": 112.772,
+        "timestamp": 112.609,
         "beat": 2
       },
       {
-        "timestamp": 113.26,
+        "timestamp": 113.097,
         "beat": 3
       },
       {
-        "timestamp": 113.724,
+        "timestamp": 113.561,
         "beat": 4
       },
       {
-        "timestamp": 114.189,
+        "timestamp": 114.026,
         "beat": 5
       },
       {
-        "timestamp": 114.676,
+        "timestamp": 114.513,
         "beat": 6
       },
       {
-        "timestamp": 115.164,
+        "timestamp": 115.001,
         "beat": 7
       },
       {
-        "timestamp": 115.628,
+        "timestamp": 115.465,
         "beat": 8
       },
       {
-        "timestamp": 116.093,
+        "timestamp": 115.953,
         "beat": 1
       },
       {
-        "timestamp": 116.58,
+        "timestamp": 116.417,
         "beat": 2
       },
       {
-        "timestamp": 117.068,
+        "timestamp": 116.905,
         "beat": 3
       },
       {
-        "timestamp": 117.532,
+        "timestamp": 117.369,
         "beat": 4
       },
       {
-        "timestamp": 118.02,
+        "timestamp": 117.834,
         "beat": 5
       },
       {
-        "timestamp": 118.484,
+        "timestamp": 118.321,
         "beat": 6
       },
       {
-        "timestamp": 118.972,
+        "timestamp": 118.786,
         "beat": 7
       },
       {
-        "timestamp": 119.46,
+        "timestamp": 119.273,
         "beat": 8
       },
       {
-        "timestamp": 119.924,
+        "timestamp": 119.761,
         "beat": 1
       },
       {
-        "timestamp": 120.388,
+        "timestamp": 120.225,
         "beat": 2
       },
       {
-        "timestamp": 120.853,
+        "timestamp": 120.713,
         "beat": 3
       },
       {
-        "timestamp": 121.34,
+        "timestamp": 121.177,
         "beat": 4
       },
       {
-        "timestamp": 121.828,
+        "timestamp": 121.642,
         "beat": 5
       },
       {
-        "timestamp": 122.292,
+        "timestamp": 122.129,
         "beat": 6
       },
       {
-        "timestamp": 122.78,
+        "timestamp": 122.617,
         "beat": 7
       },
       {
-        "timestamp": 123.245,
+        "timestamp": 123.081,
         "beat": 8
       },
       {
-        "timestamp": 123.732,
+        "timestamp": 123.569,
         "beat": 1
       },
       {
-        "timestamp": 124.197,
+        "timestamp": 124.033,
         "beat": 2
       },
       {
-        "timestamp": 124.684,
+        "timestamp": 124.521,
         "beat": 3
       },
       {
-        "timestamp": 125.149,
+        "timestamp": 124.985,
         "beat": 4
       },
       {
-        "timestamp": 125.613,
+        "timestamp": 125.45,
         "beat": 5
       },
       {
-        "timestamp": 126.101,
+        "timestamp": 125.937,
         "beat": 6
       },
       {
-        "timestamp": 126.588,
+        "timestamp": 126.425,
         "beat": 7
       },
       {
-        "timestamp": 127.076,
+        "timestamp": 126.889,
         "beat": 8
       },
       {
-        "timestamp": 127.54,
+        "timestamp": 127.354,
         "beat": 1
       },
       {
-        "timestamp": 128.028,
+        "timestamp": 127.841,
         "beat": 2
       },
       {
-        "timestamp": 128.492,
+        "timestamp": 128.329,
         "beat": 3
       },
       {
-        "timestamp": 128.957,
+        "timestamp": 128.793,
         "beat": 4
       },
       {
-        "timestamp": 129.444,
+        "timestamp": 129.281,
         "beat": 5
       },
       {
-        "timestamp": 129.932,
+        "timestamp": 129.745,
         "beat": 6
       },
       {
-        "timestamp": 130.396,
+        "timestamp": 130.233,
         "beat": 7
       },
       {
-        "timestamp": 130.884,
+        "timestamp": 130.721,
         "beat": 8
       },
       {
-        "timestamp": 131.348,
+        "timestamp": 131.185,
         "beat": 1
       },
       {
-        "timestamp": 131.836,
+        "timestamp": 131.649,
         "beat": 2
       },
       {
-        "timestamp": 132.3,
+        "timestamp": 132.114,
         "beat": 3
       },
       {
-        "timestamp": 132.765,
+        "timestamp": 132.601,
         "beat": 4
       },
       {
-        "timestamp": 133.252,
+        "timestamp": 133.089,
         "beat": 5
       },
       {
-        "timestamp": 133.74,
+        "timestamp": 133.553,
         "beat": 6
       },
       {
-        "timestamp": 134.204,
+        "timestamp": 134.041,
         "beat": 7
       },
       {
-        "timestamp": 134.692,
+        "timestamp": 134.506,
         "beat": 8
       },
       {
-        "timestamp": 135.203,
+        "timestamp": 134.993,
         "beat": 1
       },
       {
-        "timestamp": 135.667,
+        "timestamp": 135.458,
         "beat": 2
       },
       {
-        "timestamp": 136.108,
+        "timestamp": 135.945,
         "beat": 3
       },
       {
-        "timestamp": 136.596,
+        "timestamp": 136.41,
         "beat": 4
       },
       {
-        "timestamp": 137.084,
+        "timestamp": 136.874,
         "beat": 5
       },
       {
-        "timestamp": 137.548,
+        "timestamp": 137.362,
         "beat": 6
       },
       {
-        "timestamp": 138.012,
+        "timestamp": 137.849,
         "beat": 7
       },
       {
-        "timestamp": 138.5,
+        "timestamp": 138.337,
         "beat": 8
       },
       {
-        "timestamp": 138.964,
+        "timestamp": 138.801,
         "beat": 1
       },
       {
-        "timestamp": 139.429,
+        "timestamp": 139.289,
         "beat": 2
       },
       {
-        "timestamp": 139.916,
+        "timestamp": 139.753,
         "beat": 3
       },
       {
-        "timestamp": 140.404,
+        "timestamp": 140.218,
         "beat": 4
       },
       {
-        "timestamp": 140.868,
-        "beat": 5
+        "timestamp": 140.705,
+        "beat": 0
       },
       {
-        "timestamp": 141.356,
+        "timestamp": 141.193,
+        "beat": 0
+      },
+      {
+        "timestamp": 141.657,
+        "beat": 0
+      },
+      {
+        "timestamp": 142.145,
+        "beat": 0
+      },
+      {
+        "timestamp": 142.609,
+        "beat": 0
+      },
+      {
+        "timestamp": 143.097,
+        "beat": 0
+      },
+      {
+        "timestamp": 143.561,
+        "beat": 0
+      },
+      {
+        "timestamp": 144.026,
+        "beat": 0
+      },
+      {
+        "timestamp": 144.513,
+        "beat": 0
+      },
+      {
+        "timestamp": 145.001,
+        "beat": 0
+      },
+      {
+        "timestamp": 145.465,
+        "beat": 0
+      },
+      {
+        "timestamp": 145.953,
+        "beat": 0
+      },
+      {
+        "timestamp": 146.464,
+        "beat": 0
+      },
+      {
+        "timestamp": 146.928,
+        "beat": 0
+      },
+      {
+        "timestamp": 147.369,
+        "beat": 0
+      },
+      {
+        "timestamp": 147.857,
+        "beat": 0
+      },
+      {
+        "timestamp": 148.345,
+        "beat": 0
+      },
+      {
+        "timestamp": 148.809,
+        "beat": 0
+      },
+      {
+        "timestamp": 149.273,
+        "beat": 0
+      },
+      {
+        "timestamp": 149.761,
+        "beat": 0
+      },
+      {
+        "timestamp": 150.225,
+        "beat": 0
+      },
+      {
+        "timestamp": 150.69,
+        "beat": 0
+      },
+      {
+        "timestamp": 151.177,
+        "beat": 0
+      },
+      {
+        "timestamp": 151.665,
+        "beat": 0
+      },
+      {
+        "timestamp": 152.129,
+        "beat": 0
+      },
+      {
+        "timestamp": 152.617,
         "beat": 6
       },
       {
-        "timestamp": 141.82,
+        "timestamp": 153.081,
         "beat": 7
       },
       {
-        "timestamp": 142.308,
+        "timestamp": 153.569,
         "beat": 8
       },
       {
-        "timestamp": 142.772,
+        "timestamp": 154.033,
         "beat": 1
       },
       {
-        "timestamp": 143.26,
+        "timestamp": 154.521,
         "beat": 2
       },
       {
-        "timestamp": 143.725,
+        "timestamp": 154.986,
         "beat": 3
       },
       {
-        "timestamp": 144.212,
+        "timestamp": 155.473,
         "beat": 4
       },
       {
-        "timestamp": 144.677,
+        "timestamp": 155.938,
         "beat": 5
       },
       {
-        "timestamp": 145.164,
+        "timestamp": 156.425,
         "beat": 6
       },
       {
-        "timestamp": 145.629,
+        "timestamp": 156.89,
         "beat": 7
       },
       {
-        "timestamp": 146.116,
+        "timestamp": 157.377,
         "beat": 8
       },
       {
-        "timestamp": 146.581,
+        "timestamp": 157.842,
         "beat": 1
       },
       {
-        "timestamp": 147.045,
+        "timestamp": 158.306,
         "beat": 2
       },
       {
-        "timestamp": 147.533,
+        "timestamp": 158.794,
         "beat": 3
       },
       {
-        "timestamp": 148.02,
+        "timestamp": 159.281,
         "beat": 4
       },
       {
-        "timestamp": 148.485,
+        "timestamp": 159.746,
         "beat": 5
       },
       {
-        "timestamp": 148.972,
+        "timestamp": 160.233,
         "beat": 6
       },
       {
-        "timestamp": 149.437,
+        "timestamp": 160.698,
         "beat": 7
       },
       {
-        "timestamp": 149.924,
+        "timestamp": 161.185,
         "beat": 8
       },
       {
-        "timestamp": 150.412,
+        "timestamp": 161.673,
         "beat": 1
       },
       {
-        "timestamp": 150.876,
+        "timestamp": 162.137,
         "beat": 2
       },
       {
-        "timestamp": 151.341,
+        "timestamp": 162.602,
         "beat": 3
       },
       {
-        "timestamp": 151.828,
+        "timestamp": 163.089,
         "beat": 4
       },
       {
-        "timestamp": 152.316,
+        "timestamp": 163.577,
         "beat": 5
       },
       {
-        "timestamp": 152.78,
+        "timestamp": 164.041,
         "beat": 6
       },
       {
-        "timestamp": 153.268,
+        "timestamp": 164.529,
         "beat": 7
       },
       {
-        "timestamp": 153.732,
+        "timestamp": 164.993,
         "beat": 8
       },
       {
-        "timestamp": 154.22,
+        "timestamp": 165.481,
         "beat": 1
       },
       {
-        "timestamp": 154.684,
+        "timestamp": 165.945,
         "beat": 2
       },
       {
-        "timestamp": 155.172,
+        "timestamp": 166.433,
         "beat": 3
       },
       {
-        "timestamp": 155.636,
+        "timestamp": 166.897,
         "beat": 4
       },
       {
-        "timestamp": 156.101,
+        "timestamp": 167.362,
         "beat": 5
       },
       {
-        "timestamp": 156.588,
+        "timestamp": 167.849,
         "beat": 6
       },
       {
-        "timestamp": 157.076,
+        "timestamp": 168.337,
         "beat": 7
       },
       {
-        "timestamp": 157.54,
+        "timestamp": 168.801,
         "beat": 8
       },
       {
-        "timestamp": 158.028,
+        "timestamp": 169.289,
         "beat": 1
       },
       {
-        "timestamp": 158.516,
+        "timestamp": 169.777,
         "beat": 2
       },
       {
-        "timestamp": 158.98,
+        "timestamp": 170.241,
         "beat": 3
       },
       {
-        "timestamp": 159.444,
+        "timestamp": 170.705,
         "beat": 4
       },
       {
-        "timestamp": 159.932,
+        "timestamp": 171.193,
         "beat": 5
       },
       {
-        "timestamp": 160.396,
+        "timestamp": 171.657,
         "beat": 6
       },
       {
-        "timestamp": 160.884,
+        "timestamp": 172.145,
         "beat": 7
       },
       {
-        "timestamp": 161.348,
+        "timestamp": 172.609,
         "beat": 8
       },
       {
-        "timestamp": 161.836,
+        "timestamp": 173.097,
         "beat": 1
       },
       {
-        "timestamp": 162.3,
+        "timestamp": 173.561,
         "beat": 2
       },
       {
-        "timestamp": 162.765,
+        "timestamp": 174.026,
         "beat": 3
       },
       {
-        "timestamp": 163.252,
+        "timestamp": 174.513,
         "beat": 4
       },
       {
-        "timestamp": 163.717,
+        "timestamp": 174.978,
         "beat": 5
       },
       {
-        "timestamp": 164.181,
+        "timestamp": 175.442,
         "beat": 6
       },
       {
-        "timestamp": 164.669,
+        "timestamp": 175.93,
         "beat": 7
       },
       {
-        "timestamp": 165.157,
+        "timestamp": 176.418,
         "beat": 8
       },
       {
-        "timestamp": 165.644,
+        "timestamp": 176.905,
         "beat": 1
       },
       {
-        "timestamp": 166.132,
+        "timestamp": 177.393,
         "beat": 2
       },
       {
-        "timestamp": 166.596,
+        "timestamp": 177.857,
         "beat": 3
       },
       {
-        "timestamp": 167.061,
+        "timestamp": 178.322,
         "beat": 4
       },
       {
-        "timestamp": 167.525,
+        "timestamp": 178.786,
         "beat": 5
       },
       {
-        "timestamp": 168.013,
+        "timestamp": 179.274,
         "beat": 6
       },
       {
-        "timestamp": 168.477,
+        "timestamp": 179.738,
         "beat": 7
       },
       {
-        "timestamp": 168.941,
+        "timestamp": 180.202,
         "beat": 8
       },
       {
-        "timestamp": 169.452,
+        "timestamp": 180.713,
         "beat": 1
       },
       {
-        "timestamp": 169.917,
+        "timestamp": 181.178,
         "beat": 2
       },
       {
-        "timestamp": 170.404,
+        "timestamp": 181.665,
         "beat": 3
       },
       {
-        "timestamp": 170.869,
+        "timestamp": 182.13,
         "beat": 4
       },
       {
-        "timestamp": 171.356,
+        "timestamp": 182.617,
         "beat": 5
       },
       {
-        "timestamp": 171.821,
+        "timestamp": 183.082,
         "beat": 6
       },
       {
-        "timestamp": 172.308,
+        "timestamp": 183.569,
         "beat": 7
       },
       {
-        "timestamp": 172.773,
+        "timestamp": 184.034,
         "beat": 8
       },
       {
-        "timestamp": 173.26,
+        "timestamp": 184.521,
         "beat": 1
       },
       {
-        "timestamp": 173.725,
+        "timestamp": 184.986,
         "beat": 2
       },
       {
-        "timestamp": 174.212,
+        "timestamp": 185.473,
         "beat": 3
       },
       {
-        "timestamp": 174.653,
+        "timestamp": 185.914,
         "beat": 4
       },
       {
-        "timestamp": 175.141,
+        "timestamp": 186.402,
         "beat": 5
       },
       {
-        "timestamp": 175.629,
+        "timestamp": 186.89,
         "beat": 6
       },
       {
-        "timestamp": 176.116,
+        "timestamp": 187.377,
         "beat": 7
       },
       {
-        "timestamp": 176.581,
+        "timestamp": 187.842,
         "beat": 8
       },
       {
-        "timestamp": 177.068,
+        "timestamp": 188.329,
         "beat": 1
       },
       {
-        "timestamp": 177.533,
+        "timestamp": 188.794,
         "beat": 2
       },
       {
-        "timestamp": 178.02,
+        "timestamp": 189.281,
         "beat": 3
       },
       {
-        "timestamp": 178.508,
+        "timestamp": 189.769,
         "beat": 4
       },
       {
-        "timestamp": 178.972,
+        "timestamp": 190.233,
         "beat": 5
       },
       {
-        "timestamp": 179.437,
+        "timestamp": 190.698,
         "beat": 6
       },
       {
-        "timestamp": 179.924,
+        "timestamp": 191.185,
         "beat": 7
       },
       {
-        "timestamp": 180.412,
+        "timestamp": 191.673,
         "beat": 8
       },
       {
-        "timestamp": 180.9,
+        "timestamp": 192.161,
         "beat": 1
       },
       {
-        "timestamp": 181.364,
+        "timestamp": 192.625,
         "beat": 2
       },
       {
-        "timestamp": 181.828,
+        "timestamp": 193.089,
         "beat": 3
       },
       {
-        "timestamp": 182.293,
+        "timestamp": 193.554,
         "beat": 4
       },
       {
-        "timestamp": 182.78,
+        "timestamp": 194.041,
         "beat": 5
       },
       {
-        "timestamp": 183.245,
+        "timestamp": 194.506,
         "beat": 6
       },
       {
-        "timestamp": 183.732,
+        "timestamp": 194.993,
         "beat": 7
       },
       {
-        "timestamp": 184.197,
+        "timestamp": 195.458,
         "beat": 8
       },
       {
-        "timestamp": 184.685,
+        "timestamp": 195.946,
         "beat": 1
       },
       {
-        "timestamp": 185.149,
+        "timestamp": 196.41,
         "beat": 2
       },
       {
-        "timestamp": 185.637,
+        "timestamp": 196.898,
         "beat": 3
       },
       {
-        "timestamp": 186.124,
+        "timestamp": 197.385,
         "beat": 4
       },
       {
-        "timestamp": 186.589,
+        "timestamp": 197.85,
         "beat": 5
       },
       {
-        "timestamp": 187.053,
+        "timestamp": 198.314,
         "beat": 6
       },
       {
-        "timestamp": 187.541,
+        "timestamp": 198.802,
         "beat": 7
       },
       {
-        "timestamp": 188.028,
+        "timestamp": 199.289,
         "beat": 8
       },
       {
-        "timestamp": 188.493,
+        "timestamp": 199.754,
         "beat": 1
       },
       {
-        "timestamp": 188.98,
+        "timestamp": 200.241,
         "beat": 2
       },
       {
-        "timestamp": 189.445,
+        "timestamp": 200.706,
         "beat": 3
       },
       {
-        "timestamp": 189.909,
+        "timestamp": 201.17,
         "beat": 4
       },
       {
-        "timestamp": 190.397,
+        "timestamp": 201.658,
         "beat": 5
       },
       {
-        "timestamp": 190.884,
+        "timestamp": 202.145,
         "beat": 6
       },
       {
-        "timestamp": 191.349,
+        "timestamp": 202.61,
         "beat": 7
       },
       {
-        "timestamp": 191.836,
+        "timestamp": 203.097,
         "beat": 8
       },
       {
-        "timestamp": 192.301,
+        "timestamp": 203.562,
         "beat": 1
       },
       {
-        "timestamp": 192.788,
+        "timestamp": 204.049,
         "beat": 2
       },
       {
-        "timestamp": 193.253,
+        "timestamp": 204.514,
         "beat": 3
       },
       {
-        "timestamp": 193.717,
+        "timestamp": 204.978,
         "beat": 4
       },
       {
-        "timestamp": 194.205,
+        "timestamp": 205.466,
         "beat": 5
       },
       {
-        "timestamp": 194.692,
+        "timestamp": 205.953,
         "beat": 6
       },
       {
-        "timestamp": 195.157,
+        "timestamp": 206.418,
         "beat": 7
       },
       {
-        "timestamp": 195.644,
+        "timestamp": 206.905,
         "beat": 8
       },
       {
-        "timestamp": 196.132,
+        "timestamp": 207.393,
         "beat": 1
       },
       {
-        "timestamp": 196.596,
+        "timestamp": 207.857,
         "beat": 2
       },
       {
-        "timestamp": 197.061,
+        "timestamp": 208.322,
         "beat": 3
       },
       {
-        "timestamp": 197.548,
+        "timestamp": 208.809,
         "beat": 4
       },
       {
-        "timestamp": 198.013,
+        "timestamp": 209.274,
         "beat": 5
       },
       {
-        "timestamp": 198.477,
+        "timestamp": 209.738,
         "beat": 6
       },
       {
-        "timestamp": 198.965,
+        "timestamp": 210.226,
         "beat": 7
       },
       {
-        "timestamp": 199.452,
+        "timestamp": 210.713,
         "beat": 8
       },
       {
-        "timestamp": 199.917,
+        "timestamp": 211.178,
         "beat": 1
       },
       {
-        "timestamp": 200.404,
+        "timestamp": 211.665,
         "beat": 2
       },
       {
-        "timestamp": 200.869,
+        "timestamp": 212.13,
         "beat": 3
       },
       {
-        "timestamp": 201.356,
+        "timestamp": 212.617,
         "beat": 4
       },
       {
-        "timestamp": 201.821,
+        "timestamp": 213.082,
         "beat": 5
       },
       {
-        "timestamp": 202.308,
+        "timestamp": 213.569,
         "beat": 6
       },
       {
-        "timestamp": 202.773,
+        "timestamp": 214.034,
         "beat": 7
       },
       {
-        "timestamp": 203.26,
+        "timestamp": 214.521,
         "beat": 8
       },
       {
-        "timestamp": 203.725,
+        "timestamp": 214.986,
         "beat": 1
       },
       {
-        "timestamp": 204.212,
+        "timestamp": 215.473,
         "beat": 2
       },
       {
-        "timestamp": 204.7,
+        "timestamp": 215.961,
         "beat": 3
       },
       {
-        "timestamp": 205.165,
+        "timestamp": 216.426,
         "beat": 4
       },
       {
-        "timestamp": 205.629,
+        "timestamp": 216.89,
         "beat": 5
       },
       {
-        "timestamp": 206.117,
+        "timestamp": 217.378,
         "beat": 6
       },
       {
-        "timestamp": 206.581,
+        "timestamp": 217.842,
         "beat": 7
       },
       {
-        "timestamp": 207.069,
+        "timestamp": 218.33,
         "beat": 8
       },
       {
-        "timestamp": 207.533,
+        "timestamp": 218.794,
         "beat": 1
       },
       {
-        "timestamp": 208.021,
+        "timestamp": 219.282,
         "beat": 2
       },
       {
-        "timestamp": 208.485,
+        "timestamp": 219.746,
         "beat": 3
       },
       {
-        "timestamp": 208.973,
+        "timestamp": 220.234,
         "beat": 4
       },
       {
-        "timestamp": 209.437,
+        "timestamp": 220.698,
         "beat": 5
       },
       {
-        "timestamp": 209.925,
+        "timestamp": 221.186,
         "beat": 6
       },
       {
-        "timestamp": 210.389,
+        "timestamp": 221.65,
         "beat": 7
       },
       {
-        "timestamp": 210.877,
+        "timestamp": 222.138,
         "beat": 8
       },
       {
-        "timestamp": 211.341,
+        "timestamp": 222.602,
         "beat": 1
       },
       {
-        "timestamp": 211.805,
+        "timestamp": 223.066,
         "beat": 2
       }
     ],
@@ -2275,10 +2322,142 @@
         "id": "sec-0",
         "name": "intro",
         "emoji": "🎵",
-        "startTimestamp": 0.139,
-        "endTimestamp": 10.1,
+        "startTimestamp": 0,
+        "endTimestamp": 13.815,
         "focusInstrument": "",
         "beatCountType": "none",
+        "displayCounts": true,
+        "localOffsetMs": 0
+      },
+      {
+        "id": "sec-1780052358108",
+        "name": "",
+        "emoji": "🎵",
+        "startTimestamp": 13.815,
+        "endTimestamp": 32.862,
+        "focusInstrument": "",
+        "beatCountType": "bachata-4",
+        "displayCounts": true,
+        "localOffsetMs": 0
+      },
+      {
+        "id": "sec-1780052397863",
+        "name": "",
+        "emoji": "🎵",
+        "startTimestamp": 32.862,
+        "endTimestamp": 44.693,
+        "focusInstrument": "",
+        "beatCountType": "bachata-4",
+        "displayCounts": true,
+        "localOffsetMs": 0
+      },
+      {
+        "id": "sec-1780052414406",
+        "name": "",
+        "emoji": "🎵",
+        "startTimestamp": 44.693,
+        "endTimestamp": 62.694,
+        "focusInstrument": "",
+        "beatCountType": "bachata-4",
+        "displayCounts": true,
+        "localOffsetMs": 0
+      },
+      {
+        "id": "sec-1780052446085",
+        "name": "",
+        "emoji": "🎵",
+        "startTimestamp": 62.694,
+        "endTimestamp": 64.43,
+        "focusInstrument": "",
+        "beatCountType": "bachata-4",
+        "displayCounts": true,
+        "localOffsetMs": 0
+      },
+      {
+        "id": "sec-1780052449199",
+        "name": "",
+        "emoji": "🎵",
+        "startTimestamp": 64.43,
+        "endTimestamp": 76.031,
+        "focusInstrument": "",
+        "beatCountType": "bachata-4",
+        "displayCounts": true,
+        "localOffsetMs": 0
+      },
+      {
+        "id": "sec-1780052470673",
+        "name": "",
+        "emoji": "🎵",
+        "startTimestamp": 76.031,
+        "endTimestamp": 89.858,
+        "focusInstrument": "",
+        "beatCountType": "bachata-4",
+        "displayCounts": true,
+        "localOffsetMs": 0
+      },
+      {
+        "id": "sec-1780052490093",
+        "name": "",
+        "emoji": "🎵",
+        "startTimestamp": 89.858,
+        "endTimestamp": 93.077,
+        "focusInstrument": "",
+        "beatCountType": "none",
+        "displayCounts": true,
+        "localOffsetMs": 0
+      },
+      {
+        "id": "sec-1780052505409",
+        "name": "",
+        "emoji": "🎵",
+        "startTimestamp": 93.077,
+        "endTimestamp": 120.807,
+        "focusInstrument": "",
+        "beatCountType": "bachata-4",
+        "displayCounts": true,
+        "localOffsetMs": 0
+      },
+      {
+        "id": "sec-1780052550527",
+        "name": "",
+        "emoji": "🎵",
+        "startTimestamp": 120.807,
+        "endTimestamp": 140.442,
+        "focusInstrument": "",
+        "beatCountType": "bachata-4",
+        "displayCounts": true,
+        "localOffsetMs": 0
+      },
+      {
+        "id": "sec-1780052590151",
+        "name": "",
+        "emoji": "🎵",
+        "startTimestamp": 140.442,
+        "endTimestamp": 152.186,
+        "focusInstrument": "",
+        "beatCountType": "none",
+        "displayCounts": true,
+        "localOffsetMs": 0
+      },
+      {
+        "id": "sec-1780052611190",
+        "name": "",
+        "emoji": "🎵",
+        "startTimestamp": 152.186,
+        "endTimestamp": 167.696,
+        "focusInstrument": "Guitar",
+        "beatCountType": "bachata-4",
+        "displayCounts": true,
+        "localOffsetMs": 0
+      },
+      {
+        "id": "sec-1780052661989",
+        "name": "",
+        "emoji": "🎵",
+        "startTimestamp": 167.696,
+        "endTimestamp": 300,
+        "focusInstrument": "",
+        "beatCountType": "bachata-4",
         "displayCounts": true,
         "localOffsetMs": 0
       }
@@ -2287,7 +2466,7 @@
   "metadata": {
     "songTitle": "Chacha",
     "artist": "Jean & Alex, Pinto Picasso",
-    "danceStyle": "bachata",
+    "danceStyle": "salsa",
     "youtubeId": "G_FuyWxTapo",
     "bpm": 129.2,
     "difficulty": "medium"
@@ -2297,541 +2476,577 @@
       "id": "sec-0",
       "name": "intro",
       "emoji": "🎵",
-      "startTimestamp": 0.139,
-      "endTimestamp": 10.1,
+      "startTimestamp": 0,
+      "endTimestamp": 13.815,
       "focusInstrument": "",
       "beatCountType": "none",
+      "displayCounts": true,
+      "localOffsetMs": 0
+    },
+    {
+      "id": "sec-1780052358108",
+      "name": "",
+      "emoji": "🎵",
+      "startTimestamp": 13.815,
+      "endTimestamp": 32.862,
+      "focusInstrument": "",
+      "beatCountType": "bachata-4",
+      "displayCounts": true,
+      "localOffsetMs": 0
+    },
+    {
+      "id": "sec-1780052397863",
+      "name": "",
+      "emoji": "🎵",
+      "startTimestamp": 32.862,
+      "endTimestamp": 44.693,
+      "focusInstrument": "",
+      "beatCountType": "bachata-4",
+      "displayCounts": true,
+      "localOffsetMs": 0
+    },
+    {
+      "id": "sec-1780052414406",
+      "name": "",
+      "emoji": "🎵",
+      "startTimestamp": 44.693,
+      "endTimestamp": 62.694,
+      "focusInstrument": "",
+      "beatCountType": "bachata-4",
+      "displayCounts": true,
+      "localOffsetMs": 0
+    },
+    {
+      "id": "sec-1780052446085",
+      "name": "",
+      "emoji": "🎵",
+      "startTimestamp": 62.694,
+      "endTimestamp": 64.43,
+      "focusInstrument": "",
+      "beatCountType": "bachata-4",
+      "displayCounts": true,
+      "localOffsetMs": 0
+    },
+    {
+      "id": "sec-1780052449199",
+      "name": "",
+      "emoji": "🎵",
+      "startTimestamp": 64.43,
+      "endTimestamp": 76.031,
+      "focusInstrument": "",
+      "beatCountType": "bachata-4",
+      "displayCounts": true,
+      "localOffsetMs": 0
+    },
+    {
+      "id": "sec-1780052470673",
+      "name": "",
+      "emoji": "🎵",
+      "startTimestamp": 76.031,
+      "endTimestamp": 89.858,
+      "focusInstrument": "",
+      "beatCountType": "bachata-4",
+      "displayCounts": true,
+      "localOffsetMs": 0
+    },
+    {
+      "id": "sec-1780052490093",
+      "name": "",
+      "emoji": "🎵",
+      "startTimestamp": 89.858,
+      "endTimestamp": 93.077,
+      "focusInstrument": "",
+      "beatCountType": "none",
+      "displayCounts": true,
+      "localOffsetMs": 0
+    },
+    {
+      "id": "sec-1780052505409",
+      "name": "",
+      "emoji": "🎵",
+      "startTimestamp": 93.077,
+      "endTimestamp": 120.807,
+      "focusInstrument": "",
+      "beatCountType": "bachata-4",
+      "displayCounts": true,
+      "localOffsetMs": 0
+    },
+    {
+      "id": "sec-1780052550527",
+      "name": "",
+      "emoji": "🎵",
+      "startTimestamp": 120.807,
+      "endTimestamp": 140.442,
+      "focusInstrument": "",
+      "beatCountType": "bachata-4",
+      "displayCounts": true,
+      "localOffsetMs": 0
+    },
+    {
+      "id": "sec-1780052590151",
+      "name": "",
+      "emoji": "🎵",
+      "startTimestamp": 140.442,
+      "endTimestamp": 152.186,
+      "focusInstrument": "",
+      "beatCountType": "none",
+      "displayCounts": true,
+      "localOffsetMs": 0
+    },
+    {
+      "id": "sec-1780052611190",
+      "name": "",
+      "emoji": "🎵",
+      "startTimestamp": 152.186,
+      "endTimestamp": 167.696,
+      "focusInstrument": "Guitar",
+      "beatCountType": "bachata-4",
+      "displayCounts": true,
+      "localOffsetMs": 0
+    },
+    {
+      "id": "sec-1780052661989",
+      "name": "",
+      "emoji": "🎵",
+      "startTimestamp": 167.696,
+      "endTimestamp": 300,
+      "focusInstrument": "",
+      "beatCountType": "bachata-4",
       "displayCounts": true,
       "localOffsetMs": 0
     }
   ],
   "beats": [
     {
-      "timestamp": 0,
-      "beat": 1
+      "timestamp": 11.261,
+      "beat": 0
     },
     {
-      "timestamp": 0,
+      "timestamp": 11.261,
+      "beat": 0
+    },
+    {
+      "timestamp": 11.261,
+      "beat": 0
+    },
+    {
+      "timestamp": 11.533,
+      "beat": 0
+    },
+    {
+      "timestamp": 11.951,
+      "beat": 0
+    },
+    {
+      "timestamp": 12.392,
+      "beat": 0
+    },
+    {
+      "timestamp": 12.856,
+      "beat": 0
+    },
+    {
+      "timestamp": 13.321,
+      "beat": 0
+    },
+    {
+      "timestamp": 13.785,
+      "beat": 0
+    },
+    {
+      "timestamp": 14.273,
       "beat": 2
     },
     {
-      "timestamp": 0,
+      "timestamp": 14.737,
       "beat": 3
     },
     {
-      "timestamp": 0.272,
-      "beat": 0
-    },
-    {
-      "timestamp": 0.69,
-      "beat": 0
-    },
-    {
-      "timestamp": 1.131,
-      "beat": 0
-    },
-    {
-      "timestamp": 1.595,
-      "beat": 0
-    },
-    {
-      "timestamp": 2.06,
-      "beat": 0
-    },
-    {
-      "timestamp": 2.524,
-      "beat": 0
-    },
-    {
-      "timestamp": 3.012,
-      "beat": 0
-    },
-    {
-      "timestamp": 3.476,
-      "beat": 0
-    },
-    {
-      "timestamp": 3.964,
-      "beat": 0
-    },
-    {
-      "timestamp": 4.428,
-      "beat": 0
-    },
-    {
-      "timestamp": 4.916,
-      "beat": 0
-    },
-    {
-      "timestamp": 5.403,
-      "beat": 0
-    },
-    {
-      "timestamp": 5.868,
-      "beat": 0
-    },
-    {
-      "timestamp": 6.332,
-      "beat": 0
-    },
-    {
-      "timestamp": 6.82,
-      "beat": 0
-    },
-    {
-      "timestamp": 7.307,
-      "beat": 0
-    },
-    {
-      "timestamp": 7.772,
-      "beat": 0
-    },
-    {
-      "timestamp": 8.259,
-      "beat": 0
-    },
-    {
-      "timestamp": 8.724,
-      "beat": 0
-    },
-    {
-      "timestamp": 9.211,
-      "beat": 0
-    },
-    {
-      "timestamp": 9.699,
-      "beat": 0
-    },
-    {
-      "timestamp": 10.163,
-      "beat": 1
-    },
-    {
-      "timestamp": 10.628,
-      "beat": 2
-    },
-    {
-      "timestamp": 11.115,
-      "beat": 3
-    },
-    {
-      "timestamp": 11.58,
+      "timestamp": 15.225,
       "beat": 4
     },
     {
-      "timestamp": 12.044,
+      "timestamp": 15.689,
       "beat": 5
     },
     {
-      "timestamp": 12.509,
+      "timestamp": 16.177,
       "beat": 6
     },
     {
-      "timestamp": 12.973,
+      "timestamp": 16.664,
       "beat": 7
     },
     {
-      "timestamp": 13.437,
+      "timestamp": 17.129,
       "beat": 8
     },
     {
-      "timestamp": 13.925,
+      "timestamp": 17.593,
       "beat": 1
     },
     {
-      "timestamp": 14.436,
+      "timestamp": 18.081,
       "beat": 2
     },
     {
-      "timestamp": 14.9,
+      "timestamp": 18.568,
       "beat": 3
     },
     {
-      "timestamp": 15.341,
+      "timestamp": 19.033,
       "beat": 4
     },
     {
-      "timestamp": 15.852,
+      "timestamp": 19.52,
       "beat": 5
     },
     {
-      "timestamp": 16.34,
+      "timestamp": 19.985,
       "beat": 6
     },
     {
-      "timestamp": 16.804,
+      "timestamp": 20.472,
       "beat": 7
     },
     {
-      "timestamp": 17.292,
+      "timestamp": 20.96,
       "beat": 8
     },
     {
-      "timestamp": 17.779,
+      "timestamp": 21.424,
       "beat": 1
     },
     {
-      "timestamp": 18.244,
+      "timestamp": 21.889,
       "beat": 2
     },
     {
-      "timestamp": 18.732,
+      "timestamp": 22.376,
       "beat": 3
     },
     {
-      "timestamp": 19.196,
+      "timestamp": 22.841,
       "beat": 4
     },
     {
-      "timestamp": 19.684,
+      "timestamp": 23.305,
       "beat": 5
     },
     {
-      "timestamp": 20.148,
+      "timestamp": 23.77,
       "beat": 6
     },
     {
-      "timestamp": 20.636,
+      "timestamp": 24.234,
       "beat": 7
     },
     {
-      "timestamp": 21.123,
+      "timestamp": 24.698,
       "beat": 8
     },
     {
-      "timestamp": 21.588,
+      "timestamp": 25.186,
       "beat": 1
     },
     {
-      "timestamp": 22.075,
+      "timestamp": 25.697,
       "beat": 2
     },
     {
-      "timestamp": 22.54,
+      "timestamp": 26.161,
       "beat": 3
     },
     {
-      "timestamp": 23.004,
+      "timestamp": 26.602,
       "beat": 4
     },
     {
-      "timestamp": 23.492,
+      "timestamp": 27.113,
       "beat": 5
     },
     {
-      "timestamp": 23.956,
+      "timestamp": 27.601,
       "beat": 6
     },
     {
-      "timestamp": 24.444,
+      "timestamp": 28.065,
       "beat": 7
     },
     {
-      "timestamp": 24.908,
+      "timestamp": 28.553,
       "beat": 8
     },
     {
-      "timestamp": 25.396,
+      "timestamp": 29.04,
       "beat": 1
     },
     {
-      "timestamp": 25.86,
+      "timestamp": 29.505,
       "beat": 2
     },
     {
-      "timestamp": 26.348,
+      "timestamp": 29.993,
       "beat": 3
     },
     {
-      "timestamp": 26.835,
+      "timestamp": 30.457,
       "beat": 4
     },
     {
-      "timestamp": 27.323,
+      "timestamp": 30.945,
       "beat": 5
     },
     {
-      "timestamp": 27.787,
+      "timestamp": 31.409,
       "beat": 6
     },
     {
-      "timestamp": 28.252,
+      "timestamp": 31.897,
       "beat": 7
     },
     {
-      "timestamp": 28.716,
+      "timestamp": 32.384,
       "beat": 8
     },
     {
-      "timestamp": 29.111,
+      "timestamp": 32.849,
       "beat": 1
     },
     {
-      "timestamp": 29.552,
+      "timestamp": 33.336,
       "beat": 2
     },
     {
-      "timestamp": 29.924,
+      "timestamp": 33.801,
       "beat": 3
     },
     {
-      "timestamp": 30.388,
+      "timestamp": 34.265,
       "beat": 4
     },
     {
-      "timestamp": 30.876,
+      "timestamp": 34.753,
       "beat": 5
     },
     {
-      "timestamp": 31.317,
+      "timestamp": 35.217,
       "beat": 6
     },
     {
-      "timestamp": 31.758,
+      "timestamp": 35.705,
       "beat": 7
     },
     {
-      "timestamp": 32.199,
+      "timestamp": 36.169,
       "beat": 8
     },
     {
-      "timestamp": 32.64,
+      "timestamp": 36.657,
       "beat": 1
     },
     {
-      "timestamp": 33.058,
+      "timestamp": 37.121,
       "beat": 2
     },
     {
-      "timestamp": 33.499,
+      "timestamp": 37.609,
       "beat": 3
     },
     {
-      "timestamp": 33.964,
+      "timestamp": 38.096,
       "beat": 4
     },
     {
-      "timestamp": 34.428,
+      "timestamp": 38.584,
       "beat": 5
     },
     {
-      "timestamp": 34.916,
+      "timestamp": 39.048,
       "beat": 6
     },
     {
-      "timestamp": 35.38,
+      "timestamp": 39.513,
       "beat": 7
     },
     {
-      "timestamp": 35.868,
+      "timestamp": 39.977,
       "beat": 8
     },
     {
-      "timestamp": 36.355,
+      "timestamp": 40.372,
       "beat": 1
     },
     {
-      "timestamp": 36.82,
+      "timestamp": 40.813,
       "beat": 2
     },
     {
-      "timestamp": 37.307,
+      "timestamp": 41.185,
       "beat": 3
     },
     {
-      "timestamp": 37.772,
+      "timestamp": 41.649,
       "beat": 4
     },
     {
-      "timestamp": 38.259,
+      "timestamp": 42.137,
       "beat": 5
     },
     {
-      "timestamp": 38.724,
+      "timestamp": 42.578,
       "beat": 6
     },
     {
-      "timestamp": 39.188,
+      "timestamp": 43.019,
       "beat": 7
     },
     {
-      "timestamp": 39.676,
+      "timestamp": 43.46,
       "beat": 8
     },
     {
-      "timestamp": 40.164,
+      "timestamp": 43.901,
       "beat": 1
     },
     {
-      "timestamp": 40.628,
+      "timestamp": 44.319,
       "beat": 2
     },
     {
-      "timestamp": 41.116,
+      "timestamp": 44.76,
       "beat": 3
     },
     {
-      "timestamp": 41.58,
+      "timestamp": 45.225,
       "beat": 4
     },
     {
-      "timestamp": 42.068,
+      "timestamp": 45.689,
       "beat": 5
     },
     {
-      "timestamp": 42.555,
+      "timestamp": 46.177,
       "beat": 6
     },
     {
-      "timestamp": 43.043,
+      "timestamp": 46.641,
       "beat": 7
     },
     {
-      "timestamp": 43.507,
+      "timestamp": 47.129,
       "beat": 8
     },
     {
-      "timestamp": 43.972,
+      "timestamp": 47.616,
       "beat": 1
     },
     {
-      "timestamp": 44.459,
+      "timestamp": 48.081,
       "beat": 2
     },
     {
-      "timestamp": 44.924,
+      "timestamp": 48.568,
       "beat": 3
     },
     {
-      "timestamp": 45.388,
+      "timestamp": 49.033,
       "beat": 4
     },
     {
-      "timestamp": 45.876,
+      "timestamp": 49.52,
       "beat": 5
     },
     {
-      "timestamp": 46.34,
+      "timestamp": 49.985,
       "beat": 6
     },
     {
-      "timestamp": 46.804,
+      "timestamp": 50.449,
       "beat": 7
     },
     {
-      "timestamp": 47.315,
+      "timestamp": 50.937,
       "beat": 8
     },
     {
-      "timestamp": 47.78,
+      "timestamp": 51.425,
       "beat": 1
     },
     {
-      "timestamp": 48.244,
+      "timestamp": 51.889,
       "beat": 2
     },
     {
-      "timestamp": 48.708,
+      "timestamp": 52.377,
       "beat": 3
     },
     {
-      "timestamp": 49.196,
+      "timestamp": 52.841,
       "beat": 4
     },
     {
-      "timestamp": 49.684,
+      "timestamp": 53.329,
       "beat": 5
     },
     {
-      "timestamp": 50.148,
+      "timestamp": 53.816,
       "beat": 6
     },
     {
-      "timestamp": 50.612,
+      "timestamp": 54.304,
       "beat": 7
     },
     {
-      "timestamp": 51.1,
+      "timestamp": 54.768,
       "beat": 8
     },
     {
-      "timestamp": 51.588,
+      "timestamp": 55.233,
       "beat": 1
     },
     {
-      "timestamp": 52.052,
+      "timestamp": 55.72,
       "beat": 2
     },
     {
-      "timestamp": 52.54,
+      "timestamp": 56.185,
       "beat": 3
     },
     {
-      "timestamp": 53.004,
+      "timestamp": 56.649,
       "beat": 4
     },
     {
-      "timestamp": 53.492,
+      "timestamp": 57.137,
       "beat": 5
     },
     {
-      "timestamp": 53.956,
+      "timestamp": 57.601,
       "beat": 6
     },
     {
-      "timestamp": 54.421,
+      "timestamp": 58.065,
       "beat": 7
     },
     {
-      "timestamp": 54.908,
+      "timestamp": 58.576,
       "beat": 8
     },
     {
-      "timestamp": 55.396,
+      "timestamp": 59.041,
       "beat": 1
     },
     {
-      "timestamp": 55.883,
+      "timestamp": 59.505,
       "beat": 2
     },
     {
-      "timestamp": 56.348,
+      "timestamp": 59.969,
       "beat": 3
     },
     {
-      "timestamp": 56.812,
-      "beat": 4
-    },
-    {
-      "timestamp": 57.3,
-      "beat": 5
-    },
-    {
-      "timestamp": 57.787,
-      "beat": 6
-    },
-    {
-      "timestamp": 58.252,
-      "beat": 7
-    },
-    {
-      "timestamp": 58.716,
-      "beat": 8
-    },
-    {
-      "timestamp": 59.204,
-      "beat": 1
-    },
-    {
-      "timestamp": 59.692,
-      "beat": 2
-    },
-    {
-      "timestamp": 60.133,
-      "beat": 3
-    },
-    {
-      "timestamp": 60.551,
+      "timestamp": 60.457,
       "beat": 4
     },
     {
@@ -2839,91 +3054,91 @@
       "beat": 5
     },
     {
-      "timestamp": 61.363,
+      "timestamp": 61.409,
       "beat": 6
     },
     {
-      "timestamp": 61.828,
+      "timestamp": 61.873,
       "beat": 7
     },
     {
-      "timestamp": 62.292,
+      "timestamp": 62.361,
       "beat": 8
     },
     {
-      "timestamp": 62.757,
+      "timestamp": 62.849,
       "beat": 1
     },
     {
-      "timestamp": 63.244,
+      "timestamp": 63.313,
       "beat": 2
     },
     {
-      "timestamp": 63.732,
+      "timestamp": 63.801,
       "beat": 3
     },
     {
-      "timestamp": 64.196,
+      "timestamp": 64.265,
       "beat": 4
     },
     {
-      "timestamp": 64.684,
+      "timestamp": 64.753,
       "beat": 5
     },
     {
-      "timestamp": 65.171,
+      "timestamp": 65.217,
       "beat": 6
     },
     {
-      "timestamp": 65.636,
+      "timestamp": 65.682,
       "beat": 7
     },
     {
-      "timestamp": 66.1,
+      "timestamp": 66.169,
       "beat": 8
     },
     {
-      "timestamp": 66.588,
+      "timestamp": 66.657,
       "beat": 1
     },
     {
-      "timestamp": 67.052,
+      "timestamp": 67.144,
       "beat": 2
     },
     {
-      "timestamp": 67.54,
+      "timestamp": 67.609,
       "beat": 3
     },
     {
-      "timestamp": 68.004,
+      "timestamp": 68.073,
       "beat": 4
     },
     {
-      "timestamp": 68.492,
+      "timestamp": 68.561,
       "beat": 5
     },
     {
-      "timestamp": 68.979,
+      "timestamp": 69.048,
       "beat": 6
     },
     {
-      "timestamp": 69.444,
+      "timestamp": 69.513,
       "beat": 7
     },
     {
-      "timestamp": 69.908,
+      "timestamp": 69.977,
       "beat": 8
     },
     {
-      "timestamp": 70.396,
+      "timestamp": 70.465,
       "beat": 1
     },
     {
-      "timestamp": 70.86,
+      "timestamp": 70.953,
       "beat": 2
     },
     {
-      "timestamp": 71.348,
+      "timestamp": 71.394,
       "beat": 3
     },
     {
@@ -2931,1179 +3146,1275 @@
       "beat": 4
     },
     {
-      "timestamp": 72.3,
+      "timestamp": 72.206,
       "beat": 5
     },
     {
-      "timestamp": 72.788,
+      "timestamp": 72.624,
       "beat": 6
     },
     {
-      "timestamp": 73.252,
+      "timestamp": 73.089,
       "beat": 7
     },
     {
-      "timestamp": 73.74,
+      "timestamp": 73.553,
       "beat": 8
     },
     {
-      "timestamp": 74.204,
+      "timestamp": 74.018,
       "beat": 1
     },
     {
-      "timestamp": 74.668,
+      "timestamp": 74.505,
       "beat": 2
     },
     {
-      "timestamp": 75.156,
+      "timestamp": 74.993,
       "beat": 3
     },
     {
-      "timestamp": 75.62,
+      "timestamp": 75.457,
       "beat": 4
     },
     {
-      "timestamp": 76.108,
+      "timestamp": 75.945,
       "beat": 5
     },
     {
-      "timestamp": 76.572,
+      "timestamp": 76.432,
       "beat": 6
     },
     {
-      "timestamp": 77.06,
+      "timestamp": 76.897,
       "beat": 7
     },
     {
-      "timestamp": 77.548,
+      "timestamp": 77.361,
       "beat": 8
     },
     {
-      "timestamp": 78.012,
+      "timestamp": 77.849,
       "beat": 1
     },
     {
-      "timestamp": 78.5,
+      "timestamp": 78.313,
       "beat": 2
     },
     {
-      "timestamp": 78.964,
+      "timestamp": 78.801,
       "beat": 3
     },
     {
-      "timestamp": 79.452,
+      "timestamp": 79.265,
       "beat": 4
     },
     {
-      "timestamp": 79.916,
+      "timestamp": 79.753,
       "beat": 5
     },
     {
-      "timestamp": 80.404,
+      "timestamp": 80.24,
       "beat": 6
     },
     {
-      "timestamp": 80.868,
+      "timestamp": 80.705,
       "beat": 7
     },
     {
-      "timestamp": 81.356,
+      "timestamp": 81.169,
       "beat": 8
     },
     {
-      "timestamp": 81.82,
+      "timestamp": 81.657,
       "beat": 1
     },
     {
-      "timestamp": 82.308,
+      "timestamp": 82.121,
       "beat": 2
     },
     {
-      "timestamp": 82.795,
+      "timestamp": 82.609,
       "beat": 3
     },
     {
-      "timestamp": 83.26,
+      "timestamp": 83.073,
       "beat": 4
     },
     {
-      "timestamp": 83.724,
+      "timestamp": 83.561,
       "beat": 5
     },
     {
-      "timestamp": 84.212,
+      "timestamp": 84.049,
       "beat": 6
     },
     {
-      "timestamp": 84.676,
+      "timestamp": 84.513,
       "beat": 7
     },
     {
-      "timestamp": 85.164,
+      "timestamp": 85.001,
       "beat": 8
     },
     {
-      "timestamp": 85.651,
+      "timestamp": 85.465,
       "beat": 1
     },
     {
-      "timestamp": 86.116,
+      "timestamp": 85.929,
       "beat": 2
     },
     {
-      "timestamp": 86.58,
+      "timestamp": 86.417,
       "beat": 3
     },
     {
-      "timestamp": 87.068,
+      "timestamp": 86.881,
       "beat": 4
     },
     {
-      "timestamp": 87.532,
+      "timestamp": 87.369,
       "beat": 5
     },
     {
-      "timestamp": 88.02,
+      "timestamp": 87.833,
       "beat": 6
     },
     {
-      "timestamp": 88.507,
+      "timestamp": 88.321,
       "beat": 7
     },
     {
-      "timestamp": 88.972,
+      "timestamp": 88.809,
       "beat": 8
     },
     {
-      "timestamp": 89.459,
+      "timestamp": 89.273,
       "beat": 1
     },
     {
-      "timestamp": 89.947,
+      "timestamp": 89.761,
       "beat": 2
     },
     {
-      "timestamp": 90.412,
-      "beat": 3
+      "timestamp": 90.225,
+      "beat": 0
     },
     {
-      "timestamp": 90.876,
-      "beat": 4
+      "timestamp": 90.713,
+      "beat": 0
     },
     {
-      "timestamp": 91.34,
-      "beat": 5
+      "timestamp": 91.177,
+      "beat": 0
     },
     {
-      "timestamp": 91.828,
-      "beat": 6
+      "timestamp": 91.665,
+      "beat": 0
     },
     {
-      "timestamp": 92.292,
-      "beat": 7
+      "timestamp": 92.129,
+      "beat": 0
     },
     {
-      "timestamp": 92.757,
-      "beat": 8
+      "timestamp": 92.617,
+      "beat": 0
     },
     {
-      "timestamp": 93.244,
+      "timestamp": 93.081,
       "beat": 1
     },
     {
-      "timestamp": 93.732,
+      "timestamp": 93.569,
       "beat": 2
     },
     {
-      "timestamp": 94.196,
+      "timestamp": 94.056,
       "beat": 3
     },
     {
-      "timestamp": 94.684,
+      "timestamp": 94.521,
       "beat": 4
     },
     {
-      "timestamp": 95.172,
+      "timestamp": 94.985,
       "beat": 5
     },
     {
-      "timestamp": 95.636,
+      "timestamp": 95.473,
       "beat": 6
     },
     {
-      "timestamp": 96.1,
+      "timestamp": 95.937,
       "beat": 7
     },
     {
-      "timestamp": 96.588,
+      "timestamp": 96.425,
       "beat": 8
     },
     {
-      "timestamp": 97.052,
+      "timestamp": 96.912,
       "beat": 1
     },
     {
-      "timestamp": 97.54,
+      "timestamp": 97.377,
       "beat": 2
     },
     {
-      "timestamp": 98.028,
+      "timestamp": 97.841,
       "beat": 3
     },
     {
-      "timestamp": 98.492,
+      "timestamp": 98.329,
       "beat": 4
     },
     {
-      "timestamp": 98.98,
+      "timestamp": 98.793,
       "beat": 5
     },
     {
-      "timestamp": 99.444,
+      "timestamp": 99.281,
       "beat": 6
     },
     {
-      "timestamp": 99.932,
+      "timestamp": 99.768,
       "beat": 7
     },
     {
-      "timestamp": 100.396,
+      "timestamp": 100.233,
       "beat": 8
     },
     {
-      "timestamp": 100.884,
+      "timestamp": 100.72,
       "beat": 1
     },
     {
-      "timestamp": 101.348,
+      "timestamp": 101.208,
       "beat": 2
     },
     {
-      "timestamp": 101.836,
+      "timestamp": 101.673,
       "beat": 3
     },
     {
-      "timestamp": 102.3,
+      "timestamp": 102.137,
       "beat": 4
     },
     {
-      "timestamp": 102.765,
+      "timestamp": 102.601,
       "beat": 5
     },
     {
-      "timestamp": 103.252,
+      "timestamp": 103.089,
       "beat": 6
     },
     {
-      "timestamp": 103.74,
+      "timestamp": 103.553,
       "beat": 7
     },
     {
-      "timestamp": 104.204,
+      "timestamp": 104.018,
       "beat": 8
     },
     {
-      "timestamp": 104.692,
+      "timestamp": 104.505,
       "beat": 1
     },
     {
-      "timestamp": 105.156,
+      "timestamp": 104.993,
       "beat": 2
     },
     {
-      "timestamp": 105.644,
+      "timestamp": 105.457,
       "beat": 3
     },
     {
-      "timestamp": 106.108,
+      "timestamp": 105.945,
       "beat": 4
     },
     {
-      "timestamp": 106.573,
+      "timestamp": 106.433,
       "beat": 5
     },
     {
-      "timestamp": 107.06,
+      "timestamp": 106.897,
       "beat": 6
     },
     {
-      "timestamp": 107.525,
+      "timestamp": 107.361,
       "beat": 7
     },
     {
-      "timestamp": 108.012,
+      "timestamp": 107.849,
       "beat": 8
     },
     {
-      "timestamp": 108.5,
+      "timestamp": 108.313,
       "beat": 1
     },
     {
-      "timestamp": 108.964,
+      "timestamp": 108.801,
       "beat": 2
     },
     {
-      "timestamp": 109.452,
+      "timestamp": 109.289,
       "beat": 3
     },
     {
-      "timestamp": 109.916,
+      "timestamp": 109.753,
       "beat": 4
     },
     {
-      "timestamp": 110.381,
+      "timestamp": 110.241,
       "beat": 5
     },
     {
-      "timestamp": 110.868,
+      "timestamp": 110.705,
       "beat": 6
     },
     {
-      "timestamp": 111.356,
+      "timestamp": 111.193,
       "beat": 7
     },
     {
-      "timestamp": 111.82,
+      "timestamp": 111.657,
       "beat": 8
     },
     {
-      "timestamp": 112.308,
+      "timestamp": 112.145,
       "beat": 1
     },
     {
-      "timestamp": 112.772,
+      "timestamp": 112.609,
       "beat": 2
     },
     {
-      "timestamp": 113.26,
+      "timestamp": 113.097,
       "beat": 3
     },
     {
-      "timestamp": 113.724,
+      "timestamp": 113.561,
       "beat": 4
     },
     {
-      "timestamp": 114.189,
+      "timestamp": 114.026,
       "beat": 5
     },
     {
-      "timestamp": 114.676,
+      "timestamp": 114.513,
       "beat": 6
     },
     {
-      "timestamp": 115.164,
+      "timestamp": 115.001,
       "beat": 7
     },
     {
-      "timestamp": 115.628,
+      "timestamp": 115.465,
       "beat": 8
     },
     {
-      "timestamp": 116.093,
+      "timestamp": 115.953,
       "beat": 1
     },
     {
-      "timestamp": 116.58,
+      "timestamp": 116.417,
       "beat": 2
     },
     {
-      "timestamp": 117.068,
+      "timestamp": 116.905,
       "beat": 3
     },
     {
-      "timestamp": 117.532,
+      "timestamp": 117.369,
       "beat": 4
     },
     {
-      "timestamp": 118.02,
+      "timestamp": 117.834,
       "beat": 5
     },
     {
-      "timestamp": 118.484,
+      "timestamp": 118.321,
       "beat": 6
     },
     {
-      "timestamp": 118.972,
+      "timestamp": 118.786,
       "beat": 7
     },
     {
-      "timestamp": 119.46,
+      "timestamp": 119.273,
       "beat": 8
     },
     {
-      "timestamp": 119.924,
+      "timestamp": 119.761,
       "beat": 1
     },
     {
-      "timestamp": 120.388,
+      "timestamp": 120.225,
       "beat": 2
     },
     {
-      "timestamp": 120.853,
+      "timestamp": 120.713,
       "beat": 3
     },
     {
-      "timestamp": 121.34,
+      "timestamp": 121.177,
       "beat": 4
     },
     {
-      "timestamp": 121.828,
+      "timestamp": 121.642,
       "beat": 5
     },
     {
-      "timestamp": 122.292,
+      "timestamp": 122.129,
       "beat": 6
     },
     {
-      "timestamp": 122.78,
+      "timestamp": 122.617,
       "beat": 7
     },
     {
-      "timestamp": 123.245,
+      "timestamp": 123.081,
       "beat": 8
     },
     {
-      "timestamp": 123.732,
+      "timestamp": 123.569,
       "beat": 1
     },
     {
-      "timestamp": 124.197,
+      "timestamp": 124.033,
       "beat": 2
     },
     {
-      "timestamp": 124.684,
+      "timestamp": 124.521,
       "beat": 3
     },
     {
-      "timestamp": 125.149,
+      "timestamp": 124.985,
       "beat": 4
     },
     {
-      "timestamp": 125.613,
+      "timestamp": 125.45,
       "beat": 5
     },
     {
-      "timestamp": 126.101,
+      "timestamp": 125.937,
       "beat": 6
     },
     {
-      "timestamp": 126.588,
+      "timestamp": 126.425,
       "beat": 7
     },
     {
-      "timestamp": 127.076,
+      "timestamp": 126.889,
       "beat": 8
     },
     {
-      "timestamp": 127.54,
+      "timestamp": 127.354,
       "beat": 1
     },
     {
-      "timestamp": 128.028,
+      "timestamp": 127.841,
       "beat": 2
     },
     {
-      "timestamp": 128.492,
+      "timestamp": 128.329,
       "beat": 3
     },
     {
-      "timestamp": 128.957,
+      "timestamp": 128.793,
       "beat": 4
     },
     {
-      "timestamp": 129.444,
+      "timestamp": 129.281,
       "beat": 5
     },
     {
-      "timestamp": 129.932,
+      "timestamp": 129.745,
       "beat": 6
     },
     {
-      "timestamp": 130.396,
+      "timestamp": 130.233,
       "beat": 7
     },
     {
-      "timestamp": 130.884,
+      "timestamp": 130.721,
       "beat": 8
     },
     {
-      "timestamp": 131.348,
+      "timestamp": 131.185,
       "beat": 1
     },
     {
-      "timestamp": 131.836,
+      "timestamp": 131.649,
       "beat": 2
     },
     {
-      "timestamp": 132.3,
+      "timestamp": 132.114,
       "beat": 3
     },
     {
-      "timestamp": 132.765,
+      "timestamp": 132.601,
       "beat": 4
     },
     {
-      "timestamp": 133.252,
+      "timestamp": 133.089,
       "beat": 5
     },
     {
-      "timestamp": 133.74,
+      "timestamp": 133.553,
       "beat": 6
     },
     {
-      "timestamp": 134.204,
+      "timestamp": 134.041,
       "beat": 7
     },
     {
-      "timestamp": 134.692,
+      "timestamp": 134.506,
       "beat": 8
     },
     {
-      "timestamp": 135.203,
+      "timestamp": 134.993,
       "beat": 1
     },
     {
-      "timestamp": 135.667,
+      "timestamp": 135.458,
       "beat": 2
     },
     {
-      "timestamp": 136.108,
+      "timestamp": 135.945,
       "beat": 3
     },
     {
-      "timestamp": 136.596,
+      "timestamp": 136.41,
       "beat": 4
     },
     {
-      "timestamp": 137.084,
+      "timestamp": 136.874,
       "beat": 5
     },
     {
-      "timestamp": 137.548,
+      "timestamp": 137.362,
       "beat": 6
     },
     {
-      "timestamp": 138.012,
+      "timestamp": 137.849,
       "beat": 7
     },
     {
-      "timestamp": 138.5,
+      "timestamp": 138.337,
       "beat": 8
     },
     {
-      "timestamp": 138.964,
+      "timestamp": 138.801,
       "beat": 1
     },
     {
-      "timestamp": 139.429,
+      "timestamp": 139.289,
       "beat": 2
     },
     {
-      "timestamp": 139.916,
+      "timestamp": 139.753,
       "beat": 3
     },
     {
-      "timestamp": 140.404,
+      "timestamp": 140.218,
       "beat": 4
     },
     {
-      "timestamp": 140.868,
-      "beat": 5
+      "timestamp": 140.705,
+      "beat": 0
     },
     {
-      "timestamp": 141.356,
+      "timestamp": 141.193,
+      "beat": 0
+    },
+    {
+      "timestamp": 141.657,
+      "beat": 0
+    },
+    {
+      "timestamp": 142.145,
+      "beat": 0
+    },
+    {
+      "timestamp": 142.609,
+      "beat": 0
+    },
+    {
+      "timestamp": 143.097,
+      "beat": 0
+    },
+    {
+      "timestamp": 143.561,
+      "beat": 0
+    },
+    {
+      "timestamp": 144.026,
+      "beat": 0
+    },
+    {
+      "timestamp": 144.513,
+      "beat": 0
+    },
+    {
+      "timestamp": 145.001,
+      "beat": 0
+    },
+    {
+      "timestamp": 145.465,
+      "beat": 0
+    },
+    {
+      "timestamp": 145.953,
+      "beat": 0
+    },
+    {
+      "timestamp": 146.464,
+      "beat": 0
+    },
+    {
+      "timestamp": 146.928,
+      "beat": 0
+    },
+    {
+      "timestamp": 147.369,
+      "beat": 0
+    },
+    {
+      "timestamp": 147.857,
+      "beat": 0
+    },
+    {
+      "timestamp": 148.345,
+      "beat": 0
+    },
+    {
+      "timestamp": 148.809,
+      "beat": 0
+    },
+    {
+      "timestamp": 149.273,
+      "beat": 0
+    },
+    {
+      "timestamp": 149.761,
+      "beat": 0
+    },
+    {
+      "timestamp": 150.225,
+      "beat": 0
+    },
+    {
+      "timestamp": 150.69,
+      "beat": 0
+    },
+    {
+      "timestamp": 151.177,
+      "beat": 0
+    },
+    {
+      "timestamp": 151.665,
+      "beat": 0
+    },
+    {
+      "timestamp": 152.129,
+      "beat": 0
+    },
+    {
+      "timestamp": 152.617,
       "beat": 6
     },
     {
-      "timestamp": 141.82,
+      "timestamp": 153.081,
       "beat": 7
     },
     {
-      "timestamp": 142.308,
+      "timestamp": 153.569,
       "beat": 8
     },
     {
-      "timestamp": 142.772,
+      "timestamp": 154.033,
       "beat": 1
     },
     {
-      "timestamp": 143.26,
+      "timestamp": 154.521,
       "beat": 2
     },
     {
-      "timestamp": 143.725,
+      "timestamp": 154.986,
       "beat": 3
     },
     {
-      "timestamp": 144.212,
+      "timestamp": 155.473,
       "beat": 4
     },
     {
-      "timestamp": 144.677,
+      "timestamp": 155.938,
       "beat": 5
     },
     {
-      "timestamp": 145.164,
+      "timestamp": 156.425,
       "beat": 6
     },
     {
-      "timestamp": 145.629,
+      "timestamp": 156.89,
       "beat": 7
     },
     {
-      "timestamp": 146.116,
+      "timestamp": 157.377,
       "beat": 8
     },
     {
-      "timestamp": 146.581,
+      "timestamp": 157.842,
       "beat": 1
     },
     {
-      "timestamp": 147.045,
+      "timestamp": 158.306,
       "beat": 2
     },
     {
-      "timestamp": 147.533,
+      "timestamp": 158.794,
       "beat": 3
     },
     {
-      "timestamp": 148.02,
+      "timestamp": 159.281,
       "beat": 4
     },
     {
-      "timestamp": 148.485,
+      "timestamp": 159.746,
       "beat": 5
     },
     {
-      "timestamp": 148.972,
+      "timestamp": 160.233,
       "beat": 6
     },
     {
-      "timestamp": 149.437,
+      "timestamp": 160.698,
       "beat": 7
     },
     {
-      "timestamp": 149.924,
+      "timestamp": 161.185,
       "beat": 8
     },
     {
-      "timestamp": 150.412,
+      "timestamp": 161.673,
       "beat": 1
     },
     {
-      "timestamp": 150.876,
+      "timestamp": 162.137,
       "beat": 2
     },
     {
-      "timestamp": 151.341,
+      "timestamp": 162.602,
       "beat": 3
     },
     {
-      "timestamp": 151.828,
+      "timestamp": 163.089,
       "beat": 4
     },
     {
-      "timestamp": 152.316,
+      "timestamp": 163.577,
       "beat": 5
     },
     {
-      "timestamp": 152.78,
+      "timestamp": 164.041,
       "beat": 6
     },
     {
-      "timestamp": 153.268,
+      "timestamp": 164.529,
       "beat": 7
     },
     {
-      "timestamp": 153.732,
+      "timestamp": 164.993,
       "beat": 8
     },
     {
-      "timestamp": 154.22,
+      "timestamp": 165.481,
       "beat": 1
     },
     {
-      "timestamp": 154.684,
+      "timestamp": 165.945,
       "beat": 2
     },
     {
-      "timestamp": 155.172,
+      "timestamp": 166.433,
       "beat": 3
     },
     {
-      "timestamp": 155.636,
+      "timestamp": 166.897,
       "beat": 4
     },
     {
-      "timestamp": 156.101,
+      "timestamp": 167.362,
       "beat": 5
     },
     {
-      "timestamp": 156.588,
+      "timestamp": 167.849,
       "beat": 6
     },
     {
-      "timestamp": 157.076,
+      "timestamp": 168.337,
       "beat": 7
     },
     {
-      "timestamp": 157.54,
+      "timestamp": 168.801,
       "beat": 8
     },
     {
-      "timestamp": 158.028,
+      "timestamp": 169.289,
       "beat": 1
     },
     {
-      "timestamp": 158.516,
+      "timestamp": 169.777,
       "beat": 2
     },
     {
-      "timestamp": 158.98,
+      "timestamp": 170.241,
       "beat": 3
     },
     {
-      "timestamp": 159.444,
+      "timestamp": 170.705,
       "beat": 4
     },
     {
-      "timestamp": 159.932,
+      "timestamp": 171.193,
       "beat": 5
     },
     {
-      "timestamp": 160.396,
+      "timestamp": 171.657,
       "beat": 6
     },
     {
-      "timestamp": 160.884,
+      "timestamp": 172.145,
       "beat": 7
     },
     {
-      "timestamp": 161.348,
+      "timestamp": 172.609,
       "beat": 8
     },
     {
-      "timestamp": 161.836,
+      "timestamp": 173.097,
       "beat": 1
     },
     {
-      "timestamp": 162.3,
+      "timestamp": 173.561,
       "beat": 2
     },
     {
-      "timestamp": 162.765,
+      "timestamp": 174.026,
       "beat": 3
     },
     {
-      "timestamp": 163.252,
+      "timestamp": 174.513,
       "beat": 4
     },
     {
-      "timestamp": 163.717,
+      "timestamp": 174.978,
       "beat": 5
     },
     {
-      "timestamp": 164.181,
+      "timestamp": 175.442,
       "beat": 6
     },
     {
-      "timestamp": 164.669,
+      "timestamp": 175.93,
       "beat": 7
     },
     {
-      "timestamp": 165.157,
+      "timestamp": 176.418,
       "beat": 8
     },
     {
-      "timestamp": 165.644,
+      "timestamp": 176.905,
       "beat": 1
     },
     {
-      "timestamp": 166.132,
+      "timestamp": 177.393,
       "beat": 2
     },
     {
-      "timestamp": 166.596,
+      "timestamp": 177.857,
       "beat": 3
     },
     {
-      "timestamp": 167.061,
+      "timestamp": 178.322,
       "beat": 4
     },
     {
-      "timestamp": 167.525,
+      "timestamp": 178.786,
       "beat": 5
     },
     {
-      "timestamp": 168.013,
+      "timestamp": 179.274,
       "beat": 6
     },
     {
-      "timestamp": 168.477,
+      "timestamp": 179.738,
       "beat": 7
     },
     {
-      "timestamp": 168.941,
+      "timestamp": 180.202,
       "beat": 8
     },
     {
-      "timestamp": 169.452,
+      "timestamp": 180.713,
       "beat": 1
     },
     {
-      "timestamp": 169.917,
+      "timestamp": 181.178,
       "beat": 2
     },
     {
-      "timestamp": 170.404,
+      "timestamp": 181.665,
       "beat": 3
     },
     {
-      "timestamp": 170.869,
+      "timestamp": 182.13,
       "beat": 4
     },
     {
-      "timestamp": 171.356,
+      "timestamp": 182.617,
       "beat": 5
     },
     {
-      "timestamp": 171.821,
+      "timestamp": 183.082,
       "beat": 6
     },
     {
-      "timestamp": 172.308,
+      "timestamp": 183.569,
       "beat": 7
     },
     {
-      "timestamp": 172.773,
+      "timestamp": 184.034,
       "beat": 8
     },
     {
-      "timestamp": 173.26,
+      "timestamp": 184.521,
       "beat": 1
     },
     {
-      "timestamp": 173.725,
+      "timestamp": 184.986,
       "beat": 2
     },
     {
-      "timestamp": 174.212,
+      "timestamp": 185.473,
       "beat": 3
     },
     {
-      "timestamp": 174.653,
+      "timestamp": 185.914,
       "beat": 4
     },
     {
-      "timestamp": 175.141,
+      "timestamp": 186.402,
       "beat": 5
     },
     {
-      "timestamp": 175.629,
+      "timestamp": 186.89,
       "beat": 6
     },
     {
-      "timestamp": 176.116,
+      "timestamp": 187.377,
       "beat": 7
     },
     {
-      "timestamp": 176.581,
+      "timestamp": 187.842,
       "beat": 8
     },
     {
-      "timestamp": 177.068,
+      "timestamp": 188.329,
       "beat": 1
     },
     {
-      "timestamp": 177.533,
+      "timestamp": 188.794,
       "beat": 2
     },
     {
-      "timestamp": 178.02,
+      "timestamp": 189.281,
       "beat": 3
     },
     {
-      "timestamp": 178.508,
+      "timestamp": 189.769,
       "beat": 4
     },
     {
-      "timestamp": 178.972,
+      "timestamp": 190.233,
       "beat": 5
     },
     {
-      "timestamp": 179.437,
+      "timestamp": 190.698,
       "beat": 6
     },
     {
-      "timestamp": 179.924,
+      "timestamp": 191.185,
       "beat": 7
     },
     {
-      "timestamp": 180.412,
+      "timestamp": 191.673,
       "beat": 8
     },
     {
-      "timestamp": 180.9,
+      "timestamp": 192.161,
       "beat": 1
     },
     {
-      "timestamp": 181.364,
+      "timestamp": 192.625,
       "beat": 2
     },
     {
-      "timestamp": 181.828,
+      "timestamp": 193.089,
       "beat": 3
     },
     {
-      "timestamp": 182.293,
+      "timestamp": 193.554,
       "beat": 4
     },
     {
-      "timestamp": 182.78,
+      "timestamp": 194.041,
       "beat": 5
     },
     {
-      "timestamp": 183.245,
+      "timestamp": 194.506,
       "beat": 6
     },
     {
-      "timestamp": 183.732,
+      "timestamp": 194.993,
       "beat": 7
     },
     {
-      "timestamp": 184.197,
+      "timestamp": 195.458,
       "beat": 8
     },
     {
-      "timestamp": 184.685,
+      "timestamp": 195.946,
       "beat": 1
     },
     {
-      "timestamp": 185.149,
+      "timestamp": 196.41,
       "beat": 2
     },
     {
-      "timestamp": 185.637,
+      "timestamp": 196.898,
       "beat": 3
     },
     {
-      "timestamp": 186.124,
+      "timestamp": 197.385,
       "beat": 4
     },
     {
-      "timestamp": 186.589,
+      "timestamp": 197.85,
       "beat": 5
     },
     {
-      "timestamp": 187.053,
+      "timestamp": 198.314,
       "beat": 6
     },
     {
-      "timestamp": 187.541,
+      "timestamp": 198.802,
       "beat": 7
     },
     {
-      "timestamp": 188.028,
+      "timestamp": 199.289,
       "beat": 8
     },
     {
-      "timestamp": 188.493,
+      "timestamp": 199.754,
       "beat": 1
     },
     {
-      "timestamp": 188.98,
+      "timestamp": 200.241,
       "beat": 2
     },
     {
-      "timestamp": 189.445,
+      "timestamp": 200.706,
       "beat": 3
     },
     {
-      "timestamp": 189.909,
+      "timestamp": 201.17,
       "beat": 4
     },
     {
-      "timestamp": 190.397,
+      "timestamp": 201.658,
       "beat": 5
     },
     {
-      "timestamp": 190.884,
+      "timestamp": 202.145,
       "beat": 6
     },
     {
-      "timestamp": 191.349,
+      "timestamp": 202.61,
       "beat": 7
     },
     {
-      "timestamp": 191.836,
+      "timestamp": 203.097,
       "beat": 8
     },
     {
-      "timestamp": 192.301,
+      "timestamp": 203.562,
       "beat": 1
     },
     {
-      "timestamp": 192.788,
+      "timestamp": 204.049,
       "beat": 2
     },
     {
-      "timestamp": 193.253,
+      "timestamp": 204.514,
       "beat": 3
     },
     {
-      "timestamp": 193.717,
+      "timestamp": 204.978,
       "beat": 4
     },
     {
-      "timestamp": 194.205,
+      "timestamp": 205.466,
       "beat": 5
     },
     {
-      "timestamp": 194.692,
+      "timestamp": 205.953,
       "beat": 6
     },
     {
-      "timestamp": 195.157,
+      "timestamp": 206.418,
       "beat": 7
     },
     {
-      "timestamp": 195.644,
+      "timestamp": 206.905,
       "beat": 8
     },
     {
-      "timestamp": 196.132,
+      "timestamp": 207.393,
       "beat": 1
     },
     {
-      "timestamp": 196.596,
+      "timestamp": 207.857,
       "beat": 2
     },
     {
-      "timestamp": 197.061,
+      "timestamp": 208.322,
       "beat": 3
     },
     {
-      "timestamp": 197.548,
+      "timestamp": 208.809,
       "beat": 4
     },
     {
-      "timestamp": 198.013,
+      "timestamp": 209.274,
       "beat": 5
     },
     {
-      "timestamp": 198.477,
+      "timestamp": 209.738,
       "beat": 6
     },
     {
-      "timestamp": 198.965,
+      "timestamp": 210.226,
       "beat": 7
     },
     {
-      "timestamp": 199.452,
+      "timestamp": 210.713,
       "beat": 8
     },
     {
-      "timestamp": 199.917,
+      "timestamp": 211.178,
       "beat": 1
     },
     {
-      "timestamp": 200.404,
+      "timestamp": 211.665,
       "beat": 2
     },
     {
-      "timestamp": 200.869,
+      "timestamp": 212.13,
       "beat": 3
     },
     {
-      "timestamp": 201.356,
+      "timestamp": 212.617,
       "beat": 4
     },
     {
-      "timestamp": 201.821,
+      "timestamp": 213.082,
       "beat": 5
     },
     {
-      "timestamp": 202.308,
+      "timestamp": 213.569,
       "beat": 6
     },
     {
-      "timestamp": 202.773,
+      "timestamp": 214.034,
       "beat": 7
     },
     {
-      "timestamp": 203.26,
+      "timestamp": 214.521,
       "beat": 8
     },
     {
-      "timestamp": 203.725,
+      "timestamp": 214.986,
       "beat": 1
     },
     {
-      "timestamp": 204.212,
+      "timestamp": 215.473,
       "beat": 2
     },
     {
-      "timestamp": 204.7,
+      "timestamp": 215.961,
       "beat": 3
     },
     {
-      "timestamp": 205.165,
+      "timestamp": 216.426,
       "beat": 4
     },
     {
-      "timestamp": 205.629,
+      "timestamp": 216.89,
       "beat": 5
     },
     {
-      "timestamp": 206.117,
+      "timestamp": 217.378,
       "beat": 6
     },
     {
-      "timestamp": 206.581,
+      "timestamp": 217.842,
       "beat": 7
     },
     {
-      "timestamp": 207.069,
+      "timestamp": 218.33,
       "beat": 8
     },
     {
-      "timestamp": 207.533,
+      "timestamp": 218.794,
       "beat": 1
     },
     {
-      "timestamp": 208.021,
+      "timestamp": 219.282,
       "beat": 2
     },
     {
-      "timestamp": 208.485,
+      "timestamp": 219.746,
       "beat": 3
     },
     {
-      "timestamp": 208.973,
+      "timestamp": 220.234,
       "beat": 4
     },
     {
-      "timestamp": 209.437,
+      "timestamp": 220.698,
       "beat": 5
     },
     {
-      "timestamp": 209.925,
+      "timestamp": 221.186,
       "beat": 6
     },
     {
-      "timestamp": 210.389,
+      "timestamp": 221.65,
       "beat": 7
     },
     {
-      "timestamp": 210.877,
+      "timestamp": 222.138,
       "beat": 8
     },
     {
-      "timestamp": 211.341,
+      "timestamp": 222.602,
       "beat": 1
     },
     {
-      "timestamp": 211.805,
+      "timestamp": 223.066,
       "beat": 2
     }
   ],

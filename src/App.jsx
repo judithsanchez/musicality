@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, lazy, Suspense } from "react";
+import { useState, useEffect, useRef, useCallback, lazy, Suspense } from "react";
 import { useSyncEngine } from "./hooks/useSyncEngine";
 import { adaptToAgnosticSong } from "./utils/schemaAdapter";
 import { ArrowLeft } from "lucide-react";
@@ -156,6 +156,7 @@ const _convertToDatabaseSections = (editorSecs) => {
 };
 
 export default function App() {
+  const isInitialRestoreRef = useRef(true);
   const [songData, setSongData] = useState(null);
   const [editorSections, setEditorSections] = useState([]);
   const [activeEditingSectionId, setActiveEditingSectionId] = useState(null);
@@ -194,6 +195,14 @@ export default function App() {
   const lastSeekTimeRef = useRef(0);
   const seekThrottleTimeoutRef = useRef(null);
   const headerClicksRef = useRef(0);
+
+  const [ytPlayerMountedVal, setYtPlayerMountedVal] = useState(0);
+  const ytPlayerRefCallback = useCallback((node) => {
+    if (node) {
+      console.log("[App] yt-player DOM element mounted!");
+      setYtPlayerMountedVal(prev => prev + 1);
+    }
+  }, []);
 
   // Helper to show modern fading glass toast notifications
   const showToast = (msg) => {
@@ -249,6 +258,9 @@ export default function App() {
 
   // 1. Sync React state → browser URL (pathname-based, base-aware)
   useEffect(() => {
+    if (isInitialRestoreRef.current) {
+      return;
+    }
     let targetPath;
     if (viewingDevDashboard) {
       targetPath = BASE + "/dashboard";
@@ -277,6 +289,7 @@ export default function App() {
         setViewingDevDashboard(true);
         setCurrentSong(null);
         setShowDiagnostic(false);
+        isInitialRestoreRef.current = false;
         return;
       }
 
@@ -288,7 +301,7 @@ export default function App() {
         setViewingDevDashboard(false);
 
         if (!currentSong || currentSong.youtubeId !== songId) {
-          fetch("songs/catalog.json")
+          fetch(import.meta.env.BASE_URL + "songs/catalog.json")
             .then(res => res.json())
             .then(catalog => {
               const matched = catalog.find(s => s.youtubeId === songId);
@@ -300,10 +313,15 @@ export default function App() {
                 window.history.replaceState(null, "", BASE + "/" || "/");
                 setCurrentSong(null);
               }
+              isInitialRestoreRef.current = false;
             })
-            .catch(err => console.error("[Navigation] Catalog restore failed:", err));
+            .catch(err => {
+              console.error("[Navigation] Catalog restore failed:", err);
+              isInitialRestoreRef.current = false;
+            });
         } else {
           setShowDiagnostic(calibrate);
+          isInitialRestoreRef.current = false;
         }
         return;
       }
@@ -312,6 +330,7 @@ export default function App() {
       setViewingDevDashboard(false);
       setCurrentSong(null);
       setShowDiagnostic(false);
+      isInitialRestoreRef.current = false;
     };
 
     handleNavigationRestore();
@@ -335,7 +354,7 @@ export default function App() {
     setActiveEditingSectionId(null);
     setMode("learn"); // Reset to Learn Mode
 
-    fetch(`songs/${song.youtubeId}.json`)
+    fetch(import.meta.env.BASE_URL + `songs/${song.youtubeId}.json`)
       .then((res) => {
         if (!res.ok) throw new Error("Beatmap load failed");
         return res.json();
@@ -579,7 +598,7 @@ export default function App() {
         setPlayer(null);
       }
     };
-  }, [apiReady, songData]);
+  }, [apiReady, songData, ytPlayerMountedVal]);
 
   // Dynamic Duration Sync: query player's duration once ready
   useEffect(() => {
@@ -1457,20 +1476,22 @@ export default function App() {
         </div>
 
         {/* Learning vs Practice Tabs */}
-        <div className="mode-tabs-container" style={{ margin: 0, flexGrow: 1, maxWidth: "300px" }}>
-          <button 
-            className={`mode-tab-btn ${mode === "learn" ? "active" : ""}`}
-            onClick={() => setMode("learn")}
-          >
-            🎓 Learn
-          </button>
-          <button 
-            className={`mode-tab-btn ${mode === "practice" ? "active" : ""}`}
-            onClick={() => setMode("practice")}
-          >
-            🎯 Play
-          </button>
-        </div>
+        {!showDiagnostic && (
+          <div className="mode-tabs-container" style={{ margin: 0, flexGrow: 1, maxWidth: "300px" }}>
+            <button 
+              className={`mode-tab-btn ${mode === "learn" ? "active" : ""}`}
+              onClick={() => setMode("learn")}
+            >
+              🎓 Learn
+            </button>
+            <button 
+              className={`mode-tab-btn ${mode === "practice" ? "active" : ""}`}
+              onClick={() => setMode("practice")}
+            >
+              🎯 Play
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Header Section */}
@@ -1489,58 +1510,55 @@ export default function App() {
       </header>
 
       {/* Main workspace layout */}
-      <div className={showDiagnostic ? "dev-workspace-layout" : "normal-workspace-layout"}>
+      <div className={showDiagnostic ? "dev-workspace-layout-full" : "normal-workspace-layout"}>
         {showDiagnostic ? (
-          <>
-            {/* Left Workspace Column: Video player ONLY */}
-            <div className="left-workspace-column">
-              {/* Defensive IFrame Player & Overlay Protection */}
-              <div className="video-wrapper">
-                <div key={songData?.metadata?.youtubeId || "yt-player"} id="yt-player"></div>
-                <AudioShield onPlayToggle={handlePlayToggle} />
-              </div>
+          <Suspense fallback={
+            <div className="glass-panel loading-container" style={{ minHeight: "300px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+              <div className="loading-spinner"></div>
+              <div style={{ fontWeight: 600, color: "#a78bfa" }}>Loading Calibration Workbench...</div>
             </div>
-
-            {/* Right Column: Secure DevCalibrator */}
-            <Suspense fallback={
-              <div className="glass-panel loading-container" style={{ minHeight: "300px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-                <div className="loading-spinner"></div>
-                <div style={{ fontWeight: 600, color: "#a78bfa" }}>Loading Calibration Workbench...</div>
-              </div>
-            }>
-              <DevCalibrator
-                songData={songData}
-                originalSongData={originalSongData}
-                calibratedSongData={calibratedSongData}
-                setCalibratedSongData={setCalibratedSongData}
-                setSongData={setSongData}
-                setOriginalSongData={setOriginalSongData}
-                breaks={breaks}
-                setBreaks={setBreaks}
-                currentTime={currentTime}
-                videoDuration={videoDuration}
-                player={player}
-                throttledSeek={throttledSeek}
-                userDelaySetting={userDelaySetting}
-                setUserDelaySetting={setUserDelaySetting}
-                onBackToCatalog={() => {
-                  setShowDiagnostic(false);
-                  setRawTaps([]);
-                  setAnchors([]);
-                  setCalibrationStats(null);
-                  setEstimatedDelay(null);
-                  showToast("🔒 Dev Panel Locked!");
-                }}
-                showToast={showToast}
-              />
-            </Suspense>
-          </>
+          }>
+            <DevCalibrator
+              songData={songData}
+              originalSongData={originalSongData}
+              calibratedSongData={calibratedSongData}
+              setCalibratedSongData={setCalibratedSongData}
+              setSongData={setSongData}
+              setOriginalSongData={setOriginalSongData}
+              breaks={breaks}
+              setBreaks={setBreaks}
+              currentTime={currentTime}
+              videoDuration={videoDuration}
+              player={player}
+              throttledSeek={throttledSeek}
+              userDelaySetting={userDelaySetting}
+              setUserDelaySetting={setUserDelaySetting}
+              onBackToCatalog={() => {
+                setShowDiagnostic(false);
+                setRawTaps([]);
+                setAnchors([]);
+                setCalibrationStats(null);
+                setEstimatedDelay(null);
+                showToast("🔒 Dev Panel Locked!");
+              }}
+              showToast={showToast}
+              videoElement={
+                <div className="left-workspace-column" style={{ margin: 0, width: "100%" }}>
+                  {/* Defensive IFrame Player & Overlay Protection */}
+                  <div className="video-wrapper">
+                    <div key={songData?.metadata?.youtubeId || "yt-player"} id="yt-player" ref={ytPlayerRefCallback}></div>
+                    <AudioShield onPlayToggle={handlePlayToggle} />
+                  </div>
+                </div>
+              }
+            />
+          </Suspense>
         ) : (
           <div className="left-workspace-column">
               
             {/* Defensive IFrame Player & Overlay Protection */}
             <div className="video-wrapper">
-              <div key={songData?.metadata?.youtubeId || "yt-player"} id="yt-player"></div>
+              <div key={songData?.metadata?.youtubeId || "yt-player"} id="yt-player" ref={ytPlayerRefCallback}></div>
               <AudioShield onPlayToggle={handlePlayToggle} />
             </div>
 
