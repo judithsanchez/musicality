@@ -13,6 +13,7 @@ import GameCanvas from "./components/GameCanvas";
 import RoadmapScrubber from "./components/RoadmapScrubber";
 import CalibrationTapDeck from "./components/CalibrationTapDeck";
 import DevCalibrationPanel from "./components/DevCalibrationPanel";
+import DevDashboard from "./components/DevDashboard";
 
 const DevCalibrator = lazy(() => {
   if (isDevMode) {
@@ -158,6 +159,7 @@ export default function App() {
   const [songData, setSongData] = useState(null);
   const [editorSections, setEditorSections] = useState([]);
   const [activeEditingSectionId, setActiveEditingSectionId] = useState(null);
+  const [viewingDevDashboard, setViewingDevDashboard] = useState(false);
   
   // High-level Learning Mode vs Practice Mode state
   const [mode, setMode] = useState("learn"); // 'learn' or 'practice'
@@ -1329,11 +1331,36 @@ export default function App() {
     );
   }
 
+  // Render Developer Dashboard View
+  if (viewingDevDashboard) {
+    return (
+      <div className="app-container" style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+        <DevDashboard 
+          onBack={() => setViewingDevDashboard(false)} 
+          onIngestSuccess={(song) => {
+            setViewingDevDashboard(false);
+            handleSelectSong(song);
+            setShowDiagnostic(true);
+            showToast("🚀 Ingestion successful! Calibration workbench opened.");
+          }} 
+        />
+        {toastMessage && (
+          <div className="toast-notification">
+            {toastMessage}
+          </div>
+        )}
+      </div>
+    );
+  }
+
   // Render Catalog Selector View
   if (!currentSong) {
     return (
       <div className="app-container" style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-        <SongSelector onSelectSong={handleSelectSong} />
+        <SongSelector 
+          onSelectSong={handleSelectSong} 
+          onOpenDevDashboard={isDevMode ? () => setViewingDevDashboard(true) : null}
+        />
         {toastMessage && (
           <div className="toast-notification">
             {toastMessage}

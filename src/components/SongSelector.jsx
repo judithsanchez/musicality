@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Music, Search } from "lucide-react";
 
-export default function SongSelector({ onSelectSong }) {
+export default function SongSelector({ onSelectSong, onOpenDevDashboard }) {
   const [catalog, setCatalog] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -30,6 +30,11 @@ export default function SongSelector({ onSelectSong }) {
   }, []);
 
   const filteredSongs = catalog.filter((song) => {
+    // Hide uncalibrated draft songs from normal catalog selectors
+    if (song.isCalibrated === false && !onOpenDevDashboard) {
+      return false;
+    }
+
     const matchesSearch =
       song.songTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
       song.artist.toLowerCase().includes(searchQuery.toLowerCase());
@@ -69,11 +74,36 @@ export default function SongSelector({ onSelectSong }) {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-      <div className="catalog-title-wrapper">
-        <h1 className="catalog-title">Salsa Rhythm Hub</h1>
-        <p className="catalog-subtitle">
-          Master the Latin count structure and calibrate micro-timings with absolute auditory precision.
-        </p>
+      <div className="catalog-title-wrapper" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px", marginBottom: "20px" }}>
+        <div>
+          <h1 className="catalog-title" style={{ margin: 0 }}>Salsa Rhythm Hub</h1>
+          <p className="catalog-subtitle" style={{ margin: "4px 0 0 0" }}>
+            Master the Latin count structure and calibrate micro-timings with absolute auditory precision.
+          </p>
+        </div>
+        {onOpenDevDashboard && (
+          <button
+            onClick={onOpenDevDashboard}
+            style={{
+              background: "rgba(139, 92, 246, 0.15)",
+              border: "1px solid rgba(139, 92, 246, 0.4)",
+              color: "#c084fc",
+              padding: "10px 18px",
+              borderRadius: "12px",
+              fontSize: "0.85rem",
+              fontWeight: "900",
+              cursor: "pointer",
+              transition: "all 0.2s ease",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px"
+            }}
+            onMouseOver={(e) => { e.currentTarget.style.background = "rgba(139, 92, 246, 0.25)"; }}
+            onMouseOut={(e) => { e.currentTarget.style.background = "rgba(139, 92, 246, 0.15)"; }}
+          >
+            🚀 Developer Console
+          </button>
+        )}
       </div>
 
       {/* Search & Filters Panel */}
