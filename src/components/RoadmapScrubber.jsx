@@ -5,8 +5,6 @@ export default function RoadmapScrubber({
   introEnd,
   nextSection,
   timeToNextSection,
-  showDiagnostic,
-  editorSections,
   sectionsList,
   breaks,
   onSeek
@@ -20,7 +18,7 @@ export default function RoadmapScrubber({
           Song Roadmap
           {nextSection && timeToNextSection <= 10 && (
             <span style={{ fontSize: "0.65rem", color: "#ffffff", marginLeft: "8px", fontWeight: "bold" }}>
-              ➡️ {nextSection.name} in {timeToNextSection.toFixed(1)}s
+              ➡️ Next section in {timeToNextSection.toFixed(1)}s
             </span>
           )}
         </span>
@@ -47,7 +45,7 @@ export default function RoadmapScrubber({
             title="Song Intro Region"
           />
 
-          {(showDiagnostic ? editorSections : sectionsList).map((sec, idx) => (
+          {sectionsList.map((sec, idx) => (
             <div
               key={idx}
               className="roadmap-section-marker"

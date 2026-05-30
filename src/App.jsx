@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef, useCallback, lazy, Suspense } from "react";
 import { useSyncEngine } from "./hooks/useSyncEngine";
 import { adaptToAgnosticSong } from "./utils/schemaAdapter";
-import { ArrowLeft } from "lucide-react";
 import { isDevMode } from "./config/env";
 
 // Subcomponents
@@ -11,8 +10,6 @@ import AudioShield from "./components/AudioShield";
 import Visualizer from "./components/Visualizer";
 import GameCanvas from "./components/GameCanvas";
 import RoadmapScrubber from "./components/RoadmapScrubber";
-import CalibrationTapDeck from "./components/CalibrationTapDeck";
-import DevCalibrationPanel from "./components/DevCalibrationPanel";
 import DevDashboard from "./components/DevDashboard";
 
 const DevCalibrator = lazy(() => {
@@ -23,161 +20,25 @@ const DevCalibrator = lazy(() => {
   }
 });
 
-// ==========================================================================
-// Piecewise-Linear Warping Helper Algorithms
-// ==========================================================================
 
-const applyWarpToBeats = (originalBeats, activeAnchors) => {
-  if (activeAnchors.length === 0) {
-    return JSON.parse(JSON.stringify(originalBeats));
-  }
-
-  return originalBeats.map((b, idx) => {
-    let warpedTime = b.timestamp;
-    
-    // Find bounding anchors
-    let leftAnchor = null;
-    let rightAnchor = null;
-
-    for (let a of activeAnchors) {
-      if (a.beatIndex <= idx) {
-        leftAnchor = a;
-      } else if (a.beatIndex > idx && !rightAnchor) {
-        rightAnchor = a;
-      }
-    }
-
-    if (leftAnchor && rightAnchor) {
-      // Case 1: Piecewise linear interpolation between left and right anchors
-      const oLeft = leftAnchor.originalTime;
-      const oRight = rightAnchor.originalTime;
-      const tLeft = leftAnchor.tappedTime;
-      const tRight = rightAnchor.tappedTime;
-      
-      const dO = oRight - oLeft;
-      const dT = tRight - tLeft;
-      
-      if (dO > 0) {
-        warpedTime = tLeft + ((b.timestamp - oLeft) / dO) * dT;
-      } else {
-        warpedTime = tLeft;
-      }
-    } else if (leftAnchor) {
-      // Case 2: Extrapolation after the last anchor (constant offset)
-      const offset = leftAnchor.tappedTime - leftAnchor.originalTime;
-      warpedTime = b.timestamp + offset;
-    } else if (rightAnchor) {
-      // Case 3: Extrapolation before the first anchor (constant offset)
-      const offset = rightAnchor.tappedTime - rightAnchor.originalTime;
-      warpedTime = b.timestamp + offset;
-    }
-
-    // Piecewise modular re-indexing (forces the anchored beats to count 1)
-    let newBeatNum = b.beat;
-    if (leftAnchor) {
-      newBeatNum = ((idx - leftAnchor.beatIndex) % 8 + 8) % 8 + 1;
-    } else if (rightAnchor) {
-      newBeatNum = ((idx - rightAnchor.beatIndex) % 8 + 8) % 8 + 1;
-    }
-
-    return {
-      timestamp: parseFloat(Math.max(0, warpedTime).toFixed(3)),
-      beat: newBeatNum
-    };
-  });
-};
-
-const applyWarpToSections = (originalSections, originalBeats, warpedBeats) => {
-  if (!originalSections || originalSections.length === 0) return [];
-  if (warpedBeats.length === 0) return JSON.parse(JSON.stringify(originalSections));
-
-  return originalSections.map((sec) => {
-    const sOld = sec.startTimestamp;
-    
-    // Find bounding original beats
-    let leftIdx = 0;
-    let rightIdx = originalBeats.length - 1;
-
-    for (let i = 0; i < originalBeats.length; i++) {
-      if (originalBeats[i].timestamp <= sOld) {
-        leftIdx = i;
-      } else {
-        rightIdx = i;
-        break;
-      }
-    }
-
-    const oLeft = originalBeats[leftIdx].timestamp;
-    const oRight = originalBeats[rightIdx].timestamp;
-    const wLeft = warpedBeats[leftIdx].timestamp;
-    const wRight = warpedBeats[rightIdx].timestamp;
-
-    let sNew;
-    const dO = oRight - oLeft;
-    
-    if (dO > 0) {
-      const dT = wRight - wLeft;
-      sNew = wLeft + ((sOld - oLeft) / dO) * dT;
-    } else {
-      sNew = wLeft;
-    }
-
-    return {
-      ...sec,
-      startTimestamp: parseFloat(Math.max(0, sNew).toFixed(3))
-    };
-  });
-};
-
-const populateEditorSections = (sections, duration) => {
-  if (!sections || sections.length === 0) return [];
-  const sorted = [...sections].sort((a, b) => a.startTimestamp - b.startTimestamp);
-  return sorted.map((sec, idx) => {
-    const start = sec.startTimestamp;
-    const end = (idx < sorted.length - 1) ? sorted[idx + 1].startTimestamp : duration;
-    return {
-      id: sec.id || `section-${idx}-${Date.now()}`,
-      name: sec.name,
-      startTimestamp: start,
-      endTimestamp: end,
-      focus: sec.focus || "",
-      emoji: sec.emoji || "🎵"
-    };
-  });
-};
-
-const _convertToDatabaseSections = (editorSecs) => {
-  return editorSecs.map(sec => ({
-    name: sec.name,
-    startTimestamp: parseFloat(parseFloat(sec.startTimestamp).toFixed(3)),
-    focus: sec.focus || "",
-    emoji: sec.emoji || "🎵"
-  })).sort((a, b) => a.startTimestamp - b.startTimestamp);
-};
 
 export default function App() {
   const isInitialRestoreRef = useRef(true);
   const [songData, setSongData] = useState(null);
-  const [editorSections, setEditorSections] = useState([]);
-  const [activeEditingSectionId, setActiveEditingSectionId] = useState(null);
   const [viewingDevDashboard, setViewingDevDashboard] = useState(false);
-  
+
   // High-level Learning Mode vs Practice Mode state
   const [mode, setMode] = useState("learn"); // 'learn' or 'practice'
 
   // Media states
   const [player, setPlayer] = useState(null);
-  const [playerState, setPlayerState] = useState(-1); 
+  const [playerState, setPlayerState] = useState(-1);
   const [playbackRate, setPlaybackRate] = useState(1.0);
   const [apiReady, setApiReady] = useState(false);
 
   const [showDiagnostic, setShowDiagnostic] = useState(false);
   const [originalSongData, setOriginalSongData] = useState(null);
   const [calibratedSongData, setCalibratedSongData] = useState(null);
-  const [calibrationStats, setCalibrationStats] = useState(null);
-  const [anchors, setAnchors] = useState([]);
-  const [rawTaps, setRawTaps] = useState([]);       // raw clock times when user pressed button
-  const [estimatedDelay, setEstimatedDelay] = useState(null); // ms — auto-computed reaction delay
   const [userDelaySetting, setUserDelaySetting] = useState(220); // ms — user-adjustable reaction delay
   const [toastMessage, setToastMessage] = useState(null);
 
@@ -188,8 +49,6 @@ export default function App() {
   const [introEnd, setIntroEnd] = useState(0.0);
   const [videoDuration, setVideoDuration] = useState(300.0);
   const [breaks, setBreaks] = useState([]);
-  const [tempBreakStart, setTempBreakStart] = useState("");
-  const [tempBreakEnd, setTempBreakEnd] = useState("");
 
   const playerRef = useRef(null);
   const lastSeekTimeRef = useRef(0);
@@ -210,29 +69,6 @@ export default function App() {
     setTimeout(() => {
       setToastMessage(null);
     }, 3000);
-  };
-
-  // Compute median human reaction delay from raw taps vs nearest original beat-1
-  const computeReactionDelay = (taps, originalBeats) => {
-    if (!taps || taps.length < 2 || !originalBeats) return null;
-    const beat1Times = originalBeats.filter(b => b.beat === 1).map(b => b.timestamp);
-    const delays = taps.map(tapTime => {
-      // Find the nearest beat-1 that comes BEFORE the tap (tap is always after hearing)
-      let bestDelay = null;
-      let bestDiff = Infinity;
-      for (const bt of beat1Times) {
-        const diff = tapTime - bt;
-        if (diff > 0 && diff < 2000 && diff < bestDiff) { // reaction window 0–2000ms
-          bestDiff = diff;
-          bestDelay = diff;
-        }
-      }
-      return bestDelay;
-    }).filter(d => d !== null);
-
-    if (delays.length === 0) return null;
-    const sorted = [...delays].sort((a, b) => a - b);
-    return sorted[Math.floor(sorted.length / 2)]; // median in seconds
   };
 
   // Sync showDiagnostic to root container width
@@ -340,18 +176,12 @@ export default function App() {
 
   const handleSelectSong = (song) => {
     setLoadingSong(true);
-    
+
     // Clear all existing song-related state
     setSongData(null);
     setOriginalSongData(null);
     setCalibratedSongData(null);
-    setAnchors([]);
-    setRawTaps([]);
-    setEstimatedDelay(null);
-    setCalibrationStats(null);
     setBreaks([]);
-    setEditorSections([]);
-    setActiveEditingSectionId(null);
     setMode("learn"); // Reset to Learn Mode
 
     fetch(import.meta.env.BASE_URL + `songs/${song.youtubeId}.json`)
@@ -367,27 +197,9 @@ export default function App() {
         setIntroStart(data.metadata?.introStart || 0.0);
         setIntroEnd(data.metadata?.introEnd || 0.0);
         setBreaks(data.breaks || []);
-        
+
         setCurrentSong(song);
         setLoadingSong(false);
-
-        // Restore backup taps if dev mode is active
-        if (showDiagnostic) {
-          const backup = localStorage.getItem(`armada_raw_taps_${youtubeId}`);
-          if (backup) {
-            try {
-              const parsed = JSON.parse(backup);
-              if (Array.isArray(parsed) && parsed.length > 0) {
-                setRawTaps(parsed);
-                setTimeout(() => {
-                  handleNormalizeBeatmapRef.current(true); // SILENT!
-                }, 400);
-              }
-            } catch (e) {
-              console.warn("Restore backup failed:", e);
-            }
-          }
-        }
 
         console.log("[App] Loaded advanced beatmap successfully for:", data.metadata.songTitle);
       })
@@ -407,20 +219,14 @@ export default function App() {
         console.warn("Pause error on back navigation:", e);
       }
     }
-    
+
     setCurrentSong(null);
     setSongData(null);
     setOriginalSongData(null);
     setCalibratedSongData(null);
-    setAnchors([]);
-    setRawTaps([]);
-    setEstimatedDelay(null);
-    setCalibrationStats(null);
     setIntroStart(0.0);
     setIntroEnd(0.0);
     setBreaks([]);
-    setEditorSections([]);
-    setActiveEditingSectionId(null);
     setVideoDuration(300.0);
   };
 
@@ -464,62 +270,6 @@ export default function App() {
         }
       }, 150);
     }
-  };
-
-  const handleIntroStartChange = (val, isFinal = false) => {
-    const numericVal = parseFloat(Math.max(0, Math.min(videoDuration, parseFloat(val))).toFixed(2));
-    setIntroStart(numericVal);
-    
-    // Sync to active song metadata so that saving handles it
-    if (songData && songData.metadata) {
-      setSongData(prev => prev ? {
-        ...prev,
-        metadata: { ...prev.metadata, introStart: numericVal }
-      } : null);
-    }
-    if (calibratedSongData && calibratedSongData.metadata) {
-      setCalibratedSongData(prev => prev ? {
-        ...prev,
-        metadata: { ...prev.metadata, introStart: numericVal }
-      } : null);
-    }
-
-    throttledSeek(numericVal, isFinal);
-  };
-
-  const handleIntroEndChange = (val, isFinal = false) => {
-    const numericVal = parseFloat(Math.max(0, Math.min(videoDuration, parseFloat(val))).toFixed(2));
-    setIntroEnd(numericVal);
-    
-    // Sync to active song metadata so that saving handles it
-    if (songData && songData.metadata) {
-      setSongData(prev => prev ? {
-        ...prev,
-        metadata: { ...prev.metadata, introEnd: numericVal }
-      } : null);
-    }
-    if (calibratedSongData && calibratedSongData.metadata) {
-      setCalibratedSongData(prev => prev ? {
-        ...prev,
-        metadata: { ...prev.metadata, introEnd: numericVal }
-      } : null);
-    }
-
-    throttledSeek(numericVal, isFinal);
-  };
-
-  const handleMarkIntroStart = () => {
-    if (!player) return;
-    const currentPlayhead = parseFloat(player.getCurrentTime().toFixed(2));
-    handleIntroStartChange(currentPlayhead, true);
-    showToast(`🎯 Intro Start set to ${currentPlayhead}s!`);
-  };
-
-  const handleMarkIntroEnd = () => {
-    if (!player) return;
-    const currentPlayhead = parseFloat(player.getCurrentTime().toFixed(2));
-    handleIntroEndChange(currentPlayhead, true);
-    showToast(`🎯 Intro End set to ${currentPlayhead}s!`);
   };
 
   // Load the YouTube Player API script dynamically in background
@@ -609,16 +359,6 @@ export default function App() {
           setTimeout(() => {
             setVideoDuration(duration);
             console.log(`[App] Synced YouTube Video Duration: ${duration}s`);
-
-            setEditorSections(prev => {
-              if (prev.length === 0) return prev;
-              return prev.map((sec, idx) => {
-                if (idx === prev.length - 1) {
-                  return { ...sec, endTimestamp: duration };
-                }
-                return sec;
-              });
-            });
           }, 0);
         }
       } catch (e) {
@@ -682,245 +422,7 @@ export default function App() {
 
   const isActuallyPlaying = playerState === 1;
 
-  // ==========================================================================
-  // Creator Multi-Anchor & Permanent save Click Handlers
-  // ==========================================================================
-  
-  const handleTapOnOne = () => {
-    if (!isActuallyPlaying) {
-      showToast("⚠️ Play the audio to calibrate downbeat!");
-      return;
-    }
-
-    const tapTime = currentTime;
-    const baseSong = originalSongData || songData;
-    if (!baseSong || !baseSong.beats || baseSong.beats.length === 0) return;
-
-    // Record the raw tap timestamp FIRST
-    const newRawTaps = [...rawTaps, tapTime];
-    setRawTaps(newRawTaps);
-
-    // Auto-update reaction delay estimate (live, after each tap)
-    const delay = computeReactionDelay(newRawTaps, baseSong.beats);
-    setEstimatedDelay(delay);
-
-    showToast(`🎯 Tap #${newRawTaps.length} recorded!`);
-  };
-
-  const handleNormalizeBeatmap = (silent = false) => {
-    const baseSong = originalSongData || songData;
-    if (!baseSong) return;
-
-    if (rawTaps.length === 0) {
-      if (!silent) showToast("⚠️ Record at least 1 tap to run normalization!");
-      return;
-    }
-
-    const delay = userDelaySetting / 1000; // in seconds
-
-    // Compute global shift based on the first tap to align the baseline phase
-    const firstTapCorrected = rawTaps[0] - delay;
-    const originalBeat1Times = baseSong.beats
-      .map((b, idx) => ({ ...b, originalIndex: idx }))
-      .filter(b => b.beat === 1);
-
-    if (originalBeat1Times.length === 0) return;
-
-    let bestBeat1ForFirst = originalBeat1Times[0];
-    let minDiffFirst = Infinity;
-    for (const b1 of originalBeat1Times) {
-      const diff = Math.abs(firstTapCorrected - b1.timestamp);
-      if (diff < minDiffFirst) {
-        minDiffFirst = diff;
-        bestBeat1ForFirst = b1;
-      }
-    }
-    const globalShift = firstTapCorrected - bestBeat1ForFirst.timestamp;
-
-    // Apply global phase shift to all baseline beats to bring the grid in-phase with taps
-    const shiftedBaseBeats = baseSong.beats.map(b => ({
-      ...b,
-      timestamp: parseFloat(Math.max(0, b.timestamp + globalShift).toFixed(3))
-    }));
-    const shiftedBaseSections = baseSong.sections.map(sec => ({
-      ...sec,
-      startTimestamp: parseFloat(Math.max(0, sec.startTimestamp + globalShift).toFixed(3))
-    }));
-
-    // If only 1 tap, we are done with global shift alignment
-    if (rawTaps.length === 1) {
-      setAnchors([{
-        beatIndex: bestBeat1ForFirst.originalIndex,
-        originalTime: bestBeat1ForFirst.timestamp,
-        tappedTime: firstTapCorrected
-      }]);
-
-      setCalibratedSongData({
-        ...baseSong,
-        beats: shiftedBaseBeats,
-        sections: shiftedBaseSections
-      });
-
-      setCalibrationStats({
-        totalTaps: 1,
-        matchedTaps: 1,
-        outliersCount: 0,
-        estimatedDelayMs: userDelaySetting,
-        medianDiffMs: Math.round(globalShift * 1000)
-      });
-
-      if (!silent) showToast(`✅ Global grid shifted by ${Math.round(globalShift * 1000)}ms!`);
-      return;
-    }
-
-    // Multi-Tap Mode: Piecewise-Linear Warping on the pre-aligned shifted grid
-    const correctedTaps = rawTaps.map(t => t - delay);
-
-    // Match each corrected tap to the nearest beat-1 in the pre-aligned grid
-    const alignedBeat1Times = shiftedBaseBeats
-      .map((b, idx) => ({ ...b, originalIndex: idx }))
-      .filter(b => b.beat === 1);
-
-    const matchedPairs = [];
-    correctedTaps.forEach(ct => {
-      let bestBeat1 = null;
-      let minDiff = Infinity;
-
-      for (const b1 of alignedBeat1Times) {
-        const diff = Math.abs(ct - b1.timestamp);
-        if (diff < minDiff) {
-          minDiff = diff;
-          bestBeat1 = b1;
-        }
-      }
-
-      if (bestBeat1 && minDiff < 0.400) {
-        matchedPairs.push({
-          correctedTime: ct,
-          originalTime: bestBeat1.timestamp,
-          beatIndex: bestBeat1.originalIndex,
-          diff: ct - bestBeat1.timestamp
-        });
-      }
-    });
-
-    if (matchedPairs.length === 0) {
-      if (!silent) showToast("⚠️ No taps could be matched to downbeats. Try tapping more precisely.");
-      return;
-    }
-
-    // Outlier Rejection based on median timing difference
-    const diffs = matchedPairs.map(p => p.diff);
-    const sortedDiffs = [...diffs].sort((a, b) => a - b);
-    const medianDiff = sortedDiffs[Math.floor(sortedDiffs.length / 2)];
-
-    // Filter out taps deviating by more than 150ms from median
-    const cleanPairs = matchedPairs.filter(p => Math.abs(p.diff - medianDiff) <= 0.150);
-    const outlierCount = matchedPairs.length - cleanPairs.length;
-
-    if (cleanPairs.length === 0) {
-      if (!silent) showToast("⚠️ All taps were classified as outliers. Please try again.");
-      return;
-    }
-
-    // Create clean warp anchors
-    const anchorsMap = {};
-    cleanPairs.forEach(p => {
-      if (!anchorsMap[p.beatIndex]) {
-        anchorsMap[p.beatIndex] = {
-          beatIndex: p.beatIndex,
-          originalTime: p.originalTime,
-          tappedTimesList: []
-        };
-      }
-      anchorsMap[p.beatIndex].tappedTimesList.push(p.correctedTime);
-    });
-
-    const cleanAnchors = Object.values(anchorsMap).map(a => {
-      const avgTappedTime = a.tappedTimesList.reduce((sum, val) => sum + val, 0) / a.tappedTimesList.length;
-      return {
-        beatIndex: a.beatIndex,
-        originalTime: a.originalTime,
-        tappedTime: avgTappedTime
-      };
-    }).sort((a, b) => a.beatIndex - b.beatIndex);
-
-    let finalAnchors = cleanAnchors;
-
-    // Apply Dense Smooth Warp if > 20 anchors
-    if (cleanAnchors.length > 20) {
-      finalAnchors = cleanAnchors.map((anchor, idx) => {
-        const radius = 2;
-        let sumOffset = 0;
-        let count = 0;
-        for (let i = -radius; i <= radius; i++) {
-          const n = cleanAnchors[idx + i];
-          if (n) {
-            sumOffset += (n.tappedTime - n.originalTime);
-            count++;
-          }
-        }
-        const avgOffset = sumOffset / count;
-        return {
-          ...anchor,
-          tappedTime: anchor.originalTime + avgOffset
-        };
-      });
-    }
-
-    setAnchors(finalAnchors);
-
-    // Apply Piecewise-Linear Warping on the pre-aligned grid!
-    const warpedBeats = applyWarpToBeats(shiftedBaseBeats, finalAnchors);
-    const warpedSections = applyWarpToSections(shiftedBaseSections, shiftedBaseBeats, warpedBeats);
-
-    setCalibratedSongData({
-      ...baseSong,
-      sections: warpedSections,
-      beats: warpedBeats
-    });
-
-    setCalibrationStats({
-      totalTaps: rawTaps.length,
-      matchedTaps: cleanPairs.length,
-      outliersCount: outlierCount,
-      estimatedDelayMs: userDelaySetting,
-      medianDiffMs: Math.round((medianDiff + globalShift) * 1000)
-    });
-
-    if (!silent) {
-      showToast(`✅ Normalized! ${cleanPairs.length}/${rawTaps.length} taps matched. Outliers: ${outlierCount}`);
-    } else {
-      console.log(`[Normalization] ${cleanPairs.length}/${rawTaps.length} taps matched. Outliers: ${outlierCount}`);
-    }
-  };
-
-  const handleResetCalibration = () => {
-    if (originalSongData) {
-      setCalibratedSongData(JSON.parse(JSON.stringify(originalSongData)));
-    }
-    setAnchors([]);
-    setRawTaps([]);
-    setEstimatedDelay(null);
-    setCalibrationStats(null);
-    if (songData?.metadata?.youtubeId) {
-      localStorage.removeItem(`armada_raw_taps_${songData.metadata.youtubeId}`);
-    }
-    showToast("🔄 Reset all anchors and taps. Restored original raw grid.");
-  };
-
-  const handleClearTaps = () => {
-    setRawTaps([]);
-    setAnchors([]);
-    setCalibrationStats(null);
-    setEstimatedDelay(null);
-    if (songData?.metadata?.youtubeId) {
-      localStorage.removeItem(`armada_raw_taps_${songData.metadata.youtubeId}`);
-    }
-    showToast("🔄 Taps cleared & visual shield lifted!");
-  };
-
-  // Skip audio to ~30s so user can bypass the difficult intro
+  // Skip audio to ~30s so user can bypass the difficult intro (dev calibration mode only)
   const handleSkipIntro = () => {
     try {
       if (player) {
@@ -931,376 +433,6 @@ export default function App() {
     } catch (e) {
       console.warn("Skip intro error:", e);
     }
-  };
-
-  const handleCopyCalibratedJson = () => {
-    const dataToExport = calibratedSongData || songData;
-    if (!dataToExport) return;
-    
-    try {
-      const jsonStr = JSON.stringify(dataToExport, null, 2);
-      navigator.clipboard.writeText(jsonStr)
-        .then(() => {
-          showToast("📋 Copied calibrated JSON to clipboard!");
-        })
-        .catch(err => {
-          console.error("Failed to copy JSON: ", err);
-          showToast("❌ Copy failed. Check console.");
-        });
-    } catch (e) {
-      console.error(e);
-      showToast("❌ Error converting to JSON.");
-    }
-  };
-
-  const handleDownloadCalibratedJson = () => {
-    const dataToExport = calibratedSongData || songData;
-    if (!dataToExport) return;
-
-    try {
-      const youtubeId = dataToExport.metadata.youtubeId || "beatmap";
-      const filename = `${youtubeId}_calibrated.json`;
-      const jsonStr = JSON.stringify(dataToExport, null, 2);
-      
-      const blob = new Blob([jsonStr], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-      
-      showToast(`💾 Downloaded ${filename} successfully!`);
-    } catch (e) {
-      console.error("Download failed: ", e);
-      showToast("❌ Download failed. Check console.");
-    }
-  };
-
-  const handleSaveToDisk = () => {
-    const activeBeatmap = calibratedSongData || songData;
-    const baseSong = originalSongData || songData;
-    if (!activeBeatmap || !baseSong) return;
-
-    if (rawTaps.length < 50) {
-      showToast("⚠️ At least 50 taps are required to save!");
-      return;
-    }
-
-    const reactionDelayMs = userDelaySetting;
-    const delaySec = userDelaySetting / 1000;
-    const correctedTaps = rawTaps.map(t =>
-      parseFloat(Math.max(0, t - delaySec).toFixed(3))
-    );
-
-    const beat1Times = baseSong.beats.filter(b => b.beat === 1).map(b => b.timestamp);
-
-    const matchedAnchors = correctedTaps.map(ct => {
-      let best = null;
-      let bestDiff = Infinity;
-      for (const bt of beat1Times) {
-        const diff = Math.abs(ct - bt);
-        if (diff < bestDiff) { bestDiff = diff; best = bt; }
-      }
-      return { correctedTapTime: ct, matchedBeat1: best, diffMs: Math.round(bestDiff * 1000) };
-    });
-
-    const calibration = {
-      recordedAt: new Date().toISOString(),
-      tapCount: rawTaps.length,
-      rawTaps: rawTaps.map(t => parseFloat(t.toFixed(3))),
-      reactionDelayMs,
-      correctedTaps,
-      matchedAnchors
-    };
-
-    const payload = {
-      youtubeId: baseSong.metadata?.youtubeId || 'calibrated_song',
-      activeBeatmap: {
-        ...activeBeatmap,
-        tapCalibration: calibration,
-        breaks: breaks
-      },
-      originalBeatmap: {
-        ...baseSong,
-        breaks: breaks
-      },
-      calibration: calibration
-    };
-
-    showToast("💾 Saving permanently to disk...");
-
-    fetch("/api/save-beatmap", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    })
-      .then(res => {
-        if (!res.ok) throw new Error("Server write failed");
-        return res.json();
-      })
-      .then(result => {
-        if (result.success) {
-          setOriginalSongData(JSON.parse(JSON.stringify(activeBeatmap)));
-          // Clear active taps in-memory and in localStorage to unlock visual count pulsing!
-          setRawTaps([]);
-          setAnchors([]);
-          setCalibrationStats(null);
-          setEstimatedDelay(null);
-          if (payload.youtubeId) {
-            localStorage.removeItem(`armada_raw_taps_${payload.youtubeId}`);
-          }
-          showToast(`✅ Saved & cleared taps for Audition Mode!`);
-        } else {
-          throw new Error(result.error);
-        }
-      })
-      .catch(err => {
-        console.error("Save to disk failed:", err);
-        showToast("❌ Save to disk failed. Check console.");
-      });
-  };
-
-  const handleSaveMetadataAndBreaks = () => {
-    const activeBeatmap = calibratedSongData || songData;
-    const baseSong = originalSongData || songData;
-    if (!activeBeatmap || !baseSong) return;
-
-    // Keep existing calibration if any
-    const calibration = activeBeatmap.tapCalibration || baseSong.tapCalibration || null;
-
-    const payload = {
-      youtubeId: baseSong.metadata?.youtubeId || 'calibrated_song',
-      activeBeatmap: {
-        ...activeBeatmap,
-        metadata: {
-          ...activeBeatmap.metadata,
-          introStart,
-          introEnd
-        },
-        breaks: breaks
-      },
-      originalBeatmap: {
-        ...baseSong,
-        metadata: {
-          ...baseSong.metadata,
-          introStart,
-          introEnd
-        },
-        breaks: breaks
-      },
-      calibration: calibration
-    };
-
-    showToast("💾 Saving song boundaries & breaks to disk...");
-
-    fetch("/api/save-beatmap", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    })
-      .then(res => {
-        if (!res.ok) throw new Error("Server write failed");
-        return res.json();
-      })
-      .then(result => {
-        if (result.success) {
-          const updatedMap = JSON.parse(JSON.stringify(payload.activeBeatmap));
-          setOriginalSongData(updatedMap);
-          setSongData(updatedMap);
-          setCalibratedSongData(updatedMap);
-          showToast(`✅ Saved boundaries & breaks successfully!`);
-        } else {
-          throw new Error(result.error);
-        }
-      })
-      .catch(err => {
-        console.error("Save boundaries & breaks failed:", err);
-        showToast("❌ Save failed. Check console.");
-      });
-  };
-
-
-  const handleUpdateSectionTimes = (id, field, value) => {
-    const numericVal = parseFloat(parseFloat(value).toFixed(2));
-    
-    setEditorSections(prev => {
-      const list = prev.map(sec => ({ ...sec }));
-      const idx = list.findIndex(sec => sec.id === id);
-      if (idx === -1) return prev;
-      
-      if (field === "startTimestamp") {
-        list[idx].startTimestamp = numericVal;
-        if (idx > 0) {
-          list[idx - 1].endTimestamp = numericVal;
-        }
-      } else if (field === "endTimestamp") {
-        list[idx].endTimestamp = numericVal;
-        if (idx < list.length - 1) {
-          list[idx + 1].startTimestamp = numericVal;
-        }
-      }
-      return list;
-    });
-
-    throttledSeek(numericVal, false);
-  };
-
-  const handleUpdateSectionName = (id, name) => {
-    setEditorSections(prev => {
-      return prev.map(sec => {
-        if (sec.id === id) {
-          return { ...sec, name };
-        }
-        return sec;
-      });
-    });
-  };
-
-  const handleAddNewSection = () => {
-    if (!player) return;
-    const currentPlayhead = parseFloat(player.getCurrentTime().toFixed(2));
-    
-    const newSec = {
-      id: `section-${Date.now()}`,
-      name: "New Section",
-      startTimestamp: currentPlayhead,
-      endTimestamp: parseFloat((currentPlayhead + 10).toFixed(2)),
-      focus: "",
-      emoji: "🎵"
-    };
-    
-    const updated = [...editorSections, newSec].sort((a, b) => a.startTimestamp - b.startTimestamp);
-    const duration = videoDuration;
-    const contiguous = updated.map((sec, idx) => {
-      const start = sec.startTimestamp;
-      const end = (idx < updated.length - 1) ? updated[idx + 1].startTimestamp : duration;
-      return {
-        ...sec,
-        startTimestamp: start,
-        endTimestamp: end
-      };
-    });
-    
-    setEditorSections(contiguous);
-    setActiveEditingSectionId(newSec.id);
-    showToast("➕ Added new section! Drag sliders to adjust.");
-  };
-
-  const handleSaveSectionsToDiskDirect = (secsList) => {
-    const activeBeatmap = calibratedSongData || songData;
-    const baseSong = originalSongData || songData;
-    if (!activeBeatmap || !baseSong) return;
-
-    const dbSections = secsList.map(sec => ({
-      name: sec.name,
-      startTimestamp: parseFloat(parseFloat(sec.startTimestamp).toFixed(3)),
-      focus: sec.focus || "",
-      emoji: sec.emoji || "🎵"
-    })).sort((a, b) => a.startTimestamp - b.startTimestamp);
-
-    const payload = {
-      youtubeId: baseSong.metadata?.youtubeId || 'calibrated_song',
-      activeBeatmap: {
-        ...activeBeatmap,
-        sections: dbSections,
-        breaks: breaks
-      },
-      originalBeatmap: {
-        ...baseSong,
-        sections: dbSections,
-        breaks: breaks
-      },
-      calibration: activeBeatmap.tapCalibration || baseSong.tapCalibration || null
-    };
-
-    fetch("/api/save-beatmap", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    })
-      .then(res => {
-        if (!res.ok) throw new Error("Server write failed");
-        return res.json();
-      })
-      .then(result => {
-        if (result.success) {
-          const updatedMap = JSON.parse(JSON.stringify(payload.activeBeatmap));
-          setSongData(updatedMap);
-          setCalibratedSongData(updatedMap);
-          setOriginalSongData(updatedMap);
-        } else {
-          throw new Error(result.error);
-        }
-      })
-      .catch(err => {
-        console.error("Save section directly failed:", err);
-      });
-  };
-
-  const handleDeleteSection = (id) => {
-    const updated = editorSections.filter(sec => sec.id !== id);
-    setEditorSections(updated);
-    
-    // Sync to disk
-    handleSaveSectionsToDiskDirect(updated);
-    showToast("🗑️ Section deleted & saved to disk!");
-  };
-
-  const handleSaveSectionsToDisk = () => {
-    handleSaveSectionsToDiskDirect(editorSections);
-    showToast("💾 Saved all sections to disk successfully!");
-  };
-
-  const handleMarkBreakStart = () => {
-    if (!player) return;
-    const currentPlayhead = parseFloat(player.getCurrentTime().toFixed(2));
-    setTempBreakStart(currentPlayhead.toFixed(2));
-    showToast(`🎯 Break Start marked: ${currentPlayhead}s!`);
-  };
-
-  const handleMarkBreakEnd = () => {
-    if (!player) return;
-    const currentPlayhead = parseFloat(player.getCurrentTime().toFixed(2));
-    setTempBreakEnd(currentPlayhead.toFixed(2));
-    showToast(`🎯 Break End marked: ${currentPlayhead}s!`);
-  };
-
-  const handleAddNewBreak = () => {
-    const start = parseFloat(tempBreakStart);
-    const end = parseFloat(tempBreakEnd);
-    if (isNaN(start) || isNaN(end) || start < 0 || end <= start) {
-      showToast("⚠️ Invalid break times! Start must be < End.");
-      return;
-    }
-    const newBreak = {
-      id: `break-${Date.now()}`,
-      startTimestamp: parseFloat(start.toFixed(2)),
-      endTimestamp: parseFloat(end.toFixed(2)),
-      label: "Cierre / Stop",
-      action: "freeze"
-    };
-    const updatedBreaks = [...breaks, newBreak].sort((a, b) => a.startTimestamp - b.startTimestamp);
-    setBreaks(updatedBreaks);
-    setTempBreakStart("");
-    setTempBreakEnd("");
-    showToast("➕ Added new Cierre break!");
-  };
-
-  const handleDeleteBreak = (id) => {
-    const updated = breaks.filter(b => b.id !== id);
-    setBreaks(updated);
-    showToast("❌ Removed break.");
-  };
-  const handleExitDev = () => {
-    setShowDiagnostic(false);
-    setRawTaps([]);
-    setAnchors([]);
-    setCalibrationStats(null);
-    setEstimatedDelay(null);
-    showToast("🔒 Dev Panel Locked!");
   };
 
   const handleHeaderClick = () => {
@@ -1314,33 +446,6 @@ export default function App() {
       const nextVal = !showDiagnostic;
       setShowDiagnostic(nextVal);
       showToast(nextVal ? "🛠️ Developer Panel Toggled!" : "🔒 Dev Panel Locked!");
-
-      if (!nextVal) {
-        setRawTaps([]);
-        setAnchors([]);
-        setCalibrationStats(null);
-        setEstimatedDelay(null);
-      } else {
-        // Restore from LocalStorage
-        if (songData?.metadata?.youtubeId) {
-          const youtubeId = songData.metadata.youtubeId;
-          const backup = localStorage.getItem(`armada_raw_taps_${youtubeId}`);
-          if (backup) {
-            try {
-              const parsed = JSON.parse(backup);
-              if (Array.isArray(parsed) && parsed.length > 0) {
-                setRawTaps(parsed);
-                setTimeout(() => {
-                  handleNormalizeBeatmapRef.current(true); // SILENT!
-                  showToast(`⚡ Restored ${parsed.length} taps from local backup!`);
-                }, 600);
-              }
-            } catch (e) {
-              console.warn("Restore backup failed:", e);
-            }
-          }
-        }
-      }
     }
   };
 
@@ -1355,35 +460,8 @@ export default function App() {
     }
   }, []);
 
-  // Backup taps to LocalStorage
-  useEffect(() => {
-    if (rawTaps.length > 0 && songData?.metadata?.youtubeId) {
-      localStorage.setItem(`armada_raw_taps_${songData.metadata.youtubeId}`, JSON.stringify(rawTaps));
-    }
-  }, [rawTaps, songData]);
 
-  const handleNormalizeBeatmapRef = useRef(handleNormalizeBeatmap);
-  useEffect(() => {
-    handleNormalizeBeatmapRef.current = handleNormalizeBeatmap;
-  });
 
-  // Auto-Normalization Debounce
-  useEffect(() => {
-    if (rawTaps.length === 0) return;
-
-    if (!isActuallyPlaying) {
-      const timer = setTimeout(() => {
-        handleNormalizeBeatmapRef.current(true);
-      }, 0);
-      return () => clearTimeout(timer);
-    }
-
-    const timer = setTimeout(() => {
-      handleNormalizeBeatmapRef.current(true);
-    }, 2000);
-
-    return () => clearTimeout(timer);
-  }, [rawTaps, isActuallyPlaying]);
 
   if (loadingSong) {
     return (
@@ -1449,7 +527,7 @@ export default function App() {
     <div className="app-container" style={{ display: "flex", flexDirection: "column", height: "100%" }}>
       
       {/* Upper Navigation & Skip Intro */}
-      {currentTime < introEnd && (
+      {showDiagnostic && currentTime < introEnd && (
         <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "16px", width: "100%" }}>
           <button 
             className="btn-step" 
@@ -1511,10 +589,6 @@ export default function App() {
               setUserDelaySetting={setUserDelaySetting}
               onBackToCatalog={() => {
                 setShowDiagnostic(false);
-                setRawTaps([]);
-                setAnchors([]);
-                setCalibrationStats(null);
-                setEstimatedDelay(null);
                 showToast("🔒 Dev Panel Locked!");
               }}
               showToast={showToast}
@@ -1567,8 +641,6 @@ export default function App() {
               introEnd={introEnd}
               nextSection={nextSection}
               timeToNextSection={timeToNextSection}
-              showDiagnostic={showDiagnostic}
-              editorSections={sectionsList}
               sectionsList={sectionsList}
               breaks={breaks}
               onSeek={throttledSeek}
