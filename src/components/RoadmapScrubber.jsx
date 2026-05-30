@@ -5,8 +5,6 @@ export default function RoadmapScrubber({
   introEnd,
   nextSection,
   timeToNextSection,
-  showDiagnostic,
-  editorSections,
   sectionsList,
   breaks,
   onSeek
@@ -47,7 +45,7 @@ export default function RoadmapScrubber({
             title="Song Intro Region"
           />
 
-          {(showDiagnostic ? editorSections : sectionsList).map((sec, idx) => (
+          {sectionsList.map((sec, idx) => (
             <div
               key={idx}
               className="roadmap-section-marker"
