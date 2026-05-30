@@ -25,7 +25,7 @@ The primary physical interaction is tapping a mobile screen while sitting or sta
 
 ### Workspace Directory Structure
 ```text
-armada-movement/
+musicality/
 ├── .github/
 │   └── workflows/
 │       └── deploy.yml          # GitHub Pages automated deployment

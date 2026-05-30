@@ -24,13 +24,13 @@
        *   public/404.html entirely — they are only needed for GitHub Pages.
        *   See also: the BASE variable and base-stripping logic in App.jsx.
        *
-       * Tracked in: https://github.com/judithsanchez/armada-movement/issues/25
+       * Tracked in: https://github.com/judithsanchez/musicality/issues/25
        * ─────────────────────────────────────────────────────────────────────
        */
       (function () {
         var p = new URLSearchParams(window.location.search).get('p');
         if (p) {
-          var base = '/armada-movement';
+          var base = '/musicality';
           window.history.replaceState(null, '', base + p);
         }
       })();
