@@ -6,7 +6,7 @@ import { spawn } from 'child_process'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: process.env.NODE_ENV === 'production' ? '/armada-movement/' : '/',
+  base: process.env.NODE_ENV === 'production' ? '/musicality/' : '/',
   server: {
     historyApiFallback: true,
   },
