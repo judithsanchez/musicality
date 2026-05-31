@@ -102,7 +102,7 @@ export default function Visualizer({
                   {isBachata && (beatNum === 4 || beatNum === 8) && (
                     <span 
                       className="beat-label" 
-                      style={{ fontSize: "0.55rem", opacity: 0.8, color: isActive ? (isGold ? "#000000" : "rgba(255, 255, 255, 0.8)") : "rgba(255, 255, 255, 0.4)" }}
+                      style={{ opacity: 0.8, color: isActive ? (isGold ? "#000000" : "rgba(255, 255, 255, 0.8)") : "rgba(255, 255, 255, 0.4)" }}
                     >
                       TAP
                     </span>
