@@ -9,7 +9,7 @@ export default function ControlBar({
   onRewind
 }) {
   return (
-    <div className="glass-panel" style={{ padding: "16px", display: "flex", flexDirection: "column", gap: "14px" }}>
+    <div className="glass-panel control-bar-glass-panel">
       <div className="controls-panel" style={{ display: "flex", flexDirection: "row", gap: "10px", alignItems: "center" }}>
         
         {/* Rewind 10s Button */}

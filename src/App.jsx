@@ -503,7 +503,7 @@ export default function App() {
   // Render Catalog Selector View
   if (!currentSong) {
     return (
-      <div className="app-container" style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+      <div className="app-container">
         <SongSelector 
           onSelectSong={handleSelectSong} 
           onOpenDevDashboard={isDevMode ? () => setViewingDevDashboard(true) : null}
@@ -524,138 +524,144 @@ export default function App() {
   const timeToNextSection = nextSection ? nextSection.startTimestamp - currentTime : null;
 
   return (
-    <div className="app-container" style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+    <div className="app-container">
       
-      {/* Upper Navigation & Skip Intro */}
-      {showDiagnostic && currentTime < introEnd && (
-        <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "16px", width: "100%" }}>
-          <button 
-            className="btn-step" 
-            onClick={handleSkipIntro}
-            style={{ 
-              margin: 0, 
-              padding: "6px 12px",
-              fontSize: "0.75rem",
-              background: "linear-gradient(135deg, #ffffff, #d1d5db)", 
-              color: "#000000", 
-              fontWeight: "800",
-              boxShadow: "0 4px 12px rgba(255, 255, 255, 0.25)",
-              animation: "pulse 2s infinite"
-            }}
-          >
-            ⏩ Skip Intro
-          </button>
-        </div>
-      )}
-
-      {/* Header Section */}
-      <header 
-        className="header glass-panel" 
-        onClick={handleHeaderClick} 
-        style={{ cursor: "pointer" }} 
-        title="Click 5 times for Developer Panel"
-      >
-        <h1 className="song-title">
-          {songData ? songData.metadata.songTitle : "Salsa Rhythm Hub"}
-        </h1>
-        <p className="song-artist">
-          {songData ? `${songData.metadata.artist} — ${songData.metadata.danceStyle.toUpperCase()}` : "Ear-Training Visualizer"}
-        </p>
-      </header>
-
-      {/* Main workspace layout */}
-      <div className={showDiagnostic ? "dev-workspace-layout-full" : "normal-workspace-layout"}>
-        {showDiagnostic ? (
-          <Suspense fallback={
-            <div className="glass-panel loading-container" style={{ minHeight: "300px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-              <div className="loading-spinner"></div>
-              <div style={{ fontWeight: 600, color: "#e5e7eb" }}>Loading Calibration Workbench...</div>
-            </div>
-          }>
-            <DevCalibrator
-              songData={songData}
-              originalSongData={originalSongData}
-              calibratedSongData={calibratedSongData}
-              setCalibratedSongData={setCalibratedSongData}
-              setSongData={setSongData}
-              setOriginalSongData={setOriginalSongData}
-              breaks={breaks}
-              setBreaks={setBreaks}
-              currentTime={currentTime}
-              videoDuration={videoDuration}
-              player={player}
-              throttledSeek={throttledSeek}
-              userDelaySetting={userDelaySetting}
-              setUserDelaySetting={setUserDelaySetting}
-              onBackToCatalog={() => {
-                setShowDiagnostic(false);
-                showToast("🔒 Dev Panel Locked!");
+      {/* 1. TOP CONTAINER: Header */}
+      <div className="testing-top-container">
+        {/* Upper Navigation & Skip Intro */}
+        {showDiagnostic && currentTime < introEnd && (
+          <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "16px", width: "100%" }}>
+            <button 
+              className="btn-step" 
+              onClick={handleSkipIntro}
+              style={{ 
+                margin: 0, 
+                padding: "6px 12px",
+                fontSize: "0.75rem",
+                background: "linear-gradient(135deg, #ffffff, #d1d5db)", 
+                color: "#000000", 
+                fontWeight: "800",
+                boxShadow: "0 4px 12px rgba(255, 255, 255, 0.25)",
+                animation: "pulse 2s infinite"
               }}
-              showToast={showToast}
-              videoElement={
-                <div className="left-workspace-column" style={{ margin: 0, width: "100%" }}>
-                  {/* Defensive IFrame Player & Overlay Protection */}
-                  <div className="video-wrapper">
-                    <div key={songData?.metadata?.youtubeId || "yt-player"} id="yt-player" ref={ytPlayerRefCallback}></div>
-                    <AudioShield onPlayToggle={handlePlayToggle} />
-                  </div>
-                </div>
-              }
-            />
-          </Suspense>
-        ) : (
-          <div className="left-workspace-column">
-              
-            {/* Defensive IFrame Player & Overlay Protection */}
-            <div className="video-wrapper">
-              <div key={songData?.metadata?.youtubeId || "yt-player"} id="yt-player" ref={ytPlayerRefCallback}></div>
-              <AudioShield onPlayToggle={handlePlayToggle} />
-            </div>
-
-            {/* Dynamic Interface: Learn Mode beats pulses OR Practice Mode gamified tapping zone */}
-            {mode === "practice" ? (
-              <GameCanvas 
-                key={calibratedSongData?.metadata?.youtubeId || songData?.metadata?.youtubeId}
-                songData={calibratedSongData || songData}
-                currentTime={currentTime}
-                isPlaying={isActuallyPlaying}
-                onPlayToggle={handlePlayToggle}
-              />
-            ) : (
-              <Visualizer 
-                danceStyle={songData?.metadata?.danceStyle || "salsa"}
-                currentTime={currentTime}
-                introEnd={introEnd}
-                currentBeat={currentBeat}
-                activeSection={activeSection}
-                activeBreak={activeBreak}
-                isPlaying={isActuallyPlaying}
-              />
-            )}
-
-            {/* Segmented Roadmap Progress Scrubber */}
-            <RoadmapScrubber
-              currentTime={currentTime}
-              videoDuration={videoDuration}
-              introStart={introStart}
-              introEnd={introEnd}
-              nextSection={nextSection}
-              timeToNextSection={timeToNextSection}
-              sectionsList={sectionsList}
-              breaks={breaks}
-              onSeek={throttledSeek}
-            />
-
-            {/* Unified Touch Controlbar */}
-            <ControlBar 
-              isActuallyPlaying={isActuallyPlaying}
-              onPlayToggle={handlePlayToggle}
-              playbackRate={playbackRate}
-              onSpeedChange={handleSpeedChange}
-              onRewind={handleRewind}
-            />
+            >
+              ⏩ Skip Intro
+            </button>
           </div>
         )}
+
+        {/* Header Section */}
+        <header 
+          className="header glass-panel" 
+          onClick={handleHeaderClick} 
+          style={{ cursor: "pointer", marginBottom: 0 }} 
+          title="Click 5 times for Developer Panel"
+        >
+          <h1 className="song-title">
+            {songData ? songData.metadata.songTitle : "Salsa Rhythm Hub"}
+          </h1>
+          <p className="song-artist">
+            {songData ? `${songData.metadata.artist} — ${songData.metadata.danceStyle.toUpperCase()}` : "Ear-Training Visualizer"}
+          </p>
+        </header>
+      </div>
+
+      {/* 2. BOTTOM CONTAINER: Video, Metronome, Scrubber, Controls */}
+      <div className="testing-bottom-container">
+        {/* Main workspace layout */}
+        <div className={showDiagnostic ? "dev-workspace-layout-full" : "normal-workspace-layout"}>
+          {showDiagnostic ? (
+            <Suspense fallback={
+              <div className="glass-panel loading-container" style={{ minHeight: "300px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+                <div className="loading-spinner"></div>
+                <div style={{ fontWeight: 600, color: "#e5e7eb" }}>Loading Calibration Workbench...</div>
+              </div>
+            }>
+              <DevCalibrator
+                songData={songData}
+                originalSongData={originalSongData}
+                calibratedSongData={calibratedSongData}
+                setCalibratedSongData={setCalibratedSongData}
+                setSongData={setSongData}
+                setOriginalSongData={setOriginalSongData}
+                breaks={breaks}
+                setBreaks={setBreaks}
+                currentTime={currentTime}
+                videoDuration={videoDuration}
+                player={player}
+                throttledSeek={throttledSeek}
+                userDelaySetting={userDelaySetting}
+                setUserDelaySetting={setUserDelaySetting}
+                onBackToCatalog={() => {
+                  setShowDiagnostic(false);
+                  showToast("🔒 Dev Panel Locked!");
+                }}
+                showToast={showToast}
+                videoElement={
+                  <div className="left-workspace-column" style={{ margin: 0, width: "100%" }}>
+                    {/* Defensive IFrame Player & Overlay Protection */}
+                    <div className="video-wrapper">
+                      <div key={songData?.metadata?.youtubeId || "yt-player"} id="yt-player" ref={ytPlayerRefCallback}></div>
+                      <AudioShield onPlayToggle={handlePlayToggle} />
+                    </div>
+                  </div>
+                }
+              />
+            </Suspense>
+          ) : (
+            <div className="left-workspace-column">
+                
+              {/* Defensive IFrame Player & Overlay Protection */}
+              <div className="video-wrapper">
+                <div key={songData?.metadata?.youtubeId || "yt-player"} id="yt-player" ref={ytPlayerRefCallback}></div>
+                <AudioShield onPlayToggle={handlePlayToggle} />
+              </div>
+
+              {/* Dynamic Interface: Learn Mode beats pulses OR Practice Mode gamified tapping zone */}
+              {mode === "practice" ? (
+                <GameCanvas 
+                  key={calibratedSongData?.metadata?.youtubeId || songData?.metadata?.youtubeId}
+                  songData={calibratedSongData || songData}
+                  currentTime={currentTime}
+                  isPlaying={isActuallyPlaying}
+                  onPlayToggle={handlePlayToggle}
+                />
+              ) : (
+                <Visualizer 
+                  danceStyle={songData?.metadata?.danceStyle || "salsa"}
+                  currentTime={currentTime}
+                  introEnd={introEnd}
+                  currentBeat={currentBeat}
+                  activeSection={activeSection}
+                  activeBreak={activeBreak}
+                  isPlaying={isActuallyPlaying}
+                />
+              )}
+
+              {/* Segmented Roadmap Progress Scrubber */}
+              <RoadmapScrubber
+                currentTime={currentTime}
+                videoDuration={videoDuration}
+                introStart={introStart}
+                introEnd={introEnd}
+                nextSection={nextSection}
+                timeToNextSection={timeToNextSection}
+                sectionsList={sectionsList}
+                breaks={breaks}
+                onSeek={throttledSeek}
+              />
+
+              {/* Unified Touch Controlbar */}
+              <ControlBar 
+                isActuallyPlaying={isActuallyPlaying}
+                onPlayToggle={handlePlayToggle}
+                playbackRate={playbackRate}
+                onSpeedChange={handleSpeedChange}
+                onRewind={handleRewind}
+              />
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Floating Toast Notification */}

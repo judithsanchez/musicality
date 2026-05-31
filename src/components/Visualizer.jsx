@@ -24,12 +24,12 @@ export default function Visualizer({
   const isOn2 = danceStyle.toLowerCase().includes("on2");
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "16px", marginBottom: "16px" }}>
+    <div className="visualizer-wrapper">
       
 
 
       {/* 2. Beats Pulsing Track */}
-      <div className="glass-panel" style={{ padding: "20px 10px", margin: 0 }}>
+      <div className="glass-panel visualizer-glass-panel">
         {activeBreak ? (
           <div className="break-freeze-overlay">
             <div className="break-freeze-title">
@@ -102,7 +102,7 @@ export default function Visualizer({
                   {isBachata && (beatNum === 4 || beatNum === 8) && (
                     <span 
                       className="beat-label" 
-                      style={{ fontSize: "0.55rem", opacity: 0.8, color: isActive ? (isGold ? "#000000" : "rgba(255, 255, 255, 0.8)") : "rgba(255, 255, 255, 0.4)" }}
+                      style={{ opacity: 0.8, color: isActive ? (isGold ? "#000000" : "rgba(255, 255, 255, 0.8)") : "rgba(255, 255, 255, 0.4)" }}
                     >
                       TAP
                     </span>

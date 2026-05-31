@@ -42,29 +42,33 @@
 
 body {
   margin: 0;
+  padding: 0;
   min-height: 100dvh;
   display: flex;
-  justify-content: center;
-  align-items: center;
+  justify-content: center; 
+  align-items: flex-start; 
+  background-color: hsl(var(--bg-dark));
+  color: #f3f4f6;
   background-attachment: fixed;
   transition: background-color 1s ease, background-image 1s ease;
 }
 
-/* App Centering and Mobile Viewport Lock */
+/* The Main "Mobile" Screen Boundary */
 #root {
   width: 100%;
-  max-width: 480px;
+  max-width: 430px; 
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  padding: 16px;
+  justify-content: center; 
   box-sizing: border-box;
   position: relative;
   transition: max-width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 #root.dev-mode-active {
-  max-width: 1240px; /* Spacious workspace width on desktop computers! */
+  max-width: 1240px;
+  align-self: center;
 }
 
 /* Glassmorphism Panel styles */
@@ -78,6 +82,14 @@ body {
   box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.5);
   margin-bottom: 16px;
   transition: border-color 0.8s ease, box-shadow 0.8s ease;
+}
+
+@media (max-width: 480px) {
+  .glass-panel {
+    padding: clamp(10px, 2dvh, 16px);
+    margin-bottom: 0px; /* Managed entirely by flex gaps now! */
+    border-radius: clamp(12px, 2dvh, 20px);
+  }
 }
 
 /* Header & Scoreboard */
@@ -177,36 +189,39 @@ body {
 
 /* Beats Circular Pulse Trackers */
 .beats-container {
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  gap: 8px;
-  margin-bottom: 24px;
-  justify-items: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
 }
 
 .beat-circle {
-  width: 42px;
-  height: 42px;
+  width: clamp(28px, 8.5vw, 36px);
+  height: clamp(28px, 8.5vw, 36px);
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.04);
   border: 2px solid rgba(255, 255, 255, 0.1);
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
-  font-size: 0.8rem;
+  font-size: clamp(0.75rem, 2vw, 0.85rem);
   font-weight: 800;
   color: #6b7280;
-  /* No transition: beat highlights must snap ON instantly (JS already fires at the right ms)
-     A CSS transition here adds visible lag. Fade-out is handled by the keyframe below. */
   position: relative;
+  box-sizing: border-box;
 }
 
 .beat-label {
-  font-size: 0.5rem;
-  font-weight: 300;
+  position: absolute;
+  bottom: -16px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.55rem;
+  font-weight: 600;
   text-transform: uppercase;
-  margin-top: -2px;
+  margin: 0;
+  line-height: 1;
+  pointer-events: none;
 }
 
 /* Beat highlight — instant on/off, no animation, no transition */
@@ -1716,5 +1731,134 @@ body {
     gap: 16px;
   }
 }
+
+@media (max-width: 400px) {
+  .controls-panel {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+  }
+  .btn-touch.btn-play {
+    flex: 1 1 100% !important; /* Play button takes full width of row on narrow screens */
+    order: -1; /* Elevates play button to the top */
+  }
+  .speed-toggle-container {
+    flex: 1 1 auto !important;
+    justify-content: center;
+  }
+}
+
+/* Responsive Custom Glass Panels & Spacing */
+.app-container {
+  width: 100%;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; /* Title goes up, elements stack from top */
+  padding: clamp(16px, 3.5vh, 28px) 16px;
+  box-sizing: border-box;
+  gap: clamp(16px, 3.5vh, 28px); /* Expands gap on taller viewports */
+}
+
+.testing-top-container,
+.testing-bottom-container,
+.normal-workspace-layout,
+.left-workspace-column {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: clamp(14px, 3vh, 24px); /* Expands gaps inside columns on taller viewports */
+}
+
+.visualizer-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.visualizer-glass-panel {
+  padding: 16px 16px 28px 16px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.control-bar-glass-panel {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.roadmap-scrubber-glass-panel {
+  padding: 16px;
+  margin-bottom: 0px;
+}
+
+/* Mobile-First Spacing Compressors (fits 100% inside any viewport!) */
+@media (max-width: 480px) {
+  #root:not(.dev-mode-active) {
+    min-height: auto;
+    padding: clamp(12px, 2dvh, 16px) 12px;
+  }
+  .app-container {
+    padding: clamp(12px, 2.5vh, 20px) 12px;
+    gap: clamp(12px, 2.5vh, 20px);
+  }
+  .testing-top-container,
+  .testing-bottom-container,
+  .normal-workspace-layout,
+  .left-workspace-column {
+    gap: clamp(10px, 2.2vh, 18px);
+  }
+  .glass-panel {
+    padding: 12px;
+    margin-bottom: 0px !important; /* Spacing is managed cleanly by flex gaps now! */
+    border-radius: 12px;
+  }
+  .visualizer-glass-panel {
+    padding: 12px 12px 26px 12px;
+    margin: 0 !important;
+  }
+  .control-bar-glass-panel {
+    padding: 12px;
+    gap: 10px;
+  }
+  .roadmap-scrubber-glass-panel {
+    padding: 12px;
+    margin-bottom: 0px !important;
+  }
+  .song-title {
+    font-size: clamp(1.1rem, 4vw, 1.35rem);
+  }
+  .song-artist {
+    font-size: clamp(0.7rem, 2.5vw, 0.8rem);
+  }
+  .video-wrapper {
+    margin-bottom: 0px !important;
+  }
+  .visualizer-wrapper {
+    gap: clamp(6px, 1.2dvh, 12px);
+    margin-bottom: 0px !important;
+  }
+  .section-banner {
+    margin-bottom: 0px !important;
+    padding: clamp(6px, 1dvh, 10px) 12px;
+    font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+  }
+  .controls-panel {
+    gap: clamp(6px, 1dvh, 10px);
+  }
+  .btn-touch {
+    min-height: clamp(38px, 5dvh, 44px);
+    border-radius: 10px;
+  }
+  .speed-option {
+    height: clamp(30px, 4dvh, 36px);
+    min-width: clamp(36px, 10vw, 44px);
+  }
+}
+
 
 
