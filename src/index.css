@@ -179,14 +179,16 @@ body {
 .beats-container {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
-  gap: 8px;
+  gap: clamp(4px, 1.5vw, 8px);
   margin-bottom: 24px;
   justify-items: center;
+  width: 100%;
 }
 
 .beat-circle {
-  width: 42px;
-  height: 42px;
+  width: 100%;
+  max-width: 42px;
+  aspect-ratio: 1 / 1;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.04);
   border: 2px solid rgba(255, 255, 255, 0.1);
@@ -194,12 +196,13 @@ body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  font-size: 0.8rem;
+  font-size: clamp(0.7rem, 2.5vw, 0.8rem);
   font-weight: 800;
   color: #6b7280;
   /* No transition: beat highlights must snap ON instantly (JS already fires at the right ms)
      A CSS transition here adds visible lag. Fade-out is handled by the keyframe below. */
   position: relative;
+  box-sizing: border-box;
 }
 
 .beat-label {
@@ -1714,6 +1717,22 @@ body {
   .dev-widescreen-top-row {
     grid-template-columns: 1fr !important;
     gap: 16px;
+  }
+}
+
+@media (max-width: 400px) {
+  .controls-panel {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+  }
+  .btn-touch.btn-play {
+    flex: 1 1 100% !important; /* Play button takes full width of row on narrow screens */
+    order: -1; /* Elevates play button to the top */
+  }
+  .speed-toggle-container {
+    flex: 1 1 auto !important;
+    justify-content: center;
   }
 }
 
