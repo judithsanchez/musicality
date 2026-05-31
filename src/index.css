@@ -180,7 +180,7 @@ body {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
   gap: clamp(4px, 1.5vw, 8px);
-  margin-bottom: 24px;
+  margin-bottom: 0;
   justify-items: center;
   width: 100%;
 }
