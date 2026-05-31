@@ -1742,4 +1742,92 @@ body {
   }
 }
 
+/* Responsive Custom Glass Panels & Spacing */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  width: 100%;
+}
+
+.visualizer-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.visualizer-glass-panel {
+  padding: 20px 10px;
+  margin: 0;
+}
+
+.control-bar-glass-panel {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.roadmap-scrubber-glass-panel {
+  padding: 14px 16px;
+  margin-bottom: 0px;
+}
+
+/* Mobile-First Spacing Compressors (fits 100% inside any viewport!) */
+@media (max-width: 480px) {
+  #root {
+    padding: 10px 12px;
+  }
+  .app-container {
+    gap: 8px !important;
+  }
+  .glass-panel {
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    border-radius: 16px;
+  }
+  .visualizer-glass-panel {
+    padding: 12px 10px;
+    margin: 0;
+  }
+  .control-bar-glass-panel {
+    padding: 10px 12px;
+    gap: 8px;
+  }
+  .roadmap-scrubber-glass-panel {
+    padding: 10px 12px;
+    margin-bottom: 0px;
+  }
+  .song-title {
+    font-size: 1.3rem;
+  }
+  .song-artist {
+    font-size: 0.75rem;
+  }
+  .video-wrapper {
+    margin-bottom: 8px;
+  }
+  .visualizer-wrapper {
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .section-banner {
+    margin-bottom: 8px;
+    padding: 8px 12px;
+  }
+  .controls-panel {
+    gap: 8px;
+  }
+  .btn-touch {
+    min-height: 42px;
+  }
+  .speed-option {
+    height: 34px;
+    min-width: 42px;
+  }
+}
+
+
 

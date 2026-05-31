@@ -12,7 +12,7 @@ export default function RoadmapScrubber({
   const duration = videoDuration || 1;
 
   return (
-    <div className="glass-panel" style={{ padding: "14px 16px", marginBottom: "0px" }}>
+    <div className="glass-panel roadmap-scrubber-glass-panel">
       <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.75rem", fontWeight: "600", color: "#9ca3af", marginBottom: "8px" }}>
         <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
           Song Roadmap
