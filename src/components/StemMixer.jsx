@@ -7,6 +7,7 @@ export default function StemMixer({ song, onBackToCatalog }) {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [hasError, setHasError] = useState(false);
 
   // Mixer settings: volume, mute, solo for each stem
   // Stems differ by library
@@ -41,6 +42,7 @@ export default function StemMixer({ song, onBackToCatalog }) {
     setIsPlaying(false);
     setCurrentTime(0);
     setDuration(0);
+    setHasError(false);
   }, [library, song]);
 
   // Handle loading and cleanup of audio elements
@@ -80,6 +82,7 @@ export default function StemMixer({ song, onBackToCatalog }) {
       audio.addEventListener("canplaythrough", checkLoaded, { once: true });
       audio.addEventListener("error", (e) => {
         console.error(`Error loading stem ${stem} from ${audioUrl}:`, e);
+        setHasError(true);
         // still count it to avoid lock
         checkLoaded();
       });
@@ -282,6 +285,30 @@ export default function StemMixer({ song, onBackToCatalog }) {
 
       {/* Main Glass Panel Player Card */}
       <div className="glass-panel" style={{ padding: "20px", display: "flex", flexDirection: "column", gap: "20px" }}>
+        
+        {hasError && (
+          <div style={{
+            background: "rgba(255, 69, 58, 0.08)",
+            border: "1px solid rgba(255, 69, 58, 0.2)",
+            borderRadius: "10px",
+            padding: "14px 18px",
+            color: "#ff453a",
+            fontSize: "0.85rem",
+            lineHeight: "1.4",
+            fontWeight: "500",
+            display: "flex",
+            flexDirection: "column",
+            gap: "8px"
+          }}>
+            <span style={{ fontWeight: "900", letterSpacing: "0.5px" }}>⚠️ MULTI-TRACK AUDIO LOAD ERROR</span>
+            <span>
+              Failed to load stem files. This usually happens if you are accessing the app via the wrong port.
+            </span>
+            <span style={{ color: "#a1a1aa", fontSize: "0.8rem" }}>
+              Please check if you are visiting <strong>http://localhost:5174/</strong> (the dev server for the <strong>musicality</strong> workspace where the stems are stored), instead of port <strong>5173</strong> (which runs the <strong>armada-movement</strong> workspace).
+            </span>
+          </div>
+        )}
         
         {/* Track Loading overlay */}
         {isLoading ? (
