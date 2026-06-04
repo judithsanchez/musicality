@@ -81,7 +81,10 @@ export default function StemMixer({ song, onBackToCatalog }) {
 
       audio.addEventListener("canplaythrough", checkLoaded, { once: true });
       audio.addEventListener("error", (e) => {
-        console.error(`Error loading stem ${stem} from ${audioUrl}:`, e);
+        const errDetails = audio.error 
+          ? `Code ${audio.error.code}: ${audio.error.message || 'Unknown media error'}`
+          : 'Unknown error event';
+        console.error(`Error loading stem ${stem} from ${audioUrl}. Details: ${errDetails}`, e);
         setHasError(true);
         // still count it to avoid lock
         checkLoaded();
