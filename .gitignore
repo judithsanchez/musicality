@@ -57,3 +57,7 @@ dist/
 
 # Explicitly allow committing TypeScript project configuration
 !tsconfig.json
+
+# Audio separation output files
+public/separated/
+separated_stems/

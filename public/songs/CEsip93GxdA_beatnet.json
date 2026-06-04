@@ -1,0 +1,1207 @@
+{
+  "id": "song-CEsip93GxdA-beatnet",
+  "title": "El Amor Que Espere (BeatNet)",
+  "artist": "Leoni Torres, Eddy K",
+  "youtubeId": "CEsip93GxdA",
+  "difficulty": "medium",
+  "bpm": 97.97,
+  "isCalibrated": false,
+  "beats": [
+    {
+      "timestamp": 0.52,
+      "beat": 1
+    },
+    {
+      "timestamp": 1.12,
+      "beat": 2
+    },
+    {
+      "timestamp": 1.74,
+      "beat": 3
+    },
+    {
+      "timestamp": 2.36,
+      "beat": 4
+    },
+    {
+      "timestamp": 2.98,
+      "beat": 5
+    },
+    {
+      "timestamp": 3.6,
+      "beat": 6
+    },
+    {
+      "timestamp": 4.22,
+      "beat": 7
+    },
+    {
+      "timestamp": 4.84,
+      "beat": 8
+    },
+    {
+      "timestamp": 5.44,
+      "beat": 1
+    },
+    {
+      "timestamp": 6.06,
+      "beat": 2
+    },
+    {
+      "timestamp": 6.66,
+      "beat": 3
+    },
+    {
+      "timestamp": 7.26,
+      "beat": 4
+    },
+    {
+      "timestamp": 7.88,
+      "beat": 5
+    },
+    {
+      "timestamp": 8.48,
+      "beat": 6
+    },
+    {
+      "timestamp": 9.1,
+      "beat": 7
+    },
+    {
+      "timestamp": 9.72,
+      "beat": 8
+    },
+    {
+      "timestamp": 10.32,
+      "beat": 1
+    },
+    {
+      "timestamp": 10.92,
+      "beat": 2
+    },
+    {
+      "timestamp": 11.5,
+      "beat": 3
+    },
+    {
+      "timestamp": 12.14,
+      "beat": 4
+    },
+    {
+      "timestamp": 12.76,
+      "beat": 5
+    },
+    {
+      "timestamp": 13.38,
+      "beat": 6
+    },
+    {
+      "timestamp": 14.0,
+      "beat": 7
+    },
+    {
+      "timestamp": 14.6,
+      "beat": 8
+    },
+    {
+      "timestamp": 15.22,
+      "beat": 1
+    },
+    {
+      "timestamp": 15.84,
+      "beat": 2
+    },
+    {
+      "timestamp": 16.44,
+      "beat": 3
+    },
+    {
+      "timestamp": 17.06,
+      "beat": 4
+    },
+    {
+      "timestamp": 17.66,
+      "beat": 5
+    },
+    {
+      "timestamp": 18.24,
+      "beat": 6
+    },
+    {
+      "timestamp": 18.88,
+      "beat": 7
+    },
+    {
+      "timestamp": 19.5,
+      "beat": 8
+    },
+    {
+      "timestamp": 20.12,
+      "beat": 1
+    },
+    {
+      "timestamp": 20.74,
+      "beat": 2
+    },
+    {
+      "timestamp": 21.34,
+      "beat": 3
+    },
+    {
+      "timestamp": 21.96,
+      "beat": 4
+    },
+    {
+      "timestamp": 22.58,
+      "beat": 5
+    },
+    {
+      "timestamp": 23.18,
+      "beat": 6
+    },
+    {
+      "timestamp": 23.8,
+      "beat": 7
+    },
+    {
+      "timestamp": 24.4,
+      "beat": 8
+    },
+    {
+      "timestamp": 25.0,
+      "beat": 1
+    },
+    {
+      "timestamp": 25.64,
+      "beat": 2
+    },
+    {
+      "timestamp": 26.24,
+      "beat": 3
+    },
+    {
+      "timestamp": 26.86,
+      "beat": 4
+    },
+    {
+      "timestamp": 27.46,
+      "beat": 5
+    },
+    {
+      "timestamp": 28.08,
+      "beat": 6
+    },
+    {
+      "timestamp": 28.68,
+      "beat": 7
+    },
+    {
+      "timestamp": 29.32,
+      "beat": 8
+    },
+    {
+      "timestamp": 29.92,
+      "beat": 1
+    },
+    {
+      "timestamp": 30.54,
+      "beat": 2
+    },
+    {
+      "timestamp": 31.16,
+      "beat": 3
+    },
+    {
+      "timestamp": 31.76,
+      "beat": 4
+    },
+    {
+      "timestamp": 32.36,
+      "beat": 5
+    },
+    {
+      "timestamp": 32.98,
+      "beat": 6
+    },
+    {
+      "timestamp": 33.6,
+      "beat": 7
+    },
+    {
+      "timestamp": 34.2,
+      "beat": 8
+    },
+    {
+      "timestamp": 34.82,
+      "beat": 1
+    },
+    {
+      "timestamp": 35.42,
+      "beat": 2
+    },
+    {
+      "timestamp": 36.04,
+      "beat": 3
+    },
+    {
+      "timestamp": 36.66,
+      "beat": 4
+    },
+    {
+      "timestamp": 37.26,
+      "beat": 5
+    },
+    {
+      "timestamp": 37.88,
+      "beat": 6
+    },
+    {
+      "timestamp": 38.48,
+      "beat": 7
+    },
+    {
+      "timestamp": 39.1,
+      "beat": 8
+    },
+    {
+      "timestamp": 39.7,
+      "beat": 1
+    },
+    {
+      "timestamp": 40.32,
+      "beat": 2
+    },
+    {
+      "timestamp": 40.94,
+      "beat": 3
+    },
+    {
+      "timestamp": 41.56,
+      "beat": 4
+    },
+    {
+      "timestamp": 42.16,
+      "beat": 5
+    },
+    {
+      "timestamp": 42.78,
+      "beat": 6
+    },
+    {
+      "timestamp": 43.4,
+      "beat": 7
+    },
+    {
+      "timestamp": 44.0,
+      "beat": 8
+    },
+    {
+      "timestamp": 44.62,
+      "beat": 1
+    },
+    {
+      "timestamp": 45.22,
+      "beat": 2
+    },
+    {
+      "timestamp": 45.84,
+      "beat": 3
+    },
+    {
+      "timestamp": 46.46,
+      "beat": 4
+    },
+    {
+      "timestamp": 47.06,
+      "beat": 5
+    },
+    {
+      "timestamp": 47.68,
+      "beat": 6
+    },
+    {
+      "timestamp": 48.28,
+      "beat": 7
+    },
+    {
+      "timestamp": 48.9,
+      "beat": 8
+    },
+    {
+      "timestamp": 49.5,
+      "beat": 1
+    },
+    {
+      "timestamp": 50.12,
+      "beat": 2
+    },
+    {
+      "timestamp": 50.72,
+      "beat": 3
+    },
+    {
+      "timestamp": 51.34,
+      "beat": 4
+    },
+    {
+      "timestamp": 51.96,
+      "beat": 5
+    },
+    {
+      "timestamp": 52.56,
+      "beat": 6
+    },
+    {
+      "timestamp": 53.18,
+      "beat": 7
+    },
+    {
+      "timestamp": 53.8,
+      "beat": 8
+    },
+    {
+      "timestamp": 54.4,
+      "beat": 1
+    },
+    {
+      "timestamp": 55.02,
+      "beat": 2
+    },
+    {
+      "timestamp": 55.62,
+      "beat": 3
+    },
+    {
+      "timestamp": 56.24,
+      "beat": 4
+    },
+    {
+      "timestamp": 56.84,
+      "beat": 5
+    },
+    {
+      "timestamp": 57.48,
+      "beat": 6
+    },
+    {
+      "timestamp": 58.08,
+      "beat": 7
+    },
+    {
+      "timestamp": 58.7,
+      "beat": 8
+    },
+    {
+      "timestamp": 59.3,
+      "beat": 1
+    },
+    {
+      "timestamp": 59.9,
+      "beat": 2
+    },
+    {
+      "timestamp": 60.52,
+      "beat": 3
+    },
+    {
+      "timestamp": 61.12,
+      "beat": 4
+    },
+    {
+      "timestamp": 61.76,
+      "beat": 5
+    },
+    {
+      "timestamp": 62.38,
+      "beat": 6
+    },
+    {
+      "timestamp": 62.98,
+      "beat": 7
+    },
+    {
+      "timestamp": 63.6,
+      "beat": 8
+    },
+    {
+      "timestamp": 64.2,
+      "beat": 1
+    },
+    {
+      "timestamp": 64.82,
+      "beat": 2
+    },
+    {
+      "timestamp": 65.44,
+      "beat": 3
+    },
+    {
+      "timestamp": 66.04,
+      "beat": 4
+    },
+    {
+      "timestamp": 66.64,
+      "beat": 5
+    },
+    {
+      "timestamp": 67.26,
+      "beat": 6
+    },
+    {
+      "timestamp": 67.86,
+      "beat": 7
+    },
+    {
+      "timestamp": 68.5,
+      "beat": 8
+    },
+    {
+      "timestamp": 69.1,
+      "beat": 1
+    },
+    {
+      "timestamp": 69.72,
+      "beat": 2
+    },
+    {
+      "timestamp": 70.32,
+      "beat": 3
+    },
+    {
+      "timestamp": 70.94,
+      "beat": 4
+    },
+    {
+      "timestamp": 71.54,
+      "beat": 5
+    },
+    {
+      "timestamp": 72.18,
+      "beat": 6
+    },
+    {
+      "timestamp": 72.78,
+      "beat": 7
+    },
+    {
+      "timestamp": 73.38,
+      "beat": 8
+    },
+    {
+      "timestamp": 74.0,
+      "beat": 1
+    },
+    {
+      "timestamp": 74.62,
+      "beat": 2
+    },
+    {
+      "timestamp": 75.22,
+      "beat": 3
+    },
+    {
+      "timestamp": 75.84,
+      "beat": 4
+    },
+    {
+      "timestamp": 76.44,
+      "beat": 5
+    },
+    {
+      "timestamp": 77.06,
+      "beat": 6
+    },
+    {
+      "timestamp": 77.68,
+      "beat": 7
+    },
+    {
+      "timestamp": 78.28,
+      "beat": 8
+    },
+    {
+      "timestamp": 78.9,
+      "beat": 1
+    },
+    {
+      "timestamp": 79.52,
+      "beat": 2
+    },
+    {
+      "timestamp": 80.12,
+      "beat": 3
+    },
+    {
+      "timestamp": 80.74,
+      "beat": 4
+    },
+    {
+      "timestamp": 81.34,
+      "beat": 5
+    },
+    {
+      "timestamp": 81.96,
+      "beat": 6
+    },
+    {
+      "timestamp": 82.58,
+      "beat": 7
+    },
+    {
+      "timestamp": 83.18,
+      "beat": 8
+    },
+    {
+      "timestamp": 83.78,
+      "beat": 1
+    },
+    {
+      "timestamp": 84.4,
+      "beat": 2
+    },
+    {
+      "timestamp": 85.02,
+      "beat": 3
+    },
+    {
+      "timestamp": 85.64,
+      "beat": 4
+    },
+    {
+      "timestamp": 86.24,
+      "beat": 5
+    },
+    {
+      "timestamp": 86.86,
+      "beat": 6
+    },
+    {
+      "timestamp": 87.48,
+      "beat": 7
+    },
+    {
+      "timestamp": 88.08,
+      "beat": 8
+    },
+    {
+      "timestamp": 88.68,
+      "beat": 1
+    },
+    {
+      "timestamp": 89.3,
+      "beat": 2
+    },
+    {
+      "timestamp": 89.92,
+      "beat": 3
+    },
+    {
+      "timestamp": 90.52,
+      "beat": 4
+    },
+    {
+      "timestamp": 91.14,
+      "beat": 5
+    },
+    {
+      "timestamp": 91.76,
+      "beat": 6
+    },
+    {
+      "timestamp": 92.36,
+      "beat": 7
+    },
+    {
+      "timestamp": 92.98,
+      "beat": 8
+    },
+    {
+      "timestamp": 93.58,
+      "beat": 1
+    },
+    {
+      "timestamp": 94.2,
+      "beat": 2
+    },
+    {
+      "timestamp": 94.8,
+      "beat": 3
+    },
+    {
+      "timestamp": 95.42,
+      "beat": 4
+    },
+    {
+      "timestamp": 96.04,
+      "beat": 5
+    },
+    {
+      "timestamp": 96.66,
+      "beat": 6
+    },
+    {
+      "timestamp": 97.26,
+      "beat": 7
+    },
+    {
+      "timestamp": 97.88,
+      "beat": 8
+    },
+    {
+      "timestamp": 98.5,
+      "beat": 1
+    },
+    {
+      "timestamp": 99.1,
+      "beat": 2
+    },
+    {
+      "timestamp": 99.72,
+      "beat": 3
+    },
+    {
+      "timestamp": 100.32,
+      "beat": 4
+    },
+    {
+      "timestamp": 100.92,
+      "beat": 5
+    },
+    {
+      "timestamp": 101.54,
+      "beat": 6
+    },
+    {
+      "timestamp": 102.16,
+      "beat": 7
+    },
+    {
+      "timestamp": 102.78,
+      "beat": 8
+    },
+    {
+      "timestamp": 103.38,
+      "beat": 1
+    },
+    {
+      "timestamp": 104.0,
+      "beat": 2
+    },
+    {
+      "timestamp": 104.6,
+      "beat": 3
+    },
+    {
+      "timestamp": 105.22,
+      "beat": 4
+    },
+    {
+      "timestamp": 105.84,
+      "beat": 5
+    },
+    {
+      "timestamp": 106.44,
+      "beat": 6
+    },
+    {
+      "timestamp": 107.06,
+      "beat": 7
+    },
+    {
+      "timestamp": 107.68,
+      "beat": 8
+    },
+    {
+      "timestamp": 108.3,
+      "beat": 1
+    },
+    {
+      "timestamp": 108.9,
+      "beat": 2
+    },
+    {
+      "timestamp": 109.52,
+      "beat": 3
+    },
+    {
+      "timestamp": 110.12,
+      "beat": 4
+    },
+    {
+      "timestamp": 110.74,
+      "beat": 5
+    },
+    {
+      "timestamp": 111.34,
+      "beat": 6
+    },
+    {
+      "timestamp": 111.96,
+      "beat": 7
+    },
+    {
+      "timestamp": 112.58,
+      "beat": 8
+    },
+    {
+      "timestamp": 113.18,
+      "beat": 1
+    },
+    {
+      "timestamp": 113.8,
+      "beat": 2
+    },
+    {
+      "timestamp": 114.4,
+      "beat": 3
+    },
+    {
+      "timestamp": 115.02,
+      "beat": 4
+    },
+    {
+      "timestamp": 115.64,
+      "beat": 5
+    },
+    {
+      "timestamp": 116.24,
+      "beat": 6
+    },
+    {
+      "timestamp": 116.86,
+      "beat": 7
+    },
+    {
+      "timestamp": 117.48,
+      "beat": 8
+    },
+    {
+      "timestamp": 118.08,
+      "beat": 1
+    },
+    {
+      "timestamp": 118.68,
+      "beat": 2
+    },
+    {
+      "timestamp": 119.3,
+      "beat": 3
+    },
+    {
+      "timestamp": 119.9,
+      "beat": 4
+    },
+    {
+      "timestamp": 120.52,
+      "beat": 5
+    },
+    {
+      "timestamp": 121.16,
+      "beat": 6
+    },
+    {
+      "timestamp": 121.76,
+      "beat": 7
+    },
+    {
+      "timestamp": 122.36,
+      "beat": 8
+    },
+    {
+      "timestamp": 122.98,
+      "beat": 1
+    },
+    {
+      "timestamp": 123.6,
+      "beat": 2
+    },
+    {
+      "timestamp": 124.2,
+      "beat": 3
+    },
+    {
+      "timestamp": 124.82,
+      "beat": 4
+    },
+    {
+      "timestamp": 125.42,
+      "beat": 5
+    },
+    {
+      "timestamp": 126.04,
+      "beat": 6
+    },
+    {
+      "timestamp": 126.64,
+      "beat": 7
+    },
+    {
+      "timestamp": 127.28,
+      "beat": 8
+    },
+    {
+      "timestamp": 127.88,
+      "beat": 1
+    },
+    {
+      "timestamp": 128.5,
+      "beat": 2
+    },
+    {
+      "timestamp": 129.1,
+      "beat": 3
+    },
+    {
+      "timestamp": 129.72,
+      "beat": 4
+    },
+    {
+      "timestamp": 130.3,
+      "beat": 5
+    },
+    {
+      "timestamp": 130.94,
+      "beat": 6
+    },
+    {
+      "timestamp": 131.56,
+      "beat": 7
+    },
+    {
+      "timestamp": 132.16,
+      "beat": 8
+    },
+    {
+      "timestamp": 132.76,
+      "beat": 1
+    },
+    {
+      "timestamp": 133.38,
+      "beat": 2
+    },
+    {
+      "timestamp": 134.0,
+      "beat": 3
+    },
+    {
+      "timestamp": 134.62,
+      "beat": 4
+    },
+    {
+      "timestamp": 135.22,
+      "beat": 5
+    },
+    {
+      "timestamp": 135.84,
+      "beat": 6
+    },
+    {
+      "timestamp": 136.44,
+      "beat": 7
+    },
+    {
+      "timestamp": 137.06,
+      "beat": 8
+    },
+    {
+      "timestamp": 137.66,
+      "beat": 1
+    },
+    {
+      "timestamp": 138.28,
+      "beat": 2
+    },
+    {
+      "timestamp": 138.9,
+      "beat": 3
+    },
+    {
+      "timestamp": 139.5,
+      "beat": 4
+    },
+    {
+      "timestamp": 140.12,
+      "beat": 5
+    },
+    {
+      "timestamp": 140.72,
+      "beat": 6
+    },
+    {
+      "timestamp": 141.34,
+      "beat": 7
+    },
+    {
+      "timestamp": 141.96,
+      "beat": 8
+    },
+    {
+      "timestamp": 142.58,
+      "beat": 1
+    },
+    {
+      "timestamp": 143.18,
+      "beat": 2
+    },
+    {
+      "timestamp": 143.8,
+      "beat": 3
+    },
+    {
+      "timestamp": 144.4,
+      "beat": 4
+    },
+    {
+      "timestamp": 145.04,
+      "beat": 5
+    },
+    {
+      "timestamp": 145.64,
+      "beat": 6
+    },
+    {
+      "timestamp": 146.24,
+      "beat": 7
+    },
+    {
+      "timestamp": 146.86,
+      "beat": 8
+    },
+    {
+      "timestamp": 147.48,
+      "beat": 1
+    },
+    {
+      "timestamp": 148.08,
+      "beat": 2
+    },
+    {
+      "timestamp": 148.68,
+      "beat": 3
+    },
+    {
+      "timestamp": 149.3,
+      "beat": 4
+    },
+    {
+      "timestamp": 149.9,
+      "beat": 5
+    },
+    {
+      "timestamp": 150.52,
+      "beat": 6
+    },
+    {
+      "timestamp": 151.14,
+      "beat": 7
+    },
+    {
+      "timestamp": 151.74,
+      "beat": 8
+    },
+    {
+      "timestamp": 152.36,
+      "beat": 1
+    },
+    {
+      "timestamp": 152.98,
+      "beat": 2
+    },
+    {
+      "timestamp": 153.6,
+      "beat": 3
+    },
+    {
+      "timestamp": 154.2,
+      "beat": 4
+    },
+    {
+      "timestamp": 154.82,
+      "beat": 5
+    },
+    {
+      "timestamp": 155.44,
+      "beat": 6
+    },
+    {
+      "timestamp": 156.04,
+      "beat": 7
+    },
+    {
+      "timestamp": 156.66,
+      "beat": 8
+    },
+    {
+      "timestamp": 157.26,
+      "beat": 1
+    },
+    {
+      "timestamp": 157.88,
+      "beat": 2
+    },
+    {
+      "timestamp": 158.48,
+      "beat": 3
+    },
+    {
+      "timestamp": 159.08,
+      "beat": 4
+    },
+    {
+      "timestamp": 159.72,
+      "beat": 5
+    },
+    {
+      "timestamp": 160.34,
+      "beat": 6
+    },
+    {
+      "timestamp": 160.94,
+      "beat": 7
+    },
+    {
+      "timestamp": 161.56,
+      "beat": 8
+    },
+    {
+      "timestamp": 162.16,
+      "beat": 1
+    },
+    {
+      "timestamp": 162.76,
+      "beat": 2
+    },
+    {
+      "timestamp": 163.36,
+      "beat": 3
+    },
+    {
+      "timestamp": 164.0,
+      "beat": 4
+    },
+    {
+      "timestamp": 164.62,
+      "beat": 5
+    },
+    {
+      "timestamp": 165.22,
+      "beat": 6
+    },
+    {
+      "timestamp": 165.84,
+      "beat": 7
+    },
+    {
+      "timestamp": 166.46,
+      "beat": 8
+    },
+    {
+      "timestamp": 167.06,
+      "beat": 1
+    },
+    {
+      "timestamp": 167.68,
+      "beat": 2
+    },
+    {
+      "timestamp": 168.28,
+      "beat": 3
+    },
+    {
+      "timestamp": 168.86,
+      "beat": 4
+    },
+    {
+      "timestamp": 169.5,
+      "beat": 5
+    },
+    {
+      "timestamp": 170.12,
+      "beat": 6
+    },
+    {
+      "timestamp": 170.74,
+      "beat": 7
+    },
+    {
+      "timestamp": 171.36,
+      "beat": 8
+    },
+    {
+      "timestamp": 171.94,
+      "beat": 1
+    },
+    {
+      "timestamp": 172.56,
+      "beat": 2
+    },
+    {
+      "timestamp": 173.16,
+      "beat": 3
+    },
+    {
+      "timestamp": 173.8,
+      "beat": 4
+    },
+    {
+      "timestamp": 174.4,
+      "beat": 5
+    },
+    {
+      "timestamp": 175.02,
+      "beat": 6
+    },
+    {
+      "timestamp": 175.64,
+      "beat": 7
+    },
+    {
+      "timestamp": 176.24,
+      "beat": 8
+    },
+    {
+      "timestamp": 176.86,
+      "beat": 1
+    },
+    {
+      "timestamp": 177.46,
+      "beat": 2
+    },
+    {
+      "timestamp": 178.08,
+      "beat": 3
+    },
+    {
+      "timestamp": 178.7,
+      "beat": 4
+    },
+    {
+      "timestamp": 179.3,
+      "beat": 5
+    },
+    {
+      "timestamp": 179.92,
+      "beat": 6
+    },
+    {
+      "timestamp": 180.54,
+      "beat": 7
+    },
+    {
+      "timestamp": 181.16,
+      "beat": 8
+    },
+    {
+      "timestamp": 181.8,
+      "beat": 1
+    }
+  ],
+  "metadata": {
+    "songTitle": "El Amor Que Espere (BeatNet)",
+    "artist": "Leoni Torres, Eddy K",
+    "danceStyle": "salsa",
+    "youtubeId": "CEsip93GxdA",
+    "bpm": 97.97,
+    "difficulty": "medium"
+  }
+}

@@ -11,6 +11,7 @@ import Visualizer from "./components/Visualizer";
 import GameCanvas from "./components/GameCanvas";
 import RoadmapScrubber from "./components/RoadmapScrubber";
 import DevDashboard from "./components/DevDashboard";
+import StemMixer from "./components/StemMixer";
 
 const DevCalibrator = lazy(() => {
   if (isDevMode) {
@@ -45,10 +46,12 @@ export default function App() {
   // Song Selection States
   const [currentSong, setCurrentSong] = useState(null);
   const [loadingSong, setLoadingSong] = useState(false);
+  const [activeTracker, setActiveTracker] = useState("default");
   const [introStart, setIntroStart] = useState(0.0);
   const [introEnd, setIntroEnd] = useState(0.0);
   const [videoDuration, setVideoDuration] = useState(300.0);
   const [breaks, setBreaks] = useState([]);
+  const [mixerActive, setMixerActive] = useState(false);
 
   const playerRef = useRef(null);
   const lastSeekTimeRef = useRef(0);
@@ -175,18 +178,34 @@ export default function App() {
   }, [currentSong]);
 
   const handleSelectSong = (song) => {
-    setLoadingSong(true);
-
-    // Clear all existing song-related state
-    setSongData(null);
-    setOriginalSongData(null);
-    setCalibratedSongData(null);
-    setBreaks([]);
     setMode("learn"); // Reset to Learn Mode
+    setActiveTracker("default");
+    setMixerActive(false);
+    setCurrentSong(song);
+  };
 
-    fetch(import.meta.env.BASE_URL + `songs/${song.youtubeId}.json`)
+  // Fetch song beatmap dynamically when song or active tracker changes
+  useEffect(() => {
+    if (!currentSong) {
+      setSongData(null);
+      setOriginalSongData(null);
+      setCalibratedSongData(null);
+      setBreaks([]);
+      return;
+    }
+
+    setLoadingSong(true);
+    
+    // Choose filename based on activeTracker
+    let filename = `${currentSong.youtubeId}.json`;
+    if (activeTracker !== "default") {
+      filename = `${currentSong.youtubeId}_${activeTracker}.json`;
+    }
+
+    console.log(`[App] Fetching beatmap: ${filename}`);
+    fetch(import.meta.env.BASE_URL + `songs/${filename}`)
       .then((res) => {
-        if (!res.ok) throw new Error("Beatmap load failed");
+        if (!res.ok) throw new Error(`Beatmap load failed for ${filename}`);
         return res.json();
       })
       .then((data) => {
@@ -197,18 +216,15 @@ export default function App() {
         setIntroStart(data.metadata?.introStart || 0.0);
         setIntroEnd(data.metadata?.introEnd || 0.0);
         setBreaks(data.breaks || []);
-
-        setCurrentSong(song);
         setLoadingSong(false);
-
-        console.log("[App] Loaded advanced beatmap successfully for:", data.metadata.songTitle);
+        console.log("[App] Loaded beatmap successfully from:", filename);
       })
       .catch((err) => {
         console.error("[App] Failed to load song beatmap:", err);
         setLoadingSong(false);
         showToast("❌ Failed to load song beatmap.");
       });
-  };
+  }, [currentSong, activeTracker]);
 
   const handleBackToCatalog = () => {
     // Stop the video player if playing
@@ -228,6 +244,7 @@ export default function App() {
     setIntroEnd(0.0);
     setBreaks([]);
     setVideoDuration(300.0);
+    setMixerActive(false);
   };
 
   const throttledSeek = (timeSec, isFinal = false) => {
@@ -610,55 +627,113 @@ export default function App() {
             </Suspense>
           ) : (
             <div className="left-workspace-column">
-                
-              {/* Defensive IFrame Player & Overlay Protection */}
-              <div className="video-wrapper">
-                <div key={songData?.metadata?.youtubeId || "yt-player"} id="yt-player" ref={ytPlayerRefCallback}></div>
-                <AudioShield onPlayToggle={handlePlayToggle} />
+              {/* Monochromatic Tabs for Visualizer vs Mixer */}
+              <div className="tabs-container" style={{ display: "flex", gap: "10px", marginBottom: "16px", width: "100%" }}>
+                <button
+                  className={`btn-tab ${!mixerActive ? "active" : ""}`}
+                  onClick={() => setMixerActive(false)}
+                  style={{
+                    flex: 1,
+                    padding: "10px 14px",
+                    borderRadius: "10px",
+                    border: !mixerActive ? "1px solid #ffffff" : "1px solid rgba(255, 255, 255, 0.1)",
+                    background: !mixerActive ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.2)",
+                    color: !mixerActive ? "#ffffff" : "#a1a1aa",
+                    fontSize: "0.85rem",
+                    fontWeight: "800",
+                    cursor: "pointer",
+                    transition: "all 0.2s"
+                  }}
+                >
+                  📺 Beat Visualizer
+                </button>
+                <button
+                  className={`btn-tab ${mixerActive ? "active" : ""}`}
+                  onClick={() => {
+                    setMixerActive(true);
+                    if (player && typeof player.pauseVideo === "function") {
+                      try {
+                        player.pauseVideo();
+                      } catch (e) {}
+                    }
+                  }}
+                  style={{
+                    flex: 1,
+                    padding: "10px 14px",
+                    borderRadius: "10px",
+                    border: mixerActive ? "1px solid #ffffff" : "1px solid rgba(255, 255, 255, 0.1)",
+                    background: mixerActive ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.2)",
+                    color: mixerActive ? "#ffffff" : "#a1a1aa",
+                    fontSize: "0.85rem",
+                    fontWeight: "800",
+                    cursor: "pointer",
+                    transition: "all 0.2s"
+                  }}
+                >
+                  🎛️ Stem Mixer Console
+                </button>
               </div>
 
-              {/* Dynamic Interface: Learn Mode beats pulses OR Practice Mode gamified tapping zone */}
-              {mode === "practice" ? (
-                <GameCanvas 
-                  key={calibratedSongData?.metadata?.youtubeId || songData?.metadata?.youtubeId}
-                  songData={calibratedSongData || songData}
-                  currentTime={currentTime}
-                  isPlaying={isActuallyPlaying}
-                  onPlayToggle={handlePlayToggle}
+              {mixerActive ? (
+                <StemMixer 
+                  song={currentSong} 
+                  onBackToCatalog={handleBackToCatalog} 
                 />
               ) : (
-                <Visualizer 
-                  danceStyle={songData?.metadata?.danceStyle || "salsa"}
-                  currentTime={currentTime}
-                  introEnd={introEnd}
-                  currentBeat={currentBeat}
-                  activeSection={activeSection}
-                  activeBreak={activeBreak}
-                  isPlaying={isActuallyPlaying}
-                />
+                <>
+                  {/* Defensive IFrame Player & Overlay Protection */}
+                  <div className="video-wrapper">
+                    <div key={songData?.metadata?.youtubeId || "yt-player"} id="yt-player" ref={ytPlayerRefCallback}></div>
+                    <AudioShield onPlayToggle={handlePlayToggle} />
+                  </div>
+
+                  {/* Dynamic Interface: Learn Mode beats pulses OR Practice Mode gamified tapping zone */}
+                  {mode === "practice" ? (
+                    <GameCanvas 
+                      key={calibratedSongData?.metadata?.youtubeId || songData?.metadata?.youtubeId}
+                      songData={calibratedSongData || songData}
+                      currentTime={currentTime}
+                      isPlaying={isActuallyPlaying}
+                      onPlayToggle={handlePlayToggle}
+                    />
+                  ) : (
+                    <Visualizer 
+                      danceStyle={songData?.metadata?.danceStyle || "salsa"}
+                      currentTime={currentTime}
+                      introEnd={introEnd}
+                      currentBeat={currentBeat}
+                      activeSection={activeSection}
+                      activeBreak={activeBreak}
+                      isPlaying={isActuallyPlaying}
+                    />
+                  )}
+
+                  {/* Segmented Roadmap Progress Scrubber */}
+                  <RoadmapScrubber
+                    currentTime={currentTime}
+                    videoDuration={videoDuration}
+                    introStart={introStart}
+                    introEnd={introEnd}
+                    nextSection={nextSection}
+                    timeToNextSection={timeToNextSection}
+                    sectionsList={sectionsList}
+                    breaks={breaks}
+                    onSeek={throttledSeek}
+                  />
+
+                  {/* Unified Touch Controlbar */}
+                  <ControlBar 
+                    isActuallyPlaying={isActuallyPlaying}
+                    onPlayToggle={handlePlayToggle}
+                    playbackRate={playbackRate}
+                    onSpeedChange={handleSpeedChange}
+                    onRewind={handleRewind}
+                    activeTracker={activeTracker}
+                    onTrackerChange={setActiveTracker}
+                    hasMultipleTrackers={true}
+                  />
+                </>
               )}
-
-              {/* Segmented Roadmap Progress Scrubber */}
-              <RoadmapScrubber
-                currentTime={currentTime}
-                videoDuration={videoDuration}
-                introStart={introStart}
-                introEnd={introEnd}
-                nextSection={nextSection}
-                timeToNextSection={timeToNextSection}
-                sectionsList={sectionsList}
-                breaks={breaks}
-                onSeek={throttledSeek}
-              />
-
-              {/* Unified Touch Controlbar */}
-              <ControlBar 
-                isActuallyPlaying={isActuallyPlaying}
-                onPlayToggle={handlePlayToggle}
-                playbackRate={playbackRate}
-                onSpeedChange={handleSpeedChange}
-                onRewind={handleRewind}
-              />
             </div>
           )}
         </div>

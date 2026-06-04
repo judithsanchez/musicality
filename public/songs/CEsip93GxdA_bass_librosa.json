@@ -1,0 +1,1139 @@
+{
+  "id": "song-CEsip93GxdA-bass-librosa",
+  "title": "El Amor Que Espere (Bass - Librosa)",
+  "artist": "Leoni Torres, Eddy K",
+  "youtubeId": "CEsip93GxdA",
+  "difficulty": "medium",
+  "bpm": 99.38,
+  "isCalibrated": false,
+  "beats": [
+    {
+      "timestamp": 8.545,
+      "beat": 1
+    },
+    {
+      "timestamp": 9.149,
+      "beat": 2
+    },
+    {
+      "timestamp": 9.752,
+      "beat": 3
+    },
+    {
+      "timestamp": 10.356,
+      "beat": 4
+    },
+    {
+      "timestamp": 10.983,
+      "beat": 5
+    },
+    {
+      "timestamp": 11.61,
+      "beat": 6
+    },
+    {
+      "timestamp": 12.214,
+      "beat": 7
+    },
+    {
+      "timestamp": 12.841,
+      "beat": 8
+    },
+    {
+      "timestamp": 13.444,
+      "beat": 1
+    },
+    {
+      "timestamp": 14.048,
+      "beat": 2
+    },
+    {
+      "timestamp": 14.652,
+      "beat": 3
+    },
+    {
+      "timestamp": 15.279,
+      "beat": 4
+    },
+    {
+      "timestamp": 15.906,
+      "beat": 5
+    },
+    {
+      "timestamp": 16.509,
+      "beat": 6
+    },
+    {
+      "timestamp": 17.113,
+      "beat": 7
+    },
+    {
+      "timestamp": 17.717,
+      "beat": 8
+    },
+    {
+      "timestamp": 18.344,
+      "beat": 1
+    },
+    {
+      "timestamp": 18.947,
+      "beat": 2
+    },
+    {
+      "timestamp": 19.574,
+      "beat": 3
+    },
+    {
+      "timestamp": 20.178,
+      "beat": 4
+    },
+    {
+      "timestamp": 20.759,
+      "beat": 5
+    },
+    {
+      "timestamp": 21.339,
+      "beat": 6
+    },
+    {
+      "timestamp": 21.92,
+      "beat": 7
+    },
+    {
+      "timestamp": 22.5,
+      "beat": 8
+    },
+    {
+      "timestamp": 23.057,
+      "beat": 1
+    },
+    {
+      "timestamp": 23.591,
+      "beat": 2
+    },
+    {
+      "timestamp": 24.149,
+      "beat": 3
+    },
+    {
+      "timestamp": 24.752,
+      "beat": 4
+    },
+    {
+      "timestamp": 25.356,
+      "beat": 5
+    },
+    {
+      "timestamp": 25.983,
+      "beat": 6
+    },
+    {
+      "timestamp": 26.587,
+      "beat": 7
+    },
+    {
+      "timestamp": 27.214,
+      "beat": 8
+    },
+    {
+      "timestamp": 27.818,
+      "beat": 1
+    },
+    {
+      "timestamp": 28.444,
+      "beat": 2
+    },
+    {
+      "timestamp": 29.048,
+      "beat": 3
+    },
+    {
+      "timestamp": 29.652,
+      "beat": 4
+    },
+    {
+      "timestamp": 30.279,
+      "beat": 5
+    },
+    {
+      "timestamp": 30.883,
+      "beat": 6
+    },
+    {
+      "timestamp": 31.486,
+      "beat": 7
+    },
+    {
+      "timestamp": 32.09,
+      "beat": 8
+    },
+    {
+      "timestamp": 32.717,
+      "beat": 1
+    },
+    {
+      "timestamp": 33.344,
+      "beat": 2
+    },
+    {
+      "timestamp": 33.948,
+      "beat": 3
+    },
+    {
+      "timestamp": 34.551,
+      "beat": 4
+    },
+    {
+      "timestamp": 35.178,
+      "beat": 5
+    },
+    {
+      "timestamp": 35.782,
+      "beat": 6
+    },
+    {
+      "timestamp": 36.409,
+      "beat": 7
+    },
+    {
+      "timestamp": 37.013,
+      "beat": 8
+    },
+    {
+      "timestamp": 37.616,
+      "beat": 1
+    },
+    {
+      "timestamp": 38.22,
+      "beat": 2
+    },
+    {
+      "timestamp": 38.824,
+      "beat": 3
+    },
+    {
+      "timestamp": 39.451,
+      "beat": 4
+    },
+    {
+      "timestamp": 40.054,
+      "beat": 5
+    },
+    {
+      "timestamp": 40.681,
+      "beat": 6
+    },
+    {
+      "timestamp": 41.285,
+      "beat": 7
+    },
+    {
+      "timestamp": 41.912,
+      "beat": 8
+    },
+    {
+      "timestamp": 42.516,
+      "beat": 1
+    },
+    {
+      "timestamp": 43.119,
+      "beat": 2
+    },
+    {
+      "timestamp": 43.723,
+      "beat": 3
+    },
+    {
+      "timestamp": 44.35,
+      "beat": 4
+    },
+    {
+      "timestamp": 44.954,
+      "beat": 5
+    },
+    {
+      "timestamp": 45.581,
+      "beat": 6
+    },
+    {
+      "timestamp": 46.184,
+      "beat": 7
+    },
+    {
+      "timestamp": 46.811,
+      "beat": 8
+    },
+    {
+      "timestamp": 47.392,
+      "beat": 1
+    },
+    {
+      "timestamp": 48.019,
+      "beat": 2
+    },
+    {
+      "timestamp": 48.646,
+      "beat": 3
+    },
+    {
+      "timestamp": 49.25,
+      "beat": 4
+    },
+    {
+      "timestamp": 49.876,
+      "beat": 5
+    },
+    {
+      "timestamp": 50.48,
+      "beat": 6
+    },
+    {
+      "timestamp": 51.084,
+      "beat": 7
+    },
+    {
+      "timestamp": 51.688,
+      "beat": 8
+    },
+    {
+      "timestamp": 52.315,
+      "beat": 1
+    },
+    {
+      "timestamp": 53.011,
+      "beat": 2
+    },
+    {
+      "timestamp": 53.685,
+      "beat": 3
+    },
+    {
+      "timestamp": 54.219,
+      "beat": 4
+    },
+    {
+      "timestamp": 54.753,
+      "beat": 5
+    },
+    {
+      "timestamp": 55.356,
+      "beat": 6
+    },
+    {
+      "timestamp": 55.96,
+      "beat": 7
+    },
+    {
+      "timestamp": 56.587,
+      "beat": 8
+    },
+    {
+      "timestamp": 57.214,
+      "beat": 1
+    },
+    {
+      "timestamp": 57.818,
+      "beat": 2
+    },
+    {
+      "timestamp": 58.421,
+      "beat": 3
+    },
+    {
+      "timestamp": 59.048,
+      "beat": 4
+    },
+    {
+      "timestamp": 59.652,
+      "beat": 5
+    },
+    {
+      "timestamp": 60.279,
+      "beat": 6
+    },
+    {
+      "timestamp": 60.883,
+      "beat": 7
+    },
+    {
+      "timestamp": 61.486,
+      "beat": 8
+    },
+    {
+      "timestamp": 62.113,
+      "beat": 1
+    },
+    {
+      "timestamp": 62.717,
+      "beat": 2
+    },
+    {
+      "timestamp": 63.321,
+      "beat": 3
+    },
+    {
+      "timestamp": 63.925,
+      "beat": 4
+    },
+    {
+      "timestamp": 64.551,
+      "beat": 5
+    },
+    {
+      "timestamp": 65.155,
+      "beat": 6
+    },
+    {
+      "timestamp": 65.782,
+      "beat": 7
+    },
+    {
+      "timestamp": 66.386,
+      "beat": 8
+    },
+    {
+      "timestamp": 67.013,
+      "beat": 1
+    },
+    {
+      "timestamp": 67.709,
+      "beat": 2
+    },
+    {
+      "timestamp": 68.383,
+      "beat": 3
+    },
+    {
+      "timestamp": 69.149,
+      "beat": 4
+    },
+    {
+      "timestamp": 69.776,
+      "beat": 5
+    },
+    {
+      "timestamp": 70.38,
+      "beat": 6
+    },
+    {
+      "timestamp": 70.983,
+      "beat": 7
+    },
+    {
+      "timestamp": 71.587,
+      "beat": 8
+    },
+    {
+      "timestamp": 72.121,
+      "beat": 1
+    },
+    {
+      "timestamp": 72.655,
+      "beat": 2
+    },
+    {
+      "timestamp": 73.213,
+      "beat": 3
+    },
+    {
+      "timestamp": 73.747,
+      "beat": 4
+    },
+    {
+      "timestamp": 74.35,
+      "beat": 5
+    },
+    {
+      "timestamp": 74.954,
+      "beat": 6
+    },
+    {
+      "timestamp": 75.581,
+      "beat": 7
+    },
+    {
+      "timestamp": 76.185,
+      "beat": 8
+    },
+    {
+      "timestamp": 76.812,
+      "beat": 1
+    },
+    {
+      "timestamp": 77.415,
+      "beat": 2
+    },
+    {
+      "timestamp": 78.019,
+      "beat": 3
+    },
+    {
+      "timestamp": 78.646,
+      "beat": 4
+    },
+    {
+      "timestamp": 79.25,
+      "beat": 5
+    },
+    {
+      "timestamp": 79.853,
+      "beat": 6
+    },
+    {
+      "timestamp": 80.457,
+      "beat": 7
+    },
+    {
+      "timestamp": 81.084,
+      "beat": 8
+    },
+    {
+      "timestamp": 81.711,
+      "beat": 1
+    },
+    {
+      "timestamp": 82.315,
+      "beat": 2
+    },
+    {
+      "timestamp": 82.918,
+      "beat": 3
+    },
+    {
+      "timestamp": 83.522,
+      "beat": 4
+    },
+    {
+      "timestamp": 84.149,
+      "beat": 5
+    },
+    {
+      "timestamp": 84.753,
+      "beat": 6
+    },
+    {
+      "timestamp": 85.38,
+      "beat": 7
+    },
+    {
+      "timestamp": 85.983,
+      "beat": 8
+    },
+    {
+      "timestamp": 86.587,
+      "beat": 1
+    },
+    {
+      "timestamp": 87.214,
+      "beat": 2
+    },
+    {
+      "timestamp": 87.818,
+      "beat": 3
+    },
+    {
+      "timestamp": 88.422,
+      "beat": 4
+    },
+    {
+      "timestamp": 89.049,
+      "beat": 5
+    },
+    {
+      "timestamp": 89.652,
+      "beat": 6
+    },
+    {
+      "timestamp": 90.279,
+      "beat": 7
+    },
+    {
+      "timestamp": 90.883,
+      "beat": 8
+    },
+    {
+      "timestamp": 91.487,
+      "beat": 1
+    },
+    {
+      "timestamp": 92.09,
+      "beat": 2
+    },
+    {
+      "timestamp": 92.717,
+      "beat": 3
+    },
+    {
+      "timestamp": 93.344,
+      "beat": 4
+    },
+    {
+      "timestamp": 93.948,
+      "beat": 5
+    },
+    {
+      "timestamp": 94.552,
+      "beat": 6
+    },
+    {
+      "timestamp": 95.179,
+      "beat": 7
+    },
+    {
+      "timestamp": 95.782,
+      "beat": 8
+    },
+    {
+      "timestamp": 96.386,
+      "beat": 1
+    },
+    {
+      "timestamp": 96.99,
+      "beat": 2
+    },
+    {
+      "timestamp": 97.617,
+      "beat": 3
+    },
+    {
+      "timestamp": 98.244,
+      "beat": 4
+    },
+    {
+      "timestamp": 98.824,
+      "beat": 5
+    },
+    {
+      "timestamp": 99.451,
+      "beat": 6
+    },
+    {
+      "timestamp": 100.078,
+      "beat": 7
+    },
+    {
+      "timestamp": 100.682,
+      "beat": 8
+    },
+    {
+      "timestamp": 101.285,
+      "beat": 1
+    },
+    {
+      "timestamp": 101.912,
+      "beat": 2
+    },
+    {
+      "timestamp": 102.516,
+      "beat": 3
+    },
+    {
+      "timestamp": 103.143,
+      "beat": 4
+    },
+    {
+      "timestamp": 103.724,
+      "beat": 5
+    },
+    {
+      "timestamp": 104.35,
+      "beat": 6
+    },
+    {
+      "timestamp": 104.954,
+      "beat": 7
+    },
+    {
+      "timestamp": 105.581,
+      "beat": 8
+    },
+    {
+      "timestamp": 106.208,
+      "beat": 1
+    },
+    {
+      "timestamp": 106.812,
+      "beat": 2
+    },
+    {
+      "timestamp": 107.416,
+      "beat": 3
+    },
+    {
+      "timestamp": 108.019,
+      "beat": 4
+    },
+    {
+      "timestamp": 108.623,
+      "beat": 5
+    },
+    {
+      "timestamp": 109.227,
+      "beat": 6
+    },
+    {
+      "timestamp": 109.854,
+      "beat": 7
+    },
+    {
+      "timestamp": 110.481,
+      "beat": 8
+    },
+    {
+      "timestamp": 111.084,
+      "beat": 1
+    },
+    {
+      "timestamp": 111.711,
+      "beat": 2
+    },
+    {
+      "timestamp": 112.315,
+      "beat": 3
+    },
+    {
+      "timestamp": 112.919,
+      "beat": 4
+    },
+    {
+      "timestamp": 113.522,
+      "beat": 5
+    },
+    {
+      "timestamp": 114.149,
+      "beat": 6
+    },
+    {
+      "timestamp": 114.753,
+      "beat": 7
+    },
+    {
+      "timestamp": 115.38,
+      "beat": 8
+    },
+    {
+      "timestamp": 115.984,
+      "beat": 1
+    },
+    {
+      "timestamp": 116.587,
+      "beat": 2
+    },
+    {
+      "timestamp": 117.214,
+      "beat": 3
+    },
+    {
+      "timestamp": 117.818,
+      "beat": 4
+    },
+    {
+      "timestamp": 118.422,
+      "beat": 5
+    },
+    {
+      "timestamp": 119.049,
+      "beat": 6
+    },
+    {
+      "timestamp": 119.652,
+      "beat": 7
+    },
+    {
+      "timestamp": 120.256,
+      "beat": 8
+    },
+    {
+      "timestamp": 120.883,
+      "beat": 1
+    },
+    {
+      "timestamp": 121.649,
+      "beat": 2
+    },
+    {
+      "timestamp": 122.253,
+      "beat": 3
+    },
+    {
+      "timestamp": 122.717,
+      "beat": 4
+    },
+    {
+      "timestamp": 123.321,
+      "beat": 5
+    },
+    {
+      "timestamp": 123.948,
+      "beat": 6
+    },
+    {
+      "timestamp": 124.552,
+      "beat": 7
+    },
+    {
+      "timestamp": 125.179,
+      "beat": 8
+    },
+    {
+      "timestamp": 125.782,
+      "beat": 1
+    },
+    {
+      "timestamp": 126.386,
+      "beat": 2
+    },
+    {
+      "timestamp": 127.013,
+      "beat": 3
+    },
+    {
+      "timestamp": 127.617,
+      "beat": 4
+    },
+    {
+      "timestamp": 128.221,
+      "beat": 5
+    },
+    {
+      "timestamp": 128.848,
+      "beat": 6
+    },
+    {
+      "timestamp": 129.451,
+      "beat": 7
+    },
+    {
+      "timestamp": 130.055,
+      "beat": 8
+    },
+    {
+      "timestamp": 130.682,
+      "beat": 1
+    },
+    {
+      "timestamp": 131.286,
+      "beat": 2
+    },
+    {
+      "timestamp": 131.889,
+      "beat": 3
+    },
+    {
+      "timestamp": 132.516,
+      "beat": 4
+    },
+    {
+      "timestamp": 133.12,
+      "beat": 5
+    },
+    {
+      "timestamp": 133.747,
+      "beat": 6
+    },
+    {
+      "timestamp": 134.351,
+      "beat": 7
+    },
+    {
+      "timestamp": 134.954,
+      "beat": 8
+    },
+    {
+      "timestamp": 135.581,
+      "beat": 1
+    },
+    {
+      "timestamp": 136.185,
+      "beat": 2
+    },
+    {
+      "timestamp": 136.789,
+      "beat": 3
+    },
+    {
+      "timestamp": 137.416,
+      "beat": 4
+    },
+    {
+      "timestamp": 138.019,
+      "beat": 5
+    },
+    {
+      "timestamp": 138.646,
+      "beat": 6
+    },
+    {
+      "timestamp": 139.25,
+      "beat": 7
+    },
+    {
+      "timestamp": 139.854,
+      "beat": 8
+    },
+    {
+      "timestamp": 140.458,
+      "beat": 1
+    },
+    {
+      "timestamp": 141.084,
+      "beat": 2
+    },
+    {
+      "timestamp": 141.711,
+      "beat": 3
+    },
+    {
+      "timestamp": 142.315,
+      "beat": 4
+    },
+    {
+      "timestamp": 142.919,
+      "beat": 5
+    },
+    {
+      "timestamp": 143.523,
+      "beat": 6
+    },
+    {
+      "timestamp": 144.149,
+      "beat": 7
+    },
+    {
+      "timestamp": 144.753,
+      "beat": 8
+    },
+    {
+      "timestamp": 145.357,
+      "beat": 1
+    },
+    {
+      "timestamp": 145.984,
+      "beat": 2
+    },
+    {
+      "timestamp": 146.611,
+      "beat": 3
+    },
+    {
+      "timestamp": 147.215,
+      "beat": 4
+    },
+    {
+      "timestamp": 147.818,
+      "beat": 5
+    },
+    {
+      "timestamp": 148.422,
+      "beat": 6
+    },
+    {
+      "timestamp": 149.049,
+      "beat": 7
+    },
+    {
+      "timestamp": 149.653,
+      "beat": 8
+    },
+    {
+      "timestamp": 150.256,
+      "beat": 1
+    },
+    {
+      "timestamp": 150.883,
+      "beat": 2
+    },
+    {
+      "timestamp": 151.487,
+      "beat": 3
+    },
+    {
+      "timestamp": 152.091,
+      "beat": 4
+    },
+    {
+      "timestamp": 152.718,
+      "beat": 5
+    },
+    {
+      "timestamp": 153.321,
+      "beat": 6
+    },
+    {
+      "timestamp": 153.948,
+      "beat": 7
+    },
+    {
+      "timestamp": 154.552,
+      "beat": 8
+    },
+    {
+      "timestamp": 155.179,
+      "beat": 1
+    },
+    {
+      "timestamp": 155.783,
+      "beat": 2
+    },
+    {
+      "timestamp": 156.386,
+      "beat": 3
+    },
+    {
+      "timestamp": 157.013,
+      "beat": 4
+    },
+    {
+      "timestamp": 157.617,
+      "beat": 5
+    },
+    {
+      "timestamp": 158.221,
+      "beat": 6
+    },
+    {
+      "timestamp": 158.824,
+      "beat": 7
+    },
+    {
+      "timestamp": 159.451,
+      "beat": 8
+    },
+    {
+      "timestamp": 160.055,
+      "beat": 1
+    },
+    {
+      "timestamp": 160.682,
+      "beat": 2
+    },
+    {
+      "timestamp": 161.309,
+      "beat": 3
+    },
+    {
+      "timestamp": 161.913,
+      "beat": 4
+    },
+    {
+      "timestamp": 162.516,
+      "beat": 5
+    },
+    {
+      "timestamp": 163.12,
+      "beat": 6
+    },
+    {
+      "timestamp": 163.747,
+      "beat": 7
+    },
+    {
+      "timestamp": 164.351,
+      "beat": 8
+    },
+    {
+      "timestamp": 164.955,
+      "beat": 1
+    },
+    {
+      "timestamp": 165.558,
+      "beat": 2
+    },
+    {
+      "timestamp": 166.162,
+      "beat": 3
+    },
+    {
+      "timestamp": 166.789,
+      "beat": 4
+    },
+    {
+      "timestamp": 167.393,
+      "beat": 5
+    },
+    {
+      "timestamp": 168.02,
+      "beat": 6
+    },
+    {
+      "timestamp": 168.647,
+      "beat": 7
+    },
+    {
+      "timestamp": 169.227,
+      "beat": 8
+    },
+    {
+      "timestamp": 169.854,
+      "beat": 1
+    },
+    {
+      "timestamp": 170.481,
+      "beat": 2
+    },
+    {
+      "timestamp": 171.085,
+      "beat": 3
+    },
+    {
+      "timestamp": 171.688,
+      "beat": 4
+    },
+    {
+      "timestamp": 172.315,
+      "beat": 5
+    },
+    {
+      "timestamp": 172.919,
+      "beat": 6
+    },
+    {
+      "timestamp": 173.546,
+      "beat": 7
+    },
+    {
+      "timestamp": 174.15,
+      "beat": 8
+    },
+    {
+      "timestamp": 174.753,
+      "beat": 1
+    },
+    {
+      "timestamp": 175.38,
+      "beat": 2
+    },
+    {
+      "timestamp": 175.984,
+      "beat": 3
+    },
+    {
+      "timestamp": 176.588,
+      "beat": 4
+    },
+    {
+      "timestamp": 177.191,
+      "beat": 5
+    },
+    {
+      "timestamp": 177.818,
+      "beat": 6
+    },
+    {
+      "timestamp": 178.445,
+      "beat": 7
+    },
+    {
+      "timestamp": 179.049,
+      "beat": 8
+    }
+  ],
+  "metadata": {
+    "songTitle": "El Amor Que Espere (Bass - Librosa)",
+    "artist": "Leoni Torres, Eddy K",
+    "danceStyle": "salsa",
+    "youtubeId": "CEsip93GxdA",
+    "bpm": 99.38,
+    "difficulty": "medium"
+  }
+}

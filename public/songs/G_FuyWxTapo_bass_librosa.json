@@ -1,0 +1,1735 @@
+{
+  "id": "song-G_FuyWxTapo-bass-librosa",
+  "title": "Chacha (Bass - Librosa)",
+  "artist": "Jean & Alex, Pinto Picasso",
+  "youtubeId": "G_FuyWxTapo",
+  "difficulty": "medium",
+  "bpm": 129.2,
+  "isCalibrated": false,
+  "beats": [
+    {
+      "timestamp": 7.291,
+      "beat": 1
+    },
+    {
+      "timestamp": 7.779,
+      "beat": 2
+    },
+    {
+      "timestamp": 8.266,
+      "beat": 3
+    },
+    {
+      "timestamp": 8.731,
+      "beat": 4
+    },
+    {
+      "timestamp": 9.195,
+      "beat": 5
+    },
+    {
+      "timestamp": 9.683,
+      "beat": 6
+    },
+    {
+      "timestamp": 10.147,
+      "beat": 7
+    },
+    {
+      "timestamp": 10.612,
+      "beat": 8
+    },
+    {
+      "timestamp": 11.099,
+      "beat": 1
+    },
+    {
+      "timestamp": 11.587,
+      "beat": 2
+    },
+    {
+      "timestamp": 12.074,
+      "beat": 3
+    },
+    {
+      "timestamp": 12.539,
+      "beat": 4
+    },
+    {
+      "timestamp": 13.003,
+      "beat": 5
+    },
+    {
+      "timestamp": 13.491,
+      "beat": 6
+    },
+    {
+      "timestamp": 13.978,
+      "beat": 7
+    },
+    {
+      "timestamp": 14.466,
+      "beat": 8
+    },
+    {
+      "timestamp": 14.93,
+      "beat": 1
+    },
+    {
+      "timestamp": 15.395,
+      "beat": 2
+    },
+    {
+      "timestamp": 15.859,
+      "beat": 3
+    },
+    {
+      "timestamp": 16.347,
+      "beat": 4
+    },
+    {
+      "timestamp": 16.811,
+      "beat": 5
+    },
+    {
+      "timestamp": 17.276,
+      "beat": 6
+    },
+    {
+      "timestamp": 17.763,
+      "beat": 7
+    },
+    {
+      "timestamp": 18.251,
+      "beat": 8
+    },
+    {
+      "timestamp": 18.715,
+      "beat": 1
+    },
+    {
+      "timestamp": 19.18,
+      "beat": 2
+    },
+    {
+      "timestamp": 19.667,
+      "beat": 3
+    },
+    {
+      "timestamp": 20.155,
+      "beat": 4
+    },
+    {
+      "timestamp": 20.619,
+      "beat": 5
+    },
+    {
+      "timestamp": 21.107,
+      "beat": 6
+    },
+    {
+      "timestamp": 21.571,
+      "beat": 7
+    },
+    {
+      "timestamp": 22.059,
+      "beat": 8
+    },
+    {
+      "timestamp": 22.523,
+      "beat": 1
+    },
+    {
+      "timestamp": 23.011,
+      "beat": 2
+    },
+    {
+      "timestamp": 23.475,
+      "beat": 3
+    },
+    {
+      "timestamp": 23.963,
+      "beat": 4
+    },
+    {
+      "timestamp": 24.427,
+      "beat": 5
+    },
+    {
+      "timestamp": 24.915,
+      "beat": 6
+    },
+    {
+      "timestamp": 25.379,
+      "beat": 7
+    },
+    {
+      "timestamp": 25.867,
+      "beat": 8
+    },
+    {
+      "timestamp": 26.331,
+      "beat": 1
+    },
+    {
+      "timestamp": 26.819,
+      "beat": 2
+    },
+    {
+      "timestamp": 27.283,
+      "beat": 3
+    },
+    {
+      "timestamp": 27.771,
+      "beat": 4
+    },
+    {
+      "timestamp": 28.235,
+      "beat": 5
+    },
+    {
+      "timestamp": 28.723,
+      "beat": 6
+    },
+    {
+      "timestamp": 29.187,
+      "beat": 7
+    },
+    {
+      "timestamp": 29.675,
+      "beat": 8
+    },
+    {
+      "timestamp": 30.14,
+      "beat": 1
+    },
+    {
+      "timestamp": 30.627,
+      "beat": 2
+    },
+    {
+      "timestamp": 31.115,
+      "beat": 3
+    },
+    {
+      "timestamp": 31.579,
+      "beat": 4
+    },
+    {
+      "timestamp": 32.067,
+      "beat": 5
+    },
+    {
+      "timestamp": 32.531,
+      "beat": 6
+    },
+    {
+      "timestamp": 33.019,
+      "beat": 7
+    },
+    {
+      "timestamp": 33.506,
+      "beat": 8
+    },
+    {
+      "timestamp": 33.971,
+      "beat": 1
+    },
+    {
+      "timestamp": 34.435,
+      "beat": 2
+    },
+    {
+      "timestamp": 34.9,
+      "beat": 3
+    },
+    {
+      "timestamp": 35.387,
+      "beat": 4
+    },
+    {
+      "timestamp": 35.875,
+      "beat": 5
+    },
+    {
+      "timestamp": 36.339,
+      "beat": 6
+    },
+    {
+      "timestamp": 36.804,
+      "beat": 7
+    },
+    {
+      "timestamp": 37.291,
+      "beat": 8
+    },
+    {
+      "timestamp": 37.779,
+      "beat": 1
+    },
+    {
+      "timestamp": 38.243,
+      "beat": 2
+    },
+    {
+      "timestamp": 38.708,
+      "beat": 3
+    },
+    {
+      "timestamp": 39.195,
+      "beat": 4
+    },
+    {
+      "timestamp": 39.683,
+      "beat": 5
+    },
+    {
+      "timestamp": 40.147,
+      "beat": 6
+    },
+    {
+      "timestamp": 40.612,
+      "beat": 7
+    },
+    {
+      "timestamp": 41.099,
+      "beat": 8
+    },
+    {
+      "timestamp": 41.587,
+      "beat": 1
+    },
+    {
+      "timestamp": 42.051,
+      "beat": 2
+    },
+    {
+      "timestamp": 42.516,
+      "beat": 3
+    },
+    {
+      "timestamp": 43.003,
+      "beat": 4
+    },
+    {
+      "timestamp": 43.468,
+      "beat": 5
+    },
+    {
+      "timestamp": 43.955,
+      "beat": 6
+    },
+    {
+      "timestamp": 44.443,
+      "beat": 7
+    },
+    {
+      "timestamp": 44.907,
+      "beat": 8
+    },
+    {
+      "timestamp": 45.395,
+      "beat": 1
+    },
+    {
+      "timestamp": 45.859,
+      "beat": 2
+    },
+    {
+      "timestamp": 46.324,
+      "beat": 3
+    },
+    {
+      "timestamp": 46.811,
+      "beat": 4
+    },
+    {
+      "timestamp": 47.276,
+      "beat": 5
+    },
+    {
+      "timestamp": 47.763,
+      "beat": 6
+    },
+    {
+      "timestamp": 48.251,
+      "beat": 7
+    },
+    {
+      "timestamp": 48.715,
+      "beat": 8
+    },
+    {
+      "timestamp": 49.203,
+      "beat": 1
+    },
+    {
+      "timestamp": 49.667,
+      "beat": 2
+    },
+    {
+      "timestamp": 50.155,
+      "beat": 3
+    },
+    {
+      "timestamp": 50.62,
+      "beat": 4
+    },
+    {
+      "timestamp": 51.084,
+      "beat": 5
+    },
+    {
+      "timestamp": 51.572,
+      "beat": 6
+    },
+    {
+      "timestamp": 52.059,
+      "beat": 7
+    },
+    {
+      "timestamp": 52.524,
+      "beat": 8
+    },
+    {
+      "timestamp": 52.988,
+      "beat": 1
+    },
+    {
+      "timestamp": 53.476,
+      "beat": 2
+    },
+    {
+      "timestamp": 53.963,
+      "beat": 3
+    },
+    {
+      "timestamp": 54.428,
+      "beat": 4
+    },
+    {
+      "timestamp": 54.915,
+      "beat": 5
+    },
+    {
+      "timestamp": 55.38,
+      "beat": 6
+    },
+    {
+      "timestamp": 55.867,
+      "beat": 7
+    },
+    {
+      "timestamp": 56.332,
+      "beat": 8
+    },
+    {
+      "timestamp": 56.819,
+      "beat": 1
+    },
+    {
+      "timestamp": 57.284,
+      "beat": 2
+    },
+    {
+      "timestamp": 57.748,
+      "beat": 3
+    },
+    {
+      "timestamp": 58.236,
+      "beat": 4
+    },
+    {
+      "timestamp": 58.723,
+      "beat": 5
+    },
+    {
+      "timestamp": 59.188,
+      "beat": 6
+    },
+    {
+      "timestamp": 59.675,
+      "beat": 7
+    },
+    {
+      "timestamp": 60.163,
+      "beat": 8
+    },
+    {
+      "timestamp": 60.627,
+      "beat": 1
+    },
+    {
+      "timestamp": 61.092,
+      "beat": 2
+    },
+    {
+      "timestamp": 61.603,
+      "beat": 3
+    },
+    {
+      "timestamp": 62.09,
+      "beat": 4
+    },
+    {
+      "timestamp": 62.578,
+      "beat": 5
+    },
+    {
+      "timestamp": 63.065,
+      "beat": 6
+    },
+    {
+      "timestamp": 63.483,
+      "beat": 7
+    },
+    {
+      "timestamp": 63.971,
+      "beat": 8
+    },
+    {
+      "timestamp": 64.435,
+      "beat": 1
+    },
+    {
+      "timestamp": 64.9,
+      "beat": 2
+    },
+    {
+      "timestamp": 65.387,
+      "beat": 3
+    },
+    {
+      "timestamp": 65.852,
+      "beat": 4
+    },
+    {
+      "timestamp": 66.339,
+      "beat": 5
+    },
+    {
+      "timestamp": 66.804,
+      "beat": 6
+    },
+    {
+      "timestamp": 67.291,
+      "beat": 7
+    },
+    {
+      "timestamp": 67.779,
+      "beat": 8
+    },
+    {
+      "timestamp": 68.243,
+      "beat": 1
+    },
+    {
+      "timestamp": 68.731,
+      "beat": 2
+    },
+    {
+      "timestamp": 69.195,
+      "beat": 3
+    },
+    {
+      "timestamp": 69.66,
+      "beat": 4
+    },
+    {
+      "timestamp": 70.147,
+      "beat": 5
+    },
+    {
+      "timestamp": 70.612,
+      "beat": 6
+    },
+    {
+      "timestamp": 71.1,
+      "beat": 7
+    },
+    {
+      "timestamp": 71.587,
+      "beat": 8
+    },
+    {
+      "timestamp": 72.052,
+      "beat": 1
+    },
+    {
+      "timestamp": 72.516,
+      "beat": 2
+    },
+    {
+      "timestamp": 73.004,
+      "beat": 3
+    },
+    {
+      "timestamp": 73.491,
+      "beat": 4
+    },
+    {
+      "timestamp": 73.956,
+      "beat": 5
+    },
+    {
+      "timestamp": 74.443,
+      "beat": 6
+    },
+    {
+      "timestamp": 74.908,
+      "beat": 7
+    },
+    {
+      "timestamp": 75.372,
+      "beat": 8
+    },
+    {
+      "timestamp": 75.86,
+      "beat": 1
+    },
+    {
+      "timestamp": 76.347,
+      "beat": 2
+    },
+    {
+      "timestamp": 76.812,
+      "beat": 3
+    },
+    {
+      "timestamp": 77.299,
+      "beat": 4
+    },
+    {
+      "timestamp": 77.764,
+      "beat": 5
+    },
+    {
+      "timestamp": 78.228,
+      "beat": 6
+    },
+    {
+      "timestamp": 78.716,
+      "beat": 7
+    },
+    {
+      "timestamp": 79.203,
+      "beat": 8
+    },
+    {
+      "timestamp": 79.668,
+      "beat": 1
+    },
+    {
+      "timestamp": 80.155,
+      "beat": 2
+    },
+    {
+      "timestamp": 80.62,
+      "beat": 3
+    },
+    {
+      "timestamp": 81.107,
+      "beat": 4
+    },
+    {
+      "timestamp": 81.572,
+      "beat": 5
+    },
+    {
+      "timestamp": 82.059,
+      "beat": 6
+    },
+    {
+      "timestamp": 82.524,
+      "beat": 7
+    },
+    {
+      "timestamp": 83.011,
+      "beat": 8
+    },
+    {
+      "timestamp": 83.476,
+      "beat": 1
+    },
+    {
+      "timestamp": 83.963,
+      "beat": 2
+    },
+    {
+      "timestamp": 84.451,
+      "beat": 3
+    },
+    {
+      "timestamp": 84.915,
+      "beat": 4
+    },
+    {
+      "timestamp": 85.403,
+      "beat": 5
+    },
+    {
+      "timestamp": 85.867,
+      "beat": 6
+    },
+    {
+      "timestamp": 86.355,
+      "beat": 7
+    },
+    {
+      "timestamp": 86.819,
+      "beat": 8
+    },
+    {
+      "timestamp": 87.284,
+      "beat": 1
+    },
+    {
+      "timestamp": 87.771,
+      "beat": 2
+    },
+    {
+      "timestamp": 88.236,
+      "beat": 3
+    },
+    {
+      "timestamp": 88.723,
+      "beat": 4
+    },
+    {
+      "timestamp": 89.188,
+      "beat": 5
+    },
+    {
+      "timestamp": 89.675,
+      "beat": 6
+    },
+    {
+      "timestamp": 90.163,
+      "beat": 7
+    },
+    {
+      "timestamp": 90.651,
+      "beat": 8
+    },
+    {
+      "timestamp": 91.115,
+      "beat": 1
+    },
+    {
+      "timestamp": 91.58,
+      "beat": 2
+    },
+    {
+      "timestamp": 92.067,
+      "beat": 3
+    },
+    {
+      "timestamp": 92.532,
+      "beat": 4
+    },
+    {
+      "timestamp": 93.019,
+      "beat": 5
+    },
+    {
+      "timestamp": 93.507,
+      "beat": 6
+    },
+    {
+      "timestamp": 93.994,
+      "beat": 7
+    },
+    {
+      "timestamp": 94.459,
+      "beat": 8
+    },
+    {
+      "timestamp": 94.923,
+      "beat": 1
+    },
+    {
+      "timestamp": 95.388,
+      "beat": 2
+    },
+    {
+      "timestamp": 95.875,
+      "beat": 3
+    },
+    {
+      "timestamp": 96.34,
+      "beat": 4
+    },
+    {
+      "timestamp": 96.827,
+      "beat": 5
+    },
+    {
+      "timestamp": 97.292,
+      "beat": 6
+    },
+    {
+      "timestamp": 97.779,
+      "beat": 7
+    },
+    {
+      "timestamp": 98.244,
+      "beat": 8
+    },
+    {
+      "timestamp": 98.731,
+      "beat": 1
+    },
+    {
+      "timestamp": 99.196,
+      "beat": 2
+    },
+    {
+      "timestamp": 99.683,
+      "beat": 3
+    },
+    {
+      "timestamp": 100.148,
+      "beat": 4
+    },
+    {
+      "timestamp": 100.635,
+      "beat": 5
+    },
+    {
+      "timestamp": 101.1,
+      "beat": 6
+    },
+    {
+      "timestamp": 101.587,
+      "beat": 7
+    },
+    {
+      "timestamp": 102.052,
+      "beat": 8
+    },
+    {
+      "timestamp": 102.539,
+      "beat": 1
+    },
+    {
+      "timestamp": 103.004,
+      "beat": 2
+    },
+    {
+      "timestamp": 103.491,
+      "beat": 3
+    },
+    {
+      "timestamp": 103.979,
+      "beat": 4
+    },
+    {
+      "timestamp": 104.467,
+      "beat": 5
+    },
+    {
+      "timestamp": 104.931,
+      "beat": 6
+    },
+    {
+      "timestamp": 105.395,
+      "beat": 7
+    },
+    {
+      "timestamp": 105.86,
+      "beat": 8
+    },
+    {
+      "timestamp": 106.347,
+      "beat": 1
+    },
+    {
+      "timestamp": 106.812,
+      "beat": 2
+    },
+    {
+      "timestamp": 107.299,
+      "beat": 3
+    },
+    {
+      "timestamp": 107.764,
+      "beat": 4
+    },
+    {
+      "timestamp": 108.275,
+      "beat": 5
+    },
+    {
+      "timestamp": 108.739,
+      "beat": 6
+    },
+    {
+      "timestamp": 109.227,
+      "beat": 7
+    },
+    {
+      "timestamp": 109.691,
+      "beat": 8
+    },
+    {
+      "timestamp": 110.155,
+      "beat": 1
+    },
+    {
+      "timestamp": 110.62,
+      "beat": 2
+    },
+    {
+      "timestamp": 111.107,
+      "beat": 3
+    },
+    {
+      "timestamp": 111.572,
+      "beat": 4
+    },
+    {
+      "timestamp": 112.06,
+      "beat": 5
+    },
+    {
+      "timestamp": 112.524,
+      "beat": 6
+    },
+    {
+      "timestamp": 112.988,
+      "beat": 7
+    },
+    {
+      "timestamp": 113.476,
+      "beat": 8
+    },
+    {
+      "timestamp": 113.964,
+      "beat": 1
+    },
+    {
+      "timestamp": 114.451,
+      "beat": 2
+    },
+    {
+      "timestamp": 114.916,
+      "beat": 3
+    },
+    {
+      "timestamp": 115.38,
+      "beat": 4
+    },
+    {
+      "timestamp": 115.868,
+      "beat": 5
+    },
+    {
+      "timestamp": 116.332,
+      "beat": 6
+    },
+    {
+      "timestamp": 116.82,
+      "beat": 7
+    },
+    {
+      "timestamp": 117.284,
+      "beat": 8
+    },
+    {
+      "timestamp": 117.772,
+      "beat": 1
+    },
+    {
+      "timestamp": 118.259,
+      "beat": 2
+    },
+    {
+      "timestamp": 118.724,
+      "beat": 3
+    },
+    {
+      "timestamp": 119.188,
+      "beat": 4
+    },
+    {
+      "timestamp": 119.676,
+      "beat": 5
+    },
+    {
+      "timestamp": 120.14,
+      "beat": 6
+    },
+    {
+      "timestamp": 120.628,
+      "beat": 7
+    },
+    {
+      "timestamp": 121.115,
+      "beat": 8
+    },
+    {
+      "timestamp": 121.58,
+      "beat": 1
+    },
+    {
+      "timestamp": 122.044,
+      "beat": 2
+    },
+    {
+      "timestamp": 122.532,
+      "beat": 3
+    },
+    {
+      "timestamp": 122.996,
+      "beat": 4
+    },
+    {
+      "timestamp": 123.484,
+      "beat": 5
+    },
+    {
+      "timestamp": 123.948,
+      "beat": 6
+    },
+    {
+      "timestamp": 124.436,
+      "beat": 7
+    },
+    {
+      "timestamp": 124.9,
+      "beat": 8
+    },
+    {
+      "timestamp": 125.388,
+      "beat": 1
+    },
+    {
+      "timestamp": 125.852,
+      "beat": 2
+    },
+    {
+      "timestamp": 126.34,
+      "beat": 3
+    },
+    {
+      "timestamp": 126.804,
+      "beat": 4
+    },
+    {
+      "timestamp": 127.292,
+      "beat": 5
+    },
+    {
+      "timestamp": 127.756,
+      "beat": 6
+    },
+    {
+      "timestamp": 128.244,
+      "beat": 7
+    },
+    {
+      "timestamp": 128.731,
+      "beat": 8
+    },
+    {
+      "timestamp": 129.196,
+      "beat": 1
+    },
+    {
+      "timestamp": 129.683,
+      "beat": 2
+    },
+    {
+      "timestamp": 130.148,
+      "beat": 3
+    },
+    {
+      "timestamp": 130.612,
+      "beat": 4
+    },
+    {
+      "timestamp": 131.1,
+      "beat": 5
+    },
+    {
+      "timestamp": 131.564,
+      "beat": 6
+    },
+    {
+      "timestamp": 132.052,
+      "beat": 7
+    },
+    {
+      "timestamp": 132.516,
+      "beat": 8
+    },
+    {
+      "timestamp": 133.004,
+      "beat": 1
+    },
+    {
+      "timestamp": 133.468,
+      "beat": 2
+    },
+    {
+      "timestamp": 133.956,
+      "beat": 3
+    },
+    {
+      "timestamp": 134.444,
+      "beat": 4
+    },
+    {
+      "timestamp": 134.908,
+      "beat": 5
+    },
+    {
+      "timestamp": 135.372,
+      "beat": 6
+    },
+    {
+      "timestamp": 135.744,
+      "beat": 7
+    },
+    {
+      "timestamp": 136.092,
+      "beat": 8
+    },
+    {
+      "timestamp": 136.58,
+      "beat": 1
+    },
+    {
+      "timestamp": 137.044,
+      "beat": 2
+    },
+    {
+      "timestamp": 137.485,
+      "beat": 3
+    },
+    {
+      "timestamp": 137.927,
+      "beat": 4
+    },
+    {
+      "timestamp": 138.368,
+      "beat": 5
+    },
+    {
+      "timestamp": 138.809,
+      "beat": 6
+    },
+    {
+      "timestamp": 139.25,
+      "beat": 7
+    },
+    {
+      "timestamp": 139.738,
+      "beat": 8
+    },
+    {
+      "timestamp": 140.179,
+      "beat": 1
+    },
+    {
+      "timestamp": 140.643,
+      "beat": 2
+    },
+    {
+      "timestamp": 141.084,
+      "beat": 3
+    },
+    {
+      "timestamp": 141.572,
+      "beat": 4
+    },
+    {
+      "timestamp": 142.036,
+      "beat": 5
+    },
+    {
+      "timestamp": 142.524,
+      "beat": 6
+    },
+    {
+      "timestamp": 142.988,
+      "beat": 7
+    },
+    {
+      "timestamp": 143.476,
+      "beat": 8
+    },
+    {
+      "timestamp": 143.964,
+      "beat": 1
+    },
+    {
+      "timestamp": 144.428,
+      "beat": 2
+    },
+    {
+      "timestamp": 144.916,
+      "beat": 3
+    },
+    {
+      "timestamp": 145.38,
+      "beat": 4
+    },
+    {
+      "timestamp": 145.868,
+      "beat": 5
+    },
+    {
+      "timestamp": 146.332,
+      "beat": 6
+    },
+    {
+      "timestamp": 146.797,
+      "beat": 7
+    },
+    {
+      "timestamp": 147.284,
+      "beat": 8
+    },
+    {
+      "timestamp": 147.749,
+      "beat": 1
+    },
+    {
+      "timestamp": 148.236,
+      "beat": 2
+    },
+    {
+      "timestamp": 148.724,
+      "beat": 3
+    },
+    {
+      "timestamp": 149.188,
+      "beat": 4
+    },
+    {
+      "timestamp": 149.676,
+      "beat": 5
+    },
+    {
+      "timestamp": 150.14,
+      "beat": 6
+    },
+    {
+      "timestamp": 150.628,
+      "beat": 7
+    },
+    {
+      "timestamp": 151.092,
+      "beat": 8
+    },
+    {
+      "timestamp": 151.58,
+      "beat": 1
+    },
+    {
+      "timestamp": 152.067,
+      "beat": 2
+    },
+    {
+      "timestamp": 152.532,
+      "beat": 3
+    },
+    {
+      "timestamp": 153.02,
+      "beat": 4
+    },
+    {
+      "timestamp": 153.507,
+      "beat": 5
+    },
+    {
+      "timestamp": 153.972,
+      "beat": 6
+    },
+    {
+      "timestamp": 154.436,
+      "beat": 7
+    },
+    {
+      "timestamp": 154.9,
+      "beat": 8
+    },
+    {
+      "timestamp": 155.388,
+      "beat": 1
+    },
+    {
+      "timestamp": 155.852,
+      "beat": 2
+    },
+    {
+      "timestamp": 156.34,
+      "beat": 3
+    },
+    {
+      "timestamp": 156.804,
+      "beat": 4
+    },
+    {
+      "timestamp": 157.292,
+      "beat": 5
+    },
+    {
+      "timestamp": 157.78,
+      "beat": 6
+    },
+    {
+      "timestamp": 158.244,
+      "beat": 7
+    },
+    {
+      "timestamp": 158.708,
+      "beat": 8
+    },
+    {
+      "timestamp": 159.219,
+      "beat": 1
+    },
+    {
+      "timestamp": 159.684,
+      "beat": 2
+    },
+    {
+      "timestamp": 160.148,
+      "beat": 3
+    },
+    {
+      "timestamp": 160.612,
+      "beat": 4
+    },
+    {
+      "timestamp": 161.1,
+      "beat": 5
+    },
+    {
+      "timestamp": 161.588,
+      "beat": 6
+    },
+    {
+      "timestamp": 162.052,
+      "beat": 7
+    },
+    {
+      "timestamp": 162.54,
+      "beat": 8
+    },
+    {
+      "timestamp": 163.004,
+      "beat": 1
+    },
+    {
+      "timestamp": 163.492,
+      "beat": 2
+    },
+    {
+      "timestamp": 163.956,
+      "beat": 3
+    },
+    {
+      "timestamp": 164.42,
+      "beat": 4
+    },
+    {
+      "timestamp": 164.908,
+      "beat": 5
+    },
+    {
+      "timestamp": 165.396,
+      "beat": 6
+    },
+    {
+      "timestamp": 165.883,
+      "beat": 7
+    },
+    {
+      "timestamp": 166.348,
+      "beat": 8
+    },
+    {
+      "timestamp": 166.812,
+      "beat": 1
+    },
+    {
+      "timestamp": 167.3,
+      "beat": 2
+    },
+    {
+      "timestamp": 167.787,
+      "beat": 3
+    },
+    {
+      "timestamp": 168.252,
+      "beat": 4
+    },
+    {
+      "timestamp": 168.716,
+      "beat": 5
+    },
+    {
+      "timestamp": 169.204,
+      "beat": 6
+    },
+    {
+      "timestamp": 169.691,
+      "beat": 7
+    },
+    {
+      "timestamp": 170.179,
+      "beat": 8
+    },
+    {
+      "timestamp": 170.643,
+      "beat": 1
+    },
+    {
+      "timestamp": 171.108,
+      "beat": 2
+    },
+    {
+      "timestamp": 171.572,
+      "beat": 3
+    },
+    {
+      "timestamp": 172.06,
+      "beat": 4
+    },
+    {
+      "timestamp": 172.524,
+      "beat": 5
+    },
+    {
+      "timestamp": 173.012,
+      "beat": 6
+    },
+    {
+      "timestamp": 173.476,
+      "beat": 7
+    },
+    {
+      "timestamp": 173.964,
+      "beat": 8
+    },
+    {
+      "timestamp": 174.452,
+      "beat": 1
+    },
+    {
+      "timestamp": 174.916,
+      "beat": 2
+    },
+    {
+      "timestamp": 175.38,
+      "beat": 3
+    },
+    {
+      "timestamp": 175.868,
+      "beat": 4
+    },
+    {
+      "timestamp": 176.356,
+      "beat": 5
+    },
+    {
+      "timestamp": 176.82,
+      "beat": 6
+    },
+    {
+      "timestamp": 177.284,
+      "beat": 7
+    },
+    {
+      "timestamp": 177.772,
+      "beat": 8
+    },
+    {
+      "timestamp": 178.236,
+      "beat": 1
+    },
+    {
+      "timestamp": 178.724,
+      "beat": 2
+    },
+    {
+      "timestamp": 179.212,
+      "beat": 3
+    },
+    {
+      "timestamp": 179.676,
+      "beat": 4
+    },
+    {
+      "timestamp": 180.14,
+      "beat": 5
+    },
+    {
+      "timestamp": 180.628,
+      "beat": 6
+    },
+    {
+      "timestamp": 181.116,
+      "beat": 7
+    },
+    {
+      "timestamp": 181.603,
+      "beat": 8
+    },
+    {
+      "timestamp": 182.068,
+      "beat": 1
+    },
+    {
+      "timestamp": 182.532,
+      "beat": 2
+    },
+    {
+      "timestamp": 182.996,
+      "beat": 3
+    },
+    {
+      "timestamp": 183.484,
+      "beat": 4
+    },
+    {
+      "timestamp": 183.948,
+      "beat": 5
+    },
+    {
+      "timestamp": 184.436,
+      "beat": 6
+    },
+    {
+      "timestamp": 184.9,
+      "beat": 7
+    },
+    {
+      "timestamp": 185.388,
+      "beat": 8
+    },
+    {
+      "timestamp": 185.853,
+      "beat": 1
+    },
+    {
+      "timestamp": 186.34,
+      "beat": 2
+    },
+    {
+      "timestamp": 186.805,
+      "beat": 3
+    },
+    {
+      "timestamp": 187.292,
+      "beat": 4
+    },
+    {
+      "timestamp": 187.78,
+      "beat": 5
+    },
+    {
+      "timestamp": 188.244,
+      "beat": 6
+    },
+    {
+      "timestamp": 188.709,
+      "beat": 7
+    },
+    {
+      "timestamp": 189.196,
+      "beat": 8
+    },
+    {
+      "timestamp": 189.684,
+      "beat": 1
+    },
+    {
+      "timestamp": 190.148,
+      "beat": 2
+    },
+    {
+      "timestamp": 190.636,
+      "beat": 3
+    },
+    {
+      "timestamp": 191.1,
+      "beat": 4
+    },
+    {
+      "timestamp": 191.588,
+      "beat": 5
+    },
+    {
+      "timestamp": 192.052,
+      "beat": 6
+    },
+    {
+      "timestamp": 192.517,
+      "beat": 7
+    },
+    {
+      "timestamp": 193.004,
+      "beat": 8
+    },
+    {
+      "timestamp": 193.492,
+      "beat": 1
+    },
+    {
+      "timestamp": 193.956,
+      "beat": 2
+    },
+    {
+      "timestamp": 194.421,
+      "beat": 3
+    },
+    {
+      "timestamp": 194.908,
+      "beat": 4
+    },
+    {
+      "timestamp": 195.396,
+      "beat": 5
+    },
+    {
+      "timestamp": 195.837,
+      "beat": 6
+    },
+    {
+      "timestamp": 196.325,
+      "beat": 7
+    },
+    {
+      "timestamp": 196.812,
+      "beat": 8
+    },
+    {
+      "timestamp": 197.277,
+      "beat": 1
+    },
+    {
+      "timestamp": 197.788,
+      "beat": 2
+    },
+    {
+      "timestamp": 198.252,
+      "beat": 3
+    },
+    {
+      "timestamp": 198.716,
+      "beat": 4
+    },
+    {
+      "timestamp": 199.204,
+      "beat": 5
+    },
+    {
+      "timestamp": 199.668,
+      "beat": 6
+    },
+    {
+      "timestamp": 200.156,
+      "beat": 7
+    },
+    {
+      "timestamp": 200.62,
+      "beat": 8
+    },
+    {
+      "timestamp": 201.108,
+      "beat": 1
+    },
+    {
+      "timestamp": 201.572,
+      "beat": 2
+    },
+    {
+      "timestamp": 202.06,
+      "beat": 3
+    },
+    {
+      "timestamp": 202.524,
+      "beat": 4
+    },
+    {
+      "timestamp": 203.012,
+      "beat": 5
+    },
+    {
+      "timestamp": 203.476,
+      "beat": 6
+    },
+    {
+      "timestamp": 203.964,
+      "beat": 7
+    },
+    {
+      "timestamp": 204.428,
+      "beat": 8
+    },
+    {
+      "timestamp": 204.916,
+      "beat": 1
+    },
+    {
+      "timestamp": 205.38,
+      "beat": 2
+    },
+    {
+      "timestamp": 205.868,
+      "beat": 3
+    },
+    {
+      "timestamp": 206.333,
+      "beat": 4
+    },
+    {
+      "timestamp": 206.82,
+      "beat": 5
+    },
+    {
+      "timestamp": 207.285,
+      "beat": 6
+    },
+    {
+      "timestamp": 207.749,
+      "beat": 7
+    },
+    {
+      "timestamp": 208.237,
+      "beat": 8
+    },
+    {
+      "timestamp": 208.724,
+      "beat": 1
+    },
+    {
+      "timestamp": 209.212,
+      "beat": 2
+    },
+    {
+      "timestamp": 209.676,
+      "beat": 3
+    },
+    {
+      "timestamp": 210.164,
+      "beat": 4
+    },
+    {
+      "timestamp": 210.628,
+      "beat": 5
+    }
+  ],
+  "metadata": {
+    "songTitle": "Chacha (Bass - Librosa)",
+    "artist": "Jean & Alex, Pinto Picasso",
+    "danceStyle": "bachata",
+    "youtubeId": "G_FuyWxTapo",
+    "bpm": 129.2,
+    "difficulty": "medium"
+  }
+}

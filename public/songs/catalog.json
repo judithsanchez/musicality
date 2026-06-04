@@ -35,5 +35,14 @@
     "bpm": 129.2,
     "difficulty": "medium",
     "isCalibrated": true
+  },
+  {
+    "id": "song-CEsip93GxdA",
+    "songTitle": "El Amor Que Espere",
+    "artist": "Leoni Torres, Eddy K",
+    "danceStyle": "salsa",
+    "youtubeId": "CEsip93GxdA",
+    "bpm": 99.38,
+    "difficulty": "medium"
   }
 ]
