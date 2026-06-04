@@ -11,7 +11,6 @@ import Visualizer from "./components/Visualizer";
 import GameCanvas from "./components/GameCanvas";
 import RoadmapScrubber from "./components/RoadmapScrubber";
 import DevDashboard from "./components/DevDashboard";
-import StemMixer from "./components/StemMixer";
 
 const DevCalibrator = lazy(() => {
   if (isDevMode) {
@@ -51,7 +50,6 @@ export default function App() {
   const [introEnd, setIntroEnd] = useState(0.0);
   const [videoDuration, setVideoDuration] = useState(300.0);
   const [breaks, setBreaks] = useState([]);
-  const [mixerActive, setMixerActive] = useState(false);
 
   const playerRef = useRef(null);
   const lastSeekTimeRef = useRef(0);
@@ -180,7 +178,6 @@ export default function App() {
   const handleSelectSong = (song) => {
     setMode("learn"); // Reset to Learn Mode
     setActiveTracker("default");
-    setMixerActive(false);
     setCurrentSong(song);
   };
 
@@ -244,7 +241,6 @@ export default function App() {
     setIntroEnd(0.0);
     setBreaks([]);
     setVideoDuration(300.0);
-    setMixerActive(false);
   };
 
   const throttledSeek = (timeSec, isFinal = false) => {
@@ -627,113 +623,58 @@ export default function App() {
             </Suspense>
           ) : (
             <div className="left-workspace-column">
-              {/* Monochromatic Tabs for Visualizer vs Mixer */}
-              <div className="tabs-container" style={{ display: "flex", gap: "10px", marginBottom: "16px", width: "100%" }}>
-                <button
-                  className={`btn-tab ${!mixerActive ? "active" : ""}`}
-                  onClick={() => setMixerActive(false)}
-                  style={{
-                    flex: 1,
-                    padding: "10px 14px",
-                    borderRadius: "10px",
-                    border: !mixerActive ? "1px solid #ffffff" : "1px solid rgba(255, 255, 255, 0.1)",
-                    background: !mixerActive ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.2)",
-                    color: !mixerActive ? "#ffffff" : "#a1a1aa",
-                    fontSize: "0.85rem",
-                    fontWeight: "800",
-                    cursor: "pointer",
-                    transition: "all 0.2s"
-                  }}
-                >
-                  📺 Beat Visualizer
-                </button>
-                <button
-                  className={`btn-tab ${mixerActive ? "active" : ""}`}
-                  onClick={() => {
-                    setMixerActive(true);
-                    if (player && typeof player.pauseVideo === "function") {
-                      try {
-                        player.pauseVideo();
-                      } catch (e) {}
-                    }
-                  }}
-                  style={{
-                    flex: 1,
-                    padding: "10px 14px",
-                    borderRadius: "10px",
-                    border: mixerActive ? "1px solid #ffffff" : "1px solid rgba(255, 255, 255, 0.1)",
-                    background: mixerActive ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.2)",
-                    color: mixerActive ? "#ffffff" : "#a1a1aa",
-                    fontSize: "0.85rem",
-                    fontWeight: "800",
-                    cursor: "pointer",
-                    transition: "all 0.2s"
-                  }}
-                >
-                  🎛️ Stem Mixer Console
-                </button>
+                
+              {/* Defensive IFrame Player & Overlay Protection */}
+              <div className="video-wrapper">
+                <div key={songData?.metadata?.youtubeId || "yt-player"} id="yt-player" ref={ytPlayerRefCallback}></div>
+                <AudioShield onPlayToggle={handlePlayToggle} />
               </div>
 
-              {mixerActive ? (
-                <StemMixer 
-                  song={currentSong} 
-                  onBackToCatalog={handleBackToCatalog} 
+              {/* Dynamic Interface: Learn Mode beats pulses OR Practice Mode gamified tapping zone */}
+              {mode === "practice" ? (
+                <GameCanvas 
+                  key={calibratedSongData?.metadata?.youtubeId || songData?.metadata?.youtubeId}
+                  songData={calibratedSongData || songData}
+                  currentTime={currentTime}
+                  isPlaying={isActuallyPlaying}
+                  onPlayToggle={handlePlayToggle}
                 />
               ) : (
-                <>
-                  {/* Defensive IFrame Player & Overlay Protection */}
-                  <div className="video-wrapper">
-                    <div key={songData?.metadata?.youtubeId || "yt-player"} id="yt-player" ref={ytPlayerRefCallback}></div>
-                    <AudioShield onPlayToggle={handlePlayToggle} />
-                  </div>
-
-                  {/* Dynamic Interface: Learn Mode beats pulses OR Practice Mode gamified tapping zone */}
-                  {mode === "practice" ? (
-                    <GameCanvas 
-                      key={calibratedSongData?.metadata?.youtubeId || songData?.metadata?.youtubeId}
-                      songData={calibratedSongData || songData}
-                      currentTime={currentTime}
-                      isPlaying={isActuallyPlaying}
-                      onPlayToggle={handlePlayToggle}
-                    />
-                  ) : (
-                    <Visualizer 
-                      danceStyle={songData?.metadata?.danceStyle || "salsa"}
-                      currentTime={currentTime}
-                      introEnd={introEnd}
-                      currentBeat={currentBeat}
-                      activeSection={activeSection}
-                      activeBreak={activeBreak}
-                      isPlaying={isActuallyPlaying}
-                    />
-                  )}
-
-                  {/* Segmented Roadmap Progress Scrubber */}
-                  <RoadmapScrubber
-                    currentTime={currentTime}
-                    videoDuration={videoDuration}
-                    introStart={introStart}
-                    introEnd={introEnd}
-                    nextSection={nextSection}
-                    timeToNextSection={timeToNextSection}
-                    sectionsList={sectionsList}
-                    breaks={breaks}
-                    onSeek={throttledSeek}
-                  />
-
-                  {/* Unified Touch Controlbar */}
-                  <ControlBar 
-                    isActuallyPlaying={isActuallyPlaying}
-                    onPlayToggle={handlePlayToggle}
-                    playbackRate={playbackRate}
-                    onSpeedChange={handleSpeedChange}
-                    onRewind={handleRewind}
-                    activeTracker={activeTracker}
-                    onTrackerChange={setActiveTracker}
-                    hasMultipleTrackers={true}
-                  />
-                </>
+                <Visualizer 
+                  danceStyle={songData?.metadata?.danceStyle || "salsa"}
+                  currentTime={currentTime}
+                  introEnd={introEnd}
+                  currentBeat={currentBeat}
+                  activeSection={activeSection}
+                  activeBreak={activeBreak}
+                  isPlaying={isActuallyPlaying}
+                />
               )}
+
+              {/* Segmented Roadmap Progress Scrubber */}
+              <RoadmapScrubber
+                currentTime={currentTime}
+                videoDuration={videoDuration}
+                introStart={introStart}
+                introEnd={introEnd}
+                nextSection={nextSection}
+                timeToNextSection={timeToNextSection}
+                sectionsList={sectionsList}
+                breaks={breaks}
+                onSeek={throttledSeek}
+              />
+
+              {/* Unified Touch Controlbar */}
+              <ControlBar 
+                isActuallyPlaying={isActuallyPlaying}
+                onPlayToggle={handlePlayToggle}
+                playbackRate={playbackRate}
+                onSpeedChange={handleSpeedChange}
+                onRewind={handleRewind}
+                activeTracker={activeTracker}
+                onTrackerChange={setActiveTracker}
+                hasMultipleTrackers={true}
+              />
             </div>
           )}
         </div>
