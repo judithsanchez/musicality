@@ -157,7 +157,28 @@ export default function App() {
         return res.json();
       })
       .then((data) => {
-        const parsed = StrictSongMapSchema.safeParse(data);
+        const adjustedData = { ...data };
+        if (!adjustedData.sections || adjustedData.sections.length === 0) {
+          const lastBeatTimeMs = adjustedData.absoluteBeatMap && adjustedData.absoluteBeatMap.length > 0
+            ? adjustedData.absoluteBeatMap[adjustedData.absoluteBeatMap.length - 1]
+            : 300000;
+          adjustedData.sections = [
+            {
+              id: "sec-default",
+              startTimeMs: 0,
+              endTimeMs: lastBeatTimeMs,
+              label: "Intro",
+              energyState: "INTRO",
+              phraseIds: [],
+              emoji: "🎵"
+            }
+          ];
+        }
+        if (!adjustedData.phrases) {
+          adjustedData.phrases = [];
+        }
+
+        const parsed = StrictSongMapSchema.safeParse(adjustedData);
         if (!parsed.success) {
           setValidationErrors(parsed.error.issues);
           setCurrentSong(song);

@@ -1,1 +1,11 @@
-[]
+[
+  {
+    "id": "song-66HCBysrJS8",
+    "youtubeId": "66HCBysrJS8",
+    "title": "Pobre Diablo",
+    "artist": "Ronald Borjas",
+    "genre": "SALSA",
+    "baseBpm": 76.7,
+    "defaultClave": "NOT_SET"
+  }
+]
