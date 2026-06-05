@@ -91,23 +91,16 @@ export default function DevDashboard({ onBack, onIngestSuccess }) {
     setStatusMessage("[1/3] Uploading MP3 audio track...");
 
     try {
-      // Step 1: Ingest Metadata
-      const metadataRes = await fetch("/api/ingest-song-metadata", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, artist, youtubeId, difficulty, danceStyle })
-      });
+      const formData = new FormData();
+      formData.append("youtubeId", youtubeId);
+      formData.append("title", title);
+      formData.append("artist", artist);
+      formData.append("genre", danceStyle.toUpperCase());
+      formData.append("audio", audioFile);
 
-      const metadataData = await metadataRes.json();
-      if (!metadataRes.ok) {
-        throw new Error(metadataData.error || "Failed to ingest metadata");
-      }
-
-      // Step 2: Upload Audio & Trigger Analysis
       const xhr = new XMLHttpRequest();
-      xhr.open("POST", `/api/upload-song-audio?youtubeId=${youtubeId}`, true);
+      xhr.open("POST", "/api/ingest", true);
 
-      // Track upload progress
       xhr.upload.onprogress = (event) => {
         if (event.lengthComputable) {
           const percent = Math.round((event.loaded / event.total) * 100);
@@ -146,10 +139,8 @@ export default function DevDashboard({ onBack, onIngestSuccess }) {
         handleUploadError("Network connection error occurred during upload");
       };
 
-      // Start the upload
-      xhr.send(audioFile);
+      xhr.send(formData);
 
-      // Transition to processing state after upload completes but before response returns
       xhr.upload.onload = () => {
         setStatus("analyzing");
         setProgress(100);

@@ -1,82 +1,8 @@
-import { useState } from "react";
-
-export default function App() {
-  return (
-    <div className="app-container" style={{
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      justifyContent: "center",
-      height: "100vh",
-      padding: "20px",
-      textAlign: "center",
-      background: "radial-gradient(circle at center, #18181b 0%, #09090b 100%)",
-      color: "#f4f4f5"
-    }}>
-      <div className="glass-panel" style={{
-        maxWidth: "540px",
-        padding: "40px",
-        borderRadius: "24px",
-        border: "1px solid rgba(255, 255, 255, 0.08)",
-        background: "rgba(255, 255, 255, 0.02)",
-        backdropFilter: "blur(16px)",
-        boxShadow: "0 20px 50px rgba(0, 0, 0, 0.5)"
-      }}>
-        <h1 className="song-title" style={{
-          fontSize: "2.5rem",
-          fontWeight: "900",
-          margin: "0 0 16px 0",
-          background: "linear-gradient(135deg, #ffffff 0%, #a1a1aa 100%)",
-          WebkitBackgroundClip: "text",
-          WebkitTextFillColor: "transparent"
-        }}>
-          Salsa Rhythm Hub
-        </h1>
-        
-        <p className="song-artist" style={{
-          fontSize: "1.1rem",
-          color: "#a1a1aa",
-          margin: "0 0 32px 0",
-          lineHeight: "1.6"
-        }}>
-          The application is currently running in <strong>Shell Mode</strong>. 
-          The backend and active frontend elements are being revamped and will be updated soon.
-        </p>
-
-        <div style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: "8px",
-          padding: "8px 16px",
-          borderRadius: "9999px",
-          background: "rgba(255, 255, 255, 0.05)",
-          border: "1px solid rgba(255, 255, 255, 0.1)",
-          fontSize: "0.85rem",
-          fontWeight: "600",
-          color: "#e4e4e7"
-        }}>
-          <span style={{
-            display: "inline-block",
-            width: "8px",
-            height: "8px",
-            borderRadius: "50%",
-            background: "#10b981",
-            boxShadow: "0 0 8px #10b981"
-          }} />
-          Shell Environment Active
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ── ORIGINAL APP CODE (COMMENTED OUT TO PREVENT CRASHES AND LINTS) ──
 import { useState, useEffect, useRef, useCallback, lazy, Suspense } from "react";
 import { useSyncEngine } from "./hooks/useSyncEngine";
-import { adaptToAgnosticSong } from "./utils/schemaAdapter";
 import { isDevMode } from "./config/env";
+import { StrictSongMapSchema } from "./types/schemas";
 
-// Subcomponents
 import SongSelector from "./components/SongSelector";
 import ControlBar from "./components/ControlBar";
 import AudioShield from "./components/AudioShield";
@@ -93,46 +19,35 @@ const DevCalibrator = lazy(() => {
   }
 });
 
-export default function AppOriginal() {
+export default function App() {
   const isInitialRestoreRef = useRef(true);
   const [songData, setSongData] = useState(null);
   const [viewingDevDashboard, setViewingDevDashboard] = useState(false);
-
-  // High-level Learning Mode vs Practice Mode state
-  const [mode, setMode] = useState("learn"); // 'learn' or 'practice'
-
-  // Media states
+  const [mode, setMode] = useState("learn");
   const [player, setPlayer] = useState(null);
   const [playerState, setPlayerState] = useState(-1);
   const [playbackRate, setPlaybackRate] = useState(1.0);
   const [apiReady, setApiReady] = useState(false);
-
   const [showDiagnostic, setShowDiagnostic] = useState(false);
-  const [originalSongData, setOriginalSongData] = useState(null);
   const [calibratedSongData, setCalibratedSongData] = useState(null);
-  const [userDelaySetting, setUserDelaySetting] = useState(220); // ms — user-adjustable reaction delay
+  const [userDelaySetting, setUserDelaySetting] = useState(200);
   const [toastMessage, setToastMessage] = useState(null);
-
-  // Song Selection States
   const [currentSong, setCurrentSong] = useState(null);
   const [loadingSong, setLoadingSong] = useState(false);
-  const [introStart, setIntroStart] = useState(0.0);
-  const [introEnd, setIntroEnd] = useState(0.0);
   const [videoDuration, setVideoDuration] = useState(300.0);
-  const [breaks, setBreaks] = useState([]);
+  const [validationErrors, setValidationErrors] = useState(null);
 
   const playerRef = useRef(null);
   const lastSeekTimeRef = useRef(0);
   const seekThrottleTimeoutRef = useRef(null);
   const headerClicksRef = useRef(0);
 
-  const [ytPlayerMountedVal, setYtPlayerMountedVal] = useState(0);
   const ytPlayerRefCallback = useCallback((node) => {
     if (node) {
-      console.log("[App] yt-player DOM element mounted!");
       setYtPlayerMountedVal(prev => prev + 1);
     }
   }, []);
+  const [ytPlayerMountedVal, setYtPlayerMountedVal] = useState(0);
 
   const showToast = (msg) => {
     setToastMessage(msg);
@@ -152,7 +67,7 @@ export default function AppOriginal() {
     }
   }, [showDiagnostic]);
 
-  const BASE = (import.meta.env.BASE_URL || '/').replace(/\/$/, ''); // strip trailing slash
+  const BASE = (import.meta.env.BASE_URL || '/').replace(/\/$/, '');
 
   useEffect(() => {
     if (isInitialRestoreRef.current) {
@@ -208,7 +123,7 @@ export default function AppOriginal() {
               isInitialRestoreRef.current = false;
             })
             .catch(err => {
-              console.error("[Navigation] Catalog restore failed:", err);
+              console.error(err);
               isInitialRestoreRef.current = false;
             });
         } else {
@@ -231,11 +146,9 @@ export default function AppOriginal() {
 
   const handleSelectSong = (song) => {
     setLoadingSong(true);
-
+    setValidationErrors(null);
     setSongData(null);
-    setOriginalSongData(null);
     setCalibratedSongData(null);
-    setBreaks([]);
     setMode("learn");
 
     fetch(import.meta.env.BASE_URL + `songs/${song.youtubeId}.json`)
@@ -244,21 +157,22 @@ export default function AppOriginal() {
         return res.json();
       })
       .then((data) => {
-        const adapted = adaptToAgnosticSong(data);
-        setSongData(adapted);
-        setOriginalSongData(JSON.parse(JSON.stringify(adapted)));
-        setCalibratedSongData(JSON.parse(JSON.stringify(adapted)));
-        setIntroStart(data.metadata?.introStart || 0.0);
-        setIntroEnd(data.metadata?.introEnd || 0.0);
-        setBreaks(data.breaks || []);
+        const parsed = StrictSongMapSchema.safeParse(data);
+        if (!parsed.success) {
+          setValidationErrors(parsed.error.issues);
+          setCurrentSong(song);
+          setLoadingSong(false);
+          return;
+        }
 
+        const validSongMap = parsed.data;
+        setSongData(validSongMap);
+        setCalibratedSongData(JSON.parse(JSON.stringify(validSongMap)));
         setCurrentSong(song);
         setLoadingSong(false);
-
-        console.log("[App] Loaded advanced beatmap successfully for:", data.metadata.songTitle);
       })
       .catch((err) => {
-        console.error("[App] Failed to load song beatmap:", err);
+        console.error(err);
         setLoadingSong(false);
         showToast("❌ Failed to load song beatmap.");
       });
@@ -269,17 +183,14 @@ export default function AppOriginal() {
       try {
         player.pauseVideo();
       } catch (e) {
-        console.warn("Pause error on back navigation:", e);
+        console.warn(e);
       }
     }
 
     setCurrentSong(null);
     setSongData(null);
-    setOriginalSongData(null);
     setCalibratedSongData(null);
-    setIntroStart(0.0);
-    setIntroEnd(0.0);
-    setBreaks([]);
+    setValidationErrors(null);
     setVideoDuration(300.0);
   };
 
@@ -295,9 +206,8 @@ export default function AppOriginal() {
       }
       try {
         player.seekTo(numericVal, true);
-        console.log(`[YouTube Seek] Final seek to ${numericVal}s`);
       } catch (e) {
-        console.warn("Final seek error:", e);
+        console.warn(e);
       }
       return;
     }
@@ -308,7 +218,7 @@ export default function AppOriginal() {
       try {
         player.seekTo(numericVal, false);
       } catch (e) {
-        console.warn("Throttled seek error:", e);
+        console.warn(e);
       }
     } else {
       if (seekThrottleTimeoutRef.current) {
@@ -318,7 +228,7 @@ export default function AppOriginal() {
         try {
           player.seekTo(numericVal, true);
         } catch (e) {
-          console.warn("Debounced seek error:", e);
+          console.warn(e);
         }
       }, 150);
     }
@@ -337,7 +247,6 @@ export default function AppOriginal() {
 
     window.onYouTubeIframeAPIReady = () => {
       setApiReady(true);
-      console.log("[App] YouTube Player API loaded.");
     };
   }, []);
 
@@ -350,16 +259,15 @@ export default function AppOriginal() {
           playerRef.current.destroy();
         }
       } catch (e) {
-        console.warn("[App] Error destroying old player in effect:", e);
+        console.warn(e);
       }
       playerRef.current = null;
       setPlayer(null);
     }
 
-    console.log("[App] Constructing YouTube Player for:", songData.metadata.youtubeId);
     try {
       const ytPlayer = new window.YT.Player("yt-player", {
-        videoId: songData.metadata.youtubeId,
+        videoId: songData.youtubeId,
         playerVars: {
           playsinline: 1,
           controls: 0,
@@ -372,7 +280,6 @@ export default function AppOriginal() {
           onReady: (event) => {
             setPlayer(event.target);
             playerRef.current = event.target;
-            console.log("[App] YouTube Player Ready.");
           },
           onStateChange: (event) => {
             setPlayerState(event.data);
@@ -381,7 +288,7 @@ export default function AppOriginal() {
       });
       playerRef.current = ytPlayer;
     } catch (err) {
-      console.error("[App] Error constructing YouTube Player: ", err);
+      console.error(err);
     }
 
     return () => {
@@ -391,7 +298,7 @@ export default function AppOriginal() {
             playerRef.current.destroy();
           }
         } catch (e) {
-          console.warn("[App] Cleanup destroy error:", e);
+          console.warn(e);
         }
         playerRef.current = null;
         setPlayer(null);
@@ -406,16 +313,15 @@ export default function AppOriginal() {
         if (duration > 0) {
           setTimeout(() => {
             setVideoDuration(duration);
-            console.log(`[App] Synced YouTube Video Duration: ${duration}s`);
           }, 0);
         }
       } catch (e) {
-        console.warn("Error getting player duration:", e);
+        console.warn(e);
       }
     }
   }, [player, currentSong, playerState]);
 
-  const { currentTime, currentBeat, activeSection, synchronizeAnchors } = useSyncEngine(
+  const { currentTime, currentBeat, activeSection, activePhrase, synchronizeAnchors } = useSyncEngine(
     player,
     calibratedSongData || songData,
     null,
@@ -434,7 +340,7 @@ export default function AppOriginal() {
       }
       setTimeout(synchronizeAnchors, 50);
     } catch (err) {
-      console.warn("PlayToggle error: ", err);
+      console.warn(err);
     }
   };
 
@@ -445,10 +351,9 @@ export default function AppOriginal() {
       let target = current - 10;
       if (target < 0) target = 0;
       player.seekTo(target, true);
-      console.log(`[YouTube] Rewinding to: ${target.toFixed(2)}s`);
       setTimeout(synchronizeAnchors, 100);
     } catch (err) {
-      console.warn("Rewind error: ", err);
+      console.warn(err);
     }
   };
 
@@ -460,23 +365,11 @@ export default function AppOriginal() {
       }
       setTimeout(synchronizeAnchors, 50);
     } catch (err) {
-      console.warn("SpeedChange error: ", err);
+      console.warn(err);
     }
   };
 
   const isActuallyPlaying = playerState === 1;
-
-  const handleSkipIntro = () => {
-    try {
-      if (player) {
-        player.seekTo(30, true);
-      }
-      showToast("⏩ Skipped to 0:30 — intro bypassed!");
-      setTimeout(synchronizeAnchors, 100);
-    } catch (e) {
-      console.warn("Skip intro error:", e);
-    }
-  };
 
   const handleHeaderClick = () => {
     if (!isDevMode) {
@@ -511,7 +404,68 @@ export default function AppOriginal() {
         </header>
         <div className="glass-panel loading-container">
           <div className="loading-spinner"></div>
-          <div style={{ fontWeight: 600, color: "#e5e7eb" }}>Loading Beatmap...</div>
+          <div style={{ marginTop: "12px", fontWeight: 600, color: "#e5e7eb" }}>Loading Beatmap...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (validationErrors) {
+    return (
+      <div className="app-container" style={{ display: "flex", flexDirection: "column", height: "100%", justifyContent: "center", alignItems: "center" }}>
+        <div className="glass-panel" style={{
+          maxWidth: "600px",
+          width: "100%",
+          padding: "40px",
+          borderRadius: "24px",
+          border: "1px solid #f87171",
+          background: "rgba(9, 9, 11, 0.95)",
+          color: "#fca5a5",
+          textAlign: "center"
+        }}>
+          <h2 style={{ margin: "0 0 16px 0", fontSize: "1.8rem", fontWeight: "900", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", color: "#f87171" }}>
+            ⚠️ Beatmap Validation Failed
+          </h2>
+          <p style={{ color: "#a1a1aa", fontSize: "1rem", marginBottom: "24px" }}>
+            The selected song map failed Strict schema validations. Playback is blocked to prevent rendering errors.
+          </p>
+          <div style={{
+            maxHeight: "240px",
+            overflowY: "auto",
+            background: "rgba(0, 0, 0, 0.4)",
+            padding: "16px",
+            borderRadius: "12px",
+            textAlign: "left",
+            fontSize: "0.85rem",
+            color: "#fca5a5",
+            border: "1px solid rgba(248, 113, 113, 0.2)",
+            marginBottom: "24px",
+            fontFamily: "monospace"
+          }}>
+            {validationErrors.map((err, idx) => (
+              <div key={idx} style={{ marginBottom: "12px", borderBottom: idx < validationErrors.length - 1 ? "1px solid rgba(255, 255, 255, 0.05)" : "none", paddingBottom: "8px" }}>
+                <div style={{ fontWeight: "bold", color: "#f87171" }}>Issue #{idx + 1}</div>
+                <div><strong>Path:</strong> {err.path.join(" ➔ ") || "Root"}</div>
+                <div><strong>Message:</strong> {err.message}</div>
+              </div>
+            ))}
+          </div>
+          <button
+            onClick={handleBackToCatalog}
+            style={{
+              background: "linear-gradient(135deg, #ffffff, #d1d5db)",
+              border: "none",
+              borderRadius: "12px",
+              color: "#000",
+              padding: "12px 24px",
+              fontSize: "0.95rem",
+              fontWeight: "900",
+              cursor: "pointer",
+              boxShadow: "0 4px 14px rgba(255, 255, 255, 0.15)"
+            }}
+          >
+            Return to Catalog
+          </button>
         </div>
       </div>
     );
@@ -554,35 +508,13 @@ export default function AppOriginal() {
     );
   }
 
-  const activeBreak = breaks.find(b => currentTime >= b.startTimestamp && currentTime < b.endTimestamp) || null;
   const sectionsList = songData?.sections || [];
-  const nextSection = sectionsList.find(sec => sec.startTimestamp > currentTime) || null;
-  const timeToNextSection = nextSection ? nextSection.startTimestamp - currentTime : null;
+  const nextSection = sectionsList.find(sec => sec.startTimeMs > (currentTime * 1000)) || null;
+  const timeToNextSection = nextSection ? (nextSection.startTimeMs / 1000) - currentTime : null;
 
   return (
     <div className="app-container">
       <div className="testing-top-container">
-        {showDiagnostic && currentTime < introEnd && (
-          <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "16px", width: "100%" }}>
-            <button 
-              className="btn-step" 
-              onClick={handleSkipIntro}
-              style={{ 
-                margin: 0, 
-                padding: "6px 12px",
-                fontSize: "0.75rem",
-                background: "linear-gradient(135deg, #ffffff, #d1d5db)", 
-                color: "#000000", 
-                fontWeight: "800",
-                boxShadow: "0 4px 12px rgba(255, 255, 255, 0.25)",
-                animation: "pulse 2s infinite"
-              }}
-            >
-              ⏩ Skip Intro
-            </button>
-          </div>
-        )}
-
         <header 
           className="header glass-panel" 
           onClick={handleHeaderClick} 
@@ -590,10 +522,10 @@ export default function AppOriginal() {
           title="Click 5 times for Developer Panel"
         >
           <h1 className="song-title">
-            {songData ? songData.metadata.songTitle : "Salsa Rhythm Hub"}
+            {songData ? songData.title : "Salsa Rhythm Hub"}
           </h1>
           <p className="song-artist">
-            {songData ? `${songData.metadata.artist} — ${songData.metadata.danceStyle.toUpperCase()}` : "Ear-Training Visualizer"}
+            {songData ? `${songData.artist} — ${songData.genre}` : "Ear-Training Visualizer"}
           </p>
         </header>
       </div>
@@ -609,13 +541,13 @@ export default function AppOriginal() {
             }>
               <DevCalibrator
                 songData={songData}
-                originalSongData={originalSongData}
+                originalSongData={songData}
                 calibratedSongData={calibratedSongData}
                 setCalibratedSongData={setCalibratedSongData}
                 setSongData={setSongData}
-                setOriginalSongData={setOriginalSongData}
-                breaks={breaks}
-                setBreaks={setBreaks}
+                setOriginalSongData={setSongData}
+                breaks={[]}
+                setBreaks={() => {}}
                 currentTime={currentTime}
                 videoDuration={videoDuration}
                 player={player}
@@ -630,7 +562,7 @@ export default function AppOriginal() {
                 videoElement={
                   <div className="left-workspace-column" style={{ margin: 0, width: "100%" }}>
                     <div className="video-wrapper">
-                      <div key={songData?.metadata?.youtubeId || "yt-player"} id="yt-player" ref={ytPlayerRefCallback}></div>
+                      <div key={songData?.youtubeId || "yt-player"} id="yt-player" ref={ytPlayerRefCallback}></div>
                       <AudioShield onPlayToggle={handlePlayToggle} />
                     </div>
                   </div>
@@ -640,13 +572,13 @@ export default function AppOriginal() {
           ) : (
             <div className="left-workspace-column">
               <div className="video-wrapper">
-                <div key={songData?.metadata?.youtubeId || "yt-player"} id="yt-player" ref={ytPlayerRefCallback}></div>
+                <div key={songData?.youtubeId || "yt-player"} id="yt-player" ref={ytPlayerRefCallback}></div>
                 <AudioShield onPlayToggle={handlePlayToggle} />
               </div>
 
               {mode === "practice" ? (
                 <GameCanvas 
-                  key={calibratedSongData?.metadata?.youtubeId || songData?.metadata?.youtubeId}
+                  key={calibratedSongData?.youtubeId || songData?.youtubeId}
                   songData={calibratedSongData || songData}
                   currentTime={currentTime}
                   isPlaying={isActuallyPlaying}
@@ -654,12 +586,12 @@ export default function AppOriginal() {
                 />
               ) : (
                 <Visualizer 
-                  danceStyle={songData?.metadata?.danceStyle || "salsa"}
+                  danceStyle={songData?.genre?.toLowerCase() || "salsa"}
                   currentTime={currentTime}
-                  introEnd={introEnd}
+                  introEnd={0}
                   currentBeat={currentBeat}
                   activeSection={activeSection}
-                  activeBreak={activeBreak}
+                  activeBreak={activePhrase?.type === "TRANSITION_BREAK" ? activePhrase : null}
                   isPlaying={isActuallyPlaying}
                 />
               )}
@@ -667,12 +599,12 @@ export default function AppOriginal() {
               <RoadmapScrubber
                 currentTime={currentTime}
                 videoDuration={videoDuration}
-                introStart={introStart}
-                introEnd={introEnd}
+                introStart={0}
+                introEnd={0}
                 nextSection={nextSection}
                 timeToNextSection={timeToNextSection}
                 sectionsList={sectionsList}
-                breaks={breaks}
+                breaks={[]}
                 onSeek={throttledSeek}
               />
 
@@ -696,4 +628,3 @@ export default function AppOriginal() {
     </div>
   );
 }
-── */

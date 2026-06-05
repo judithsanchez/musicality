@@ -8,7 +8,6 @@ export default function SongSelector({ onSelectSong, onOpenDevDashboard }) {
   
   // Search & Filter state
   const [searchQuery, setSearchQuery] = useState("");
-  const [difficultyFilter, setDifficultyFilter] = useState("all");
   const [styleFilter, setStyleFilter] = useState("all");
 
   // Fetch song catalog on startup
@@ -30,22 +29,14 @@ export default function SongSelector({ onSelectSong, onOpenDevDashboard }) {
   }, []);
 
   const filteredSongs = catalog.filter((song) => {
-    // Hide uncalibrated draft songs from normal catalog selectors
-    if (song.isCalibrated === false && !onOpenDevDashboard) {
-      return false;
-    }
-
     const matchesSearch =
-      song.songTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      song.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       song.artist.toLowerCase().includes(searchQuery.toLowerCase());
       
-    const matchesDifficulty =
-      difficultyFilter === "all" || song.difficulty.toLowerCase() === difficultyFilter.toLowerCase();
-      
     const matchesStyle =
-      styleFilter === "all" || song.danceStyle.toLowerCase() === styleFilter.toLowerCase();
+      styleFilter === "all" || song.genre.toLowerCase() === styleFilter.toLowerCase();
 
-    return matchesSearch && matchesDifficulty && matchesStyle;
+    return matchesSearch && matchesStyle;
   });
 
   if (loading) {
@@ -163,29 +154,6 @@ export default function SongSelector({ onSelectSong, onOpenDevDashboard }) {
                 <option value="bachata">Bachata</option>
               </select>
             </div>
-
-            <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "4px" }}>
-              <label style={{ fontSize: "0.7rem", fontWeight: 600, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.5px" }}>Difficulty</label>
-              <select
-                value={difficultyFilter}
-                onChange={(e) => setDifficultyFilter(e.target.value)}
-                style={{
-                  width: "100%",
-                  padding: "8px 10px",
-                  borderRadius: "10px",
-                  border: "1px solid rgba(255, 255, 255, 0.08)",
-                  background: "rgba(0, 0, 0, 0.3)",
-                  color: "#fff",
-                  fontSize: "0.8rem",
-                  outline: "none"
-                }}
-              >
-                <option value="all">All Difficulties</option>
-                <option value="easy">Easy</option>
-                <option value="medium">Medium</option>
-                <option value="hard">Hard</option>
-              </select>
-            </div>
           </div>
         </div>
       </div>
@@ -202,12 +170,11 @@ export default function SongSelector({ onSelectSong, onOpenDevDashboard }) {
               <Music size={24} />
             </div>
             <div className="song-card-details">
-              <h3 className="song-card-title">{song.songTitle}</h3>
+              <h3 className="song-card-title">{song.title}</h3>
               <p className="song-card-artist">{song.artist}</p>
               <div className="song-card-meta">
-                <span className="badge badge-bpm">{song.bpm} BPM</span>
-                <span className={`badge badge-${song.difficulty}`}>{song.difficulty}</span>
-                <span className="badge badge-style" style={{ textTransform: "capitalize" }}>{song.danceStyle}</span>
+                <span className="badge badge-bpm">{song.baseBpm} BPM</span>
+                <span className="badge badge-style" style={{ textTransform: "capitalize" }}>{song.genre}</span>
               </div>
             </div>
           </div>
