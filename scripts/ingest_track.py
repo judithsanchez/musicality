@@ -1,11 +1,9 @@
 import os
 import sys
 import json
-import time
 import argparse
 import numpy as np
 
-# Try importing librosa for audio loading and fallback processing
 try:
     import librosa
 except ImportError:
@@ -13,20 +11,12 @@ except ImportError:
     sys.exit(1)
 
 def run_beatnet(audio_path, sr=22050):
-    """
-    Attempts to run BeatNet to extract beat timestamps.
-    Falls back to a robust constant beat tracker if BeatNet or Librosa native tracker fails.
-    """
     try:
         print("[INGEST-AI] Attempting BeatNet beat tracking...")
         from BeatNet.BeatNet import BeatNet
-        # Initialize BeatNet
         estimator = BeatNet(1, device='cpu')
-        # BeatNet estimates beat positions
         output = estimator.process(audio_path)
-        # Output is an array of [time, beat_position]
         beat_times = output[:, 0]
-        # Calculate BPM from average beat intervals
         intervals = np.diff(beat_times)
         if len(intervals) > 0:
             avg_interval = np.mean(intervals)
@@ -37,12 +27,9 @@ def run_beatnet(audio_path, sr=22050):
         return beat_times, bpm
     except Exception as e:
         print(f"[INGEST-AI WARNING] BeatNet failed or not installed: {e}. Falling back to constant grid beat tracking...")
-        
         try:
-            # Load only duration to avoid JIT compiler issues on Apple Silicon
             y, sr = librosa.load(audio_path, sr=sr)
             duration = librosa.get_duration(y=y, sr=sr)
-            
             bpm = 120.0
             beat_interval = 60.0 / bpm
             beat_times = np.arange(0.0, duration, beat_interval)
@@ -50,7 +37,6 @@ def run_beatnet(audio_path, sr=22050):
             return beat_times, bpm
         except Exception as err:
             print(f"[INGEST-AI ERROR] Ingest fallback failed: {err}")
-            # Absolute fallback
             return np.array([0.0, 0.5, 1.0, 1.5, 2.0]), 120.0
 
 def main():
@@ -70,17 +56,12 @@ def main():
         
     print(f"\n[INGEST-AI] Starting ingestion for: {args.title} - {args.artist} ({args.genre})")
     
-    # 1. Beat tracking (BeatNet with Librosa fallback)
     beat_times, bpm = run_beatnet(args.audio)
-    
-    # Convert seconds to milliseconds integers
     beat_times_ms = [int(round(float(t) * 1000)) for t in beat_times]
     
-    # Ensure absoluteBeatMap is not empty
     if not beat_times_ms:
-        beat_times_ms = [0, 500, 1000] # Safe fallback
+        beat_times_ms = [0, 500, 1000]
         
-    # 2. Assemble SongMap JSON (No stems/Demucs)
     song_map = {
         "id": f"song-{args.youtubeId}",
         "youtubeId": args.youtubeId,
@@ -97,7 +78,6 @@ def main():
     if args.genre == "SALSA":
         song_map["defaultClave"] = "NOT_SET"
         
-    # Write output JSON
     os.makedirs(os.path.dirname(args.output), exist_ok=True)
     with open(args.output, 'w', encoding='utf-8') as f:
         json.dump(song_map, f, indent=2, ensure_ascii=False)

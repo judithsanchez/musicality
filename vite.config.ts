@@ -10,7 +10,6 @@ import { StrictSongMapSchema } from './src/types/schemas';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Helper function to parse multipart/form-data requests in vanilla Node.js Connect middleware
 function parseMultipart(body: Buffer, boundary: string) {
   const boundaryBuffer = Buffer.from('--' + boundary);
   const parts: { headers: Record<string, string>; data: Buffer }[] = [];
@@ -20,13 +19,11 @@ function parseMultipart(body: Buffer, boundary: string) {
     const nextIndex = body.indexOf(boundaryBuffer, index + boundaryBuffer.length);
     if (nextIndex === -1) break;
     
-    // Extract part content (excluding boundaries)
     const part = body.subarray(index + boundaryBuffer.length, nextIndex);
-    // Locate the separator between headers and binary body (\r\n\r\n)
     const sep = part.indexOf(Buffer.from('\r\n\r\n'));
     if (sep !== -1) {
       const headerStr = part.subarray(0, sep).toString('utf8');
-      const data = part.subarray(sep + 4, part.length - 2); // strip trailing \r\n
+      const data = part.subarray(sep + 4, part.length - 2);
       
       const headers: Record<string, string> = {};
       headerStr.split('\r\n').forEach(line => {
@@ -51,7 +48,6 @@ function songDbPlugin() {
       server.middlewares.use((req: Connect.IncomingMessage, res: ServerResponse, next: Connect.NextFunction) => {
         const urlPath = req.url ? req.url.split('?')[0] : '';
         
-        // 1. SAVE/CALIBRATE ENDPOINT (POST /api/songs)
         if (req.method === 'POST' && urlPath === '/api/songs') {
           let body = '';
           req.on('data', (chunk) => {
@@ -74,17 +70,14 @@ function songDbPlugin() {
               const songMap = result.data;
               const youtubeId = songMap.youtubeId;
 
-              // Ensure public/songs directory exists
               const songsDir = path.resolve(__dirname, './public/songs');
               if (!fs.existsSync(songsDir)) {
                 fs.mkdirSync(songsDir, { recursive: true });
               }
 
-              // Save the song map json file
               const songFilePath = path.join(songsDir, `${youtubeId}.json`);
               fs.writeFileSync(songFilePath, JSON.stringify(songMap, null, 2), 'utf8');
 
-              // Read and update catalog.json
               const catalogFilePath = path.join(songsDir, 'catalog.json');
               let catalog: any[] = [];
               if (fs.existsSync(catalogFilePath)) {
@@ -99,7 +92,6 @@ function songDbPlugin() {
                 }
               }
 
-              // Metadata structure: id, youtubeId, title, artist, genre, baseBpm, defaultClave
               const metadata: any = {
                 id: songMap.id,
                 youtubeId: songMap.youtubeId,
@@ -113,7 +105,6 @@ function songDbPlugin() {
                 metadata.defaultClave = (songMap as any).defaultClave;
               }
 
-              // Upsert metadata in catalog
               const index = catalog.findIndex((item) => item.youtubeId === youtubeId);
               if (index >= 0) {
                 catalog[index] = metadata;
@@ -141,7 +132,6 @@ function songDbPlugin() {
           });
         }
         
-        // 2. INGEST ENDPOINT (POST /api/ingest) - Phase 1 (No Clave Guess)
         else if (req.method === 'POST' && urlPath === '/api/ingest') {
           const contentType = req.headers['content-type'] || '';
           const match = contentType.match(/boundary=(.+)$/);
@@ -204,12 +194,10 @@ function songDbPlugin() {
                 fs.mkdirSync(songsDir, { recursive: true });
               }
               
-              // Save raw audio upload
               const ext = path.extname(audioFilename) || '.mp3';
               const audioFilePath = path.join(songsDir, `${youtubeId}${ext}`);
               fs.writeFileSync(audioFilePath, audioBuffer);
               
-              // Run Python ingestion pipeline (Creates root map without Clave guess)
               const jsonOutputPath = path.join(songsDir, `${youtubeId}.json`);
               console.log(`[Vite Ingest] Executing ingest_track.py for ${youtubeId}`);
               
@@ -217,11 +205,9 @@ function songDbPlugin() {
                 `python3 scripts/ingest_track.py --audio "${audioFilePath}" --youtubeId "${youtubeId}" --title "${title}" --artist "${artist}" --genre "${genre}" --output "${jsonOutputPath}"`
               );
               
-              // Return generated SongMap JSON
               if (fs.existsSync(jsonOutputPath)) {
                 const songMap = JSON.parse(fs.readFileSync(jsonOutputPath, 'utf8'));
                 
-                // Update catalog
                 const catalogFilePath = path.join(songsDir, 'catalog.json');
                 let catalog: any[] = [];
                 if (fs.existsSync(catalogFilePath)) {
@@ -274,7 +260,6 @@ function songDbPlugin() {
           });
         }
         
-        // 3. INFER CLAVE ENDPOINT (POST /api/songs/infer-clave) - Phase 3
         else if (req.method === 'POST' && urlPath === '/api/songs/infer-clave') {
           let body = '';
           req.on('data', (chunk) => {
@@ -339,7 +324,6 @@ function songDbPlugin() {
   };
 }
 
-// https://vite.dev/config/
 export default defineConfig({
   base: process.env.NODE_ENV === 'production' ? '/musicality/' : '/',
   plugins: [

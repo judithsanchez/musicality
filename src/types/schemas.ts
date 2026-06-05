@@ -132,7 +132,6 @@ export type SalsaSongMap = z.infer<typeof SalsaSongMapSchema>;
 export type SongMap = z.infer<typeof SongMapSchema>;
 
 export const StrictSongMapSchema = SongMapSchema.superRefine((data, ctx) => {
-  // 1. Genre consistency (explicit checks to satisfy the prompt and provide clear validation issues)
   if (data.genre === 'BACHATA') {
     data.phrases.forEach((phrase, idx) => {
       if (phrase.genre !== 'BACHATA') {
@@ -143,7 +142,6 @@ export const StrictSongMapSchema = SongMapSchema.superRefine((data, ctx) => {
         });
       }
     });
-    // Check sections types
     data.sections.forEach((section, idx) => {
       const parsed = BachataEnergyStateSchema.safeParse(section.energyState);
       if (!parsed.success) {
@@ -164,7 +162,6 @@ export const StrictSongMapSchema = SongMapSchema.superRefine((data, ctx) => {
         });
       }
     });
-    // Check sections types
     data.sections.forEach((section, idx) => {
       const parsed = SalsaEnergyStateSchema.safeParse(section.energyState);
       if (!parsed.success) {
@@ -177,7 +174,6 @@ export const StrictSongMapSchema = SongMapSchema.superRefine((data, ctx) => {
     });
   }
 
-  // 2. Section Contiguity
   if (data.sections.length === 0) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
@@ -185,10 +181,8 @@ export const StrictSongMapSchema = SongMapSchema.superRefine((data, ctx) => {
       path: ['sections'],
     });
   } else {
-    // Sort sections chronologically
     const sortedSections = [...data.sections].sort((a, b) => a.startTimeMs - b.startTimeMs);
     
-    // First section starts at 0
     if (sortedSections[0].startTimeMs !== 0) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -197,7 +191,6 @@ export const StrictSongMapSchema = SongMapSchema.superRefine((data, ctx) => {
       });
     }
 
-    // No gaps, no overlaps
     for (let i = 1; i < sortedSections.length; i++) {
       const prev = sortedSections[i - 1];
       const curr = sortedSections[i];
@@ -210,7 +203,6 @@ export const StrictSongMapSchema = SongMapSchema.superRefine((data, ctx) => {
       }
     }
 
-    // Ends at the last beat / end of song
     if (data.absoluteBeatMap.length === 0) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -230,8 +222,6 @@ export const StrictSongMapSchema = SongMapSchema.superRefine((data, ctx) => {
     }
   }
 
-  // 3. Phrase Contiguity within Sections
-  // Validate that phrase IDs referenced by sections exist in phrases list, and are contiguous
   const phrasesMap = new Map(data.phrases.map(p => [p.id, p]));
   const referencedPhraseIds = new Set<string>();
 
@@ -243,7 +233,6 @@ export const StrictSongMapSchema = SongMapSchema.superRefine((data, ctx) => {
       })
       .filter((p): p is NonNullable<typeof p> => p !== undefined);
 
-    // If some phrase IDs in section were not found in the phrases list, report error
     section.phraseIds.forEach((pid, pIdx) => {
       if (!phrasesMap.has(pid)) {
         ctx.addIssue({
@@ -255,10 +244,8 @@ export const StrictSongMapSchema = SongMapSchema.superRefine((data, ctx) => {
     });
 
     if (sectionPhrases.length > 0) {
-      // Sort section phrases chronologically
       const sortedPhrases = [...sectionPhrases].sort((a, b) => a.startTimeMs - b.startTimeMs);
 
-      // Must fit strictly inside section boundaries (start of first phrase equals section start)
       if (sortedPhrases[0].startTimeMs !== section.startTimeMs) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -267,7 +254,6 @@ export const StrictSongMapSchema = SongMapSchema.superRefine((data, ctx) => {
         });
       }
 
-      // No gaps or overlaps within the section's phrases
       for (let i = 1; i < sortedPhrases.length; i++) {
         const prev = sortedPhrases[i - 1];
         const curr = sortedPhrases[i];
@@ -280,7 +266,6 @@ export const StrictSongMapSchema = SongMapSchema.superRefine((data, ctx) => {
         }
       }
 
-      // Must fit strictly inside section boundaries (end of last phrase equals section end)
       const lastPhrase = sortedPhrases[sortedPhrases.length - 1];
       if (lastPhrase.endTimeMs !== section.endTimeMs) {
         ctx.addIssue({
@@ -292,7 +277,6 @@ export const StrictSongMapSchema = SongMapSchema.superRefine((data, ctx) => {
     }
   });
 
-  // Verify that all phrases in the map are referenced by at least one section
   data.phrases.forEach((phrase, idx) => {
     if (!referencedPhraseIds.has(phrase.id)) {
       ctx.addIssue({
@@ -303,7 +287,6 @@ export const StrictSongMapSchema = SongMapSchema.superRefine((data, ctx) => {
     }
   });
 
-  // Check for phrase IDs referenced by multiple sections
   const phraseUsageCount = new Map<string, number>();
   data.sections.forEach(s => {
     s.phraseIds.forEach(pid => {
