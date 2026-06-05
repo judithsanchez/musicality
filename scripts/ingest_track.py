@@ -4,7 +4,6 @@ import json
 import time
 import argparse
 import numpy as np
-import soundfile as sf
 
 # Try importing librosa for audio loading and fallback processing
 try:
@@ -40,7 +39,7 @@ def run_beatnet(audio_path, sr=22050):
         print(f"[INGEST-AI WARNING] BeatNet failed or not installed: {e}. Falling back to constant grid beat tracking...")
         
         try:
-            # Load only duration to avoid numba/libsamplerate JIT compilation errors on M1/M2 Macs
+            # Load only duration to avoid JIT compiler issues on Apple Silicon
             y, sr = librosa.load(audio_path, sr=sr)
             duration = librosa.get_duration(y=y, sr=sr)
             
@@ -54,61 +53,8 @@ def run_beatnet(audio_path, sr=22050):
             # Absolute fallback
             return np.array([0.0, 0.5, 1.0, 1.5, 2.0]), 120.0
 
-def run_demucs(audio_path, stems_dir, sr=22050):
-    """
-    Attempts to run Demucs to separate stems.
-    Falls back to copying raw audio to mock stems if Demucs is missing.
-    """
-    os.makedirs(stems_dir, exist_ok=True)
-    
-    # 4 stems expected: drums, bass, vocals, other
-    stem_files = {
-        'drums': os.path.join(stems_dir, 'drums.wav'),
-        'bass': os.path.join(stems_dir, 'bass.wav'),
-        'vocals': os.path.join(stems_dir, 'vocals.wav'),
-        'other': os.path.join(stems_dir, 'other.wav')
-    }
-    
-    try:
-        print("[INGEST-AI] Attempting Demucs stem separation via command line...")
-        import subprocess
-        # Run demucs command
-        temp_out = os.path.join(stems_dir, 'temp_demucs')
-        cmd = ['demucs', '-o', temp_out, audio_path]
-        subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        
-        filename = os.path.splitext(os.path.basename(audio_path))[0]
-        demucs_model = 'htdemucs' # default model
-        src_dir = os.path.join(temp_out, demucs_model, filename)
-        
-        if os.path.exists(src_dir):
-            for stem in ['drums', 'bass', 'vocals', 'other']:
-                src_path = os.path.join(src_dir, f"{stem}.wav")
-                if os.path.exists(src_path):
-                    os.replace(src_path, stem_files[stem])
-            print("[INGEST-AI] Demucs separation completed successfully.")
-            return True
-        else:
-            raise FileNotFoundError("Demucs output directory not found")
-            
-    except Exception as e:
-        print(f"[INGEST-AI WARNING] Demucs command failed or not installed: {e}. Falling back to copying raw audio to mock stems...")
-        
-        try:
-            y, sr = librosa.load(audio_path, sr=sr)
-            # Save stems
-            sf.write(stem_files['drums'], y, sr)
-            sf.write(stem_files['vocals'], y, sr)
-            sf.write(stem_files['bass'], y, sr)
-            sf.write(stem_files['other'], y, sr)
-            print("[INGEST-AI] Librosa raw audio copied to stems mock fallback.")
-            return True
-        except Exception as err:
-            print(f"[INGEST-AI ERROR] Stem separation fallback failed: {err}")
-            return False
-
 def main():
-    parser = argparse.ArgumentParser(description="Automated Ingestion Pipeline (BeatNet + Demucs)")
+    parser = argparse.ArgumentParser(description="Automated Ingestion Pipeline (BeatNet)")
     parser.add_argument("--audio", required=True, help="Path to input audio file")
     parser.add_argument("--youtubeId", required=True, help="YouTube ID of the song")
     parser.add_argument("--title", required=True, help="Title of the song")
@@ -134,11 +80,7 @@ def main():
     if not beat_times_ms:
         beat_times_ms = [0, 500, 1000] # Safe fallback
         
-    # 2. Stem separation (Demucs with Librosa fallback)
-    stems_dir = os.path.join(os.path.dirname(args.output), 'stems', args.youtubeId)
-    run_demucs(args.audio, stems_dir)
-    
-    # 3. Assemble SongMap JSON
+    # 2. Assemble SongMap JSON (No stems/Demucs)
     song_map = {
         "id": f"song-{args.youtubeId}",
         "youtubeId": args.youtubeId,

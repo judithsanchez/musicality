@@ -293,20 +293,25 @@ function songDbPlugin() {
               }
               
               const songsDir = path.resolve(__dirname, './public/songs');
-              const stemsDir = path.join(songsDir, 'stems', youtubeId);
-              const drumsPath = path.join(stemsDir, 'drums.wav');
-              const bassPath = path.join(stemsDir, 'bass.wav');
+              const audioFilePathMp3 = path.join(songsDir, `${youtubeId}.mp3`);
+              const audioFilePathMp4 = path.join(songsDir, `${youtubeId}.mp4`);
+              let audioFilePath = '';
+              if (fs.existsSync(audioFilePathMp3)) {
+                audioFilePath = audioFilePathMp3;
+              } else if (fs.existsSync(audioFilePathMp4)) {
+                audioFilePath = audioFilePathMp4;
+              }
               
-              if (!fs.existsSync(drumsPath) || !fs.existsSync(bassPath)) {
+              if (!audioFilePath) {
                 res.statusCode = 404;
                 res.setHeader('Content-Type', 'application/json');
-                res.end(JSON.stringify({ error: `Isolated drums/bass stems not found for YouTube ID: ${youtubeId}` }));
+                res.end(JSON.stringify({ error: `Audio file not found for YouTube ID: ${youtubeId}` }));
                 return;
               }
               
               console.log(`[Vite Ingest] Running Clave Inference on phrase for ${youtubeId} between ${startTimeMs}ms and ${endTimeMs}ms`);
               const stdout = execSync(
-                `python3 scripts/infer_clave.py --drums "${drumsPath}" --bass "${bassPath}" --startTimeMs ${startTimeMs} --endTimeMs ${endTimeMs}`
+                `python3 scripts/infer_clave.py --audio "${audioFilePath}" --startTimeMs ${startTimeMs} --endTimeMs ${endTimeMs}`
               );
               
               const inferredClave = stdout.toString().trim();

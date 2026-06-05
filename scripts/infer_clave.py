@@ -10,15 +10,14 @@ except ImportError:
     sys.exit(1)
 
 def main():
-    parser = argparse.ArgumentParser(description="Single Phrase Conga/Bass Stem Clave Inference Engine")
-    parser.add_argument("--drums", required=True, help="Path to isolated congas/drums stem wav")
-    parser.add_argument("--bass", required=True, help="Path to isolated bass stem wav")
+    parser = argparse.ArgumentParser(description="Single Phrase Raw Audio Clave Inference Engine")
+    parser.add_argument("--audio", required=True, help="Path to raw audio file (MP3/MP4)")
     parser.add_argument("--startTimeMs", type=int, required=True, help="Start time of the phrase in milliseconds")
     parser.add_argument("--endTimeMs", type=int, required=True, help="End time of the phrase in milliseconds")
     
     args = parser.parse_args()
     
-    if not os.path.exists(args.drums) or not os.path.exists(args.bass):
+    if not os.path.exists(args.audio):
         print("2-3") # Safe default fallback
         sys.exit(0)
         
@@ -31,15 +30,11 @@ def main():
         sys.exit(0)
         
     try:
-        # Load audio segments for the specific phrase duration
-        y_drums, sr = librosa.load(args.drums, sr=22050, offset=start_sec, duration=duration_sec)
-        y_bass, _ = librosa.load(args.bass, sr=22050, offset=start_sec, duration=duration_sec)
+        # Load audio segment for the specific phrase duration from the raw audio
+        y, sr = librosa.load(args.audio, sr=22050, offset=start_sec, duration=duration_sec)
         
-        # Calculate onset envelopes
-        onset_drums = librosa.onset.onset_strength(y=y_drums, sr=sr)
-        onset_bass = librosa.onset.onset_strength(y=y_bass, sr=sr)
-        
-        combined_onset = onset_drums + 0.5 * onset_bass
+        # Calculate onset envelope on raw audio mix
+        combined_onset = librosa.onset.onset_strength(y=y, sr=sr)
         times = librosa.times_like(combined_onset, sr=sr)
         
         # We divide the phrase duration into 16 bins (representing 0.5-beat subdivisions of an 8-beat phrase)

@@ -65,13 +65,9 @@ async function runIngestTests() {
     // Clean up previous test runs if any
     const finalAudioPath = path.join(songsDir, 'youtube-ingest-test.mp3');
     const finalJsonPath = path.join(songsDir, 'youtube-ingest-test.json');
-    const stemsDir = path.join(songsDir, 'stems', 'youtube-ingest-test');
     
     if (fs.existsSync(finalAudioPath)) fs.unlinkSync(finalAudioPath);
     if (fs.existsSync(finalJsonPath)) fs.unlinkSync(finalJsonPath);
-    if (fs.existsSync(stemsDir)) {
-      fs.rmSync(stemsDir, { recursive: true, force: true });
-    }
 
     // TEST CASE 1: INGESTION (Phase 1)
     console.log('Test Case 1: Sending Ingestion Request (Phase 1)...');
@@ -106,11 +102,9 @@ async function runIngestTests() {
     // TEST CASE 2: CLAVE INFERENCE (Phase 3)
     console.log('Test Case 2: Sending Clave Inference Request (Phase 3)...');
     
-    // Verify stems exist first
-    const drumsPath = path.join(stemsDir, 'drums.wav');
-    const bassPath = path.join(stemsDir, 'bass.wav');
-    if (!fs.existsSync(drumsPath) || !fs.existsSync(bassPath)) {
-      throw new Error('Isolated stems not found on disk after ingestion.');
+    // Verify raw audio exists first
+    if (!fs.existsSync(finalAudioPath)) {
+      throw new Error('Raw audio not found on disk after ingestion.');
     }
 
     const claveRes = await fetch(CLAVE_API_URL, {
@@ -146,9 +140,6 @@ async function runIngestTests() {
     // Clean up test runs
     if (fs.existsSync(finalAudioPath)) fs.unlinkSync(finalAudioPath);
     if (fs.existsSync(finalJsonPath)) fs.unlinkSync(finalJsonPath);
-    if (fs.existsSync(stemsDir)) {
-      fs.rmSync(stemsDir, { recursive: true, force: true });
-    }
     if (fs.existsSync(tempAudioPath)) fs.unlinkSync(tempAudioPath);
 
   } catch (err) {
