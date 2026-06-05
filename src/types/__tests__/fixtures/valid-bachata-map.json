@@ -1,0 +1,48 @@
+{
+  "id": "song-bachata-1",
+  "youtubeId": "bachata-yt-1",
+  "title": "Bachata Test",
+  "artist": "Bachata Artist",
+  "genre": "BACHATA",
+  "baseBpm": 130,
+  "absoluteBeatMap": [0, 461, 922, 1383, 1844],
+  "schemaVersion": "2.0",
+  "sections": [
+    {
+      "id": "sec-bach-1",
+      "startTimeMs": 0,
+      "endTimeMs": 922,
+      "label": "Intro",
+      "phraseIds": ["33333333-3333-4333-8333-333333333333"],
+      "energyState": "INTRO"
+    },
+    {
+      "id": "sec-bach-2",
+      "startTimeMs": 922,
+      "endTimeMs": 1844,
+      "label": "Derecho",
+      "phraseIds": ["44444444-4444-4444-8444-444444444444"],
+      "energyState": "DERECHO"
+    }
+  ],
+  "phrases": [
+    {
+      "id": "33333333-3333-4333-8333-333333333333",
+      "index": 1,
+      "startTimeMs": 0,
+      "endTimeMs": 922,
+      "type": "STANDARD_8_COUNT",
+      "genre": "BACHATA",
+      "events": []
+    },
+    {
+      "id": "44444444-4444-4444-8444-444444444444",
+      "index": 2,
+      "startTimeMs": 922,
+      "endTimeMs": 1844,
+      "type": "STANDARD_8_COUNT",
+      "genre": "BACHATA",
+      "events": []
+    }
+  ]
+}

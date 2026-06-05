@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { StrictSongMapSchema } from '../schemas';
+import validSalsaMap from './fixtures/valid-salsa-map.json';
+import validBachataMap from './fixtures/valid-bachata-map.json';
 
 const UUID_1 = '11111111-1111-4111-8111-111111111111';
 const UUID_2 = '22222222-2222-4222-8222-222222222222';
@@ -7,111 +9,6 @@ const UUID_BACH_1 = '33333333-3333-4333-8333-333333333333';
 const UUID_BACH_2 = '44444444-4444-4444-8444-444444444444';
 const UUID_EXTRA = '55555555-5555-4555-8555-555555555555';
 const UUID_UNREF = '66666666-6666-4666-8666-666666666666';
-
-const validSalsaMap = {
-  id: 'song-salsa-1',
-  youtubeId: 'salsa-yt-1',
-  title: 'Salsa Test',
-  artist: 'Salsa Artist',
-  genre: 'SALSA',
-  baseBpm: 120,
-  absoluteBeatMap: [0, 500, 1000, 1500, 2000],
-  schemaVersion: '2.0',
-  defaultClave: '2-3',
-  sections: [
-    {
-      id: 'section-1',
-      startTimeMs: 0,
-      endTimeMs: 1000,
-      label: 'Intro',
-      phraseIds: [UUID_1],
-      energyState: 'INTRO',
-      emoji: '🎵'
-    },
-    {
-      id: 'section-2',
-      startTimeMs: 1000,
-      endTimeMs: 2000,
-      label: 'Verse',
-      phraseIds: [UUID_2],
-      energyState: 'VERSE',
-      emoji: '🎤'
-    }
-  ],
-  phrases: [
-    {
-      id: UUID_1,
-      index: 1,
-      startTimeMs: 0,
-      endTimeMs: 1000,
-      type: 'STANDARD_8_COUNT',
-      genre: 'SALSA',
-      claveDirection: '2-3',
-      claveIsVerified: true,
-      events: []
-    },
-    {
-      id: UUID_2,
-      index: 2,
-      startTimeMs: 1000,
-      endTimeMs: 2000,
-      type: 'STANDARD_8_COUNT',
-      genre: 'SALSA',
-      claveDirection: '2-3',
-      claveIsVerified: true,
-      events: []
-    }
-  ]
-};
-
-const validBachataMap = {
-  id: 'song-bachata-1',
-  youtubeId: 'bachata-yt-1',
-  title: 'Bachata Test',
-  artist: 'Bachata Artist',
-  genre: 'BACHATA',
-  baseBpm: 130,
-  absoluteBeatMap: [0, 461, 922, 1383, 1844],
-  schemaVersion: '2.0',
-  sections: [
-    {
-      id: 'sec-bach-1',
-      startTimeMs: 0,
-      endTimeMs: 922,
-      label: 'Intro',
-      phraseIds: [UUID_BACH_1],
-      energyState: 'INTRO'
-    },
-    {
-      id: 'sec-bach-2',
-      startTimeMs: 922,
-      endTimeMs: 1844,
-      label: 'Derecho',
-      phraseIds: [UUID_BACH_2],
-      energyState: 'DERECHO'
-    }
-  ],
-  phrases: [
-    {
-      id: UUID_BACH_1,
-      index: 1,
-      startTimeMs: 0,
-      endTimeMs: 922,
-      type: 'STANDARD_8_COUNT',
-      genre: 'BACHATA',
-      events: []
-    },
-    {
-      id: UUID_BACH_2,
-      index: 2,
-      startTimeMs: 922,
-      endTimeMs: 1844,
-      type: 'STANDARD_8_COUNT',
-      genre: 'BACHATA',
-      events: []
-    }
-  ]
-};
 
 describe('StrictSongMapSchema Validation', () => {
   it('should pass for a valid Salsa song map', () => {
