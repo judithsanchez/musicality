@@ -19,8 +19,12 @@ export default function DevCalibrationPanel({
   const genre = songData?.genre || "SALSA";
 
   const energyStates = genre === "SALSA" 
-    ? ["INTRO", "VERSE", "MONTUNO", "MAMBO", "DESCARGA", "BREAK", "OUTRO"]
+    ? ["INTRO", "VERSE", "CHORUS", "MONTUNO", "MAMBO", "DESCARGA", "BREAK", "OUTRO"]
     : ["INTRO", "DERECHO", "MAJAO", "MAMBO", "BREAK", "OUTRO"];
+
+  const instruments = genre === "SALSA"
+    ? ["PIANO", "VOCALS", "BRASS", "CONGAS", "BONGOS", "TIMBALES", "BASS", "COWBELL", "NONE"]
+    : ["REQUINTO", "SEGUNDA", "BONGOS", "GUIRA", "BASS", "VOCALS", "NONE"];
 
   return (
     <div className="glass-panel dev-panel right-workspace-column" style={{
@@ -85,13 +89,15 @@ export default function DevCalibrationPanel({
                     onChange={(e) => onUpdateSectionField(section.id, "emoji", e.target.value)}
                     style={{ width: "32px", textAlign: "center", padding: "4px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#fff" }}
                   />
-                  <input
-                    type="text"
-                    value={section.label}
-                    onChange={(e) => onUpdateSectionField(section.id, "label", e.target.value)}
-                    placeholder="Section Label"
-                    style={{ flexGrow: 1, padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#fff", fontWeight: "bold" }}
-                  />
+                  <select
+                    value={section.energyState}
+                    onChange={(e) => onUpdateSectionField(section.id, "energyState", e.target.value)}
+                    style={{ flexGrow: 1, padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#fff", fontWeight: "bold", fontSize: "0.85rem" }}
+                  >
+                    {energyStates.map(st => (
+                      <option key={st} value={st}>{st}</option>
+                    ))}
+                  </select>
                   {editorSections.length > 1 && (
                     <button
                       onClick={() => onDeleteSection(section.id)}
@@ -102,29 +108,17 @@ export default function DevCalibrationPanel({
                   )}
                 </div>
 
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                    <span style={{ fontSize: "0.65rem", color: "#a1a1aa" }}>Energy State</span>
-                    <select
-                      value={section.energyState}
-                      onChange={(e) => onUpdateSectionField(section.id, "energyState", e.target.value)}
-                      style={{ padding: "4px 6px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#fff", fontSize: "0.75rem" }}
-                    >
-                      {energyStates.map(st => (
-                        <option key={st} value={st}>{st}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                    <span style={{ fontSize: "0.65rem", color: "#a1a1aa" }}>Focus Instrument</span>
-                    <input
-                      type="text"
-                      value={section.focusInstrument || ""}
-                      onChange={(e) => onUpdateSectionField(section.id, "focusInstrument", e.target.value)}
-                      placeholder="e.g. Piano"
-                      style={{ padding: "4px 6px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#fff", fontSize: "0.75rem" }}
-                    />
-                  </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                  <span style={{ fontSize: "0.65rem", color: "#a1a1aa" }}>Focus Instrument</span>
+                  <select
+                    value={section.focusInstrument || "NONE"}
+                    onChange={(e) => onUpdateSectionField(section.id, "focusInstrument", e.target.value)}
+                    style={{ padding: "4px 6px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#fff", fontSize: "0.75rem" }}
+                  >
+                    {instruments.map(inst => (
+                      <option key={inst} value={inst}>{inst}</option>
+                    ))}
+                  </select>
                 </div>
 
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", fontSize: "0.7rem", color: "#a1a1aa" }}>

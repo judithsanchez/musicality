@@ -32,6 +32,19 @@ const SECTION_PALETTE = [
   { bg: "rgba(255,255,255,0.14)", border: "rgba(255,255,255,0.37)", text: "#ffffff" },
 ];
 
+const ENERGY_STATE_DEFAULTS: Record<string, { label: string; emoji: string }> = {
+  INTRO: { label: "Intro", emoji: "🎵" },
+  VERSE: { label: "Verse", emoji: "🎤" },
+  CHORUS: { label: "Chorus", emoji: "🗣️" },
+  MONTUNO: { label: "Montuno", emoji: "🔥" },
+  MAMBO: { label: "Mambo", emoji: "🎺" },
+  DESCARGA: { label: "Descarga", emoji: "🥁" },
+  BREAK: { label: "Break", emoji: "🛑" },
+  OUTRO: { label: "Outro", emoji: "🏁" },
+  DERECHO: { label: "Derecho", emoji: "🎸" },
+  MAJAO: { label: "Majao", emoji: "💥" }
+};
+
 export default function DevCalibrator({
   songData,
   originalSongData,
@@ -348,7 +361,16 @@ export default function DevCalibrator({
   };
 
   const handleUpdateSectionField = (id: string, field: string, value: any) => {
-    const updated = editorSections.map(s => s.id === id ? { ...s, [field]: value } : s);
+    const updated = editorSections.map(s => {
+      if (s.id === id) {
+        if (field === "energyState") {
+          const defaults = ENERGY_STATE_DEFAULTS[value] || { label: value.charAt(0).toUpperCase() + value.slice(1).toLowerCase(), emoji: "🎵" };
+          return { ...s, energyState: value, label: defaults.label, emoji: defaults.emoji };
+        }
+        return { ...s, [field]: value };
+      }
+      return s;
+    });
     setEditorSections(updated);
     syncSongMapState(updated, phrases);
   };
@@ -368,7 +390,7 @@ export default function DevCalibrator({
 
       const newSec = {
         id: crypto.randomUUID(),
-        label: "New Section",
+        label: "Intro",
         emoji: "🎵",
         energyState: "INTRO",
         startTimeMs: playheadMs,
