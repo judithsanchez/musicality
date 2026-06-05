@@ -224,7 +224,7 @@ export const StrictSongMapSchema = SongMapSchema.superRefine((data, ctx) => {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: `Last section end time (${lastSection.endTimeMs}ms) must match the last beat in absoluteBeatMap (${lastBeatTime}ms)`,
-          path: ['sections', data.sections.indexOf(lastSection), 'endTimeMs'],
+          path: ['sections', data.sections.findIndex(s => s.id === lastSection.id), 'endTimeMs'],
         });
       }
     }

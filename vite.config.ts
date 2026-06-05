@@ -1,8 +1,9 @@
-import { defineConfig } from 'vite';
+import { defineConfig, ViteDevServer, Connect } from 'vite';
 import react from '@vitejs/plugin-react';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { ServerResponse } from 'http';
 import { StrictSongMapSchema } from './src/types/schemas';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -11,12 +12,12 @@ const __dirname = path.dirname(__filename);
 function songDbPlugin() {
   return {
     name: 'song-db-plugin',
-    configureServer(server) {
-      server.middlewares.use((req, res, next) => {
+    configureServer(server: ViteDevServer) {
+      server.middlewares.use((req: Connect.IncomingMessage, res: ServerResponse, next: Connect.NextFunction) => {
         const urlPath = req.url ? req.url.split('?')[0] : '';
         if (req.method === 'POST' && urlPath === '/api/songs') {
           let body = '';
-          req.on('data', (chunk) => {
+          req.on('data', (chunk: Buffer) => {
             body += chunk.toString();
           });
           req.on('end', () => {
@@ -112,9 +113,6 @@ function songDbPlugin() {
 // https://vite.dev/config/
 export default defineConfig({
   base: process.env.NODE_ENV === 'production' ? '/musicality/' : '/',
-  server: {
-    historyApiFallback: true,
-  },
   plugins: [
     react(),
     songDbPlugin()
