@@ -21,7 +21,7 @@ def run_beatnet(audio_path, sr=22050):
         print("[INGEST-AI] Attempting BeatNet beat tracking...")
         from BeatNet.BeatNet import BeatNet
         # Initialize BeatNet
-        estimator = BeatNet(1, torch_device='cpu')
+        estimator = BeatNet(1, device='cpu')
         # BeatNet estimates beat positions
         output = estimator.process(audio_path)
         # Output is an array of [time, beat_position]
