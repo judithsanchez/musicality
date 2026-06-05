@@ -91,7 +91,6 @@ async function runTests() {
   console.log('🚀 Starting API Verification Tests...');
   console.log(`Target API: ${API_URL}\n`);
 
-  // Test Case 1: Send invalid payload (expect 400 Bad Request)
   console.log('Test Case 1: Sending invalid payload (with section gap)...');
   try {
     const res = await fetch(API_URL, {
@@ -114,10 +113,8 @@ async function runTests() {
     process.exit(1);
   }
 
-  // Test Case 2: Send valid payload (expect 200 OK and file writes)
   console.log('Test Case 2: Sending valid payload...');
   try {
-    // Clean up existing test files first
     const songsDir = path.resolve(__dirname, '../public/songs');
     const songFilePath = path.join(songsDir, 'salsa-yt-test.json');
     const catalogFilePath = path.join(songsDir, 'catalog.json');
@@ -142,7 +139,6 @@ async function runTests() {
       throw new Error('Response success flag is false');
     }
 
-    // Verify song JSON exists and matches
     if (!fs.existsSync(songFilePath)) {
       throw new Error(`Song map file not written to: ${songFilePath}`);
     }
@@ -153,7 +149,6 @@ async function runTests() {
     }
     console.log('Verified that song JSON was successfully saved to disk.');
 
-    // Verify catalog update
     if (!fs.existsSync(catalogFilePath)) {
       throw new Error(`Catalog file does not exist at: ${catalogFilePath}`);
     }

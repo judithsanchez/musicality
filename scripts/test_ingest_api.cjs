@@ -12,13 +12,11 @@ async function runIngestTests() {
 
   const songsDir = path.resolve(__dirname, '../public/songs');
   const tempAudioPath = path.join(__dirname, 'mock_track.mp3');
-  
-  // Create a 1-second dummy silent wav/mp3 file for analysis fallback to succeed quickly
+
   const sampleRate = 22050;
   const numSamples = sampleRate; // 1 second
   const buffer = Buffer.alloc(44 + numSamples * 2);
-  
-  // Write WAV header
+
   buffer.write('RIFF', 0);
   buffer.writeUInt32LE(36 + numSamples * 2, 4);
   buffer.write('WAVE', 8);
@@ -32,13 +30,12 @@ async function runIngestTests() {
   buffer.writeUInt16LE(16, 34);
   buffer.write('data', 36);
   buffer.writeUInt32LE(numSamples * 2, 40);
-  
+
   fs.writeFileSync(tempAudioPath, buffer);
-  
-  // Build raw multipart form body
+
   const boundary = '----TestBoundary' + Math.random().toString(36).substring(2);
   const multipartHeader = `multipart/form-data; boundary=${boundary}`;
-  
+
   const payloadParts = [
     `--${boundary}\r\nContent-Disposition: form-data; name="youtubeId"\r\n\r\nyoutube-ingest-test\r\n`,
     `--${boundary}\r\nContent-Disposition: form-data; name="title"\r\n\r\nIngestion Test track\r\n`,
@@ -46,11 +43,11 @@ async function runIngestTests() {
     `--${boundary}\r\nContent-Disposition: form-data; name="genre"\r\n\r\nSALSA\r\n`,
     `--${boundary}\r\nContent-Disposition: form-data; name="audio"; filename="mock_track.mp3"\r\nContent-Type: audio/mpeg\r\n\r\n`
   ];
-  
+
   const partBuffers = payloadParts.map(part => Buffer.from(part, 'utf8'));
   const fileBuffer = fs.readFileSync(tempAudioPath);
   const endBuffer = Buffer.from(`\r\n--${boundary}--\r\n`, 'utf8');
-  
+
   const requestBody = Buffer.concat([
     partBuffers[0],
     partBuffers[1],
@@ -62,14 +59,12 @@ async function runIngestTests() {
   ]);
 
   try {
-    // Clean up previous test runs if any
     const finalAudioPath = path.join(songsDir, 'youtube-ingest-test.mp3');
     const finalJsonPath = path.join(songsDir, 'youtube-ingest-test.json');
-    
+
     if (fs.existsSync(finalAudioPath)) fs.unlinkSync(finalAudioPath);
     if (fs.existsSync(finalJsonPath)) fs.unlinkSync(finalJsonPath);
 
-    // TEST CASE 1: INGESTION (Phase 1)
     console.log('Test Case 1: Sending Ingestion Request (Phase 1)...');
     const res = await fetch(INGEST_API_URL, {
       method: 'POST',
@@ -82,7 +77,7 @@ async function runIngestTests() {
 
     console.log(`Ingest response status: ${res.status}`);
     const resText = await res.text();
-    
+
     if (res.status !== 200) {
       throw new Error(`Ingestion failed with status ${res.status}. Response: ${resText}`);
     }
@@ -91,18 +86,15 @@ async function runIngestTests() {
     if (!data.success) {
       throw new Error('Response success flag is false');
     }
-    
-    // Assert clave was NOT guessed during ingestion (Phase 1)
+
     if (data.song.defaultClave !== 'NOT_SET') {
       throw new Error(`Clave was guessed during Ingestion Phase: ${data.song.defaultClave} (Expected: 'NOT_SET')`);
     }
     console.log('Verified that defaultClave remains "NOT_SET" after ingestion.');
     console.log('✅ Ingestion (Phase 1) verified successfully.\n');
 
-    // TEST CASE 2: CLAVE INFERENCE (Phase 3)
     console.log('Test Case 2: Sending Clave Inference Request (Phase 3)...');
-    
-    // Verify raw audio exists first
+
     if (!fs.existsSync(finalAudioPath)) {
       throw new Error('Raw audio not found on disk after ingestion.');
     }
@@ -119,7 +111,7 @@ async function runIngestTests() {
 
     console.log(`Clave response status: ${claveRes.status}`);
     const claveText = await claveRes.text();
-    
+
     if (claveRes.status !== 200) {
       throw new Error(`Clave inference failed with status ${claveRes.status}. Response: ${claveText}`);
     }
@@ -128,7 +120,7 @@ async function runIngestTests() {
     if (!claveData.success || !claveData.claveDirection) {
       throw new Error(`Clave inference response invalid: ${claveText}`);
     }
-    
+
     console.log(`Inferred Clave direction direction: ${claveData.claveDirection}`);
     if (claveData.claveDirection !== '2-3' && claveData.claveDirection !== '3-2') {
       throw new Error(`Inferred clave direction is invalid: ${claveData.claveDirection}`);
@@ -137,7 +129,6 @@ async function runIngestTests() {
 
     console.log('🎉 All Calibration Workflow Integration Tests completed successfully!');
 
-    // Clean up test runs
     if (fs.existsSync(finalAudioPath)) fs.unlinkSync(finalAudioPath);
     if (fs.existsSync(finalJsonPath)) fs.unlinkSync(finalJsonPath);
     if (fs.existsSync(tempAudioPath)) fs.unlinkSync(tempAudioPath);
