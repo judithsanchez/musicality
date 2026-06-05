@@ -91,51 +91,51 @@ async function runTests() {
   console.log('🚀 Starting API Verification Tests...');
   console.log(`Target API: ${API_URL}\n`);
 
-  console.log('Test Case 1: Sending invalid payload (with section gap)...');
+  const songsDir = path.resolve(__dirname, '../public/songs');
+  const songFilePath = path.join(songsDir, 'salsa-yt-test.json');
+  const catalogFilePath = path.join(songsDir, 'catalog.json');
+
+  let catalogBackup = null;
+  if (fs.existsSync(catalogFilePath)) {
+    catalogBackup = fs.readFileSync(catalogFilePath, 'utf8');
+  }
+
   try {
-    const res = await fetch(API_URL, {
+    console.log('Test Case 1: Sending invalid payload (with section gap)...');
+    const res1 = await fetch(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(invalidSalsaMap)
     });
 
-    console.log(`Response status: ${res.status}`);
-    if (res.status !== 400) {
-      throw new Error(`Expected status 400, got ${res.status}`);
+    console.log(`Response status: ${res1.status}`);
+    if (res1.status !== 400) {
+      throw new Error(`Expected status 400, got ${res1.status}`);
     }
 
-    const data = await res.json();
+    const data1 = await res1.json();
     console.log('Received validation errors as expected:');
-    console.log(JSON.stringify(data.issues, null, 2));
+    console.log(JSON.stringify(data1.issues, null, 2));
     console.log('✅ Test Case 1 Passed.\n');
-  } catch (err) {
-    console.error('❌ Test Case 1 Failed:', err.message);
-    process.exit(1);
-  }
 
-  console.log('Test Case 2: Sending valid payload...');
-  try {
-    const songsDir = path.resolve(__dirname, '../public/songs');
-    const songFilePath = path.join(songsDir, 'salsa-yt-test.json');
-    const catalogFilePath = path.join(songsDir, 'catalog.json');
-
+    console.log('Test Case 2: Sending valid payload...');
     if (fs.existsSync(songFilePath)) {
       fs.unlinkSync(songFilePath);
     }
 
-    const res = await fetch(API_URL, {
+    const res2 = await fetch(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(validSalsaMap)
     });
 
-    console.log(`Response status: ${res.status}`);
-    if (res.status !== 200) {
-      throw new Error(`Expected status 200, got ${res.status}`);
+    console.log(`Response status: ${res2.status}`);
+    if (res2.status !== 200) {
+      throw new Error(`Expected status 200, got ${res2.status}`);
     }
 
-    const data = await res.json();
-    if (!data.success) {
+    const data2 = await res2.json();
+    if (!data2.success) {
       throw new Error('Response success flag is false');
     }
 
@@ -164,12 +164,21 @@ async function runTests() {
     }
     console.log('Verified that catalog.json was successfully updated with correct metadata.');
     console.log('✅ Test Case 2 Passed.\n');
-  } catch (err) {
-    console.error('❌ Test Case 2 Failed:', err.message);
-    process.exit(1);
-  }
 
-  console.log('🎉 All API verification tests completed successfully!');
+    console.log('🎉 All API verification tests completed successfully!');
+  } catch (err) {
+    console.error('❌ API Test Failed:', err.message);
+    process.exit(1);
+  } finally {
+    if (fs.existsSync(songFilePath)) {
+      fs.unlinkSync(songFilePath);
+    }
+    if (catalogBackup !== null) {
+      fs.writeFileSync(catalogFilePath, catalogBackup, 'utf8');
+    } else if (fs.existsSync(catalogFilePath)) {
+      fs.unlinkSync(catalogFilePath);
+    }
+  }
 }
 
 runTests();

@@ -58,10 +58,16 @@ async function runIngestTests() {
     endBuffer
   ]);
 
-  try {
-    const finalAudioPath = path.join(songsDir, 'youtube-ingest-test.mp3');
-    const finalJsonPath = path.join(songsDir, 'youtube-ingest-test.json');
+  const finalAudioPath = path.join(songsDir, 'youtube-ingest-test.mp3');
+  const finalJsonPath = path.join(songsDir, 'youtube-ingest-test.json');
+  const catalogFilePath = path.join(songsDir, 'catalog.json');
 
+  let catalogBackup = null;
+  if (fs.existsSync(catalogFilePath)) {
+    catalogBackup = fs.readFileSync(catalogFilePath, 'utf8');
+  }
+
+  try {
     if (fs.existsSync(finalAudioPath)) fs.unlinkSync(finalAudioPath);
     if (fs.existsSync(finalJsonPath)) fs.unlinkSync(finalJsonPath);
 
@@ -129,14 +135,18 @@ async function runIngestTests() {
 
     console.log('🎉 All Calibration Workflow Integration Tests completed successfully!');
 
+  } catch (err) {
+    console.error('❌ Ingestion API Test Failed:', err.message);
+    process.exit(1);
+  } finally {
     if (fs.existsSync(finalAudioPath)) fs.unlinkSync(finalAudioPath);
     if (fs.existsSync(finalJsonPath)) fs.unlinkSync(finalJsonPath);
     if (fs.existsSync(tempAudioPath)) fs.unlinkSync(tempAudioPath);
-
-  } catch (err) {
-    console.error('❌ Ingestion API Test Failed:', err.message);
-    if (fs.existsSync(tempAudioPath)) fs.unlinkSync(tempAudioPath);
-    process.exit(1);
+    if (catalogBackup !== null) {
+      fs.writeFileSync(catalogFilePath, catalogBackup, 'utf8');
+    } else if (fs.existsSync(catalogFilePath)) {
+      fs.unlinkSync(catalogFilePath);
+    }
   }
 }
 
