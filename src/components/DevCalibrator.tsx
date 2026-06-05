@@ -494,12 +494,14 @@ export default function DevCalibrator({
 
       if (e.key === "ArrowLeft") {
         e.preventDefault();
-        throttledSeek(Math.max(0, currentTime - 2.5), true);
+        const step = e.shiftKey ? 1.0 : 0.1;
+        throttledSeek(Math.max(0, currentTime - step), true);
         return;
       }
       if (e.key === "ArrowRight") {
         e.preventDefault();
-        throttledSeek(Math.min(duration, currentTime + 2.5), true);
+        const step = e.shiftKey ? 1.0 : 0.1;
+        throttledSeek(Math.min(duration, currentTime + step), true);
         return;
       }
 
@@ -671,10 +673,8 @@ export default function DevCalibrator({
                 return (
                   <div
                     key={sec.id}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setFocusedSectionId(isActive ? null : sec.id);
-                      if (!isActive) throttledSeek(startSec, true);
+                    onClick={() => {
+                      setFocusedSectionId(sec.id);
                     }}
                     style={{
                       position: "absolute",
@@ -763,32 +763,50 @@ export default function DevCalibrator({
         {editorSections.length > 0 && (
           <div style={{ display: "flex", gap: "6px", marginTop: "2px", flexWrap: "wrap" }}>
             {editorSections.map((sec, idx) => {
-              const color = SECTION_PALETTE[idx % SECTION_PALETTE.length];
-              const isActive = sec.id === focusedSectionId;
-              return (
-                <button
-                  key={sec.id}
-                  onClick={() => {
-                    setFocusedSectionId(isActive ? null : sec.id);
-                    if (!isActive) throttledSeek(sec.startTimeMs / 1000, true);
-                  }}
-                  style={{
-                    fontSize: "0.68rem",
-                    fontWeight: 700,
-                    padding: "3px 10px",
-                    borderRadius: "20px",
-                    background: isActive ? color.bg : "rgba(255,255,255,0.04)",
-                    border: `1px solid ${isActive ? color.border : "rgba(255,255,255,0.08)"}`,
-                    color: isActive ? color.text : "#9ca3af",
-                    cursor: "pointer"
-                  }}
-                >
-                  {sec.emoji || "🎵"} {sec.label}
-                </button>
-              );
+               const color = SECTION_PALETTE[idx % SECTION_PALETTE.length];
+               const isActive = sec.id === focusedSectionId;
+               return (
+                 <button
+                   key={sec.id}
+                   onClick={() => {
+                     setFocusedSectionId(isActive ? null : sec.id);
+                     if (!isActive) throttledSeek(sec.startTimeMs / 1000, true);
+                   }}
+                   style={{
+                     fontSize: "0.68rem",
+                     fontWeight: 700,
+                     padding: "3px 10px",
+                     borderRadius: "20px",
+                     background: isActive ? color.bg : "rgba(255,255,255,0.04)",
+                     border: `1px solid ${isActive ? color.border : "rgba(255,255,255,0.08)"}`,
+                     color: isActive ? color.text : "#9ca3af",
+                     cursor: "pointer"
+                   }}
+                 >
+                   {sec.emoji || "🎵"} {sec.label}
+                 </button>
+               );
             })}
           </div>
         )}
+
+        <div style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "16px",
+          marginTop: "8px",
+          paddingTop: "8px",
+          borderTop: "1px solid rgba(255,255,255,0.05)",
+          fontSize: "0.68rem",
+          color: "#71717a",
+          flexWrap: "wrap"
+        }}>
+          <span style={{ fontWeight: "bold", color: "#a1a1aa" }}>⌨️ Shortcuts:</span>
+          <span><kbd style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "4px", padding: "1px 4px", fontFamily: "inherit" }}>Space</kbd> Play/Pause</span>
+          <span><kbd style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "4px", padding: "1px 4px", fontFamily: "inherit" }}>← / →</kbd> Nudge 100ms</span>
+          <span><kbd style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "4px", padding: "1px 4px", fontFamily: "inherit" }}>Shift + ← / →</kbd> Nudge 1.0s</span>
+          <span><kbd style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "4px", padding: "1px 4px", fontFamily: "inherit" }}>Enter / M</kbd> Slice Section</span>
+        </div>
       </div>
     </div>
   );

@@ -1,4 +1,5 @@
-import { Trash2, Plus, Save, AlertOctagon } from "lucide-react";
+import { useState } from "react";
+import { Trash2, Plus, Save, AlertOctagon, ChevronDown, ChevronRight } from "lucide-react";
 import {
   SalsaEnergyStateSchema,
   BachataEnergyStateSchema,
@@ -23,6 +24,11 @@ export default function DevCalibrationPanel({
   onSave
 }) {
   const genre = songData?.genre || "SALSA";
+  const [collapsedSections, setCollapsedSections] = useState({});
+
+  const toggleCollapse = (id) => {
+    setCollapsedSections(prev => ({ ...prev, [id]: !prev[id] }));
+  };
 
   const energyStates = genre === "SALSA" 
     ? SalsaEnergyStateSchema.options
@@ -89,6 +95,13 @@ export default function DevCalibrationPanel({
                 background: "rgba(0, 0, 0, 0.15)"
               }}>
                 <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+                  <button
+                    type="button"
+                    onClick={() => toggleCollapse(section.id)}
+                    style={{ background: "none", border: "none", color: "#a1a1aa", cursor: "pointer", display: "flex", alignItems: "center", padding: 0 }}
+                  >
+                    {collapsedSections[section.id] ? <ChevronRight size={16} /> : <ChevronDown size={16} />}
+                  </button>
                   <input
                     type="text"
                     value={section.emoji || "🎵"}
@@ -114,51 +127,55 @@ export default function DevCalibrationPanel({
                   )}
                 </div>
 
-                <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                  <span style={{ fontSize: "0.65rem", color: "#a1a1aa" }}>Focus Instrument</span>
-                  <select
-                    value={section.focusInstrument || "NONE"}
-                    onChange={(e) => onUpdateSectionField(section.id, "focusInstrument", e.target.value)}
-                    style={{ padding: "4px 6px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#fff", fontSize: "0.75rem" }}
-                  >
-                    {instruments.map(inst => (
-                      <option key={inst} value={inst}>{inst}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", fontSize: "0.7rem", color: "#a1a1aa" }}>
-                  <div>Start: <strong style={{ color: "#fff" }}>{(section.startTimeMs / 1000).toFixed(2)}s</strong></div>
-                  <div>End: <strong style={{ color: "#fff" }}>{(section.endTimeMs / 1000).toFixed(2)}s</strong></div>
-                </div>
-
-                {sectionPhrases.length > 0 && (
-                  <div style={{ display: "flex", flexDirection: "column", gap: "4px", borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: "6px", marginTop: "4px" }}>
-                    <span style={{ fontSize: "0.65rem", fontWeight: "bold", color: "#fff" }}>Phrases ({sectionPhrases.length})</span>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "4px", maxHeight: "120px", overflowY: "auto" }}>
-                      {sectionPhrases.map(ph => (
-                        <div key={ph.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "rgba(255,255,255,0.02)", padding: "4px 6px", borderRadius: "4px", fontSize: "0.65rem" }}>
-                          <span>#{ph.index} {ph.type.replace("_", " ")}</span>
-                          {genre === "SALSA" && (ph.type === "STANDARD_8_COUNT" || ph.type === "HALF_PHRASE_4_COUNT") && (
-                            <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                              <span style={{ color: ph.claveIsVerified ? "#34d399" : "#f59e0b", fontSize: "0.6rem" }}>
-                                {ph.claveDirection} ({ph.claveSource})
-                              </span>
-                              <button
-                                onClick={() => {
-                                  const nextDir = ph.claveDirection === "2-3" ? "3-2" : "2-3";
-                                  onUpdatePhraseField(ph.id, nextDir);
-                                }}
-                                style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: "3px", color: "#fff", padding: "1px 4px", fontSize: "0.6rem", cursor: "pointer" }}
-                              >
-                                Toggle
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      ))}
+                {!collapsedSections[section.id] && (
+                  <>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                      <span style={{ fontSize: "0.65rem", color: "#a1a1aa" }}>Focus Instrument</span>
+                      <select
+                        value={section.focusInstrument || "NONE"}
+                        onChange={(e) => onUpdateSectionField(section.id, "focusInstrument", e.target.value)}
+                        style={{ padding: "4px 6px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#fff", fontSize: "0.75rem" }}
+                      >
+                        {instruments.map(inst => (
+                          <option key={inst} value={inst}>{inst}</option>
+                        ))}
+                      </select>
                     </div>
-                  </div>
+
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", fontSize: "0.7rem", color: "#a1a1aa" }}>
+                      <div>Start: <strong style={{ color: "#fff" }}>{(section.startTimeMs / 1000).toFixed(2)}s</strong></div>
+                      <div>End: <strong style={{ color: "#fff" }}>{(section.endTimeMs / 1000).toFixed(2)}s</strong></div>
+                    </div>
+
+                    {sectionPhrases.length > 0 && (
+                      <div style={{ display: "flex", flexDirection: "column", gap: "4px", borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: "6px", marginTop: "4px" }}>
+                        <span style={{ fontSize: "0.65rem", fontWeight: "bold", color: "#fff" }}>Phrases ({sectionPhrases.length})</span>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "4px", maxHeight: "120px", overflowY: "auto" }}>
+                          {sectionPhrases.map(ph => (
+                            <div key={ph.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "rgba(255,255,255,0.02)", padding: "4px 6px", borderRadius: "4px", fontSize: "0.65rem" }}>
+                              <span>#{ph.index} {ph.type.replace("_", " ")}</span>
+                              {genre === "SALSA" && (ph.type === "STANDARD_8_COUNT" || ph.type === "HALF_PHRASE_4_COUNT") && (
+                                <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                                  <span style={{ color: ph.claveIsVerified ? "#34d399" : "#f59e0b", fontSize: "0.6rem" }}>
+                                    {ph.claveDirection} ({ph.claveSource})
+                                  </span>
+                                  <button
+                                    onClick={() => {
+                                      const nextDir = ph.claveDirection === "2-3" ? "3-2" : "2-3";
+                                      onUpdatePhraseField(ph.id, nextDir);
+                                    }}
+                                    style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: "3px", color: "#fff", padding: "1px 4px", fontSize: "0.6rem", cursor: "pointer" }}
+                                  >
+                                    Toggle
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             );
