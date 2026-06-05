@@ -42,22 +42,6 @@ export default function DevCalibrationPanel({
         </button>
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem", fontWeight: "800", color: "#ffffff", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-          <span>Reaction Delay</span>
-          <span>{userDelaySetting}ms</span>
-        </div>
-        <input
-          type="range"
-          min="0"
-          max="500"
-          step="10"
-          value={userDelaySetting}
-          onChange={(e) => onUserDelaySettingChange(parseInt(e.target.value))}
-          style={{ flexGrow: 1, accentColor: "#ffffff" }}
-        />
-      </div>
-
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
         <button
           className="btn-step"
