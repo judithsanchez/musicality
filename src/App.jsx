@@ -11,6 +11,7 @@ import Visualizer from "./components/Visualizer";
 import GameCanvas from "./components/GameCanvas";
 import RoadmapScrubber from "./components/RoadmapScrubber";
 import DevDashboard from "./components/DevDashboard";
+import RhythmSequencer from "./components/RhythmSequencer";
 
 const DevCalibrator = lazy(() => {
   if (isDevMode) {
@@ -640,15 +641,23 @@ export default function App() {
                   onPlayToggle={handlePlayToggle}
                 />
               ) : (
-                <Visualizer 
-                  danceStyle={songData?.metadata?.danceStyle || "salsa"}
-                  currentTime={currentTime}
-                  introEnd={introEnd}
-                  currentBeat={currentBeat}
-                  activeSection={activeSection}
-                  activeBreak={activeBreak}
-                  isPlaying={isActuallyPlaying}
-                />
+                <div style={{ display: "flex", flexDirection: "column", gap: "16px", width: "100%" }}>
+                  <Visualizer 
+                    danceStyle={songData?.metadata?.danceStyle || "salsa"}
+                    currentTime={currentTime}
+                    introEnd={introEnd}
+                    currentBeat={currentBeat}
+                    activeSection={activeSection}
+                    activeBreak={activeBreak}
+                    isPlaying={isActuallyPlaying}
+                  />
+                  <RhythmSequencer
+                    songData={calibratedSongData || songData}
+                    currentTime={currentTime}
+                    isPlaying={isActuallyPlaying}
+                    onSeek={(t) => throttledSeek(t, true)}
+                  />
+                </div>
               )}
 
               {/* Segmented Roadmap Progress Scrubber */}

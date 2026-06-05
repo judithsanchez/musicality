@@ -145,28 +145,33 @@ export default defineConfig({
                 throw new Error("Invalid or missing YouTube ID");
               }
 
-              const tempFileName = `temp_${youtubeId}.mp3`;
-              const tempFilePath = path.join(__dirname, 'public', 'songs', tempFileName);
+              const filename = parsedUrl.searchParams.get('filename') || 'track.mp3';
+              const ext = path.extname(filename) || '.mp3';
               
-              // Pipe request stream to temp MP3 file
-              const fileStream = fs.createWriteStream(tempFilePath);
+              const songDir = path.join(__dirname, 'public', 'separated', youtubeId);
+              fs.mkdirSync(songDir, { recursive: true });
+              
+              const originalAudioPath = path.join(songDir, `original${ext}`);
+              
+              // Pipe request stream to permanent original file
+              const fileStream = fs.createWriteStream(originalAudioPath);
               req.pipe(fileStream);
 
               fileStream.on('error', (err) => {
-                console.error("[Developer API] Temp MP3 stream error:", err);
+                console.error("[Developer API] Original audio stream error:", err);
                 res.writeHead(500, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({ success: false, error: err.message }));
               });
 
               fileStream.on('finish', () => {
-                console.log(`[Developer API] Temp MP3 fully written: ${tempFilePath}`);
+                console.log(`[Developer API] Original audio fully written: ${originalAudioPath}`);
                 
-                // Spawn Python Librosa Analyzer
-                const scriptPath = path.join(__dirname, 'scripts', 'analyze_salsa_advanced.py');
+                // Spawn Python BeatNet Ingest Analyzer
+                const scriptPath = path.join(__dirname, 'scripts', 'analyze_salsa_beatnet.py');
                 const outFilePath = path.join(__dirname, 'public', 'songs', `${youtubeId}.json`);
 
                 console.log(`[Developer API] Spawning Python analyzer subprocess...`);
-                const pyProcess = spawn('python3', [scriptPath, '--audio', tempFilePath, '--output', outFilePath]);
+                const pyProcess = spawn('python3', [scriptPath, '--audio', originalAudioPath, '--output', outFilePath]);
 
                 let stdoutData = '';
                 let stderrData = '';
@@ -175,21 +180,11 @@ export default defineConfig({
                 pyProcess.stderr.on('data', (chunk) => { stderrData += chunk; });
 
                 pyProcess.on('close', (code) => {
-                  console.log(`[Developer API] Python process closed with code ${code}`);
+                  console.log(`[Developer API] Python analyzer process closed with code ${code}`);
                   if (stderrData) {
-                    console.log(`[Developer API] Python stderr:\n${stderrData}`);
+                    console.log(`[Developer API] Python analyzer stderr:\n${stderrData}`);
                   }
                   
-                  // Delete temp file immediately in all circumstances
-                  try {
-                    if (fs.existsSync(tempFilePath)) {
-                      fs.unlinkSync(tempFilePath);
-                      console.log(`[Developer API] Deleted temporary MP3: ${tempFilePath}`);
-                    }
-                  } catch (delErr) {
-                    console.error("[Developer API] Failed to delete temp file:", delErr);
-                  }
-
                   if (code !== 0) {
                     let errMsg = `Python analyzer exited with non-zero code ${code}`;
                     if (stderrData.includes("ModuleNotFoundError")) {
@@ -204,47 +199,75 @@ export default defineConfig({
                     return;
                   }
 
-                  try {
-                    // Read updated JSON
-                    if (!fs.existsSync(outFilePath)) {
-                      throw new Error("Analyzed output JSON was not found");
-                    }
-                    const songData = JSON.parse(fs.readFileSync(outFilePath, 'utf8'));
+                  // Analyzer succeeded! Now spawn Demucs + DSP Separation
+                  const sepScriptPath = path.join(__dirname, 'scripts', 'separate_and_extract.py');
+                  console.log(`[Developer API] Spawning Python stem separator & percussion extractor...`);
+                  const sepProcess = spawn('python3', [sepScriptPath, '--audio', originalAudioPath, '--output_dir', songDir, '--youtube_id', youtubeId]);
 
-                    // Update catalog.json
-                    const catalogPath = path.join(__dirname, 'public', 'songs', 'catalog.json');
-                    let catalog = [];
-                    if (fs.existsSync(catalogPath)) {
-                      catalog = JSON.parse(fs.readFileSync(catalogPath, 'utf8'));
-                    }
+                  let sepStdoutData = '';
+                  let sepStderrData = '';
 
-                    const catalogEntry = {
-                      id: songData.id,
-                      songTitle: songData.title,
-                      artist: songData.artist,
-                      danceStyle: songData.metadata?.danceStyle || "salsa",
-                      youtubeId: songData.youtubeId,
-                      bpm: songData.rawAnalysis?.estimatedBpm || 0,
-                      difficulty: songData.difficulty,
-                      isCalibrated: false
-                    };
+                  sepProcess.stdout.on('data', (chunk) => { sepStdoutData += chunk; });
+                  sepProcess.stderr.on('data', (chunk) => { sepStderrData += chunk; });
 
-                    const existingIdx = catalog.findIndex(item => item.youtubeId === youtubeId);
-                    if (existingIdx !== -1) {
-                      catalog[existingIdx] = catalogEntry;
-                    } else {
-                      catalog.push(catalogEntry);
+                  sepProcess.on('close', (sepCode) => {
+                    console.log(`[Developer API] Separation process closed with code ${sepCode}`);
+                    if (sepStderrData) {
+                      console.log(`[Developer API] Separation stderr:\n${sepStderrData}`);
                     }
 
-                    saveToBoth('catalog.json', catalog);
+                    if (sepCode !== 0) {
+                      res.writeHead(500, { 'Content-Type': 'application/json' });
+                      res.end(JSON.stringify({ 
+                        success: false, 
+                        error: `Source separation failed (code ${sepCode})`, 
+                        details: sepStderrData || sepStdoutData 
+                      }));
+                      return;
+                    }
 
-                    res.writeHead(200, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({ success: true, song: songData }));
-                  } catch (err) {
-                    console.error("[Developer API] Post-analysis parsing/catalog update failed:", err);
-                    res.writeHead(500, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({ success: false, error: err.message }));
-                  }
+                    try {
+                      // Read updated JSON beatmap
+                      if (!fs.existsSync(outFilePath)) {
+                        throw new Error("Analyzed output JSON was not found");
+                      }
+                      const songData = JSON.parse(fs.readFileSync(outFilePath, 'utf8'));
+
+                      // Update catalog.json
+                      const catalogPath = path.join(__dirname, 'public', 'songs', 'catalog.json');
+                      let catalog = [];
+                      if (fs.existsSync(catalogPath)) {
+                        catalog = JSON.parse(fs.readFileSync(catalogPath, 'utf8'));
+                      }
+
+                      const catalogEntry = {
+                        id: songData.id,
+                        songTitle: songData.title,
+                        artist: songData.artist,
+                        danceStyle: songData.metadata?.danceStyle || "salsa",
+                        youtubeId: songData.youtubeId,
+                        bpm: songData.rawAnalysis?.estimatedBpm || 0,
+                        difficulty: songData.difficulty,
+                        isCalibrated: false
+                      };
+
+                      const existingIdx = catalog.findIndex(item => item.youtubeId === youtubeId);
+                      if (existingIdx !== -1) {
+                        catalog[existingIdx] = catalogEntry;
+                      } else {
+                        catalog.push(catalogEntry);
+                      }
+
+                      saveToBoth('catalog.json', catalog);
+
+                      res.writeHead(200, { 'Content-Type': 'application/json' });
+                      res.end(JSON.stringify({ success: true, song: songData }));
+                    } catch (err) {
+                      console.error("[Developer API] Post-analysis parsing/catalog update failed:", err);
+                      res.writeHead(500, { 'Content-Type': 'application/json' });
+                      res.end(JSON.stringify({ success: false, error: err.message }));
+                    }
+                  });
                 });
               });
 

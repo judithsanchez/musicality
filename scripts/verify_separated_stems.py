@@ -7,7 +7,8 @@ expected_stems = {
     "demucs": ["vocals.wav", "drums.wav", "bass.wav", "other.wav"],
     "bs_roformer": ["vocals.wav", "instrumental.wav"],
     "openunmix": ["vocals.wav", "drums.wav", "bass.wav", "other.wav"],
-    "mdxnet": ["vocals.wav", "instrumental.wav"]
+    "mdxnet": ["vocals.wav", "instrumental.wav"],
+    "dsp": ["clave.wav", "congas.wav", "high_percussion.wav"]
 }
 
 def verify():

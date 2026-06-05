@@ -38,6 +38,7 @@ export const SectionSchema = z.object({
   // Section-specific micro-alignment offsets (in milliseconds)
   localOffsetMs: z.number().default(0), // Shifts the beat grid locally for this section
   localBpm: z.number().optional(),      // Overrides global BPM if tempo drifts/changes
+  claveDirection: z.enum(["3-2", "2-3"]).default("3-2").optional(),
 });
 export type Section = z.infer<typeof SectionSchema>;
 

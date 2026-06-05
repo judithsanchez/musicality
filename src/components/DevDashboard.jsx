@@ -88,7 +88,7 @@ export default function DevDashboard({ onBack, onIngestSuccess }) {
 
     setStatus("uploading");
     setProgress(0);
-    setStatusMessage("[1/3] Uploading MP3 audio track...");
+    setStatusMessage("[1/4] Uploading audio track...");
 
     try {
       // Step 1: Ingest Metadata
@@ -105,14 +105,14 @@ export default function DevDashboard({ onBack, onIngestSuccess }) {
 
       // Step 2: Upload Audio & Trigger Analysis
       const xhr = new XMLHttpRequest();
-      xhr.open("POST", `/api/upload-song-audio?youtubeId=${youtubeId}`, true);
+      xhr.open("POST", `/api/upload-song-audio?youtubeId=${youtubeId}&filename=${encodeURIComponent(audioFile.name)}`, true);
 
       // Track upload progress
       xhr.upload.onprogress = (event) => {
         if (event.lengthComputable) {
           const percent = Math.round((event.loaded / event.total) * 100);
           setProgress(percent);
-          setStatusMessage(`[1/3] Uploading MP3 audio track... (${percent}%)`);
+          setStatusMessage(`[1/4] Uploading audio track... (${percent}%)`);
         }
       };
 
@@ -122,7 +122,7 @@ export default function DevDashboard({ onBack, onIngestSuccess }) {
             const result = JSON.parse(xhr.responseText);
             if (result.success) {
               setStatus("success");
-              setStatusMessage("[3/3] Ingestion complete! Initializing unified data schema...");
+              setStatusMessage("[4/4] Ingestion complete! Stems successfully separated.");
               setTimeout(() => {
                 onIngestSuccess(result.song);
               }, 1500);
@@ -153,7 +153,7 @@ export default function DevDashboard({ onBack, onIngestSuccess }) {
       xhr.upload.onload = () => {
         setStatus("analyzing");
         setProgress(100);
-        setStatusMessage("[2/3] Analyzing audio beat intervals (Spawning Salsa-AI Librosa)...");
+        setStatusMessage("[2/4] Tracking beats & separating stems (Demucs + Clave DSP)...");
       };
 
     } catch (err) {
@@ -418,8 +418,8 @@ export default function DevDashboard({ onBack, onIngestSuccess }) {
               ) : (
                 <span style={{ fontSize: "0.75rem", color: "#6b7280", fontStyle: "italic" }}>
                   {status === "uploading" && "Uploading raw audio track securely to local server..."}
-                  {status === "analyzing" && "Running MIR transient separation and clustering. This may take 10-15 seconds..."}
-                  {status === "success" && "Successfully generated schemas! Redirecting to Workbench..."}
+                  {status === "analyzing" && "Tracking beats, running Demucs stem separation, and isolating Clave + Congas via DSP. This may take 1-3 minutes..."}
+                  {status === "success" && "Successfully generated beatmaps and separated Salsa instrument stems!"}
                 </span>
               )}
             </div>

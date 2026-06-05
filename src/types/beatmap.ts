@@ -39,12 +39,19 @@ export interface SongMetadata {
 
 export interface BeatmapSchema {
   id: string;
-  schemaVersion: "1.1";
+  schemaVersion?: string;
   metadata: SongMetadata;
-  sections: Section[];
-  events: BreakEvent[];
+  sections: any[];
+  events?: BreakEvent[];
   breaks?: BreakEvent[];
   beats: Beat[];
+  activityMasks?: {
+    vocals?: [number, number][];
+    congas?: [number, number][];
+    clave?: [number, number][];
+    cowbell?: [number, number][];
+  };
+  calibratedBeatmap?: any;
 }
 
 export type CatalogSong = SongMetadata & {

@@ -4,6 +4,7 @@ import {
   Clock, Music, ChevronLeft, ChevronRight
 } from "lucide-react";
 import { AgnosticSong, BeatCountType } from "../types/schemas";
+import RhythmSequencer from "./RhythmSequencer";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -37,6 +38,7 @@ interface EditorSection {
   beatCountType: BeatCountType;
   displayCounts: boolean;
   localOffsetMs: number;
+  claveDirection?: "3-2" | "2-3";
 }
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -119,6 +121,7 @@ export default function DevCalibrator({
         beatCountType:   sec.beatCountType   || defaultMetronome,
         displayCounts:   sec.displayCounts   !== false,
         localOffsetMs:   sec.localOffsetMs   || 0,
+        claveDirection:  (sec as any).claveDirection || "3-2",
       };
     });
 
@@ -400,6 +403,93 @@ export default function DevCalibrator({
     showToast("🔄 Taps cleared.");
   };
 
+  // ── Calibrate Beat 1 in Section ──────────────────────────────────────────
+  const calibrateBeat1 = (sectionId: string, targetTime: number) => {
+    const section = editorSections.find(s => s.id === sectionId);
+    if (!section) return;
+
+    const baseSong = originalSongData || songData;
+    if (!baseSong) return;
+
+    // Clone beats
+    let processedBeats = JSON.parse(JSON.stringify(baseSong.beats || []));
+
+    // Find beats within this section
+    const sectionBeats = processedBeats.filter((b: any) => 
+      b.timestamp >= section.startTimestamp && b.timestamp <= section.endTimestamp
+    );
+
+    if (sectionBeats.length === 0) {
+      showToast("⚠️ No beats found in this section to calibrate.");
+      return;
+    }
+
+    // Find the beat closest to targetTime
+    let closestBeatIdxInProcessed = -1;
+    let minDiff = Infinity;
+    for (let i = 0; i < processedBeats.length; i++) {
+      const b = processedBeats[i];
+      if (b.timestamp >= section.startTimestamp && b.timestamp <= section.endTimestamp) {
+        const diff = Math.abs(b.timestamp - targetTime);
+        if (diff < minDiff) {
+          minDiff = diff;
+          closestBeatIdxInProcessed = i;
+        }
+      }
+    }
+
+    if (closestBeatIdxInProcessed === -1) return;
+
+    const closestBeat = processedBeats[closestBeatIdxInProcessed];
+    // Calculate offset to align the closest beat exactly to targetTime
+    const offset = targetTime - closestBeat.timestamp;
+
+    // Shift all beats in this section by offset
+    processedBeats = processedBeats.map((b: any) => {
+      if (b.timestamp >= section.startTimestamp && b.timestamp <= section.endTimestamp) {
+        return {
+          ...b,
+          timestamp: parseFloat(Math.max(section.startTimestamp, Math.min(section.endTimestamp, b.timestamp + offset)).toFixed(3))
+        };
+      }
+      return b;
+    });
+
+    // Re-number beats in this section relative to the closest beat (which becomes beat 1)
+    const sortedSectionBeats = processedBeats
+      .filter((b: any) => b.timestamp >= section.startTimestamp && b.timestamp <= section.endTimestamp)
+      .sort((a: any, b: any) => a.timestamp - b.timestamp);
+
+    const closestUpdatedBeat = sortedSectionBeats.find((b: any) => Math.abs(b.timestamp - targetTime) < 0.05);
+    if (closestUpdatedBeat) {
+      const targetIdxInSec = sortedSectionBeats.indexOf(closestUpdatedBeat);
+      
+      sortedSectionBeats.forEach((b: any, idx: number) => {
+        const relIdx = idx - targetIdxInSec;
+        const beatNum = (((relIdx % 8) + 8) % 8) + 1;
+        b.beat = beatNum;
+      });
+
+      // Merge back
+      processedBeats = processedBeats.map((b: any) => {
+        const matched = sortedSectionBeats.find((sb: any) => Math.abs(sb.timestamp - b.timestamp) < 0.001);
+        if (matched) return matched;
+        return b;
+      });
+    }
+
+    // Set updated song data across all states to lock in this base grid
+    const updatedSong = {
+      ...(calibratedSongData || songData),
+      beats: processedBeats,
+    };
+    setOriginalSongData(updatedSong as any);
+    setCalibratedSongData(updatedSong as any);
+    setSongData(updatedSong as any);
+
+    showToast("🎯 Beat 1 aligned & grid shifted!");
+  };
+
   // ── Global Mouse Drag Listener for Boundary Handles ──────────────────────
   useEffect(() => {
     if (isDraggingBoundary === null) return;
@@ -524,6 +614,7 @@ export default function DevCalibrator({
             startTimestamp: s.startTimestamp, endTimestamp: s.endTimestamp,
             focusInstrument: s.focusInstrument, beatCountType: s.beatCountType,
             displayCounts: s.displayCounts, localOffsetMs: s.localOffsetMs,
+            claveDirection: s.claveDirection || "3-2",
           })),
         },
         breaks,
@@ -685,174 +776,10 @@ export default function DevCalibrator({
               <span>Sections: <strong style={{ color: "#ffffff" }}>{editorSections.length}</strong></span>
             </div>
 
-            {/* Mode Segmented Selector */}
-            <div style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "6px",
-              paddingTop: "10px",
-              borderTop: "1px solid #27272a"
-            }}>
-              <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "#71717a", textTransform: "uppercase", letterSpacing: "0.4px" }}>
-                Select Workbench Mode
-              </span>
-              <div style={{
-                display: "flex",
-                background: "rgba(0,0,0,0.4)",
-                padding: "2px",
-                borderRadius: "8px",
-                border: "1px solid #27272a",
-              }}>
-                <button
-                  onClick={() => setIsTappingModeActive(false)}
-                  style={{
-                    flex: 1,
-                    padding: "6px 10px",
-                    borderRadius: "6px",
-                    border: "none",
-                    background: !isTappingModeActive ? "rgba(255,255,255,0.08)" : "transparent",
-                    color: !isTappingModeActive ? "#fff" : "#71717a",
-                    fontSize: "0.72rem",
-                    fontWeight: 700,
-                    cursor: "pointer",
-                    transition: "all 0.15s ease",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "6px",
-                    boxShadow: !isTappingModeActive ? "0 1px 3px rgba(0,0,0,0.3)" : "none",
-                  }}
-                >
-                  <span style={{ display: "inline-block", width: "5px", height: "5px", borderRadius: "50%", background: !isTappingModeActive ? "#ffffff" : "transparent" }} />
-                  Sections Mode
-                </button>
-                <button
-                  onClick={() => setIsTappingModeActive(true)}
-                  style={{
-                    flex: 1,
-                    padding: "6px 10px",
-                    borderRadius: "6px",
-                    border: "none",
-                    background: isTappingModeActive ? "rgba(255,255,255,0.08)" : "transparent",
-                    color: isTappingModeActive ? "#ffffff" : "#71717a",
-                    fontSize: "0.72rem",
-                    fontWeight: 700,
-                    cursor: "pointer",
-                    transition: "all 0.15s ease",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "6px",
-                    boxShadow: isTappingModeActive ? "0 1px 3px rgba(0,0,0,0.3)" : "none",
-                  }}
-                >
-                  <span style={{ display: "inline-block", width: "5px", height: "5px", borderRadius: "50%", background: isTappingModeActive ? "#ffffff" : "transparent", boxShadow: isTappingModeActive ? "0 0 6px #ffffff" : "none" }} />
-                  Tapping Mode
-                </button>
-              </div>
-            </div>
+
           </div>
 
-          {/* Conditional Editor Swap */}
-          {isTappingModeActive ? (
-            /* Tapping Calibration Deck */
-            <div style={{
-              background: "rgba(255,255,255,0.02)",
-              border: "1px solid #27272a",
-              borderRadius: "14px",
-              padding: "16px",
-              display: "flex",
-              flexDirection: "column",
-              gap: "14px",
-              boxShadow: "0 4px 20px rgba(0,0,0,0.2)",
-            }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span style={{ fontSize: "0.8rem", fontWeight: 800, color: "#ffffff", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-                  🎧 Downbeat Tap Deck
-                </span>
-                {globalTapLog.length > 0 && (
-                  <button
-                    onClick={handleClearTaps}
-                    style={{
-                      background: "none",
-                      border: "none",
-                      color: "#a1a1aa",
-                      cursor: "pointer",
-                      fontSize: "0.72rem",
-                      fontWeight: 600,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "4px"
-                    }}
-                  >
-                    <RotateCcw size={12} /> Clear Taps
-                  </button>
-                )}
-              </div>
-
-              {/* The Massive Clickable Downbeat Button */}
-              <button
-                onClick={handleTap}
-                style={{
-                  width: "100%",
-                  height: "100px",
-                  borderRadius: "14px",
-                  border: `2px solid ${tapFlash ? "#ffffff" : "#27272a"}`,
-                  background: tapFlash ? "#ffffff" : "rgba(255,255,255,0.04)",
-                  cursor: "pointer",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "4px",
-                  boxShadow: tapFlash ? "0 0 30px rgba(255,255,255,0.4)" : "none",
-                  transition: "all 0.08s ease",
-                }}
-              >
-                <span style={{ fontSize: "1.4rem", fontWeight: 900, color: tapFlash ? "#000" : "#fff", textTransform: "uppercase", letterSpacing: "1px" }}>
-                  TAP ON "1"
-                </span>
-                <span style={{ fontSize: "0.7rem", color: tapFlash ? "rgba(0,0,0,0.6)" : "#71717a" }}>
-                  Click here or press <kbd style={{ background: "rgba(255,255,255,0.12)", borderRadius: "3px", padding: "0 3px" }}>T</kbd>
-                </span>
-              </button>
-
-              {/* Progress and Target Banner */}
-              <div style={{
-                background: "rgba(255,255,255,0.02)",
-                border: "1px solid #27272a",
-                borderRadius: "10px",
-                padding: "10px 12px",
-                display: "flex",
-                flexDirection: "column",
-                gap: "6px"
-              }}>
-                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.75rem", fontWeight: 700 }}>
-                  <span style={{ color: "#ffffff" }}>
-                    {globalTapLog.length >= 25 ? "🎉 Precision target reached!" : "⚠️ Keep tapping!"}
-                  </span>
-                  <span style={{ color: "#fff" }}>{globalTapLog.length} / 25 taps</span>
-                </div>
-                
-                {/* Visual Progress Bar */}
-                <div style={{ width: "100%", height: "6px", background: "rgba(255,255,255,0.05)", borderRadius: "3px", overflow: "hidden" }}>
-                  <div style={{
-                    width: `${Math.min(100, (globalTapLog.length / 25) * 100)}%`,
-                    height: "100%",
-                    background: "#ffffff",
-                    borderRadius: "3px",
-                    transition: "width 0.2s ease",
-                  }} />
-                </div>
-                
-                <span style={{ fontSize: "0.65rem", color: "#71717a", fontStyle: "italic" }}>
-                  {globalTapLog.length >= 25
-                    ? "Ideal downbeat coverage achieved. You can save anytime!"
-                    : "Record at least 25 taps to auto-average reaction delay accurately."}
-                </span>
-              </div>
-            </div>
-          ) : activeSec ? (
+          {activeSec ? (
             <div style={{
               background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)",
               borderRadius: "14px", padding: "16px",
@@ -997,16 +924,16 @@ export default function DevCalibrator({
                 </div>
               </div>
 
-              {/* Beat count modulo & Focus instrument side-by-side */}
+              {/* Clave Direction & Align Beat 1 side-by-side */}
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-                {/* Beat count modulo */}
+                {/* Clave direction */}
                 <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                   <label style={{ fontSize: "0.68rem", color: "#9ca3af", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.4px" }}>
-                    Beat Modulo
+                    Clave Direction
                   </label>
                   <select
-                    value={activeSec.beatCountType}
-                    onChange={(e) => handleUpdateSectionField(activeSec.id, "beatCountType", e.target.value)}
+                    value={activeSec.claveDirection || "3-2"}
+                    onChange={(e) => handleUpdateSectionField(activeSec.id, "claveDirection", e.target.value)}
                     style={{
                       padding: "6px 10px", borderRadius: "8px",
                       border: "1px solid rgba(255,255,255,0.08)",
@@ -1014,27 +941,25 @@ export default function DevCalibrator({
                       fontSize: "0.8rem", outline: "none",
                     }}
                   >
-                    {BEAT_COUNT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                    <option value="3-2">3-2 Son Clave</option>
+                    <option value="2-3">2-3 Son Clave</option>
                   </select>
                 </div>
 
-                {/* Focus instrument */}
-                <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                  <label style={{ fontSize: "0.68rem", color: "#9ca3af", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.4px" }}>
-                    Focus Instrument
-                  </label>
-                  <input
-                    type="text"
-                    value={activeSec.focusInstrument}
-                    onChange={(e) => handleUpdateSectionField(activeSec.id, "focusInstrument", e.target.value)}
-                    placeholder="e.g. Cowbell"
+                {/* Align Beat 1 to Playhead button */}
+                <div style={{ display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
+                  <button
+                    onClick={() => calibrateBeat1(activeSec.id, currentTime)}
                     style={{
-                      padding: "6px 10px", borderRadius: "8px",
-                      border: "1px solid rgba(255,255,255,0.08)",
-                      background: "rgba(0,0,0,0.35)", color: "#e5e7eb",
-                      fontSize: "0.8rem", outline: "none",
+                      padding: "8px 12px", borderRadius: "8px",
+                      border: "1px solid #ffffff",
+                      background: "#ffffff", color: "#000000",
+                      fontSize: "0.75rem", fontWeight: 900, cursor: "pointer",
+                      display: "flex", alignItems: "center", justifyContent: "center", gap: "5px",
                     }}
-                  />
+                  >
+                    <Check size={12} /> Align Beat 1 Here
+                  </button>
                 </div>
               </div>
 
@@ -1083,19 +1008,13 @@ export default function DevCalibrator({
                 <kbd style={{ background: "rgba(255,255,255,0.08)", borderRadius: "3px", padding: "0 4px", fontSize: "0.65rem" }}>M</kbd>
               </button>
             )}
-            {isTappingModeActive ? (
-              <span style={{ fontSize: "0.65rem", color: "#ffffff", fontWeight: 600 }}>
-                🎯 Tapping Mode Active: Press <kbd style={{ background: "rgba(255,255,255,0.12)", borderRadius: "3px", padding: "0 4px", color: "#fff" }}>T</kbd> to tap downbeats · <kbd style={{ background: "rgba(255,255,255,0.12)", borderRadius: "3px", padding: "0 4px", color: "#fff" }}>Space</kbd> play/pause
-              </span>
-            ) : (
-              <span style={{ fontSize: "0.65rem", color: "#6b7280" }}>
-                <kbd style={{ background: "rgba(255,255,255,0.06)", borderRadius: "3px", padding: "0 3px" }}>Space</kbd> play/pause
-                {" · "}
-                <kbd style={{ background: "rgba(255,255,255,0.06)", borderRadius: "3px", padding: "0 3px" }}>←→</kbd> seek / nudge
-                {" · "}
-                <kbd style={{ background: "rgba(255,255,255,0.06)", borderRadius: "3px", padding: "0 3px" }}>Esc</kbd> deselect
-              </span>
-            )}
+            <span style={{ fontSize: "0.65rem", color: "#6b7280" }}>
+              <kbd style={{ background: "rgba(255,255,255,0.06)", borderRadius: "3px", padding: "0 3px" }}>Space</kbd> play/pause
+              {" · "}
+              <kbd style={{ background: "rgba(255,255,255,0.06)", borderRadius: "3px", padding: "0 3px" }}>←→</kbd> seek / nudge
+              {" · "}
+              <kbd style={{ background: "rgba(255,255,255,0.06)", borderRadius: "3px", padding: "0 3px" }}>Esc</kbd> deselect
+            </span>
           </div>
         </div>
 
@@ -1263,6 +1182,16 @@ export default function DevCalibrator({
             })}
 
           </div>
+        </div>
+
+        <div style={{ marginTop: "12px", marginBottom: "12px" }}>
+          <RhythmSequencer
+            songData={calibratedSongData || songData}
+            currentTime={currentTime}
+            isPlaying={player ? player.getPlayerState?.() === 1 : false}
+            customSections={editorSections}
+            onSeek={(t) => throttledSeek(t, true)}
+          />
         </div>
 
         {/* Section Pills Row under timeline */}

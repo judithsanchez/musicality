@@ -1478,7 +1478,21 @@
         "beat": 4
       }
     ],
-    "sections": []
+    "sections": [
+      {
+        "id": "sec-full",
+        "name": "Full Mix",
+        "emoji": "🎵",
+        "startTimestamp": 0.0,
+        "endTimestamp": 188.232,
+        "localOffsetMs": 0,
+        "claveDirection": "2-3",
+        "rhythms": {
+          "congas": "tumbao",
+          "cowbell": "martillo"
+        }
+      }
+    ]
   },
   "metadata": {
     "songTitle": "El Amor Que Espere",
@@ -1488,7 +1502,21 @@
     "bpm": 99.38,
     "difficulty": "medium"
   },
-  "sections": [],
+  "sections": [
+    {
+      "id": "sec-full",
+      "name": "Full Mix",
+      "emoji": "🎵",
+      "startTimestamp": 0.0,
+      "endTimestamp": 188.232,
+      "localOffsetMs": 0,
+      "claveDirection": "2-3",
+      "rhythms": {
+        "congas": "tumbao",
+        "cowbell": "martillo"
+      }
+    }
+  ],
   "beats": [
     {
       "timestamp": 1.765,
@@ -2658,5 +2686,43 @@
       "timestamp": 179.003,
       "beat": 4
     }
-  ]
+  ],
+  "activityMasks": {
+    "vocals": [
+      [
+        3.0,
+        95.0
+      ],
+      [
+        109.25,
+        175.0
+      ]
+    ],
+    "congas": [
+      [
+        9.5,
+        179.75
+      ]
+    ],
+    "clave": [
+      [
+        8.0,
+        20.5
+      ],
+      [
+        22.5,
+        180.75
+      ]
+    ],
+    "cowbell": [
+      [
+        8.0,
+        20.5
+      ],
+      [
+        22.5,
+        180.5
+      ]
+    ]
+  }
 }
