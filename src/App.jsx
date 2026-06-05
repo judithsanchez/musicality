@@ -1,3 +1,76 @@
+import { useState } from "react";
+
+export default function App() {
+  return (
+    <div className="app-container" style={{
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      height: "100vh",
+      padding: "20px",
+      textAlign: "center",
+      background: "radial-gradient(circle at center, #18181b 0%, #09090b 100%)",
+      color: "#f4f4f5"
+    }}>
+      <div className="glass-panel" style={{
+        maxWidth: "540px",
+        padding: "40px",
+        borderRadius: "24px",
+        border: "1px solid rgba(255, 255, 255, 0.08)",
+        background: "rgba(255, 255, 255, 0.02)",
+        backdropFilter: "blur(16px)",
+        boxShadow: "0 20px 50px rgba(0, 0, 0, 0.5)"
+      }}>
+        <h1 className="song-title" style={{
+          fontSize: "2.5rem",
+          fontWeight: "900",
+          margin: "0 0 16px 0",
+          background: "linear-gradient(135deg, #ffffff 0%, #a1a1aa 100%)",
+          WebkitBackgroundClip: "text",
+          WebkitTextFillColor: "transparent"
+        }}>
+          Salsa Rhythm Hub
+        </h1>
+        
+        <p className="song-artist" style={{
+          fontSize: "1.1rem",
+          color: "#a1a1aa",
+          margin: "0 0 32px 0",
+          lineHeight: "1.6"
+        }}>
+          The application is currently running in <strong>Shell Mode</strong>. 
+          The backend and active frontend elements are being revamped and will be updated soon.
+        </p>
+
+        <div style={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: "8px",
+          padding: "8px 16px",
+          borderRadius: "9999px",
+          background: "rgba(255, 255, 255, 0.05)",
+          border: "1px solid rgba(255, 255, 255, 0.1)",
+          fontSize: "0.85rem",
+          fontWeight: "600",
+          color: "#e4e4e7"
+        }}>
+          <span style={{
+            display: "inline-block",
+            width: "8px",
+            height: "8px",
+            borderRadius: "50%",
+            background: "#10b981",
+            boxShadow: "0 0 8px #10b981"
+          }} />
+          Shell Environment Active
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── ORIGINAL APP CODE (COMMENTED OUT TO PREVENT CRASHES AND LINTS) ──
 import { useState, useEffect, useRef, useCallback, lazy, Suspense } from "react";
 import { useSyncEngine } from "./hooks/useSyncEngine";
 import { adaptToAgnosticSong } from "./utils/schemaAdapter";
@@ -20,9 +93,7 @@ const DevCalibrator = lazy(() => {
   }
 });
 
-
-
-export default function App() {
+export default function AppOriginal() {
   const isInitialRestoreRef = useRef(true);
   const [songData, setSongData] = useState(null);
   const [viewingDevDashboard, setViewingDevDashboard] = useState(false);
@@ -63,7 +134,6 @@ export default function App() {
     }
   }, []);
 
-  // Helper to show modern fading glass toast notifications
   const showToast = (msg) => {
     setToastMessage(msg);
     setTimeout(() => {
@@ -71,7 +141,6 @@ export default function App() {
     }, 3000);
   };
 
-  // Sync showDiagnostic to root container width
   useEffect(() => {
     const rootEl = document.getElementById("root");
     if (rootEl) {
@@ -83,16 +152,8 @@ export default function App() {
     }
   }, [showDiagnostic]);
 
-  // GITHUB PAGES WORKAROUND (see issue #25):
-  // Vite injects BASE_URL at build time: '/' locally, '/armada-movement/' on GitHub Pages.
-  // The router must strip this prefix before matching routes and re-prepend it when
-  // calling pushState, because window.location.pathname includes the base on GH Pages.
-  // If hosting moves to Netlify/Vercel/etc with server-side rewrites, remove this
-  // variable and all BASE references below, and delete public/404.html + the ?p= script
-  // in index.html. Tracked: https://github.com/judithsanchez/armada-movement/issues/25
   const BASE = (import.meta.env.BASE_URL || '/').replace(/\/$/, ''); // strip trailing slash
 
-  // 1. Sync React state → browser URL (pathname-based, base-aware)
   useEffect(() => {
     if (isInitialRestoreRef.current) {
       return;
@@ -113,14 +174,11 @@ export default function App() {
     }
   }, [viewingDevDashboard, currentSong, showDiagnostic]);
 
-  // 2. Restore state from URL on mount + handle browser back/forward
   useEffect(() => {
     const handleNavigationRestore = () => {
-      // Strip base prefix to get the route segment
       const rawPath = window.location.pathname;
       const route = rawPath.startsWith(BASE) ? rawPath.slice(BASE.length) || '/' : rawPath;
 
-      // /dashboard
       if (route === "/dashboard") {
         setViewingDevDashboard(true);
         setCurrentSong(null);
@@ -129,7 +187,6 @@ export default function App() {
         return;
       }
 
-      // /song/:youtubeId  or  /song/:youtubeId/calibrate
       const songMatch = route.match(/^\/song\/([^/]+)(\/calibrate)?$/);
       if (songMatch) {
         const songId = songMatch[1];
@@ -145,7 +202,6 @@ export default function App() {
                 handleSelectSong(matched);
                 if (calibrate) setShowDiagnostic(true);
               } else {
-                // Song not found — fall back to root
                 window.history.replaceState(null, "", BASE + "/" || "/");
                 setCurrentSong(null);
               }
@@ -162,7 +218,6 @@ export default function App() {
         return;
       }
 
-      // / or anything else → catalog
       setViewingDevDashboard(false);
       setCurrentSong(null);
       setShowDiagnostic(false);
@@ -177,12 +232,11 @@ export default function App() {
   const handleSelectSong = (song) => {
     setLoadingSong(true);
 
-    // Clear all existing song-related state
     setSongData(null);
     setOriginalSongData(null);
     setCalibratedSongData(null);
     setBreaks([]);
-    setMode("learn"); // Reset to Learn Mode
+    setMode("learn");
 
     fetch(import.meta.env.BASE_URL + `songs/${song.youtubeId}.json`)
       .then((res) => {
@@ -211,7 +265,6 @@ export default function App() {
   };
 
   const handleBackToCatalog = () => {
-    // Stop the video player if playing
     if (player && typeof player.pauseVideo === "function") {
       try {
         player.pauseVideo();
@@ -253,7 +306,6 @@ export default function App() {
     if (now - lastSeekTimeRef.current > 150) {
       lastSeekTimeRef.current = now;
       try {
-        // seek with allowSeekAhead = false to avoid slamming YouTube servers during active dragging
         player.seekTo(numericVal, false);
       } catch (e) {
         console.warn("Throttled seek error:", e);
@@ -272,7 +324,6 @@ export default function App() {
     }
   };
 
-  // Load the YouTube Player API script dynamically in background
   useEffect(() => {
     if (window.YT && window.YT.Player) {
       setTimeout(() => setApiReady(true), 0);
@@ -290,11 +341,9 @@ export default function App() {
     };
   }, []);
 
-  // Construct YouTube Player when API is ready
   useEffect(() => {
     if (!apiReady || !songData) return;
 
-    // If an existing player exists, destroy it first
     if (playerRef.current) {
       try {
         if (typeof playerRef.current.destroy === "function") {
@@ -350,7 +399,6 @@ export default function App() {
     };
   }, [apiReady, songData, ytPlayerMountedVal]);
 
-  // Dynamic Duration Sync: query player's duration once ready
   useEffect(() => {
     if (player && typeof player.getDuration === "function") {
       try {
@@ -367,17 +415,15 @@ export default function App() {
     }
   }, [player, currentSong, playerState]);
 
-  // Hook into the high-precision sync engine
   const { currentTime, currentBeat, activeSection, synchronizeAnchors } = useSyncEngine(
     player,
     calibratedSongData || songData,
     null,
     false,
-    0, // zero AV latency offset
-    0  // zero static grid count shift
+    0,
+    0
   );
 
-  // Touch Controller click handlers
   const handlePlayToggle = () => {
     try {
       if (!player) return;
@@ -418,11 +464,8 @@ export default function App() {
     }
   };
 
-  // getContainerClass deleted (defined in Visualizer.jsx)
-
   const isActuallyPlaying = playerState === 1;
 
-  // Skip audio to ~30s so user can bypass the difficult intro (dev calibration mode only)
   const handleSkipIntro = () => {
     try {
       if (player) {
@@ -449,7 +492,6 @@ export default function App() {
     }
   };
 
-  // Toast notification if unlocked via URL on mount
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (isDevMode && params.get("dev") === "true") {
@@ -459,9 +501,6 @@ export default function App() {
       }, 0);
     }
   }, []);
-
-
-
 
   if (loadingSong) {
     return (
@@ -478,7 +517,6 @@ export default function App() {
     );
   }
 
-  // Render Developer Dashboard View
   if (viewingDevDashboard) {
     return (
       <div className="app-container" style={{ display: "flex", flexDirection: "column", height: "100%" }}>
@@ -500,7 +538,6 @@ export default function App() {
     );
   }
 
-  // Render Catalog Selector View
   if (!currentSong) {
     return (
       <div className="app-container">
@@ -517,7 +554,6 @@ export default function App() {
     );
   }
 
-  // Active Break and Transitions Indicators
   const activeBreak = breaks.find(b => currentTime >= b.startTimestamp && currentTime < b.endTimestamp) || null;
   const sectionsList = songData?.sections || [];
   const nextSection = sectionsList.find(sec => sec.startTimestamp > currentTime) || null;
@@ -525,10 +561,7 @@ export default function App() {
 
   return (
     <div className="app-container">
-      
-      {/* 1. TOP CONTAINER: Header */}
       <div className="testing-top-container">
-        {/* Upper Navigation & Skip Intro */}
         {showDiagnostic && currentTime < introEnd && (
           <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "16px", width: "100%" }}>
             <button 
@@ -550,7 +583,6 @@ export default function App() {
           </div>
         )}
 
-        {/* Header Section */}
         <header 
           className="header glass-panel" 
           onClick={handleHeaderClick} 
@@ -566,9 +598,7 @@ export default function App() {
         </header>
       </div>
 
-      {/* 2. BOTTOM CONTAINER: Video, Metronome, Scrubber, Controls */}
       <div className="testing-bottom-container">
-        {/* Main workspace layout */}
         <div className={showDiagnostic ? "dev-workspace-layout-full" : "normal-workspace-layout"}>
           {showDiagnostic ? (
             <Suspense fallback={
@@ -599,7 +629,6 @@ export default function App() {
                 showToast={showToast}
                 videoElement={
                   <div className="left-workspace-column" style={{ margin: 0, width: "100%" }}>
-                    {/* Defensive IFrame Player & Overlay Protection */}
                     <div className="video-wrapper">
                       <div key={songData?.metadata?.youtubeId || "yt-player"} id="yt-player" ref={ytPlayerRefCallback}></div>
                       <AudioShield onPlayToggle={handlePlayToggle} />
@@ -610,14 +639,11 @@ export default function App() {
             </Suspense>
           ) : (
             <div className="left-workspace-column">
-                
-              {/* Defensive IFrame Player & Overlay Protection */}
               <div className="video-wrapper">
                 <div key={songData?.metadata?.youtubeId || "yt-player"} id="yt-player" ref={ytPlayerRefCallback}></div>
                 <AudioShield onPlayToggle={handlePlayToggle} />
               </div>
 
-              {/* Dynamic Interface: Learn Mode beats pulses OR Practice Mode gamified tapping zone */}
               {mode === "practice" ? (
                 <GameCanvas 
                   key={calibratedSongData?.metadata?.youtubeId || songData?.metadata?.youtubeId}
@@ -638,7 +664,6 @@ export default function App() {
                 />
               )}
 
-              {/* Segmented Roadmap Progress Scrubber */}
               <RoadmapScrubber
                 currentTime={currentTime}
                 videoDuration={videoDuration}
@@ -651,7 +676,6 @@ export default function App() {
                 onSeek={throttledSeek}
               />
 
-              {/* Unified Touch Controlbar */}
               <ControlBar 
                 isActuallyPlaying={isActuallyPlaying}
                 onPlayToggle={handlePlayToggle}
@@ -664,7 +688,6 @@ export default function App() {
         </div>
       </div>
 
-      {/* Floating Toast Notification */}
       {toastMessage && (
         <div className="toast-notification">
           {toastMessage}
@@ -673,3 +696,4 @@ export default function App() {
     </div>
   );
 }
+── */
