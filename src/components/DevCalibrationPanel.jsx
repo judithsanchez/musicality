@@ -1,4 +1,10 @@
 import { Trash2, Plus, Save, AlertOctagon } from "lucide-react";
+import {
+  SalsaEnergyStateSchema,
+  BachataEnergyStateSchema,
+  SalsaInstrumentSchema,
+  BachataInstrumentSchema
+} from "../types/schemas";
 
 export default function DevCalibrationPanel({
   songData,
@@ -19,12 +25,12 @@ export default function DevCalibrationPanel({
   const genre = songData?.genre || "SALSA";
 
   const energyStates = genre === "SALSA" 
-    ? ["INTRO", "VERSE", "CHORUS", "MONTUNO", "MAMBO", "DESCARGA", "BREAK", "OUTRO"]
-    : ["INTRO", "DERECHO", "MAJAO", "MAMBO", "BREAK", "OUTRO"];
+    ? SalsaEnergyStateSchema.options
+    : BachataEnergyStateSchema.options;
 
   const instruments = genre === "SALSA"
-    ? ["PIANO", "VOCALS", "BRASS", "CONGAS", "BONGOS", "TIMBALES", "BASS", "COWBELL", "NONE"]
-    : ["REQUINTO", "SEGUNDA", "BONGOS", "GUIRA", "BASS", "VOCALS", "NONE"];
+    ? SalsaInstrumentSchema.options
+    : BachataInstrumentSchema.options;
 
   return (
     <div className="glass-panel dev-panel right-workspace-column" style={{
