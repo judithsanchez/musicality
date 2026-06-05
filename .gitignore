@@ -55,5 +55,8 @@ dist/
 # Explicitly allow committing production song beat-maps
 !public/songs/*.json
 
+# Explicitly allow committing test fixtures
+!src/types/__tests__/fixtures/*.json
+
 # Explicitly allow committing TypeScript project configuration
 !tsconfig.json
