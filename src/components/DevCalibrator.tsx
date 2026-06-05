@@ -505,7 +505,7 @@ export default function DevCalibrator({
         return;
       }
 
-      if (e.key === "m" || e.key === "M" || e.key === "Enter") {
+      if (e.key === "m" || e.key === "M" || e.key === "Enter" || e.key === "c" || e.key === "C") {
         e.preventDefault();
         handleAddNewSection();
         return;
@@ -541,62 +541,62 @@ export default function DevCalibrator({
       backdropFilter: "blur(12px)",
       borderRadius: "20px"
     }}>
+      <div className={tapFlash ? "active-flash" : ""} style={{
+        padding: "20px 16px",
+        background: "rgba(255,255,255,0.02)",
+        border: `2px solid ${tapFlash ? "#ffffff" : "#27272a"}`,
+        borderRadius: "16px",
+        display: "flex",
+        flexDirection: "column",
+        gap: "14px",
+        alignItems: "center",
+        boxShadow: tapFlash ? "0 0 36px rgba(255,255,255,0.35)" : "none",
+        transition: "all 0.08s ease"
+      }}>
+        <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "#a1a1aa", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+          🎧 Downbeat Tap Deck
+        </div>
+
+        <button
+          onClick={handleTap}
+          style={{
+            width: "100%",
+            height: "90px",
+            borderRadius: "14px",
+            border: `2px solid ${tapFlash ? "#ffffff" : "#3f3f46"}`,
+            background: tapFlash ? "#ffffff" : "rgba(255,255,255,0.04)",
+            cursor: "pointer",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "4px"
+          }}
+        >
+          <span style={{ fontSize: "1.35rem", fontWeight: 900, color: tapFlash ? "#000" : "#fff", textTransform: "uppercase", letterSpacing: "1px" }}>
+            TAP ON "1"
+          </span>
+          <span style={{ fontSize: "0.68rem", color: tapFlash ? "rgba(0,0,0,0.6)" : "#71717a" }}>
+            Click or press <kbd style={{ background: "rgba(255,255,255,0.12)", borderRadius: "3px", padding: "0 3px" }}>T</kbd>
+          </span>
+        </button>
+
+        <div style={{ display: "flex", justifyContent: "space-between", width: "100%", fontSize: "0.75rem", color: "#d1d5db" }}>
+          <span>Taps logged: <strong style={{ color: "#ffffff" }}>{tappedDownbeatIndices.length}</strong></span>
+          {tappedDownbeatIndices.length > 0 && (
+            <button
+              onClick={handleClearTaps}
+              style={{ background: "none", border: "none", color: "#a1a1aa", cursor: "pointer", fontSize: "0.7rem", display: "flex", alignItems: "center", gap: "4px" }}
+            >
+              <RotateCcw size={11} /> Clear
+            </button>
+          )}
+        </div>
+      </div>
+
       <div className="dev-widescreen-top-row">
         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
           {videoElement}
-          
-          <div className={tapFlash ? "active-flash" : ""} style={{
-            padding: "20px 16px",
-            background: "rgba(255,255,255,0.02)",
-            border: `2px solid ${tapFlash ? "#ffffff" : "#27272a"}`,
-            borderRadius: "16px",
-            display: "flex",
-            flexDirection: "column",
-            gap: "14px",
-            alignItems: "center",
-            boxShadow: tapFlash ? "0 0 36px rgba(255,255,255,0.35)" : "none",
-            transition: "all 0.08s ease"
-          }}>
-            <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "#a1a1aa", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-              🎧 Downbeat Tap Deck
-            </div>
-
-            <button
-              onClick={handleTap}
-              style={{
-                width: "100%",
-                height: "90px",
-                borderRadius: "14px",
-                border: `2px solid ${tapFlash ? "#ffffff" : "#3f3f46"}`,
-                background: tapFlash ? "#ffffff" : "rgba(255,255,255,0.04)",
-                cursor: "pointer",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "4px"
-              }}
-            >
-              <span style={{ fontSize: "1.35rem", fontWeight: 900, color: tapFlash ? "#000" : "#fff", textTransform: "uppercase", letterSpacing: "1px" }}>
-                TAP ON "1"
-              </span>
-              <span style={{ fontSize: "0.68rem", color: tapFlash ? "rgba(0,0,0,0.6)" : "#71717a" }}>
-                Click or press <kbd style={{ background: "rgba(255,255,255,0.12)", borderRadius: "3px", padding: "0 3px" }}>T</kbd>
-              </span>
-            </button>
-
-            <div style={{ display: "flex", justifyContent: "space-between", width: "100%", fontSize: "0.75rem", color: "#d1d5db" }}>
-              <span>Taps logged: <strong style={{ color: "#ffffff" }}>{tappedDownbeatIndices.length}</strong></span>
-              {tappedDownbeatIndices.length > 0 && (
-                <button
-                  onClick={handleClearTaps}
-                  style={{ background: "none", border: "none", color: "#a1a1aa", cursor: "pointer", fontSize: "0.7rem", display: "flex", alignItems: "center", gap: "4px" }}
-                >
-                  <RotateCcw size={11} /> Clear
-                </button>
-              )}
-            </div>
-          </div>
         </div>
 
         <DevCalibrationPanel
@@ -805,7 +805,7 @@ export default function DevCalibrator({
           <span><kbd style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "4px", padding: "1px 4px", fontFamily: "inherit" }}>Space</kbd> Play/Pause</span>
           <span><kbd style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "4px", padding: "1px 4px", fontFamily: "inherit" }}>← / →</kbd> Nudge 100ms</span>
           <span><kbd style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "4px", padding: "1px 4px", fontFamily: "inherit" }}>Shift + ← / →</kbd> Nudge 1.0s</span>
-          <span><kbd style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "4px", padding: "1px 4px", fontFamily: "inherit" }}>Enter / M</kbd> Slice Section</span>
+          <span><kbd style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "4px", padding: "1px 4px", fontFamily: "inherit" }}>Enter / M / C</kbd> Slice Section</span>
         </div>
       </div>
     </div>
