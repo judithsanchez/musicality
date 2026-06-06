@@ -40,16 +40,16 @@ class SalsaDSP:
         return sos
 
     def get_onsets(self):
-        sos_conga = self.butter_bandpass_sos(250, 420, self.sr)
+        sos_conga = self.butter_bandpass_sos(200, 1800, self.sr)
         y_conga = scipy.signal.sosfiltfilt(sos_conga, self.y_percussive)
         
-        window_size = int(0.025 * self.sr)
+        window_size = int(0.015 * self.sr)
         kernel = np.ones(window_size) / window_size
         envelope_conga = scipy.signal.convolve(np.abs(y_conga), kernel, mode='same')
         
         peak_conga = np.max(envelope_conga)
         if peak_conga > 0:
-            threshold_conga = 0.12 * peak_conga
+            threshold_conga = 0.10 * peak_conga
             gain_conga = np.where(envelope_conga < threshold_conga, 0.05 + 0.95 * (envelope_conga / threshold_conga), 1.0)
             y_conga = y_conga * gain_conga
             
