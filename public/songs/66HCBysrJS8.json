@@ -4,6 +4,7 @@
   "title": "Pobre Diablo",
   "artist": "Ronald Borjas",
   "genre": "SALSA",
+  "status": "DRAFT_TAPPING",
   "baseBpm": 76.7,
   "absoluteBeatMap": [
     1480,
@@ -379,7 +380,17 @@
     290920
   ],
   "schemaVersion": "2.0",
-  "sections": [],
-  "phrases": [],
-  "defaultClave": "NOT_SET"
+  "defaultClave": "NOT_SET",
+  "sections": [
+    {
+      "id": "sec-default",
+      "startTimeMs": 0,
+      "endTimeMs": 290920,
+      "label": "Intro",
+      "phraseIds": [],
+      "emoji": "🎵",
+      "energyState": "INTRO"
+    }
+  ],
+  "phrases": []
 }
