@@ -68,9 +68,27 @@ export default function DevCalibrator({
   const [focusedSectionId, setFocusedSectionId] = useState<string | null>(null);
   const [tapFlash, setTapFlash] = useState(false);
   const [validationErrors, setValidationErrors] = useState<any[] | null>(null);
+  const [activeTab, setActiveTab] = useState<number>(1);
+  const [saving, setSaving] = useState<boolean>(false);
 
   const duration = videoDuration || 300;
   const timelineRef = useRef<HTMLDivElement>(null);
+  const latestSongDataRef = useRef<any>(null);
+
+  useEffect(() => {
+    latestSongDataRef.current = calibratedSongData || songData;
+  }, [calibratedSongData, songData]);
+
+  useEffect(() => {
+    const status = songData?.status || "DRAFT_CUTTING";
+    if (status === "DRAFT_CUTTING") {
+      setActiveTab(1);
+    } else if (status === "DRAFT_TAPPING") {
+      setActiveTab(2);
+    } else {
+      setActiveTab(3);
+    }
+  }, [songData?.status]);
 
   useEffect(() => {
     if (!songData || duration <= 0) return;
@@ -109,6 +127,26 @@ export default function DevCalibrator({
       setTappedDownbeatIndices(restoredDownbeats);
     }
   }, [songData, duration]);
+
+  const autoSaveSongMap = (updatedData: any) => {
+    setSaving(true);
+    fetch("/api/songs", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updatedData)
+    })
+    .then(r => r.json())
+    .then(res => {
+      setSaving(false);
+      if (!res.success) {
+        showToast("❌ Auto-save failed");
+      }
+    })
+    .catch(err => {
+      setSaving(false);
+      showToast("❌ Auto-save failed");
+    });
+  };
 
   const syncSongMapState = (sections: any[], phrasesList: any[]) => {
     const updated = {
@@ -217,7 +255,7 @@ export default function DevCalibrator({
     return sectionPhrases;
   };
 
-  const repartitionAllPhrases = (sectionsList: any[], downbeatsList: number[]) => {
+  const repartitionAllPhrases = (sectionsList: any[], downbeatsList: number[], triggerAutoSave = false) => {
     const allPhrases: any[] = [];
     const updatedSections = sectionsList.map(sec => {
       const secPhrases = generatePhrasesForSection(sec, downbeatsList, songData.absoluteBeatMap, songData.genre);
@@ -239,7 +277,17 @@ export default function DevCalibrator({
 
     setEditorSections(updatedSections);
     setPhrases(allPhrases);
+    
+    const updated = {
+      ...songData,
+      sections: updatedSections,
+      phrases: allPhrases
+    };
     syncSongMapState(updatedSections, allPhrases);
+
+    if (triggerAutoSave && songData.status === "DRAFT_CUTTING") {
+      autoSaveSongMap(updated);
+    }
 
     if (songData.genre === "SALSA") {
       allPhrases.forEach(ph => {
@@ -402,7 +450,7 @@ export default function DevCalibrator({
       updated[targetIdx] = { ...target, endTimeMs: playheadMs };
       updated.splice(targetIdx + 1, 0, newSec);
 
-      repartitionAllPhrases(updated, tappedDownbeatIndices);
+      repartitionAllPhrases(updated, tappedDownbeatIndices, true);
       setFocusedSectionId(newSec.id);
       showToast("✂️ Sliced section at playhead.");
     } else {
@@ -425,7 +473,7 @@ export default function DevCalibrator({
     }
 
     updated.splice(idx, 1);
-    repartitionAllPhrases(updated, tappedDownbeatIndices);
+    repartitionAllPhrases(updated, tappedDownbeatIndices, true);
     if (focusedSectionId === id) setFocusedSectionId(updated[Math.max(0, idx - 1)]?.id ?? null);
     showToast("🗑️ Section removed.");
   };
@@ -507,18 +555,22 @@ export default function DevCalibrator({
 
       if (e.key === "m" || e.key === "M" || e.key === "Enter" || e.key === "c" || e.key === "C") {
         e.preventDefault();
-        handleAddNewSection();
+        if (activeTab === 1) {
+          handleAddNewSection();
+        }
         return;
       }
 
       if (e.key === "t" || e.key === "T") {
         e.preventDefault();
-        handleTap();
+        if (activeTab === 2) {
+          handleTap();
+        }
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [currentTime, editorSections, tappedDownbeatIndices, player, duration]);
+  }, [currentTime, editorSections, tappedDownbeatIndices, player, duration, activeTab]);
 
   const handleTimelineClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!timelineRef.current) return;
@@ -541,58 +593,122 @@ export default function DevCalibrator({
       backdropFilter: "blur(12px)",
       borderRadius: "20px"
     }}>
-      <div className={tapFlash ? "active-flash" : ""} style={{
-        padding: "20px 16px",
-        background: "rgba(255,255,255,0.02)",
-        border: `2px solid ${tapFlash ? "#ffffff" : "#27272a"}`,
-        borderRadius: "16px",
-        display: "flex",
-        flexDirection: "column",
-        gap: "14px",
-        alignItems: "center",
-        boxShadow: tapFlash ? "0 0 36px rgba(255,255,255,0.35)" : "none",
-        transition: "all 0.08s ease"
-      }}>
-        <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "#a1a1aa", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-          🎧 Downbeat Tap Deck
-        </div>
-
-        <button
-          onClick={handleTap}
-          style={{
-            width: "100%",
-            height: "90px",
-            borderRadius: "14px",
-            border: `2px solid ${tapFlash ? "#ffffff" : "#3f3f46"}`,
-            background: tapFlash ? "#ffffff" : "rgba(255,255,255,0.04)",
-            cursor: "pointer",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "4px"
-          }}
-        >
-          <span style={{ fontSize: "1.35rem", fontWeight: 900, color: tapFlash ? "#000" : "#fff", textTransform: "uppercase", letterSpacing: "1px" }}>
-            TAP ON "1"
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <span style={{ fontSize: "1.1rem", fontWeight: 900, color: "#fff" }}>
+            Song Calibration Workbench
           </span>
-          <span style={{ fontSize: "0.68rem", color: tapFlash ? "rgba(0,0,0,0.6)" : "#71717a" }}>
-            Click or press <kbd style={{ background: "rgba(255,255,255,0.12)", borderRadius: "3px", padding: "0 3px" }}>T</kbd>
+          <span style={{
+            fontSize: "0.7rem",
+            fontWeight: "bold",
+            padding: "2px 8px",
+            borderRadius: "12px",
+            background: "rgba(255,255,255,0.08)",
+            color: "#a1a1aa"
+          }}>
+            Status: {songData?.status || "DRAFT_CUTTING"}
           </span>
-        </button>
-
-        <div style={{ display: "flex", justifyContent: "space-between", width: "100%", fontSize: "0.75rem", color: "#d1d5db" }}>
-          <span>Taps logged: <strong style={{ color: "#ffffff" }}>{tappedDownbeatIndices.length}</strong></span>
-          {tappedDownbeatIndices.length > 0 && (
-            <button
-              onClick={handleClearTaps}
-              style={{ background: "none", border: "none", color: "#a1a1aa", cursor: "pointer", fontSize: "0.7rem", display: "flex", alignItems: "center", gap: "4px" }}
-            >
-              <RotateCcw size={11} /> Clear
-            </button>
+          {saving && (
+            <span style={{ fontSize: "0.75rem", color: "#34d399", display: "flex", alignItems: "center", gap: "4px" }}>
+              💾 Saving...
+            </span>
           )}
         </div>
       </div>
+
+      <div style={{
+        display: "flex",
+        borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+        paddingBottom: "8px",
+        gap: "16px"
+      }}>
+        {["1. Timeline Slicing", "2. Downbeat Tapping", "3. Details & Labeling"].map((tabName, idx) => {
+          const tabNum = idx + 1;
+          const status = songData?.status || "DRAFT_CUTTING";
+          
+          let disabled = false;
+          if (tabNum === 2 && status === "DRAFT_CUTTING") disabled = true;
+          if (tabNum === 3 && (status === "DRAFT_CUTTING" || status === "DRAFT_TAPPING")) disabled = true;
+          
+          const isActive = activeTab === tabNum;
+          
+          return (
+            <button
+              key={tabNum}
+              disabled={disabled}
+              onClick={() => setActiveTab(tabNum)}
+              style={{
+                background: "none",
+                border: "none",
+                borderBottom: isActive ? "2px solid #ffffff" : "2px solid transparent",
+                color: disabled ? "#4b5563" : (isActive ? "#ffffff" : "#9ca3af"),
+                padding: "8px 12px",
+                fontSize: "0.85rem",
+                fontWeight: "bold",
+                cursor: disabled ? "not-allowed" : "pointer",
+                transition: "all 0.2s ease"
+              }}
+            >
+              {tabName}
+            </button>
+          );
+        })}
+      </div>
+
+      {activeTab === 2 && (
+        <div className={tapFlash ? "active-flash" : ""} style={{
+          padding: "20px 16px",
+          background: "rgba(255,255,255,0.02)",
+          border: `2px solid ${tapFlash ? "#ffffff" : "#27272a"}`,
+          borderRadius: "16px",
+          display: "flex",
+          flexDirection: "column",
+          gap: "14px",
+          alignItems: "center",
+          boxShadow: tapFlash ? "0 0 36px rgba(255,255,255,0.35)" : "none",
+          transition: "all 0.08s ease"
+        }}>
+          <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "#a1a1aa", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+            🎧 Downbeat Tap Deck
+          </div>
+
+          <button
+            onClick={handleTap}
+            style={{
+              width: "100%",
+              height: "90px",
+              borderRadius: "14px",
+              border: `2px solid ${tapFlash ? "#ffffff" : "#3f3f46"}`,
+              background: tapFlash ? "#ffffff" : "rgba(255,255,255,0.04)",
+              cursor: "pointer",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "4px"
+            }}
+          >
+            <span style={{ fontSize: "1.35rem", fontWeight: 900, color: tapFlash ? "#000" : "#fff", textTransform: "uppercase", letterSpacing: "1px" }}>
+              TAP ON "1"
+            </span>
+            <span style={{ fontSize: "0.68rem", color: tapFlash ? "rgba(0,0,0,0.6)" : "#71717a" }}>
+              Click or press <kbd style={{ background: "rgba(255,255,255,0.12)", borderRadius: "3px", padding: "0 3px" }}>T</kbd>
+            </span>
+          </button>
+
+          <div style={{ display: "flex", justifyContent: "space-between", width: "100%", fontSize: "0.75rem", color: "#d1d5db" }}>
+            <span>Taps logged: <strong style={{ color: "#ffffff" }}>{tappedDownbeatIndices.length}</strong></span>
+            {tappedDownbeatIndices.length > 0 && (
+              <button
+                onClick={handleClearTaps}
+                style={{ background: "none", border: "none", color: "#a1a1aa", cursor: "pointer", fontSize: "0.7rem", display: "flex", alignItems: "center", gap: "4px" }}
+              >
+                <RotateCcw size={11} /> Clear
+              </button>
+            )}
+          </div>
+        </div>
+      )}
 
       <div className="dev-widescreen-top-row">
         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
@@ -613,7 +729,76 @@ export default function DevCalibrator({
           onDeleteSection={handleDeleteSection}
           onUpdatePhraseField={handleUpdatePhraseField}
           validationErrors={validationErrors}
-          onSave={handleSave}
+          activeTab={activeTab}
+          saving={saving}
+          onLockSections={() => {
+            const updated = {
+              ...latestSongDataRef.current,
+              status: "DRAFT_TAPPING"
+            };
+            setCalibratedSongData(updated);
+            setSongData(updated);
+            autoSaveSongMap(updated);
+            setActiveTab(2);
+            showToast("🔒 Sections locked! Downbeat tapping unlocked.");
+          }}
+          onSaveTaps={() => {
+            const updated = {
+              ...latestSongDataRef.current,
+              status: "DRAFT_LABELING"
+            };
+            setCalibratedSongData(updated);
+            setSongData(updated);
+            
+            setSaving(true);
+            fetch("/api/songs", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(updated)
+            })
+            .then(r => r.json())
+            .then(res => {
+              setSaving(false);
+              if (res.success) {
+                showToast("💾 Taps saved! Labeling phase unlocked.");
+                setActiveTab(3);
+              } else {
+                throw new Error(res.error || "Save failed");
+              }
+            })
+            .catch(err => {
+              setSaving(false);
+              showToast("❌ Failed to save taps: " + err.message);
+            });
+          }}
+          onPublishSong={() => {
+            const updated = {
+              ...latestSongDataRef.current,
+              status: "READY"
+            };
+            setCalibratedSongData(updated);
+            setSongData(updated);
+            
+            setSaving(true);
+            fetch("/api/songs", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(updated)
+            })
+            .then(r => r.json())
+            .then(res => {
+              setSaving(false);
+              if (res.success) {
+                showToast("🎉 Song published successfully! Now visible in catalog.");
+              } else {
+                throw new Error(res.error || "Save failed");
+              }
+            })
+            .catch(err => {
+              setSaving(false);
+              showToast("❌ Publish failed: " + err.message);
+            });
+          }}
         />
       </div>
 
@@ -626,24 +811,26 @@ export default function DevCalibrator({
             <span style={{ fontFamily: "monospace", fontSize: "0.78rem", color: "#ffffff", fontWeight: 600 }}>
               {currentTime.toFixed(2)}s / {duration.toFixed(2)}s
             </span>
-            <button
-              onClick={handleAddNewSection}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "5px",
-                fontSize: "0.72rem",
-                fontWeight: 700,
-                background: "rgba(255,255,255,0.05)",
-                border: "1px solid #27272a",
-                color: "#ffffff",
-                padding: "4px 12px",
-                borderRadius: "6px",
-                cursor: "pointer"
-              }}
-            >
-              <Scissors size={12} /> Slice Here
-            </button>
+            {activeTab === 1 && (
+              <button
+                onClick={handleAddNewSection}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "5px",
+                  fontSize: "0.72rem",
+                  fontWeight: 700,
+                  background: "rgba(255,255,255,0.05)",
+                  border: "1px solid #27272a",
+                  color: "#ffffff",
+                  padding: "4px 12px",
+                  borderRadius: "6px",
+                  cursor: "pointer"
+                }}
+              >
+                <Scissors size={12} /> Slice Here
+              </button>
+            )}
           </div>
         </div>
 
@@ -669,6 +856,8 @@ export default function DevCalibrator({
                 const leftPct = (startSec / duration) * 100;
                 const color = SECTION_PALETTE[idx % SECTION_PALETTE.length];
                 const isActive = sec.id === focusedSectionId;
+                const showSimpleLabel = activeTab === 1 || activeTab === 2;
+                const labelText = showSimpleLabel ? String(idx + 1) : `${sec.emoji || "🎵"} ${sec.label}`;
 
                 return (
                   <div
@@ -694,7 +883,7 @@ export default function DevCalibrator({
                     }}
                   >
                     <span style={{ fontSize: "0.7rem", fontWeight: 800, color: color.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                      {sec.emoji || "🎵"} {sec.label}
+                      {labelText}
                     </span>
                   </div>
                 );
@@ -723,6 +912,7 @@ export default function DevCalibrator({
                 <div
                   key={`handle-${sec.id}`}
                   onMouseDown={(e) => {
+                    if (activeTab !== 1) return;
                     e.stopPropagation();
                     e.preventDefault();
                     const handleMouseMove = (moveEvt: MouseEvent) => {
@@ -734,6 +924,9 @@ export default function DevCalibrator({
                     const handleMouseUp = () => {
                       window.removeEventListener("mousemove", handleMouseMove);
                       window.removeEventListener("mouseup", handleMouseUp);
+                      if (latestSongDataRef.current?.status === "DRAFT_CUTTING") {
+                        autoSaveSongMap(latestSongDataRef.current);
+                      }
                     };
                     window.addEventListener("mousemove", handleMouseMove);
                     window.addEventListener("mouseup", handleMouseUp);
@@ -745,7 +938,7 @@ export default function DevCalibrator({
                     width: "12px",
                     height: "64px",
                     transform: "translateX(-50%)",
-                    cursor: "col-resize",
+                    cursor: activeTab === 1 ? "col-resize" : "not-allowed",
                     zIndex: 20,
                     display: "flex",
                     alignItems: "center",
@@ -753,7 +946,9 @@ export default function DevCalibrator({
                   }}
                 >
                   <div style={{ width: "3px", height: "100%", borderRadius: "1.5px", background: "rgba(255,255,255,0.4)" }} />
-                  <div style={{ position: "absolute", width: "8px", height: "8px", borderRadius: "50%", background: "#ffffff", border: "1.5px solid #27272a" }} />
+                  {activeTab === 1 && (
+                    <div style={{ position: "absolute", width: "8px", height: "8px", borderRadius: "50%", background: "#ffffff", border: "1.5px solid #27272a" }} />
+                  )}
                 </div>
               );
             })}
@@ -765,6 +960,8 @@ export default function DevCalibrator({
             {editorSections.map((sec, idx) => {
                const color = SECTION_PALETTE[idx % SECTION_PALETTE.length];
                const isActive = sec.id === focusedSectionId;
+               const showSimpleLabel = activeTab === 1 || activeTab === 2;
+               const labelText = showSimpleLabel ? String(idx + 1) : `${sec.emoji || "🎵"} ${sec.label}`;
                return (
                  <button
                    key={sec.id}
@@ -783,7 +980,7 @@ export default function DevCalibrator({
                      cursor: "pointer"
                    }}
                  >
-                   {sec.emoji || "🎵"} {sec.label}
+                   {labelText}
                  </button>
                );
             })}
@@ -795,17 +992,20 @@ export default function DevCalibrator({
           alignItems: "center",
           gap: "16px",
           marginTop: "8px",
-          paddingTop: "8px",
-          borderTop: "1px solid rgba(255,255,255,0.05)",
-          fontSize: "0.68rem",
-          color: "#71717a",
+          padding: "10px 14px",
+          background: "rgba(255,255,255,0.03)",
+          border: "1px solid rgba(255,255,255,0.06)",
+          borderRadius: "10px",
+          fontSize: "0.72rem",
+          color: "#a1a1aa",
           flexWrap: "wrap"
         }}>
-          <span style={{ fontWeight: "bold", color: "#a1a1aa" }}>⌨️ Shortcuts:</span>
-          <span><kbd style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "4px", padding: "1px 4px", fontFamily: "inherit" }}>Space</kbd> Play/Pause</span>
-          <span><kbd style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "4px", padding: "1px 4px", fontFamily: "inherit" }}>← / →</kbd> Nudge 100ms</span>
-          <span><kbd style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "4px", padding: "1px 4px", fontFamily: "inherit" }}>Shift + ← / →</kbd> Nudge 1.0s</span>
-          <span><kbd style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "4px", padding: "1px 4px", fontFamily: "inherit" }}>Enter / M / C</kbd> Slice Section</span>
+          <span style={{ fontWeight: "bold", color: "#ffffff" }}>⌨️ Navigation Guide:</span>
+          <span><kbd style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "4px", padding: "1px 4px", color: "#fff", marginRight: "4px" }}>Space</kbd> Play/Pause</span>
+          <span><kbd style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "4px", padding: "1px 4px", color: "#fff", marginRight: "4px" }}>← / →</kbd> Nudge 100ms</span>
+          <span><kbd style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "4px", padding: "1px 4px", color: "#fff", marginRight: "4px" }}>Shift + ← / →</kbd> Nudge 1.0s</span>
+          <span><kbd style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "4px", padding: "1px 4px", color: "#fff", marginRight: "4px" }}>C</kbd> Slice Section</span>
+          <span><kbd style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "4px", padding: "1px 4px", color: "#fff", marginRight: "4px" }}>T</kbd> Tap Downbeat</span>
         </div>
       </div>
     </div>

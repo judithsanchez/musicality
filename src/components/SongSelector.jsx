@@ -29,6 +29,10 @@ export default function SongSelector({ onSelectSong, onOpenDevDashboard }) {
   }, []);
 
   const filteredSongs = catalog.filter((song) => {
+    const status = song.status || "READY";
+    if (!onOpenDevDashboard && status !== "READY") {
+      return false;
+    }
     const matchesSearch =
       song.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       song.artist.toLowerCase().includes(searchQuery.toLowerCase());
@@ -175,6 +179,17 @@ export default function SongSelector({ onSelectSong, onOpenDevDashboard }) {
               <div className="song-card-meta">
                 <span className="badge badge-bpm">{song.baseBpm} BPM</span>
                 <span className="badge badge-style" style={{ textTransform: "capitalize" }}>{song.genre}</span>
+                {song.status && song.status !== "READY" && (
+                  <span className="badge" style={{
+                    background: "rgba(239, 68, 68, 0.15)",
+                    color: "#fca5a5",
+                    border: "1px solid rgba(239, 68, 68, 0.3)",
+                    textTransform: "uppercase",
+                    fontSize: "0.6rem"
+                  }}>
+                    {song.status.replace("DRAFT_", "")}
+                  </span>
+                )}
               </div>
             </div>
           </div>

@@ -161,4 +161,33 @@ describe('StrictSongMapSchema Validation', () => {
       expect(res.success).toBe(false);
     });
   });
+
+  describe('Status Field Validation', () => {
+    it('should default status to DRAFT_CUTTING if not specified', () => {
+      const copy = JSON.parse(JSON.stringify(validSalsaMap));
+      delete copy.status;
+      const res = StrictSongMapSchema.safeParse(copy);
+      expect(res.success).toBe(true);
+      if (res.success) {
+        expect(res.data.status).toBe('DRAFT_CUTTING');
+      }
+    });
+
+    it('should validate valid status values', () => {
+      const copy = JSON.parse(JSON.stringify(validSalsaMap));
+      copy.status = 'READY';
+      const res = StrictSongMapSchema.safeParse(copy);
+      expect(res.success).toBe(true);
+      if (res.success) {
+        expect(res.data.status).toBe('READY');
+      }
+    });
+
+    it('should fail for invalid status values', () => {
+      const copy = JSON.parse(JSON.stringify(validSalsaMap));
+      copy.status = 'INVALID_STATUS';
+      const res = StrictSongMapSchema.safeParse(copy);
+      expect(res.success).toBe(false);
+    });
+  });
 });

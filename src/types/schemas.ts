@@ -115,6 +115,7 @@ export const BaseSongMapSchema = z.object({
   title: z.string(),
   artist: z.string(),
   genre: GenreSchema,
+  status: z.enum(['DRAFT_CUTTING', 'DRAFT_TAPPING', 'DRAFT_LABELING', 'READY']).default('DRAFT_CUTTING'),
   baseBpm: z.number().positive(),
   absoluteBeatMap: z.array(z.number().int()),
   schemaVersion: z.literal('2.0')

@@ -158,6 +158,9 @@ export default function App() {
       })
       .then((data) => {
         const adjustedData = { ...data };
+        if (!adjustedData.status) {
+          adjustedData.status = "DRAFT_CUTTING";
+        }
         if (!adjustedData.sections || adjustedData.sections.length === 0) {
           const lastBeatTimeMs = adjustedData.absoluteBeatMap && adjustedData.absoluteBeatMap.length > 0
             ? adjustedData.absoluteBeatMap[adjustedData.absoluteBeatMap.length - 1]

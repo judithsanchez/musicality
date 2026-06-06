@@ -98,6 +98,7 @@ function songDbPlugin() {
                 title: songMap.title,
                 artist: songMap.artist,
                 genre: songMap.genre,
+                status: songMap.status,
                 baseBpm: songMap.baseBpm,
               };
 
@@ -225,6 +226,7 @@ function songDbPlugin() {
                   title: songMap.title,
                   artist: songMap.artist,
                   genre: songMap.genre,
+                  status: songMap.status || 'DRAFT_CUTTING',
                   baseBpm: songMap.baseBpm
                 };
                 if (genre === 'SALSA') {
