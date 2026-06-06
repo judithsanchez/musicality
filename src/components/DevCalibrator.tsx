@@ -254,6 +254,11 @@ export default function DevCalibrator({
       });
     }
 
+    if (sectionPhrases.length > 0) {
+      sectionPhrases[0].startTimeMs = section.startTimeMs;
+      sectionPhrases[sectionPhrases.length - 1].endTimeMs = section.endTimeMs;
+    }
+
     return sectionPhrases;
   };
 

@@ -58,6 +58,7 @@ function songDbPlugin() {
               const payload = JSON.parse(body);
               const result = StrictSongMapSchema.safeParse(payload);
               if (!result.success) {
+                console.error('Validation failed for /api/songs:', JSON.stringify(result.error.issues, null, 2));
                 res.statusCode = 400;
                 res.setHeader('Content-Type', 'application/json');
                 res.end(JSON.stringify({
