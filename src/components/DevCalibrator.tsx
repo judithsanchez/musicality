@@ -924,8 +924,9 @@ export default function DevCalibrator({
                       width: `${widthPct}%`,
                       background: color.bg,
                       borderRight: `1px solid ${color.border}`,
-                      outline: isActive ? `2.5px solid ${color.border}` : "none",
-                      outlineOffset: "-2.5px",
+                      outline: isActive ? "2px solid #ffffff" : "none",
+                      outlineOffset: "-2px",
+                      zIndex: isActive ? 5 : 1,
                       display: "flex",
                       alignItems: "center",
                       padding: "0 10px",
@@ -1025,9 +1026,9 @@ export default function DevCalibrator({
                      fontWeight: 700,
                      padding: "3px 10px",
                      borderRadius: "20px",
-                     background: isActive ? color.bg : "rgba(255,255,255,0.04)",
-                     border: `1px solid ${isActive ? color.border : "rgba(255,255,255,0.08)"}`,
-                     color: isActive ? color.text : "#9ca3af",
+                     background: isActive ? "#ffffff" : "rgba(255,255,255,0.04)",
+                     border: `1px solid ${isActive ? "#ffffff" : "rgba(255,255,255,0.08)"}`,
+                     color: isActive ? "#000000" : "#9ca3af",
                      cursor: "pointer"
                    }}
                  >
