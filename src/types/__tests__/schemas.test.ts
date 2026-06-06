@@ -165,7 +165,7 @@ describe('StrictSongMapSchema Validation', () => {
   });
 
   it('should validate the generated Pobre Diablo song map', () => {
-    const filePath = path.resolve(__dirname, '../../../public/songs/D-n-r13Qz7w.json');
+    const filePath = path.resolve(__dirname, '../../../public/songs/66HCBysrJS8.json');
     const content = fs.readFileSync(filePath, 'utf8');
     const songMap = JSON.parse(content);
     const res = StrictSongMapSchema.safeParse(songMap);

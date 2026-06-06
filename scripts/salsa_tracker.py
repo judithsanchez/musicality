@@ -255,7 +255,7 @@ def main():
     vote_23 = sum(1 for v in clave_votes if v == "2-3")
     default_clave = "3-2" if vote_32 >= vote_23 else "2-3"
     
-    youtube_id = "D-n-r13Qz7w"
+    youtube_id = "66HCBysrJS8"
     
     song_map = {
         "id": f"song-{youtube_id}",
