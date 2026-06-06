@@ -21,8 +21,12 @@ class SalsaDSP:
         S = np.abs(D)
         H = scipy.ndimage.median_filter(S, size=(1, 31))
         P = scipy.ndimage.median_filter(S, size=(31, 1))
-        mask_h = H / (H + P + 1e-10)
-        mask_p = P / (H + P + 1e-10)
+        
+        H2 = H ** 2
+        P2 = P ** 2
+        denom = H2 + P2 + 1e-10
+        mask_h = H2 / denom
+        mask_p = P2 / denom
         
         n_samples = len(self.y)
         self.y_harmonic = librosa.istft(D * mask_h)[:n_samples]
@@ -36,8 +40,16 @@ class SalsaDSP:
         return sos
 
     def get_onsets(self):
-        sos_conga = self.butter_bandpass_sos(200, 450, self.sr)
+        sos_conga = self.butter_bandpass_sos(250, 420, self.sr)
         y_conga = scipy.signal.sosfiltfilt(sos_conga, self.y_percussive)
+        
+        envelope_conga = np.abs(y_conga)
+        peak_conga = np.max(envelope_conga)
+        if peak_conga > 0:
+            threshold_conga = 0.15 * peak_conga
+            gain_conga = np.where(envelope_conga < threshold_conga, 0.05 + 0.95 * (envelope_conga / threshold_conga), 1.0)
+            y_conga = y_conga * gain_conga
+            
         onset_conga = librosa.onset.onset_strength(y=y_conga, sr=self.sr)
         
         sos_bass = self.butter_bandpass_sos(50, 120, self.sr)
