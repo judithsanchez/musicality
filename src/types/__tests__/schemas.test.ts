@@ -160,6 +160,15 @@ describe('StrictSongMapSchema Validation', () => {
       const res = StrictSongMapSchema.safeParse(invalid);
       expect(res.success).toBe(false);
     });
+
+    it('should fail if a Salsa song map contains a NO_COUNT phrase missing claveDirection', () => {
+      const invalid = JSON.parse(JSON.stringify(validSalsaMap));
+      invalid.phrases[0].type = 'NO_COUNT';
+      delete invalid.phrases[0].claveDirection;
+      
+      const res = StrictSongMapSchema.safeParse(invalid);
+      expect(res.success).toBe(false);
+    });
   });
 
   describe('Status Field Validation', () => {

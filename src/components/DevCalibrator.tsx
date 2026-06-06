@@ -174,6 +174,12 @@ export default function DevCalibrator({
     const sectionPhrases: any[] = [];
     let currentIdx = actualStart;
 
+    const claveProps = genre === "SALSA" ? {
+      claveDirection: "NOT_SET",
+      claveIsVerified: false,
+      claveSource: "DEFAULT"
+    } : {};
+
     for (const tap of secDownbeats) {
       if (tap < currentIdx) continue;
 
@@ -185,7 +191,8 @@ export default function DevCalibrator({
           endTimeMs: absoluteBeatMap[tap],
           type: "NO_COUNT",
           genre,
-          events: []
+          events: [],
+          ...claveProps
         });
         currentIdx = tap;
       }
@@ -219,12 +226,6 @@ export default function DevCalibrator({
         }
       }
 
-      const claveProps = genre === "SALSA" ? {
-        claveDirection: "NOT_SET",
-        claveIsVerified: false,
-        claveSource: "DEFAULT"
-      } : {};
-
       sectionPhrases.push({
         id: crypto.randomUUID(),
         index: 0,
@@ -248,7 +249,8 @@ export default function DevCalibrator({
         endTimeMs: absoluteBeatMap[actualEnd],
         type: "NO_COUNT",
         genre,
-        events: []
+        events: [],
+        ...claveProps
       });
     }
 
