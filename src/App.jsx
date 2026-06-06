@@ -328,7 +328,7 @@ export default function App() {
         setPlayer(null);
       }
     };
-  }, [apiReady, songData, ytPlayerMountedVal]);
+  }, [apiReady, songData?.youtubeId, ytPlayerMountedVal]);
 
   useEffect(() => {
     if (player && typeof player.getDuration === "function") {

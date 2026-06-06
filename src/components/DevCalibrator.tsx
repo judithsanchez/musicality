@@ -459,6 +459,7 @@ export default function DevCalibrator({
 
       repartitionAllPhrases(updated, tappedDownbeatIndices, true);
       setFocusedSectionId(newSec.id);
+      throttledSeek(newSec.startTimeMs / 1000, true);
       showToast("✂️ Sliced section at playhead.");
     } else {
       showToast("⚠️ Playhead is outside defined sections.");

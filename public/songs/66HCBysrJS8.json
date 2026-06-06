@@ -388,7 +388,7 @@
       "endTimeMs": 19913,
       "label": "Intro",
       "phraseIds": [
-        "a7464f97-9b36-471c-ab4a-0c7e6e44a40c"
+        "7618136d-e7fb-4e10-b673-92586ccf8777"
       ],
       "emoji": "🎵",
       "energyState": "INTRO"
@@ -399,7 +399,7 @@
       "endTimeMs": 29931,
       "label": "Intro",
       "phraseIds": [
-        "219e0239-af38-457f-ac08-b0490264d0d0"
+        "bbed7549-0993-4042-92d7-9e890dac62f6"
       ],
       "emoji": "🎵",
       "energyState": "INTRO"
@@ -410,7 +410,7 @@
       "endTimeMs": 55215,
       "label": "Intro",
       "phraseIds": [
-        "1e4a0f2e-842b-4a58-96ed-1c8326587298"
+        "6e35b1ee-1fc4-41b7-9e08-c9fd43ad60c7"
       ],
       "emoji": "🎵",
       "energyState": "INTRO"
@@ -421,7 +421,7 @@
       "endTimeMs": 102878,
       "label": "Intro",
       "phraseIds": [
-        "b1dedc40-0e12-4c4b-b1ab-ec12df34e70c"
+        "db926451-6dc8-47f8-82f2-3b631a15860f"
       ],
       "emoji": "🎵",
       "energyState": "INTRO"
@@ -432,7 +432,7 @@
       "endTimeMs": 111442,
       "label": "Intro",
       "phraseIds": [
-        "91e87179-408d-4fe9-9c6a-ec74f2814651"
+        "83862901-e5d0-4876-9be5-aecd52344285"
       ],
       "emoji": "🎵",
       "energyState": "INTRO"
@@ -440,10 +440,21 @@
     {
       "id": "6a32b3b6-102f-4a93-8383-64fd19026a71",
       "startTimeMs": 111442,
+      "endTimeMs": 146420,
+      "label": "Intro",
+      "phraseIds": [
+        "0cdab608-2dc4-4e1d-9cfe-ede0b43c61d3"
+      ],
+      "emoji": "🎵",
+      "energyState": "INTRO"
+    },
+    {
+      "id": "7cb760d4-fa9c-457c-b874-5687bb2e4f5d",
+      "startTimeMs": 146420,
       "endTimeMs": 290920,
       "label": "Intro",
       "phraseIds": [
-        "36d5621b-8e24-46a9-a9ff-ba8ecfc5a7b2"
+        "ee94537d-de91-4c10-aab4-6e4bb1e1e340"
       ],
       "emoji": "🎵",
       "energyState": "INTRO"
@@ -451,7 +462,7 @@
   ],
   "phrases": [
     {
-      "id": "a7464f97-9b36-471c-ab4a-0c7e6e44a40c",
+      "id": "7618136d-e7fb-4e10-b673-92586ccf8777",
       "index": 1,
       "startTimeMs": 0,
       "endTimeMs": 19913,
@@ -463,7 +474,7 @@
       "claveSource": "DEFAULT"
     },
     {
-      "id": "219e0239-af38-457f-ac08-b0490264d0d0",
+      "id": "bbed7549-0993-4042-92d7-9e890dac62f6",
       "index": 2,
       "startTimeMs": 19913,
       "endTimeMs": 29931,
@@ -475,7 +486,7 @@
       "claveSource": "DEFAULT"
     },
     {
-      "id": "1e4a0f2e-842b-4a58-96ed-1c8326587298",
+      "id": "6e35b1ee-1fc4-41b7-9e08-c9fd43ad60c7",
       "index": 3,
       "startTimeMs": 29931,
       "endTimeMs": 55215,
@@ -487,7 +498,7 @@
       "claveSource": "DEFAULT"
     },
     {
-      "id": "b1dedc40-0e12-4c4b-b1ab-ec12df34e70c",
+      "id": "db926451-6dc8-47f8-82f2-3b631a15860f",
       "index": 4,
       "startTimeMs": 55215,
       "endTimeMs": 102878,
@@ -499,7 +510,7 @@
       "claveSource": "DEFAULT"
     },
     {
-      "id": "91e87179-408d-4fe9-9c6a-ec74f2814651",
+      "id": "83862901-e5d0-4876-9be5-aecd52344285",
       "index": 5,
       "startTimeMs": 102878,
       "endTimeMs": 111442,
@@ -511,9 +522,21 @@
       "claveSource": "DEFAULT"
     },
     {
-      "id": "36d5621b-8e24-46a9-a9ff-ba8ecfc5a7b2",
+      "id": "0cdab608-2dc4-4e1d-9cfe-ede0b43c61d3",
       "index": 6,
       "startTimeMs": 111442,
+      "endTimeMs": 146420,
+      "type": "NO_COUNT",
+      "events": [],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "ee94537d-de91-4c10-aab4-6e4bb1e1e340",
+      "index": 7,
+      "startTimeMs": 146420,
       "endTimeMs": 290920,
       "type": "NO_COUNT",
       "events": [],
