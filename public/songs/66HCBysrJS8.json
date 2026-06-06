@@ -412,57 +412,57 @@
       "endTimeMs": 290920,
       "label": "Main Section",
       "phraseIds": [
-        "b88ac2e9-dc49-40b8-a065-258b2d112071",
-        "7b4e7aba-3d53-4166-9748-eb0ac95bc76d",
-        "c99bf0c9-f768-403c-b176-ff3210849c90",
-        "b1b294b0-4989-4bb8-bf79-7f8dd409d19a",
-        "3ae68b0c-ea83-409f-99a1-cf0e9dc20030",
-        "342b1d66-919f-4309-83bd-455eb24f5a8f",
-        "49250852-ed20-4f06-a6d1-4f83157e56da",
-        "e3ee8220-571b-4a79-a855-086f4269d4de",
-        "eb5c1dc6-d4aa-4cee-b8e0-8b916f9a2a10",
-        "f262d066-4f38-4ed3-a964-d7d3a588b82d",
-        "59d808da-7500-40ac-8199-7d5be1559e56",
-        "4e681bcf-5a92-4809-9aad-66d90a35b238",
-        "e80f8d12-5fd0-45a7-82b2-0cbb5cd9be1a",
-        "05e1d175-6dce-45d5-86ee-19b9e88d4427",
-        "302c4969-7af3-4366-902d-e3a698bfc577",
-        "12ca9541-db02-44a6-b3cd-33d1d142aab6",
-        "ed0c88a5-1876-4076-9f16-b57fd7594faa",
-        "6528158a-cfff-4012-9288-0ef56c5f35fb",
-        "fe29b609-2782-40db-8be2-bd6d0738c03b",
-        "ee0fc2e8-957a-40ae-bdff-aacc5af5a0d3",
-        "e16730b0-6453-43da-9d74-be0ed0f39a78",
-        "4a7a1a60-5488-462a-a0ff-404a88f46616",
-        "eb48fb14-41a5-476d-9319-9f3358e35a29",
-        "58e9e49d-d45b-41c2-8507-e584376033cd",
-        "688b27cd-e1cf-4a60-a2ce-1e8e4b5d768b",
-        "dfff779b-7517-4431-b4a6-dfb403c4371d",
-        "56537754-0616-4b41-afda-302e207d7699",
-        "a1b78961-5bdf-4094-8ed6-37396f1437cd",
-        "86b7abf8-0c26-4c2e-994c-b92c81eb1733",
-        "55bae79e-6b5d-4d73-8267-5435124cd4ed",
-        "15d2de81-337f-4263-b28a-7d59ea0192a6",
-        "a47c04b5-9d0d-42df-a4c2-b90c1c6c6a61",
-        "6db25d68-9a88-4ba3-b752-64263e656b0b",
-        "4aff35d9-eb99-4ee2-810d-92cc2fc6365a",
-        "c915136d-1591-4b6d-b284-e187860563b6",
-        "ade744d9-0f92-4eb6-b96a-9e3b0a644d97",
-        "2bfdeec0-5b08-4b95-82f0-58215714a575",
-        "70b68cea-69ee-43e4-8f4a-32861586d85a",
-        "c22688a2-39c4-405a-93d7-585603bb6828",
-        "d89d08dd-0a04-4564-a190-ae91040d65b9",
-        "a725ebdc-726f-4df1-92d6-a342037fd017",
-        "9a8a67bb-8bfb-4ac8-955e-e09ecab278f2",
-        "139944e8-a8aa-4fd9-b3ad-14d202e37151",
-        "a71385cf-8013-4bc5-8b22-624b5e605c1f",
-        "67d16789-32d5-4396-9ae3-158aeee2bf05",
-        "195b33f6-08b7-45dd-8433-b308feb0bd9e",
-        "2d9cbfb6-96fd-4cd9-8261-3d8828566b6f",
-        "eee92639-9b9c-4fe7-9513-8da71c362907",
-        "00694fda-0c60-40f6-9776-61aed1e717de",
-        "9171f233-22f3-4b9d-933e-b16766123d5c",
-        "4b74cbfa-c3e0-490d-b588-71d7df7fb79b"
+        "87e0d4a6-6eef-4967-ae0e-6b4de3fc3023",
+        "d9de97f1-d025-4dcc-b6c7-5aa095a5b119",
+        "8fabbdff-d282-4868-b6a8-1a155186d052",
+        "da70153f-c3d9-44bc-a3a1-f2e0638c65cf",
+        "56953f93-73a5-49e6-9350-31f772ba60fa",
+        "87d6961e-efe4-42e4-97ae-5155c8fe8b4a",
+        "6a014b4f-820e-45e9-94cc-325b84e1cdc4",
+        "6bd6b17e-9e11-4857-82af-1f5e767de89c",
+        "738d2e74-f2c8-4e32-ae96-7aa857ac40e9",
+        "95a76194-5234-4d27-809d-c0a1c78e339d",
+        "368324d5-13f8-4961-a407-64853379bb9b",
+        "ed31f41b-1364-4330-a725-78131132aa10",
+        "c5b6764a-6e04-4f22-93ea-84cf002a5ad9",
+        "ecf21ab9-0962-40ba-a812-2d3a4eccb7aa",
+        "7b1071b4-9ff3-44bc-8cf9-8f3012b3920f",
+        "f809f041-02bc-43df-9de5-1c2effe349dd",
+        "6b23d3e1-6e84-4d23-8a2b-1bddd22b1fc6",
+        "7af09b5f-d391-4a83-9446-967adc649485",
+        "51f9ebeb-e3f2-4e6c-a90f-806361c5395c",
+        "a0148957-0241-4d1a-adf6-217b59eb0b88",
+        "33c27540-008a-4a32-91f8-50e7159c65a2",
+        "0c9dccfc-82ab-4109-809f-36a05783cec5",
+        "30e5cd55-2989-4788-8451-8f48b945195e",
+        "f3a8d431-fb8b-446b-bff8-304c0d681c1e",
+        "55de63e8-7733-40fc-82a6-752b3f701661",
+        "ac9756d5-95e6-4f0d-ad84-0bc2514f3382",
+        "7c2128bb-41da-406d-8d9a-cd4623ab1ba2",
+        "fad436f4-a340-430a-9b5e-9c0f089efc9a",
+        "d2b4f6e5-33c6-4d2c-9a0c-4895a6fb7ee2",
+        "18d6affc-34f3-4b2b-9a4c-c1e0cb43f696",
+        "353126ec-8928-4aad-af9a-93248cfd995e",
+        "f30e1315-bd32-42c3-9d93-e7b58eb70905",
+        "de8b59b7-7fb4-4e67-bc1d-42df820bd4a9",
+        "9743be0c-1aac-4d53-ad42-03700e0b8c59",
+        "3990abff-34db-471d-b1f7-a5e3155cdd6d",
+        "4fc40f15-c5d8-4977-988d-f177826f817a",
+        "f929f506-7f9c-4a13-a835-79f827ac65b6",
+        "a26cad1c-9545-4be6-8ce3-8bf5b322df4e",
+        "522525db-f747-4c3c-a90f-a025bb4bc371",
+        "89347807-c33e-4511-820f-ca7a1593c0ce",
+        "4998695b-db86-453e-b104-991ded217c07",
+        "6ea60b19-9a33-4091-b3ba-390ea601157c",
+        "63f5c662-f6b5-4dd6-b26c-d2a4d98ff81c",
+        "aaa38065-108b-4454-a339-f6916679c319",
+        "1f62b521-af69-47f0-abbf-0dd14b47a85b",
+        "20b3c94a-c5d2-4ff6-bbf5-cce74e8c097a",
+        "799597f8-1e5c-4317-9dae-5e19b4b884dd",
+        "5617ca10-d4ec-4079-89ba-ebc689a37a7e",
+        "8f9fa009-9e36-4888-a3fb-baac441f80ca",
+        "8e8dadca-3e82-43cf-987e-fbad8278e91a",
+        "cf389f9a-018b-4962-8f52-87339b271d8e"
       ],
       "energyState": "VERSE",
       "emoji": "🎵"
@@ -470,7 +470,7 @@
   ],
   "phrases": [
     {
-      "id": "b88ac2e9-dc49-40b8-a065-258b2d112071",
+      "id": "87e0d4a6-6eef-4967-ae0e-6b4de3fc3023",
       "index": 1,
       "startTimeMs": 0,
       "endTimeMs": 1480,
@@ -482,7 +482,7 @@
       "events": []
     },
     {
-      "id": "7b4e7aba-3d53-4166-9748-eb0ac95bc76d",
+      "id": "d9de97f1-d025-4dcc-b6c7-5aa095a5b119",
       "index": 2,
       "startTimeMs": 1480,
       "endTimeMs": 7500,
@@ -494,7 +494,7 @@
       "events": []
     },
     {
-      "id": "c99bf0c9-f768-403c-b176-ff3210849c90",
+      "id": "8fabbdff-d282-4868-b6a8-1a155186d052",
       "index": 3,
       "startTimeMs": 7500,
       "endTimeMs": 14140,
@@ -506,7 +506,7 @@
       "events": []
     },
     {
-      "id": "b1b294b0-4989-4bb8-bf79-7f8dd409d19a",
+      "id": "da70153f-c3d9-44bc-a3a1-f2e0638c65cf",
       "index": 4,
       "startTimeMs": 14140,
       "endTimeMs": 18080,
@@ -518,7 +518,7 @@
       "events": []
     },
     {
-      "id": "3ae68b0c-ea83-409f-99a1-cf0e9dc20030",
+      "id": "56953f93-73a5-49e6-9350-31f772ba60fa",
       "index": 5,
       "startTimeMs": 18080,
       "endTimeMs": 23160,
@@ -530,7 +530,7 @@
       "events": []
     },
     {
-      "id": "342b1d66-919f-4309-83bd-455eb24f5a8f",
+      "id": "87d6961e-efe4-42e4-97ae-5155c8fe8b4a",
       "index": 6,
       "startTimeMs": 23160,
       "endTimeMs": 27720,
@@ -542,7 +542,7 @@
       "events": []
     },
     {
-      "id": "49250852-ed20-4f06-a6d1-4f83157e56da",
+      "id": "6a014b4f-820e-45e9-94cc-325b84e1cdc4",
       "index": 7,
       "startTimeMs": 27720,
       "endTimeMs": 30780,
@@ -554,7 +554,7 @@
       "events": []
     },
     {
-      "id": "e3ee8220-571b-4a79-a855-086f4269d4de",
+      "id": "6bd6b17e-9e11-4857-82af-1f5e767de89c",
       "index": 8,
       "startTimeMs": 30780,
       "endTimeMs": 38800,
@@ -566,7 +566,7 @@
       "events": []
     },
     {
-      "id": "eb5c1dc6-d4aa-4cee-b8e0-8b916f9a2a10",
+      "id": "738d2e74-f2c8-4e32-ae96-7aa857ac40e9",
       "index": 9,
       "startTimeMs": 38800,
       "endTimeMs": 44320,
@@ -578,7 +578,7 @@
       "events": []
     },
     {
-      "id": "f262d066-4f38-4ed3-a964-d7d3a588b82d",
+      "id": "95a76194-5234-4d27-809d-c0a1c78e339d",
       "index": 10,
       "startTimeMs": 44320,
       "endTimeMs": 53240,
@@ -590,7 +590,7 @@
       "events": []
     },
     {
-      "id": "59d808da-7500-40ac-8199-7d5be1559e56",
+      "id": "368324d5-13f8-4961-a407-64853379bb9b",
       "index": 11,
       "startTimeMs": 53240,
       "endTimeMs": 59660,
@@ -602,7 +602,7 @@
       "events": []
     },
     {
-      "id": "4e681bcf-5a92-4809-9aad-66d90a35b238",
+      "id": "ed31f41b-1364-4330-a725-78131132aa10",
       "index": 12,
       "startTimeMs": 59660,
       "endTimeMs": 66280,
@@ -614,7 +614,7 @@
       "events": []
     },
     {
-      "id": "e80f8d12-5fd0-45a7-82b2-0cbb5cd9be1a",
+      "id": "c5b6764a-6e04-4f22-93ea-84cf002a5ad9",
       "index": 13,
       "startTimeMs": 66280,
       "endTimeMs": 74320,
@@ -626,7 +626,7 @@
       "events": []
     },
     {
-      "id": "05e1d175-6dce-45d5-86ee-19b9e88d4427",
+      "id": "ecf21ab9-0962-40ba-a812-2d3a4eccb7aa",
       "index": 14,
       "startTimeMs": 74320,
       "endTimeMs": 81780,
@@ -638,7 +638,7 @@
       "events": []
     },
     {
-      "id": "302c4969-7af3-4366-902d-e3a698bfc577",
+      "id": "7b1071b4-9ff3-44bc-8cf9-8f3012b3920f",
       "index": 15,
       "startTimeMs": 81780,
       "endTimeMs": 87200,
@@ -650,7 +650,7 @@
       "events": []
     },
     {
-      "id": "12ca9541-db02-44a6-b3cd-33d1d142aab6",
+      "id": "f809f041-02bc-43df-9de5-1c2effe349dd",
       "index": 16,
       "startTimeMs": 87200,
       "endTimeMs": 91840,
@@ -662,7 +662,7 @@
       "events": []
     },
     {
-      "id": "ed0c88a5-1876-4076-9f16-b57fd7594faa",
+      "id": "6b23d3e1-6e84-4d23-8a2b-1bddd22b1fc6",
       "index": 17,
       "startTimeMs": 91840,
       "endTimeMs": 99880,
@@ -674,7 +674,7 @@
       "events": []
     },
     {
-      "id": "6528158a-cfff-4012-9288-0ef56c5f35fb",
+      "id": "7af09b5f-d391-4a83-9446-967adc649485",
       "index": 18,
       "startTimeMs": 99880,
       "endTimeMs": 107280,
@@ -686,7 +686,7 @@
       "events": []
     },
     {
-      "id": "fe29b609-2782-40db-8be2-bd6d0738c03b",
+      "id": "51f9ebeb-e3f2-4e6c-a90f-806361c5395c",
       "index": 19,
       "startTimeMs": 107280,
       "endTimeMs": 110760,
@@ -698,7 +698,7 @@
       "events": []
     },
     {
-      "id": "ee0fc2e8-957a-40ae-bdff-aacc5af5a0d3",
+      "id": "a0148957-0241-4d1a-adf6-217b59eb0b88",
       "index": 20,
       "startTimeMs": 110760,
       "endTimeMs": 116420,
@@ -710,7 +710,7 @@
       "events": []
     },
     {
-      "id": "e16730b0-6453-43da-9d74-be0ed0f39a78",
+      "id": "33c27540-008a-4a32-91f8-50e7159c65a2",
       "index": 21,
       "startTimeMs": 116420,
       "endTimeMs": 119960,
@@ -722,7 +722,7 @@
       "events": []
     },
     {
-      "id": "4a7a1a60-5488-462a-a0ff-404a88f46616",
+      "id": "0c9dccfc-82ab-4109-809f-36a05783cec5",
       "index": 22,
       "startTimeMs": 119960,
       "endTimeMs": 128580,
@@ -734,7 +734,7 @@
       "events": []
     },
     {
-      "id": "eb48fb14-41a5-476d-9319-9f3358e35a29",
+      "id": "30e5cd55-2989-4788-8451-8f48b945195e",
       "index": 23,
       "startTimeMs": 128580,
       "endTimeMs": 134600,
@@ -746,7 +746,7 @@
       "events": []
     },
     {
-      "id": "58e9e49d-d45b-41c2-8507-e584376033cd",
+      "id": "f3a8d431-fb8b-446b-bff8-304c0d681c1e",
       "index": 24,
       "startTimeMs": 134600,
       "endTimeMs": 139540,
@@ -758,7 +758,7 @@
       "events": []
     },
     {
-      "id": "688b27cd-e1cf-4a60-a2ce-1e8e4b5d768b",
+      "id": "55de63e8-7733-40fc-82a6-752b3f701661",
       "index": 25,
       "startTimeMs": 139540,
       "endTimeMs": 146240,
@@ -770,7 +770,7 @@
       "events": []
     },
     {
-      "id": "dfff779b-7517-4431-b4a6-dfb403c4371d",
+      "id": "ac9756d5-95e6-4f0d-ad84-0bc2514f3382",
       "index": 26,
       "startTimeMs": 146240,
       "endTimeMs": 150540,
@@ -782,7 +782,7 @@
       "events": []
     },
     {
-      "id": "56537754-0616-4b41-afda-302e207d7699",
+      "id": "7c2128bb-41da-406d-8d9a-cd4623ab1ba2",
       "index": 27,
       "startTimeMs": 150540,
       "endTimeMs": 156300,
@@ -794,7 +794,7 @@
       "events": []
     },
     {
-      "id": "a1b78961-5bdf-4094-8ed6-37396f1437cd",
+      "id": "fad436f4-a340-430a-9b5e-9c0f089efc9a",
       "index": 28,
       "startTimeMs": 156300,
       "endTimeMs": 161380,
@@ -806,7 +806,7 @@
       "events": []
     },
     {
-      "id": "86b7abf8-0c26-4c2e-994c-b92c81eb1733",
+      "id": "d2b4f6e5-33c6-4d2c-9a0c-4895a6fb7ee2",
       "index": 29,
       "startTimeMs": 161380,
       "endTimeMs": 167680,
@@ -818,7 +818,7 @@
       "events": []
     },
     {
-      "id": "55bae79e-6b5d-4d73-8267-5435124cd4ed",
+      "id": "18d6affc-34f3-4b2b-9a4c-c1e0cb43f696",
       "index": 30,
       "startTimeMs": 167680,
       "endTimeMs": 170460,
@@ -830,7 +830,7 @@
       "events": []
     },
     {
-      "id": "15d2de81-337f-4263-b28a-7d59ea0192a6",
+      "id": "353126ec-8928-4aad-af9a-93248cfd995e",
       "index": 31,
       "startTimeMs": 170460,
       "endTimeMs": 174600,
@@ -842,7 +842,7 @@
       "events": []
     },
     {
-      "id": "a47c04b5-9d0d-42df-a4c2-b90c1c6c6a61",
+      "id": "f30e1315-bd32-42c3-9d93-e7b58eb70905",
       "index": 32,
       "startTimeMs": 174600,
       "endTimeMs": 177760,
@@ -854,7 +854,7 @@
       "events": []
     },
     {
-      "id": "6db25d68-9a88-4ba3-b752-64263e656b0b",
+      "id": "de8b59b7-7fb4-4e67-bc1d-42df820bd4a9",
       "index": 33,
       "startTimeMs": 177760,
       "endTimeMs": 184920,
@@ -866,7 +866,7 @@
       "events": []
     },
     {
-      "id": "4aff35d9-eb99-4ee2-810d-92cc2fc6365a",
+      "id": "9743be0c-1aac-4d53-ad42-03700e0b8c59",
       "index": 34,
       "startTimeMs": 184920,
       "endTimeMs": 189980,
@@ -878,7 +878,7 @@
       "events": []
     },
     {
-      "id": "c915136d-1591-4b6d-b284-e187860563b6",
+      "id": "3990abff-34db-471d-b1f7-a5e3155cdd6d",
       "index": 35,
       "startTimeMs": 189980,
       "endTimeMs": 193760,
@@ -890,7 +890,7 @@
       "events": []
     },
     {
-      "id": "ade744d9-0f92-4eb6-b96a-9e3b0a644d97",
+      "id": "4fc40f15-c5d8-4977-988d-f177826f817a",
       "index": 36,
       "startTimeMs": 193760,
       "endTimeMs": 198240,
@@ -902,7 +902,7 @@
       "events": []
     },
     {
-      "id": "2bfdeec0-5b08-4b95-82f0-58215714a575",
+      "id": "f929f506-7f9c-4a13-a835-79f827ac65b6",
       "index": 37,
       "startTimeMs": 198240,
       "endTimeMs": 201880,
@@ -914,7 +914,7 @@
       "events": []
     },
     {
-      "id": "70b68cea-69ee-43e4-8f4a-32861586d85a",
+      "id": "a26cad1c-9545-4be6-8ce3-8bf5b322df4e",
       "index": 38,
       "startTimeMs": 201880,
       "endTimeMs": 206740,
@@ -926,7 +926,7 @@
       "events": []
     },
     {
-      "id": "c22688a2-39c4-405a-93d7-585603bb6828",
+      "id": "522525db-f747-4c3c-a90f-a025bb4bc371",
       "index": 39,
       "startTimeMs": 206740,
       "endTimeMs": 212820,
@@ -938,7 +938,7 @@
       "events": []
     },
     {
-      "id": "d89d08dd-0a04-4564-a190-ae91040d65b9",
+      "id": "89347807-c33e-4511-820f-ca7a1593c0ce",
       "index": 40,
       "startTimeMs": 212820,
       "endTimeMs": 223320,
@@ -950,7 +950,7 @@
       "events": []
     },
     {
-      "id": "a725ebdc-726f-4df1-92d6-a342037fd017",
+      "id": "4998695b-db86-453e-b104-991ded217c07",
       "index": 41,
       "startTimeMs": 223320,
       "endTimeMs": 229440,
@@ -962,7 +962,7 @@
       "events": []
     },
     {
-      "id": "9a8a67bb-8bfb-4ac8-955e-e09ecab278f2",
+      "id": "6ea60b19-9a33-4091-b3ba-390ea601157c",
       "index": 42,
       "startTimeMs": 229440,
       "endTimeMs": 234520,
@@ -974,7 +974,7 @@
       "events": []
     },
     {
-      "id": "139944e8-a8aa-4fd9-b3ad-14d202e37151",
+      "id": "63f5c662-f6b5-4dd6-b26c-d2a4d98ff81c",
       "index": 43,
       "startTimeMs": 234520,
       "endTimeMs": 242140,
@@ -986,7 +986,7 @@
       "events": []
     },
     {
-      "id": "a71385cf-8013-4bc5-8b22-624b5e605c1f",
+      "id": "aaa38065-108b-4454-a339-f6916679c319",
       "index": 44,
       "startTimeMs": 242140,
       "endTimeMs": 248760,
@@ -998,7 +998,7 @@
       "events": []
     },
     {
-      "id": "67d16789-32d5-4396-9ae3-158aeee2bf05",
+      "id": "1f62b521-af69-47f0-abbf-0dd14b47a85b",
       "index": 45,
       "startTimeMs": 248760,
       "endTimeMs": 254520,
@@ -1010,7 +1010,7 @@
       "events": []
     },
     {
-      "id": "195b33f6-08b7-45dd-8433-b308feb0bd9e",
+      "id": "20b3c94a-c5d2-4ff6-bbf5-cce74e8c097a",
       "index": 46,
       "startTimeMs": 254520,
       "endTimeMs": 259280,
@@ -1022,7 +1022,7 @@
       "events": []
     },
     {
-      "id": "2d9cbfb6-96fd-4cd9-8261-3d8828566b6f",
+      "id": "799597f8-1e5c-4317-9dae-5e19b4b884dd",
       "index": 47,
       "startTimeMs": 259280,
       "endTimeMs": 271800,
@@ -1034,7 +1034,7 @@
       "events": []
     },
     {
-      "id": "eee92639-9b9c-4fe7-9513-8da71c362907",
+      "id": "5617ca10-d4ec-4079-89ba-ebc689a37a7e",
       "index": 48,
       "startTimeMs": 271800,
       "endTimeMs": 275720,
@@ -1046,7 +1046,7 @@
       "events": []
     },
     {
-      "id": "00694fda-0c60-40f6-9776-61aed1e717de",
+      "id": "8f9fa009-9e36-4888-a3fb-baac441f80ca",
       "index": 49,
       "startTimeMs": 275720,
       "endTimeMs": 281480,
@@ -1058,7 +1058,7 @@
       "events": []
     },
     {
-      "id": "9171f233-22f3-4b9d-933e-b16766123d5c",
+      "id": "8e8dadca-3e82-43cf-987e-fbad8278e91a",
       "index": 50,
       "startTimeMs": 281480,
       "endTimeMs": 289340,
@@ -1070,7 +1070,7 @@
       "events": []
     },
     {
-      "id": "4b74cbfa-c3e0-490d-b588-71d7df7fb79b",
+      "id": "cf389f9a-018b-4962-8f52-87339b271d8e",
       "index": 51,
       "startTimeMs": 289340,
       "endTimeMs": 290920,
