@@ -23,6 +23,15 @@ export const SalsaEnergyStateSchema = z.enum([
 
 export const ClaveDirectionSchema = z.enum(['2-3', '3-2', 'NOT_SET', 'NONE']);
 
+export const SalsaRhythmRoleSchema = z.enum([
+  'DOWNBEAT_PAUSE',
+  'CONGA_SLAP',
+  'BASS_BOMBO',
+  'BASS_PONCHE',
+  'CONGA_OPEN',
+  'UNCLASSIFIED'
+]);
+
 export const BeatSchema = z.object({
   count: z.number().int().min(1),
   timestampMs: z.number().int()
@@ -116,6 +125,7 @@ export const SongMapSchema = z.discriminatedUnion('genre', [
 
 export type Genre = z.infer<typeof GenreSchema>;
 export type ClaveDirection = z.infer<typeof ClaveDirectionSchema>;
+export type SalsaRhythmRole = z.infer<typeof SalsaRhythmRoleSchema>;
 export type Beat = z.infer<typeof BeatSchema>;
 export type DanceEvent = z.infer<typeof DanceEventSchema>;
 export type BasePhrase = z.infer<typeof BasePhraseSchema>;

@@ -2,12 +2,21 @@ import os
 import sys
 import json
 import uuid
+from enum import Enum
 import numpy as np
 import scipy.signal
 import scipy.ndimage
 import librosa
 import soundfile as sf
 from BeatNet.BeatNet import BeatNet
+
+class SalsaRhythmRole(Enum):
+    DOWNBEAT_PAUSE = "DOWNBEAT_PAUSE"
+    CONGA_SLAP = "CONGA_SLAP"
+    BASS_BOMBO = "BASS_BOMBO"
+    BASS_PONCHE = "BASS_PONCHE"
+    CONGA_OPEN = "CONGA_OPEN"
+    UNCLASSIFIED = "UNCLASSIFIED"
 
 class SalsaDSP:
     def __init__(self, audio_path, output_dir=None, youtube_id=None, sr=22050):
@@ -295,6 +304,80 @@ def main():
         json.dump(song_map, f, indent=2, ensure_ascii=False)
         
     print(f"Generated song map at {output_path}")
+
+    conga_peaks, _ = scipy.signal.find_peaks(onset_conga, height=0.15, distance=6)
+    conga_peak_times = librosa.frames_to_time(conga_peaks, sr=22050, hop_length=512)
+    
+    bass_peaks, _ = scipy.signal.find_peaks(onset_bass, height=0.15, distance=6)
+    bass_peak_times = librosa.frames_to_time(bass_peaks, sr=22050, hop_length=512)
+    
+    analysis_path = os.path.join(os.path.dirname(output_path), f"{youtube_id}_analysis.txt")
+    with open(analysis_path, 'w', encoding='utf-8') as f:
+        f.write("=== Salsa Rhythm Role Analysis ===\n")
+        f.write(f"Song ID: {youtube_id}\n")
+        f.write(f"BPM: {bpm:.2f}\n\n")
+        
+        for p in tracked_phrases:
+            if p["type"] != 8:
+                continue
+            s_idx = p["start_idx"]
+            t_subs = tracker.get_subdivision_times(beat_times, s_idx, 8)
+            f.write(f"Phrase starting at beat index {s_idx} ({t_subs[0]:.2f}s - {t_subs[-1]:.2f}s):\n")
+            
+            for j in range(16):
+                t_target = t_subs[j]
+                beat_num = 1.0 + j * 0.5
+                
+                c_close = conga_peak_times[np.abs(conga_peak_times - t_target) < 0.10]
+                b_close = bass_peak_times[np.abs(bass_peak_times - t_target) < 0.10]
+                
+                events = []
+                if j in [2, 10]:
+                    role = SalsaRhythmRole.CONGA_SLAP
+                    if len(c_close) > 0:
+                        diff = (c_close[0] - t_target) * 1000
+                        events.append(f"{role.value} (Peak at {c_close[0]:.2f}s, diff {diff:+.1f}ms)")
+                    else:
+                        events.append(f"{role.value} (MISSING PEAK)")
+                elif j in [6, 7, 14, 15]:
+                    role = SalsaRhythmRole.CONGA_OPEN
+                    if len(c_close) > 0:
+                        diff = (c_close[0] - t_target) * 1000
+                        events.append(f"{role.value} (Peak at {c_close[0]:.2f}s, diff {diff:+.1f}ms)")
+                
+                if j in [3, 11]:
+                    role = SalsaRhythmRole.BASS_BOMBO
+                    if len(b_close) > 0:
+                        diff = (b_close[0] - t_target) * 1000
+                        events.append(f"{role.value} (Peak at {b_close[0]:.2f}s, diff {diff:+.1f}ms)")
+                    else:
+                        events.append(f"{role.value} (MISSING PEAK)")
+                elif j in [6, 14]:
+                    role = SalsaRhythmRole.BASS_PONCHE
+                    if len(b_close) > 0:
+                        diff = (b_close[0] - t_target) * 1000
+                        events.append(f"{role.value} (Peak at {b_close[0]:.2f}s, diff {diff:+.1f}ms)")
+                    else:
+                        events.append(f"{role.value} (MISSING PEAK)")
+                elif j in [0, 8]:
+                    role = SalsaRhythmRole.DOWNBEAT_PAUSE
+                    if len(b_close) > 0:
+                        diff = (b_close[0] - t_target) * 1000
+                        events.append(f"BASS_ON_DOWNBEAT_DEVIATION (Peak at {b_close[0]:.2f}s, diff {diff:+.1f}ms)")
+                    else:
+                        events.append(f"{role.value} (Silence observed)")
+                
+                if not events:
+                    if len(c_close) > 0:
+                        events.append(f"CONGA_TOUCH (Peak at {c_close[0]:.2f}s)")
+                    if len(b_close) > 0:
+                        events.append(f"BASS_EXTRA (Peak at {b_close[0]:.2f}s)")
+                        
+                event_str = ", ".join(events) if events else "SILENT_OR_TOUCH"
+                f.write(f"  Beat {beat_num:.1f} ({t_target:.2f}s): {event_str}\n")
+            f.write("\n")
+            
+    print(f"Generated rhythm analysis at {analysis_path}")
 
 if __name__ == "__main__":
     main()
