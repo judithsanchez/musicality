@@ -494,33 +494,74 @@ export default function DevCalibrator({
     syncSongMapState(editorSections, updatedPhrases);
   };
 
-  const handleSave = () => {
-    const result = StrictSongMapSchema.safeParse(calibratedSongData);
-    if (!result.success) {
-      setValidationErrors(result.error.issues);
-      showToast("❌ Validation failed!");
-      return;
-    }
+  const handleLockSections = () => {
+    const updated = {
+      ...latestSongDataRef.current,
+      status: "DRAFT_TAPPING"
+    };
+    setCalibratedSongData(updated);
+    setSongData(updated);
+    autoSaveSongMap(updated);
+    setActiveTab(2);
+    showToast("🔒 Sections locked! Downbeat tapping unlocked.");
+  };
 
-    setValidationErrors(null);
-    showToast("💾 Saving beatmap...");
-
+  const handleSaveTaps = () => {
+    const updated = {
+      ...latestSongDataRef.current,
+      status: "DRAFT_LABELING"
+    };
+    setCalibratedSongData(updated);
+    setSongData(updated);
+    
+    setSaving(true);
     fetch("/api/songs", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(result.data)
+      body: JSON.stringify(updated)
     })
     .then(r => r.json())
     .then(res => {
+      setSaving(false);
       if (res.success) {
-        showToast("🎉 Beatmap saved successfully!");
+        showToast("💾 Taps saved! Labeling phase unlocked.");
+        setActiveTab(3);
       } else {
         throw new Error(res.error || "Save failed");
       }
     })
     .catch(err => {
-      console.error(err);
-      showToast("❌ Save failed: " + err.message);
+      setSaving(false);
+      showToast("❌ Failed to save taps: " + err.message);
+    });
+  };
+
+  const handlePublishSong = () => {
+    const updated = {
+      ...latestSongDataRef.current,
+      status: "READY"
+    };
+    setCalibratedSongData(updated);
+    setSongData(updated);
+    
+    setSaving(true);
+    fetch("/api/songs", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updated)
+    })
+    .then(r => r.json())
+    .then(res => {
+      setSaving(false);
+      if (res.success) {
+        showToast("🎉 Song published successfully! Now visible in catalog.");
+      } else {
+        throw new Error(res.error || "Save failed");
+      }
+    })
+    .catch(err => {
+      setSaving(false);
+      showToast("❌ Publish failed: " + err.message);
     });
   };
 
@@ -696,110 +737,63 @@ export default function DevCalibrator({
             </span>
           </button>
 
-          <div style={{ display: "flex", justifyContent: "space-between", width: "100%", fontSize: "0.75rem", color: "#d1d5db" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", width: "100%", fontSize: "0.75rem", color: "#d1d5db", alignItems: "center" }}>
             <span>Taps logged: <strong style={{ color: "#ffffff" }}>{tappedDownbeatIndices.length}</strong></span>
-            {tappedDownbeatIndices.length > 0 && (
+            
+            <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+              {tappedDownbeatIndices.length > 0 && (
+                <button
+                  onClick={handleClearTaps}
+                  style={{ background: "none", border: "none", color: "#a1a1aa", cursor: "pointer", fontSize: "0.7rem", display: "flex", alignItems: "center", gap: "4px" }}
+                >
+                  <RotateCcw size={11} /> Clear Taps
+                </button>
+              )}
+              
               <button
-                onClick={handleClearTaps}
-                style={{ background: "none", border: "none", color: "#a1a1aa", cursor: "pointer", fontSize: "0.7rem", display: "flex", alignItems: "center", gap: "4px" }}
+                onClick={handleSaveTaps}
+                disabled={phrases.length === 0 || saving}
+                style={{
+                  fontSize: "0.72rem",
+                  fontWeight: 700,
+                  background: "linear-gradient(135deg, #ffffff, #d1d5db)",
+                  border: "none",
+                  color: "#000",
+                  padding: "6px 14px",
+                  borderRadius: "6px",
+                  cursor: (phrases.length === 0 || saving) ? "not-allowed" : "pointer",
+                  opacity: (phrases.length === 0 || saving) ? 0.6 : 1
+                }}
               >
-                <RotateCcw size={11} /> Clear
+                {saving ? "Saving Taps..." : "Save Taps 💾"}
               </button>
-            )}
+            </div>
           </div>
         </div>
       )}
 
-      <div className="dev-widescreen-top-row">
-        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+      <div className="dev-widescreen-top-row" style={{
+        gridTemplateColumns: (activeTab === 1 || activeTab === 2) ? "1fr" : "1.15fr 0.85fr"
+      }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "16px", maxWidth: (activeTab === 1 || activeTab === 2) ? "800px" : "100%", margin: (activeTab === 1 || activeTab === 2) ? "0 auto" : "0", width: "100%" }}>
           {videoElement}
         </div>
 
-        <DevCalibrationPanel
-          songData={songData}
-          editorSections={editorSections}
-          phrases={phrases}
-          userDelaySetting={userDelaySetting}
-          onUserDelaySettingChange={setUserDelaySetting}
-          onExit={onBackToCatalog}
-          onResetCalibration={handleClearTaps}
-          onAddNewSection={handleAddNewSection}
-          onUpdateSectionField={handleUpdateSectionField}
-          onUpdateSectionTimes={handleUpdateSectionTimes}
-          onDeleteSection={handleDeleteSection}
-          onUpdatePhraseField={handleUpdatePhraseField}
-          validationErrors={validationErrors}
-          activeTab={activeTab}
-          saving={saving}
-          onLockSections={() => {
-            const updated = {
-              ...latestSongDataRef.current,
-              status: "DRAFT_TAPPING"
-            };
-            setCalibratedSongData(updated);
-            setSongData(updated);
-            autoSaveSongMap(updated);
-            setActiveTab(2);
-            showToast("🔒 Sections locked! Downbeat tapping unlocked.");
-          }}
-          onSaveTaps={() => {
-            const updated = {
-              ...latestSongDataRef.current,
-              status: "DRAFT_LABELING"
-            };
-            setCalibratedSongData(updated);
-            setSongData(updated);
-            
-            setSaving(true);
-            fetch("/api/songs", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(updated)
-            })
-            .then(r => r.json())
-            .then(res => {
-              setSaving(false);
-              if (res.success) {
-                showToast("💾 Taps saved! Labeling phase unlocked.");
-                setActiveTab(3);
-              } else {
-                throw new Error(res.error || "Save failed");
-              }
-            })
-            .catch(err => {
-              setSaving(false);
-              showToast("❌ Failed to save taps: " + err.message);
-            });
-          }}
-          onPublishSong={() => {
-            const updated = {
-              ...latestSongDataRef.current,
-              status: "READY"
-            };
-            setCalibratedSongData(updated);
-            setSongData(updated);
-            
-            setSaving(true);
-            fetch("/api/songs", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(updated)
-            })
-            .then(r => r.json())
-            .then(res => {
-              setSaving(false);
-              if (res.success) {
-                showToast("🎉 Song published successfully! Now visible in catalog.");
-              } else {
-                throw new Error(res.error || "Save failed");
-              }
-            })
-            .catch(err => {
-              setSaving(false);
-              showToast("❌ Publish failed: " + err.message);
-            });
-          }}
-        />
+        {activeTab === 3 && (
+          <DevCalibrationPanel
+            songData={songData}
+            editorSections={editorSections}
+            phrases={phrases}
+            userDelaySetting={userDelaySetting}
+            onUserDelaySettingChange={setUserDelaySetting}
+            onExit={onBackToCatalog}
+            onUpdateSectionField={handleUpdateSectionField}
+            onUpdatePhraseField={handleUpdatePhraseField}
+            validationErrors={validationErrors}
+            saving={saving}
+            onPublishSong={handlePublishSong}
+          />
+        )}
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: "10px", background: "rgba(255,255,255,0.015)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: "16px", padding: "16px 20px" }}>
@@ -812,24 +806,43 @@ export default function DevCalibrator({
               {currentTime.toFixed(2)}s / {duration.toFixed(2)}s
             </span>
             {activeTab === 1 && (
-              <button
-                onClick={handleAddNewSection}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "5px",
-                  fontSize: "0.72rem",
-                  fontWeight: 700,
-                  background: "rgba(255,255,255,0.05)",
-                  border: "1px solid #27272a",
-                  color: "#ffffff",
-                  padding: "4px 12px",
-                  borderRadius: "6px",
-                  cursor: "pointer"
-                }}
-              >
-                <Scissors size={12} /> Slice Here
-              </button>
+              <div style={{ display: "flex", gap: "8px" }}>
+                <button
+                  onClick={handleAddNewSection}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "5px",
+                    fontSize: "0.72rem",
+                    fontWeight: 700,
+                    background: "rgba(255,255,255,0.05)",
+                    border: "1px solid #27272a",
+                    color: "#ffffff",
+                    padding: "4px 12px",
+                    borderRadius: "6px",
+                    cursor: "pointer"
+                  }}
+                >
+                  <Scissors size={12} /> Slice Here
+                </button>
+                <button
+                  onClick={handleLockSections}
+                  disabled={saving}
+                  style={{
+                    fontSize: "0.72rem",
+                    fontWeight: 700,
+                    background: "linear-gradient(135deg, #ffffff, #d1d5db)",
+                    border: "none",
+                    color: "#000",
+                    padding: "4px 12px",
+                    borderRadius: "6px",
+                    cursor: saving ? "not-allowed" : "pointer",
+                    opacity: saving ? 0.6 : 1
+                  }}
+                >
+                  {saving ? "Locking..." : "Lock Sections & Proceed 🔒"}
+                </button>
+              </div>
             )}
           </div>
         </div>

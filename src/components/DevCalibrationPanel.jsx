@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Trash2, Plus, AlertOctagon, ChevronDown, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight, AlertOctagon } from "lucide-react";
 import {
   SalsaEnergyStateSchema,
   BachataEnergyStateSchema,
@@ -14,17 +14,10 @@ export default function DevCalibrationPanel({
   userDelaySetting,
   onUserDelaySettingChange,
   onExit,
-  onResetCalibration,
-  onAddNewSection,
   onUpdateSectionField,
-  onUpdateSectionTimes,
-  onDeleteSection,
   onUpdatePhraseField,
   validationErrors,
-  activeTab,
   saving,
-  onLockSections,
-  onSaveTaps,
   onPublishSong
 }) {
   const genre = songData?.genre || "SALSA";
@@ -62,273 +55,144 @@ export default function DevCalibrationPanel({
         </button>
       </div>
 
-      {activeTab === 1 && (
-        <>
-          <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span style={{ fontSize: "0.8rem", fontWeight: "800", color: "#ffffff", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-                ✂️ Sections ({editorSections.length})
-              </span>
-              <button
-                className="btn-step"
-                onClick={onAddNewSection}
-                style={{ padding: "4px 8px", fontSize: "0.65rem", fontWeight: "700", background: "rgba(255, 255, 255, 0.04)", border: "1px solid #27272a", color: "#ffffff", display: "flex", alignItems: "center", gap: "4px", borderRadius: "6px", cursor: "pointer" }}
-              >
-                <Plus size={10} /> Add Section
-              </button>
-            </div>
-            
-            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-              {editorSections.map((section, sIdx) => (
-                <div key={section.id} style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  padding: "10px",
-                  borderRadius: "8px",
-                  border: "1px solid rgba(255, 255, 255, 0.06)",
-                  background: "rgba(0, 0, 0, 0.15)"
-                }}>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                    <span style={{ fontSize: "0.75rem", fontWeight: "bold", color: "#ffffff" }}>
-                      Section {sIdx + 1}
-                    </span>
-                    <span style={{ fontSize: "0.65rem", color: "#a1a1aa" }}>
-                      {(section.startTimeMs / 1000).toFixed(2)}s – {(section.endTimeMs / 1000).toFixed(2)}s
-                    </span>
-                  </div>
-                  {editorSections.length > 1 && (
-                    <button
-                      onClick={() => onDeleteSection(section.id)}
-                      style={{ background: "none", border: "none", color: "#fca5a5", cursor: "pointer" }}
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+        <span style={{ fontSize: "0.75rem", color: "#a1a1aa" }}>Calibrated Delay Offset (ms)</span>
+        <input
+          type="number"
+          value={userDelaySetting}
+          onChange={(e) => onUserDelaySettingChange(Number(e.target.value))}
+          style={{
+            width: "100%",
+            padding: "8px 12px",
+            borderRadius: "8px",
+            border: "1px solid rgba(255,255,255,0.08)",
+            background: "rgba(0,0,0,0.3)",
+            color: "#fff",
+            fontSize: "0.8rem",
+            boxSizing: "border-box"
+          }}
+        />
+      </div>
 
-          <button
-            onClick={onLockSections}
-            disabled={saving}
-            style={{
-              width: "100%",
-              padding: "10px",
-              borderRadius: "10px",
-              background: "linear-gradient(135deg, #ffffff, #d1d5db)",
-              border: "none",
-              color: "#000",
-              fontWeight: "900",
-              fontSize: "0.8rem",
-              cursor: saving ? "not-allowed" : "pointer",
-              opacity: saving ? 0.6 : 1,
-              marginTop: "auto"
-            }}
-          >
-            {saving ? "Locking..." : "Lock Sections & Proceed"}
-          </button>
-        </>
-      )}
+      <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+        <span style={{ fontSize: "0.8rem", fontWeight: "800", color: "#ffffff", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+          🏷️ Song Sections & Details
+        </span>
 
-      {activeTab === 2 && (
-        <>
-          <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-            <span style={{ fontSize: "0.8rem", fontWeight: "800", color: "#ffffff", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-              🎧 Phrase Tapping Guide
-            </span>
-            <div style={{
-              padding: "12px",
-              borderRadius: "8px",
-              border: "1px solid rgba(255, 255, 255, 0.06)",
-              background: "rgba(0, 0, 0, 0.15)",
-              fontSize: "0.75rem",
-              color: "#d1d5db",
-              lineHeight: "1.4"
-            }}>
-              Play the song and tap the start of every 4 or 8 beat phrase. Real-time taps are saved locally.
-            </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+          {editorSections.map((section, sIdx) => {
+            const sectionPhrases = phrases.filter(p => section.phraseIds.includes(p.id));
 
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0" }}>
-              <span style={{ fontSize: "0.75rem", color: "#a1a1aa" }}>
-                Total Phrases Calibrated: <strong style={{ color: "#ffffff" }}>{phrases.length}</strong>
-              </span>
-              {phrases.length > 0 && (
-                <button
-                  onClick={onResetCalibration}
-                  style={{ background: "none", border: "none", color: "#f87171", cursor: "pointer", fontSize: "0.7rem", display: "flex", alignItems: "center", gap: "4px" }}
-                >
-                  Clear All
-                </button>
-              )}
-            </div>
-          </div>
-
-          <button
-            onClick={onSaveTaps}
-            disabled={phrases.length === 0 || saving}
-            style={{
-              width: "100%",
-              padding: "10px",
-              borderRadius: "10px",
-              background: "linear-gradient(135deg, #ffffff, #d1d5db)",
-              border: "none",
-              color: "#000",
-              fontWeight: "900",
-              fontSize: "0.8rem",
-              cursor: (phrases.length === 0 || saving) ? "not-allowed" : "pointer",
-              opacity: (phrases.length === 0 || saving) ? 0.6 : 1,
-              marginTop: "auto"
-            }}
-          >
-            {saving ? "Saving Taps..." : "Save Taps"}
-          </button>
-        </>
-      )}
-
-      {activeTab === 3 && (
-        <>
-          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-            <span style={{ fontSize: "0.75rem", color: "#a1a1aa" }}>Calibrated Delay Offset (ms)</span>
-            <input
-              type="number"
-              value={userDelaySetting}
-              onChange={(e) => onUserDelaySettingChange(Number(e.target.value))}
-              style={{
-                width: "100%",
-                padding: "8px 12px",
+            return (
+              <div key={section.id} style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "8px",
+                padding: "10px",
                 borderRadius: "8px",
-                border: "1px solid rgba(255,255,255,0.08)",
-                background: "rgba(0,0,0,0.3)",
-                color: "#fff",
-                fontSize: "0.8rem",
-                boxSizing: "border-box"
-              }}
-            />
-          </div>
+                border: "1px solid rgba(255, 255, 255, 0.06)",
+                background: "rgba(0, 0, 0, 0.15)"
+              }}>
+                <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+                  <button
+                    type="button"
+                    onClick={() => toggleCollapse(section.id)}
+                    style={{ background: "none", border: "none", color: "#a1a1aa", cursor: "pointer", display: "flex", alignItems: "center", padding: 0 }}
+                  >
+                    {collapsedSections[section.id] ? <ChevronRight size={16} /> : <ChevronDown size={16} />}
+                  </button>
+                  <input
+                    type="text"
+                    value={section.emoji || "🎵"}
+                    onChange={(e) => onUpdateSectionField(section.id, "emoji", e.target.value)}
+                    style={{ width: "32px", textAlign: "center", padding: "4px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#fff" }}
+                  />
+                  <select
+                    value={section.energyState}
+                    onChange={(e) => onUpdateSectionField(section.id, "energyState", e.target.value)}
+                    style={{ flexGrow: 1, padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#fff", fontWeight: "bold", fontSize: "0.85rem" }}
+                  >
+                    {energyStates.map(st => (
+                      <option key={st} value={st}>{st}</option>
+                    ))}
+                  </select>
+                </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-            <span style={{ fontSize: "0.8rem", fontWeight: "800", color: "#ffffff", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-              🏷️ Song Sections & Details
-            </span>
-
-            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-              {editorSections.map((section, sIdx) => {
-                const sectionPhrases = phrases.filter(p => section.phraseIds.includes(p.id));
-
-                return (
-                  <div key={section.id} style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "8px",
-                    padding: "10px",
-                    borderRadius: "8px",
-                    border: "1px solid rgba(255, 255, 255, 0.06)",
-                    background: "rgba(0, 0, 0, 0.15)"
-                  }}>
-                    <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
-                      <button
-                        type="button"
-                        onClick={() => toggleCollapse(section.id)}
-                        style={{ background: "none", border: "none", color: "#a1a1aa", cursor: "pointer", display: "flex", alignItems: "center", padding: 0 }}
-                      >
-                        {collapsedSections[section.id] ? <ChevronRight size={16} /> : <ChevronDown size={16} />}
-                      </button>
-                      <input
-                        type="text"
-                        value={section.emoji || "🎵"}
-                        onChange={(e) => onUpdateSectionField(section.id, "emoji", e.target.value)}
-                        style={{ width: "32px", textAlign: "center", padding: "4px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#fff" }}
-                      />
+                {!collapsedSections[section.id] && (
+                  <>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                      <span style={{ fontSize: "0.65rem", color: "#a1a1aa" }}>Focus Instrument</span>
                       <select
-                        value={section.energyState}
-                        onChange={(e) => onUpdateSectionField(section.id, "energyState", e.target.value)}
-                        style={{ flexGrow: 1, padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#fff", fontWeight: "bold", fontSize: "0.85rem" }}
+                        value={section.focusInstrument || "NONE"}
+                        onChange={(e) => onUpdateSectionField(section.id, "focusInstrument", e.target.value)}
+                        style={{ padding: "4px 6px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#fff", fontSize: "0.75rem" }}
                       >
-                        {energyStates.map(st => (
-                          <option key={st} value={st}>{st}</option>
+                        {instruments.map(inst => (
+                          <option key={inst} value={inst}>{inst}</option>
                         ))}
                       </select>
                     </div>
 
-                    {!collapsedSections[section.id] && (
-                      <>
-                        <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                          <span style={{ fontSize: "0.65rem", color: "#a1a1aa" }}>Focus Instrument</span>
-                          <select
-                            value={section.focusInstrument || "NONE"}
-                            onChange={(e) => onUpdateSectionField(section.id, "focusInstrument", e.target.value)}
-                            style={{ padding: "4px 6px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#fff", fontSize: "0.75rem" }}
-                          >
-                            {instruments.map(inst => (
-                              <option key={inst} value={inst}>{inst}</option>
-                            ))}
-                          </select>
-                        </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", fontSize: "0.7rem", color: "#a1a1aa" }}>
+                      <div>Start: <strong style={{ color: "#fff" }}>{(section.startTimeMs / 1000).toFixed(2)}s</strong></div>
+                      <div>End: <strong style={{ color: "#fff" }}>{(section.endTimeMs / 1000).toFixed(2)}s</strong></div>
+                    </div>
 
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", fontSize: "0.7rem", color: "#a1a1aa" }}>
-                          <div>Start: <strong style={{ color: "#fff" }}>{(section.startTimeMs / 1000).toFixed(2)}s</strong></div>
-                          <div>End: <strong style={{ color: "#fff" }}>{(section.endTimeMs / 1000).toFixed(2)}s</strong></div>
-                        </div>
-
-                        {sectionPhrases.length > 0 && (
-                          <div style={{ display: "flex", flexDirection: "column", gap: "4px", borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: "6px", marginTop: "4px" }}>
-                            <span style={{ fontSize: "0.65rem", fontWeight: "bold", color: "#fff" }}>Phrases ({sectionPhrases.length})</span>
-                            <div style={{ display: "flex", flexDirection: "column", gap: "4px", maxHeight: "120px", overflowY: "auto" }}>
-                              {sectionPhrases.map(ph => (
-                                <div key={ph.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "rgba(255,255,255,0.02)", padding: "4px 6px", borderRadius: "4px", fontSize: "0.65rem" }}>
-                                  <span>#{ph.index} {ph.type.replace("_", " ")}</span>
-                                  {genre === "SALSA" && (ph.type === "STANDARD_8_COUNT" || ph.type === "HALF_PHRASE_4_COUNT") && (
-                                    <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                                      <span style={{ color: ph.claveIsVerified ? "#34d399" : "#f59e0b", fontSize: "0.6rem" }}>
-                                        {ph.claveDirection} ({ph.claveSource})
-                                      </span>
-                                      <button
-                                        onClick={() => {
-                                          const nextDir = ph.claveDirection === "2-3" ? "3-2" : "2-3";
-                                          onUpdatePhraseField(ph.id, nextDir);
-                                        }}
-                                        style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: "3px", color: "#fff", padding: "1px 4px", fontSize: "0.6rem", cursor: "pointer" }}
-                                      >
-                                        Toggle
-                                      </button>
-                                    </div>
-                                  )}
+                    {sectionPhrases.length > 0 && (
+                      <div style={{ display: "flex", flexDirection: "column", gap: "4px", borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: "6px", marginTop: "4px" }}>
+                        <span style={{ fontSize: "0.65rem", fontWeight: "bold", color: "#fff" }}>Phrases ({sectionPhrases.length})</span>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "4px", maxHeight: "120px", overflowY: "auto" }}>
+                          {sectionPhrases.map(ph => (
+                            <div key={ph.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "rgba(255,255,255,0.02)", padding: "4px 6px", borderRadius: "4px", fontSize: "0.65rem" }}>
+                              <span>#{ph.index} {ph.type.replace("_", " ")}</span>
+                              {genre === "SALSA" && (ph.type === "STANDARD_8_COUNT" || ph.type === "HALF_PHRASE_4_COUNT") && (
+                                <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                                  <span style={{ color: ph.claveIsVerified ? "#34d399" : "#f59e0b", fontSize: "0.6rem" }}>
+                                    {ph.claveDirection} ({ph.claveSource})
+                                  </span>
+                                  <button
+                                    onClick={() => {
+                                      const nextDir = ph.claveDirection === "2-3" ? "3-2" : "2-3";
+                                      onUpdatePhraseField(ph.id, nextDir);
+                                    }}
+                                    style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: "3px", color: "#fff", padding: "1px 4px", fontSize: "0.6rem", cursor: "pointer" }}
+                                  >
+                                    Toggle
+                                  </button>
                                 </div>
-                              ))}
+                              )}
                             </div>
-                          </div>
-                        )}
-                      </>
+                          ))}
+                        </div>
+                      </div>
                     )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+                  </>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
 
-          <button
-            onClick={onPublishSong}
-            disabled={saving}
-            style={{
-              width: "100%",
-              padding: "10px",
-              borderRadius: "10px",
-              background: "linear-gradient(135deg, #10b981, #059669)",
-              border: "none",
-              color: "#fff",
-              fontWeight: "900",
-              fontSize: "0.8rem",
-              cursor: saving ? "not-allowed" : "pointer",
-              opacity: saving ? 0.6 : 1,
-              marginTop: "auto"
-            }}
-          >
-            {saving ? "Publishing..." : "Publish Song"}
-          </button>
-        </>
-      )}
+      <button
+        onClick={onPublishSong}
+        disabled={saving}
+        style={{
+          width: "100%",
+          padding: "10px",
+          borderRadius: "10px",
+          background: "linear-gradient(135deg, #10b981, #059669)",
+          border: "none",
+          color: "#fff",
+          fontWeight: "900",
+          fontSize: "0.8rem",
+          cursor: saving ? "not-allowed" : "pointer",
+          opacity: saving ? 0.6 : 1,
+          marginTop: "auto"
+        }}
+      >
+        {saving ? "Publishing..." : "Publish Song"}
+      </button>
 
       {validationErrors && (
         <div style={{
