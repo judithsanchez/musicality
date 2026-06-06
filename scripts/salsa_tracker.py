@@ -4,51 +4,67 @@ import json
 import uuid
 import numpy as np
 import scipy.signal
+import scipy.ndimage
 import librosa
+import soundfile as sf
 from BeatNet.BeatNet import BeatNet
 
 class SalsaDSP:
-    def __init__(self, audio_path, sr=22050):
+    def __init__(self, audio_path, output_dir=None, youtube_id=None, sr=22050):
         self.audio_path = audio_path
         self.sr = sr
         self.y, self.sr = librosa.load(audio_path, sr=self.sr)
+        self.output_dir = output_dir
+        self.youtube_id = youtube_id
         
-    def butter_bandpass(self, lowcut, highcut, fs, order=4):
+        D = librosa.stft(self.y)
+        S = np.abs(D)
+        H = scipy.ndimage.median_filter(S, size=(1, 31))
+        P = scipy.ndimage.median_filter(S, size=(31, 1))
+        mask_h = H / (H + P + 1e-10)
+        mask_p = P / (H + P + 1e-10)
+        
+        n_samples = len(self.y)
+        self.y_harmonic = librosa.istft(D * mask_h)[:n_samples]
+        self.y_percussive = librosa.istft(D * mask_p)[:n_samples]
+        
+    def butter_bandpass_sos(self, lowcut, highcut, fs, order=6):
         nyq = 0.5 * fs
         low = max(1.0, lowcut) / nyq
         high = min(nyq - 1.0, highcut) / nyq
-        b, a = scipy.signal.butter(order, [low, high], btype='band')
-        return b, a
-
-    def butter_lowpass(self, cutoff, fs, order=4):
-        nyq = 0.5 * fs
-        normal_cutoff = cutoff / nyq
-        b, a = scipy.signal.butter(order, normal_cutoff, btype='low')
-        return b, a
+        sos = scipy.signal.butter(order, [low, high], btype='band', output='sos')
+        return sos
 
     def get_onsets(self):
-        b_clave, a_clave = self.butter_bandpass(1000, 4000, self.sr)
-        y_clave = scipy.signal.filtfilt(b_clave, a_clave, self.y)
-        onset_clave = librosa.onset.onset_strength(y=y_clave, sr=self.sr)
-        
-        b_conga, a_conga = self.butter_bandpass(150, 500, self.sr)
-        y_conga = scipy.signal.filtfilt(b_conga, a_conga, self.y)
+        sos_conga = self.butter_bandpass_sos(200, 450, self.sr)
+        y_conga = scipy.signal.sosfiltfilt(sos_conga, self.y_percussive)
         onset_conga = librosa.onset.onset_strength(y=y_conga, sr=self.sr)
         
-        b_bass, a_bass = self.butter_lowpass(150, self.sr)
-        y_bass = scipy.signal.filtfilt(b_bass, a_bass, self.y)
+        sos_bass = self.butter_bandpass_sos(50, 120, self.sr)
+        y_bass = scipy.signal.sosfiltfilt(sos_bass, self.y_harmonic)
         onset_bass = librosa.onset.onset_strength(y=y_bass, sr=self.sr)
         
+        if self.output_dir and self.youtube_id:
+            def save_stem(name, y_sig):
+                p = os.path.join(self.output_dir, f"{self.youtube_id}_{name}.wav")
+                m = np.max(np.abs(y_sig))
+                if m > 0:
+                    y_sig = y_sig / m
+                sf.write(p, y_sig, self.sr)
+            save_stem("harmonic", self.y_harmonic)
+            save_stem("percussive", self.y_percussive)
+            save_stem("conga", y_conga)
+            save_stem("bass", y_bass)
+
         def normalize(x):
             m = np.max(x)
             return x / m if m > 0 else x
             
-        return normalize(onset_clave), normalize(onset_conga), normalize(onset_bass)
+        return normalize(onset_conga), normalize(onset_bass)
 
 class SalsaTracker:
-    def __init__(self, beat_times, onset_clave, onset_conga, onset_bass, sr=22050, hop_length=512):
+    def __init__(self, beat_times, onset_conga, onset_bass, sr=22050, hop_length=512):
         self.beat_times = beat_times
-        self.onset_clave = onset_clave
         self.onset_conga = onset_conga
         self.onset_bass = onset_bass
         self.sr = sr
@@ -66,12 +82,6 @@ class SalsaTracker:
         self.bass_template[14] = 1.0
         self.bass_template[0] = -1.5
         self.bass_template[8] = -1.5
-        
-        self.clave_32_template = np.zeros(16)
-        self.clave_32_template[[1, 3, 6, 9, 12]] = 1.0
-        
-        self.clave_23_template = np.zeros(16)
-        self.clave_23_template[[2, 4, 8, 11, 14]] = 1.0
 
     def time_to_frame(self, t):
         return librosa.time_to_frames(t, sr=self.sr, hop_length=self.hop_length)
@@ -96,27 +106,21 @@ class SalsaTracker:
     def score_phrase(self, start_idx, num_beats):
         t_subs = self.get_subdivision_times(self.beat_times, start_idx, num_beats)
         
-        c_vals = np.array([self.get_onset_val(self.onset_clave, t) for t in t_subs])
         g_vals = np.array([self.get_onset_val(self.onset_conga, t) for t in t_subs])
         b_vals = np.array([self.get_onset_val(self.onset_bass, t) for t in t_subs])
         
         if num_beats == 8:
-            score_32 = np.dot(c_vals, self.clave_32_template) + np.dot(g_vals, self.conga_template) + np.dot(b_vals, self.bass_template)
-            score_23 = np.dot(c_vals, self.clave_23_template) + np.dot(g_vals, self.conga_template) + np.dot(b_vals, self.bass_template)
-            best_clave = "3-2" if score_32 >= score_23 else "2-3"
-            return max(score_32, score_23), best_clave
+            score = np.dot(g_vals, self.conga_template) + np.dot(b_vals, self.bass_template)
+            return score
         else:
-            score_32 = np.dot(c_vals[:8], self.clave_32_template[:8]) + np.dot(g_vals[:8], self.conga_template[:8]) + np.dot(b_vals[:8], self.bass_template[:8])
-            score_23 = np.dot(c_vals[:8], self.clave_23_template[:8]) + np.dot(g_vals[:8], self.conga_template[:8]) + np.dot(b_vals[:8], self.bass_template[:8])
-            best_clave = "3-2" if score_32 >= score_23 else "2-3"
-            return max(score_32, score_23), best_clave
+            score = np.dot(g_vals[:8], self.conga_template[:8]) + np.dot(b_vals[:8], self.bass_template[:8])
+            return score
 
     def track(self):
         N = len(self.beat_times)
         dp = np.full(N, -np.inf)
         parent = np.full(N, -1, dtype=int)
         phrase_type = np.full(N, 0, dtype=int)
-        clave_dir = [None] * N
         
         for s in range(min(8, N)):
             dp[s] = 0.0
@@ -127,21 +131,19 @@ class SalsaTracker:
             if dp[i] == -np.inf:
                 continue
             if i + 8 < N:
-                score, cl = self.score_phrase(i, 8)
+                score = self.score_phrase(i, 8)
                 val = dp[i] + score
                 if val > dp[i + 8]:
                     dp[i + 8] = val
                     parent[i + 8] = i
                     phrase_type[i + 8] = 8
-                    clave_dir[i + 8] = cl
             if i + 4 < N:
-                score, cl = self.score_phrase(i, 4)
+                score = self.score_phrase(i, 4)
                 val = dp[i] + score - penalty
                 if val > dp[i + 4]:
                     dp[i + 4] = val
                     parent[i + 4] = i
                     phrase_type[i + 4] = 4
-                    clave_dir[i + 4] = cl
                     
         best_end = N - 1
         best_val = -np.inf
@@ -159,8 +161,7 @@ class SalsaTracker:
             phrases.append({
                 "start_idx": p,
                 "end_idx": curr,
-                "type": phrase_type[curr],
-                "clave": clave_dir[curr]
+                "type": phrase_type[curr]
             })
             curr = p
             
@@ -182,10 +183,11 @@ def main():
     intervals = np.diff(beat_times)
     bpm = 60.0 / np.mean(intervals) if len(intervals) > 0 else 180.0
     
-    dsp = SalsaDSP(audio_path)
-    onset_clave, onset_conga, onset_bass = dsp.get_onsets()
+    youtube_id = "66HCBysrJS8"
+    dsp = SalsaDSP(audio_path, output_dir=os.path.dirname(output_path), youtube_id=youtube_id)
+    onset_conga, onset_bass = dsp.get_onsets()
     
-    tracker = SalsaTracker(beat_times, onset_clave, onset_conga, onset_bass)
+    tracker = SalsaTracker(beat_times, onset_conga, onset_bass)
     tracked_phrases = tracker.track()
     
     beat_times_ms = [int(round(float(t) * 1000)) for t in beat_times]
@@ -202,7 +204,7 @@ def main():
             "endTimeMs": beat_times_ms[tracked_phrases[0]["start_idx"]],
             "type": "NO_COUNT",
             "genre": "SALSA",
-            "claveDirection": "NONE",
+            "claveDirection": "NOT_SET",
             "claveIsVerified": False,
             "claveSource": "DEFAULT",
             "events": []
@@ -213,14 +215,11 @@ def main():
     else:
         index_offset = 0
         
-    clave_votes = []
-    
     for p in tracked_phrases:
         p_id = str(uuid.uuid4())
         s_idx = p["start_idx"] + index_offset
         e_idx = p["end_idx"] + index_offset
         p_type = "STANDARD_8_COUNT" if p["type"] == 8 else "HALF_PHRASE_4_COUNT"
-        clave_votes.append(p["clave"])
         
         final_phrases.append({
             "id": p_id,
@@ -229,7 +228,7 @@ def main():
             "endTimeMs": beat_times_ms[e_idx],
             "type": p_type,
             "genre": "SALSA",
-            "claveDirection": p["clave"],
+            "claveDirection": "NOT_SET",
             "claveIsVerified": False,
             "claveSource": "AI",
             "events": []
@@ -245,17 +244,13 @@ def main():
             "endTimeMs": beat_times_ms[-1],
             "type": "NO_COUNT",
             "genre": "SALSA",
-            "claveDirection": "NONE",
+            "claveDirection": "NOT_SET",
             "claveIsVerified": False,
             "claveSource": "DEFAULT",
             "events": []
         })
         
-    vote_32 = sum(1 for v in clave_votes if v == "3-2")
-    vote_23 = sum(1 for v in clave_votes if v == "2-3")
-    default_clave = "3-2" if vote_32 >= vote_23 else "2-3"
-    
-    youtube_id = "66HCBysrJS8"
+    default_clave = "NOT_SET"
     
     song_map = {
         "id": f"song-{youtube_id}",
