@@ -565,6 +565,17 @@ export default function DevCalibrator({
     });
   };
 
+  const handleUnlockSlicing = () => {
+    const updated = {
+      ...latestSongDataRef.current,
+      status: "DRAFT_CUTTING"
+    };
+    setCalibratedSongData(updated);
+    setSongData(updated);
+    autoSaveSongMap(updated);
+    showToast("🔓 Slicing unlocked! Work preserved.");
+  };
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const tag = (e.target as HTMLElement).tagName;
@@ -596,7 +607,7 @@ export default function DevCalibrator({
 
       if (e.key === "m" || e.key === "M" || e.key === "Enter" || e.key === "c" || e.key === "C") {
         e.preventDefault();
-        if (activeTab === 1) {
+        if (activeTab === 1 && songData?.status === "DRAFT_CUTTING") {
           handleAddNewSection();
         }
         return;
@@ -604,14 +615,14 @@ export default function DevCalibrator({
 
       if (e.key === "t" || e.key === "T") {
         e.preventDefault();
-        if (activeTab === 2) {
+        if (activeTab === 2 && songData?.status === "DRAFT_TAPPING") {
           handleTap();
         }
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [currentTime, editorSections, tappedDownbeatIndices, player, duration, activeTab]);
+  }, [currentTime, editorSections, tappedDownbeatIndices, player, duration, activeTab, songData?.status]);
 
   const handleTimelineClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!timelineRef.current) return;
@@ -806,43 +817,63 @@ export default function DevCalibrator({
               {currentTime.toFixed(2)}s / {duration.toFixed(2)}s
             </span>
             {activeTab === 1 && (
-              <div style={{ display: "flex", gap: "8px" }}>
+              songData?.status === "DRAFT_CUTTING" ? (
+                <div style={{ display: "flex", gap: "8px" }}>
+                  <button
+                    onClick={handleAddNewSection}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "5px",
+                      fontSize: "0.72rem",
+                      fontWeight: 700,
+                      background: "rgba(255,255,255,0.05)",
+                      border: "1px solid #27272a",
+                      color: "#ffffff",
+                      padding: "4px 12px",
+                      borderRadius: "6px",
+                      cursor: "pointer"
+                    }}
+                  >
+                    <Scissors size={12} /> Slice Here
+                  </button>
+                  <button
+                    onClick={handleLockSections}
+                    disabled={saving}
+                    style={{
+                      fontSize: "0.72rem",
+                      fontWeight: 700,
+                      background: "linear-gradient(135deg, #ffffff, #d1d5db)",
+                      border: "none",
+                      color: "#000",
+                      padding: "4px 12px",
+                      borderRadius: "6px",
+                      cursor: saving ? "not-allowed" : "pointer",
+                      opacity: saving ? 0.6 : 1
+                    }}
+                  >
+                    {saving ? "Locking..." : "Lock Sections & Proceed 🔒"}
+                  </button>
+                </div>
+              ) : (
                 <button
-                  onClick={handleAddNewSection}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "5px",
-                    fontSize: "0.72rem",
-                    fontWeight: 700,
-                    background: "rgba(255,255,255,0.05)",
-                    border: "1px solid #27272a",
-                    color: "#ffffff",
-                    padding: "4px 12px",
-                    borderRadius: "6px",
-                    cursor: "pointer"
-                  }}
-                >
-                  <Scissors size={12} /> Slice Here
-                </button>
-                <button
-                  onClick={handleLockSections}
+                  onClick={handleUnlockSlicing}
                   disabled={saving}
                   style={{
                     fontSize: "0.72rem",
                     fontWeight: 700,
                     background: "linear-gradient(135deg, #ffffff, #d1d5db)",
-                    border: "none",
+                    border: "1px solid #27272a",
                     color: "#000",
-                    padding: "4px 12px",
+                    padding: "6px 14px",
                     borderRadius: "6px",
                     cursor: saving ? "not-allowed" : "pointer",
                     opacity: saving ? 0.6 : 1
                   }}
                 >
-                  {saving ? "Locking..." : "Lock Sections & Proceed 🔒"}
+                  {saving ? "Unlocking..." : "Unlock Slicing 🔓"}
                 </button>
-              </div>
+              )
             )}
           </div>
         </div>
