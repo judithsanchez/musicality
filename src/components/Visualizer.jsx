@@ -53,7 +53,7 @@ export default function Visualizer({
               canLight && 
               currentTime >= introEnd && 
               currentBeat && 
-              currentBeat.beat === beatNum;
+              currentBeat.count === beatNum;
 
             const isPause = !isBachata && (beatNum === 4 || beatNum === 8);
 
