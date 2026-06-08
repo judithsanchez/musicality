@@ -117,8 +117,8 @@ export const BaseSongMapSchema = z.object({
   genre: GenreSchema,
   status: z.enum(['DRAFT_CUTTING', 'DRAFT_TAPPING', 'DRAFT_LABELING', 'READY']).default('DRAFT_CUTTING'),
   baseBpm: z.number().positive(),
-  absoluteBeatMap: z.array(z.number().int()),
-  taps: z.array(z.number().int()).optional(),
+  absoluteBeatMap: z.array(z.number().int()).optional(),
+  rawTaps: z.array(z.number().int()).optional(),
   schemaVersion: z.literal('2.0')
 });
 
@@ -229,7 +229,7 @@ export const StrictSongMapSchema = SongMapSchema.superRefine((data, ctx) => {
       }
     }
 
-    if (data.absoluteBeatMap.length === 0) {
+    if (!data.absoluteBeatMap || data.absoluteBeatMap.length === 0) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: 'absoluteBeatMap cannot be empty',

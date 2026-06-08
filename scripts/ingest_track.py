@@ -24,11 +24,6 @@ def main():
     # Set default BPM based on genre
     bpm = args.bpm if args.bpm else (150.0 if args.genre == "SALSA" else 120.0)
     beat_interval_ms = int(round(60000.0 / bpm))
-    
-    # Generate 10 minutes (600 seconds) of steady beats
-    max_duration_ms = 600 * 1000
-    beat_times_ms = list(range(0, max_duration_ms, beat_interval_ms))
-    
     song_map = {
         "id": f"song-{args.youtubeId}",
         "youtubeId": args.youtubeId,
@@ -37,7 +32,6 @@ def main():
         "genre": args.genre,
         "status": "DRAFT_CUTTING",
         "baseBpm": float(round(bpm, 2)),
-        "absoluteBeatMap": beat_times_ms,
         "schemaVersion": "2.0",
         "sections": [],
         "phrases": []

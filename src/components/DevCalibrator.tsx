@@ -115,8 +115,8 @@ export default function DevCalibrator({
       setEditorSections(sortedSections);
       setPhrases(activePhrases);
 
-      if (songData.taps && Array.isArray(songData.taps)) {
-        const sortedTaps = [...songData.taps].sort((a, b) => a - b);
+      if (songData.rawTaps && Array.isArray(songData.rawTaps)) {
+        const sortedTaps = [...songData.rawTaps].sort((a, b) => a - b);
         setTappedDownbeats(sortedTaps);
         if (activePhrases.length === 0) {
           repartitionAllPhrases(sortedSections, sortedTaps);
@@ -136,10 +136,11 @@ export default function DevCalibrator({
 
   const autoSaveSongMap = (updatedData: any) => {
     setSaving(true);
+    const { absoluteBeatMap, ...saveData } = updatedData;
     fetch("/api/songs", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(updatedData)
+      body: JSON.stringify(saveData)
     })
     .then(r => r.json())
     .then(res => {
@@ -154,14 +155,14 @@ export default function DevCalibrator({
     });
   };
 
-  const syncSongMapState = (sections: any[], phrasesList: any[], absoluteBeatMap: number[], baseBpm?: number, taps?: number[]) => {
+  const syncSongMapState = (sections: any[], phrasesList: any[], absoluteBeatMap: number[], baseBpm?: number, rawTaps?: number[]) => {
     const updated = {
       ...songData,
       sections,
       phrases: phrasesList,
       absoluteBeatMap,
       ...(baseBpm !== undefined ? { baseBpm } : {}),
-      ...(taps !== undefined ? { taps } : {})
+      ...(rawTaps !== undefined ? { rawTaps } : {})
     };
     setCalibratedSongData(updated);
     setSongData(updated);
@@ -300,7 +301,7 @@ export default function DevCalibrator({
       phrases: allPhrases,
       absoluteBeatMap: allBeatTimes,
       baseBpm: calculatedBpm,
-      taps: sortedTaps
+      rawTaps: sortedTaps
     };
     syncSongMapState(updatedSections, allPhrases, allBeatTimes, calculatedBpm, sortedTaps);
 
@@ -504,10 +505,11 @@ export default function DevCalibrator({
     setSongData(updated);
     
     setSaving(true);
+    const { absoluteBeatMap, ...saveData } = updated;
     fetch("/api/songs", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(updated)
+      body: JSON.stringify(saveData)
     })
     .then(r => r.json())
     .then(res => {
@@ -534,10 +536,11 @@ export default function DevCalibrator({
     setSongData(updated);
     
     setSaving(true);
+    const { absoluteBeatMap, ...saveData } = updated;
     fetch("/api/songs", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(updated)
+      body: JSON.stringify(saveData)
     })
     .then(r => r.json())
     .then(res => {
