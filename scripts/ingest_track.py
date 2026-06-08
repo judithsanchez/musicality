@@ -57,6 +57,22 @@ def main():
     print(f"\n[INGEST-AI] Starting ingestion for: {args.title} - {args.artist} ({args.genre})")
     
     beat_times, bpm = run_beatnet(args.audio)
+    
+    # Correct octave error (half-speed estimation)
+    if (args.genre == "SALSA" and bpm < 110.0) or (args.genre == "BACHATA" and bpm < 90.0):
+        print(f"[INGEST-AI] Detected half-speed BPM {bpm:.2f} for {args.genre}. Interpolating beats to double resolution...")
+        doubled_times = []
+        for i in range(len(beat_times) - 1):
+            doubled_times.append(beat_times[i])
+            doubled_times.append((beat_times[i] + beat_times[i+1]) / 2.0)
+        if len(beat_times) > 0:
+            doubled_times.append(beat_times[-1])
+            avg_interval = np.mean(np.diff(beat_times)) if len(beat_times) > 1 else 0.5
+            doubled_times.append(beat_times[-1] + avg_interval / 2.0)
+        beat_times = np.array(doubled_times)
+        bpm = bpm * 2.0
+        print(f"[INGEST-AI] Resolution doubled. New estimated BPM: {bpm:.2f}")
+
     beat_times_ms = [int(round(float(t) * 1000)) for t in beat_times]
     
     if not beat_times_ms:
