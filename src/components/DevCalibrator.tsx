@@ -146,12 +146,13 @@ export default function DevCalibrator({
     });
   };
 
-  const syncSongMapState = (sections: any[], phrasesList: any[], absoluteBeatMap: number[]) => {
+  const syncSongMapState = (sections: any[], phrasesList: any[], absoluteBeatMap: number[], baseBpm?: number) => {
     const updated = {
       ...songData,
       sections,
       phrases: phrasesList,
-      absoluteBeatMap
+      absoluteBeatMap,
+      ...(baseBpm !== undefined ? { baseBpm } : {})
     };
     setCalibratedSongData(updated);
     setSongData(updated);
@@ -160,7 +161,28 @@ export default function DevCalibrator({
   const repartitionAllPhrases = (sectionsList: any[], downbeatsList: number[], triggerAutoSave = false) => {
     const sortedSections = [...sectionsList].sort((a, b) => a.startTimeMs - b.startTimeMs);
     const sortedTaps = [...downbeatsList].sort((a, b) => a - b);
-    const beatIntervalMs = 60000.0 / songData.baseBpm;
+
+    let calculatedBpm = songData.baseBpm;
+    if (sortedTaps.length >= 2) {
+      const initialRefBpm = songData.genre === "SALSA" ? 150.0 : 120.0;
+      const defaultInterval = 60000.0 / initialRefBpm;
+      const phrase4Interval = defaultInterval * 4;
+
+      let totalBeats = 0;
+      for (let i = 0; i < sortedTaps.length - 1; i++) {
+        const diff = sortedTaps[i + 1] - sortedTaps[i];
+        const units = Math.max(1, Math.round(diff / phrase4Interval));
+        totalBeats += units * 4;
+      }
+
+      if (totalBeats > 0) {
+        const totalDuration = sortedTaps[sortedTaps.length - 1] - sortedTaps[0];
+        const calcBpm = 60000.0 / (totalDuration / totalBeats);
+        calculatedBpm = Math.max(80, Math.min(240, Math.round(calcBpm * 100) / 100));
+      }
+    }
+
+    const beatIntervalMs = 60000.0 / calculatedBpm;
     const allPhrases: any[] = [];
     const allBeatTimes: number[] = [];
 
@@ -267,9 +289,10 @@ export default function DevCalibrator({
       ...songData,
       sections: updatedSections,
       phrases: allPhrases,
-      absoluteBeatMap: allBeatTimes
+      absoluteBeatMap: allBeatTimes,
+      baseBpm: calculatedBpm
     };
-    syncSongMapState(updatedSections, allPhrases, allBeatTimes);
+    syncSongMapState(updatedSections, allPhrases, allBeatTimes, calculatedBpm);
 
     if (triggerAutoSave && songData.status === "DRAFT_CUTTING") {
       autoSaveSongMap(updated);
