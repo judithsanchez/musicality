@@ -118,6 +118,7 @@ export const BaseSongMapSchema = z.object({
   status: z.enum(['DRAFT_CUTTING', 'DRAFT_TAPPING', 'DRAFT_LABELING', 'READY']).default('DRAFT_CUTTING'),
   baseBpm: z.number().positive(),
   absoluteBeatMap: z.array(z.number().int()),
+  taps: z.array(z.number().int()).optional(),
   schemaVersion: z.literal('2.0')
 });
 

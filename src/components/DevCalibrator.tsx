@@ -115,14 +115,18 @@ export default function DevCalibrator({
       setEditorSections(sortedSections);
       setPhrases(activePhrases);
 
-      const restoredDownbeats: number[] = [];
-      activePhrases.forEach((ph: any) => {
-        const startsAtSectionBoundary = sortedSections.some(s => s.startTimeMs === ph.startTimeMs);
-        if (!startsAtSectionBoundary) {
-          restoredDownbeats.push(ph.startTimeMs);
-        }
-      });
-      setTappedDownbeats(restoredDownbeats);
+      if (songData.taps && Array.isArray(songData.taps)) {
+        setTappedDownbeats([...songData.taps].sort((a, b) => a - b));
+      } else {
+        const restoredDownbeats: number[] = [];
+        activePhrases.forEach((ph: any) => {
+          const startsAtSectionBoundary = sortedSections.some(s => s.startTimeMs === ph.startTimeMs);
+          if (!startsAtSectionBoundary) {
+            restoredDownbeats.push(ph.startTimeMs);
+          }
+        });
+        setTappedDownbeats(restoredDownbeats);
+      }
     }
   }, [songData, duration]);
 
@@ -146,13 +150,14 @@ export default function DevCalibrator({
     });
   };
 
-  const syncSongMapState = (sections: any[], phrasesList: any[], absoluteBeatMap: number[], baseBpm?: number) => {
+  const syncSongMapState = (sections: any[], phrasesList: any[], absoluteBeatMap: number[], baseBpm?: number, taps?: number[]) => {
     const updated = {
       ...songData,
       sections,
       phrases: phrasesList,
       absoluteBeatMap,
-      ...(baseBpm !== undefined ? { baseBpm } : {})
+      ...(baseBpm !== undefined ? { baseBpm } : {}),
+      ...(taps !== undefined ? { taps } : {})
     };
     setCalibratedSongData(updated);
     setSongData(updated);
@@ -290,9 +295,10 @@ export default function DevCalibrator({
       sections: updatedSections,
       phrases: allPhrases,
       absoluteBeatMap: allBeatTimes,
-      baseBpm: calculatedBpm
+      baseBpm: calculatedBpm,
+      taps: sortedTaps
     };
-    syncSongMapState(updatedSections, allPhrases, allBeatTimes, calculatedBpm);
+    syncSongMapState(updatedSections, allPhrases, allBeatTimes, calculatedBpm, sortedTaps);
 
     if (triggerAutoSave && songData.status === "DRAFT_CUTTING") {
       autoSaveSongMap(updated);
@@ -397,7 +403,7 @@ export default function DevCalibrator({
       return s;
     });
     setEditorSections(updated);
-    syncSongMapState(updated, phrases, songData.absoluteBeatMap);
+    syncSongMapState(updated, phrases, songData.absoluteBeatMap, songData.baseBpm, tappedDownbeats);
   };
 
   const handleAddNewSection = () => {
@@ -470,7 +476,7 @@ export default function DevCalibrator({
       return p;
     });
     setPhrases(updatedPhrases);
-    syncSongMapState(editorSections, updatedPhrases, songData.absoluteBeatMap);
+    syncSongMapState(editorSections, updatedPhrases, songData.absoluteBeatMap, songData.baseBpm, tappedDownbeats);
   };
 
   const handleLockSections = () => {
