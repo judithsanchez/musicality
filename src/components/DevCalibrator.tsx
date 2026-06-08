@@ -172,23 +172,26 @@ export default function DevCalibrator({
     const sortedSections = [...sectionsList].sort((a, b) => a.startTimeMs - b.startTimeMs);
     const sortedTaps = [...downbeatsList].sort((a, b) => a - b);
 
-    let calculatedBpm = songData.baseBpm;
+    let calculatedBpm = songData.baseBpm || (songData.genre === "SALSA" ? 153.4 : 120.0);
     if (sortedTaps.length >= 2) {
-      const initialRefBpm = songData.genre === "SALSA" ? 150.0 : 120.0;
-      const defaultInterval = 60000.0 / initialRefBpm;
-      const phrase4Interval = defaultInterval * 4;
-
-      let totalBeats = 0;
+      const referenceBpm = songData.baseBpm || (songData.genre === "SALSA" ? 153.4 : 120.0);
+      const refPhraseDur = 8.0 * (60000.0 / referenceBpm);
+      const phraseDurations: number[] = [];
       for (let i = 0; i < sortedTaps.length - 1; i++) {
         const diff = sortedTaps[i + 1] - sortedTaps[i];
-        const units = Math.max(1, Math.round(diff / phrase4Interval));
-        totalBeats += units * 4;
+        const numPhrases = Math.max(1, Math.round(diff / refPhraseDur));
+        phraseDurations.push(diff / numPhrases);
       }
-
-      if (totalBeats > 0) {
-        const totalDuration = sortedTaps[sortedTaps.length - 1] - sortedTaps[0];
-        const calcBpm = 60000.0 / (totalDuration / totalBeats);
-        calculatedBpm = Math.max(80, Math.min(240, Math.round(calcBpm * 100) / 100));
+      if (phraseDurations.length > 0) {
+        const sortedDurs = [...phraseDurations].sort((a, b) => a - b);
+        const half = Math.floor(sortedDurs.length / 2);
+        const medianPhraseDur = sortedDurs.length % 2 !== 0
+          ? sortedDurs[half]
+          : (sortedDurs[half - 1] + sortedDurs[half]) / 2.0;
+        if (medianPhraseDur > 0) {
+          const calcBpm = 480000.0 / medianPhraseDur;
+          calculatedBpm = Math.max(80, Math.min(240, Math.round(calcBpm * 100) / 100));
+        }
       }
     }
 
