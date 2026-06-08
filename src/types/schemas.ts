@@ -14,11 +14,34 @@ export const BachataEnergyStateSchema = z.enum([
 export const SalsaEnergyStateSchema = z.enum([
   'INTRO',
   'VERSE',
+  'CHORUS',
   'MONTUNO',
   'MAMBO',
   'DESCARGA',
   'BREAK',
   'OUTRO'
+]);
+
+export const SalsaInstrumentSchema = z.enum([
+  'PIANO',
+  'VOCALS',
+  'BRASS',
+  'CONGAS',
+  'BONGOS',
+  'TIMBALES',
+  'BASS',
+  'COWBELL',
+  'NONE'
+]);
+
+export const BachataInstrumentSchema = z.enum([
+  'REQUINTO',
+  'SEGUNDA',
+  'BONGOS',
+  'GUIRA',
+  'BASS',
+  'VOCALS',
+  'NONE'
 ]);
 
 export const ClaveDirectionSchema = z.enum(['2-3', '3-2', 'NOT_SET', 'NONE']);
@@ -68,16 +91,17 @@ export const BaseSectionSchema = z.object({
   endTimeMs: z.number().int(),
   label: z.string(),
   phraseIds: z.array(z.string()),
-  focusInstrument: z.string().optional(),
   emoji: z.string().optional()
 });
 
 export const BachataSectionSchema = BaseSectionSchema.extend({
-  energyState: BachataEnergyStateSchema
+  energyState: BachataEnergyStateSchema,
+  focusInstrument: BachataInstrumentSchema.optional()
 });
 
 export const SalsaSectionSchema = BaseSectionSchema.extend({
-  energyState: SalsaEnergyStateSchema
+  energyState: SalsaEnergyStateSchema,
+  focusInstrument: SalsaInstrumentSchema.optional()
 });
 
 export const SectionSchema = z.union([
@@ -91,8 +115,10 @@ export const BaseSongMapSchema = z.object({
   title: z.string(),
   artist: z.string(),
   genre: GenreSchema,
+  status: z.enum(['DRAFT_CUTTING', 'DRAFT_TAPPING', 'DRAFT_LABELING', 'READY']).default('DRAFT_CUTTING'),
   baseBpm: z.number().positive(),
-  absoluteBeatMap: z.array(z.number().int()),
+  absoluteBeatMap: z.array(z.number().int()).optional(),
+  rawTaps: z.array(z.number().int()).optional(),
   schemaVersion: z.literal('2.0')
 });
 
@@ -203,7 +229,7 @@ export const StrictSongMapSchema = SongMapSchema.superRefine((data, ctx) => {
       }
     }
 
-    if (data.absoluteBeatMap.length === 0) {
+    if (!data.absoluteBeatMap || data.absoluteBeatMap.length === 0) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: 'absoluteBeatMap cannot be empty',

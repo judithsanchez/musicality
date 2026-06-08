@@ -58,6 +58,7 @@ function songDbPlugin() {
               const payload = JSON.parse(body);
               const result = StrictSongMapSchema.safeParse(payload);
               if (!result.success) {
+                console.error('Validation failed for /api/songs:', JSON.stringify(result.error.issues, null, 2));
                 res.statusCode = 400;
                 res.setHeader('Content-Type', 'application/json');
                 res.end(JSON.stringify({
@@ -98,6 +99,7 @@ function songDbPlugin() {
                 title: songMap.title,
                 artist: songMap.artist,
                 genre: songMap.genre,
+                status: songMap.status,
                 baseBpm: songMap.baseBpm,
               };
 
@@ -225,6 +227,7 @@ function songDbPlugin() {
                   title: songMap.title,
                   artist: songMap.artist,
                   genre: songMap.genre,
+                  status: songMap.status || 'DRAFT_CUTTING',
                   baseBpm: songMap.baseBpm
                 };
                 if (genre === 'SALSA') {
