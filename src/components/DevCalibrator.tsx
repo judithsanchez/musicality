@@ -181,20 +181,58 @@ export default function DevCalibrator({
       claveSource: "DEFAULT"
     } : {};
 
+    const partitionGapIntoPhrases = (start: number, end: number) => {
+      const gapPhrases: any[] = [];
+      let current = start;
+      while (current < end) {
+        const available = end - current;
+        let phraseLength = 8;
+        let type = "STANDARD_8_COUNT";
+        if (available >= 8) {
+          phraseLength = 8;
+          type = "STANDARD_8_COUNT";
+        } else if (available >= 4) {
+          phraseLength = 4;
+          type = "HALF_PHRASE_4_COUNT";
+        } else {
+          phraseLength = available;
+          type = "TRANSITION_BREAK";
+        }
+
+        const phraseEnd = current + phraseLength;
+        const calibratedBeats = [];
+        for (let k = 0; k < phraseLength; k++) {
+          const beatIdx = current + k;
+          if (beatIdx < absoluteBeatMap.length) {
+            calibratedBeats.push({
+              count: k + 1,
+              timestampMs: absoluteBeatMap[beatIdx]
+            });
+          }
+        }
+
+        gapPhrases.push({
+          id: crypto.randomUUID(),
+          index: 0,
+          startTimeMs: absoluteBeatMap[current],
+          endTimeMs: absoluteBeatMap[phraseEnd] ?? absoluteBeatMap[absoluteBeatMap.length - 1],
+          type,
+          genre,
+          calibratedBeats,
+          events: [],
+          ...claveProps
+        });
+
+        current = phraseEnd;
+      }
+      return gapPhrases;
+    };
+
     for (const tap of secDownbeats) {
       if (tap < currentIdx) continue;
 
       if (tap > currentIdx) {
-        sectionPhrases.push({
-          id: crypto.randomUUID(),
-          index: 0,
-          startTimeMs: absoluteBeatMap[currentIdx],
-          endTimeMs: absoluteBeatMap[tap],
-          type: "NO_COUNT",
-          genre,
-          events: [],
-          ...claveProps
-        });
+        sectionPhrases.push(...partitionGapIntoPhrases(currentIdx, tap));
         currentIdx = tap;
       }
 
@@ -243,16 +281,7 @@ export default function DevCalibrator({
     }
 
     if (currentIdx < actualEnd) {
-      sectionPhrases.push({
-        id: crypto.randomUUID(),
-        index: 0,
-        startTimeMs: absoluteBeatMap[currentIdx],
-        endTimeMs: absoluteBeatMap[actualEnd],
-        type: "NO_COUNT",
-        genre,
-        events: [],
-        ...claveProps
-      });
+      sectionPhrases.push(...partitionGapIntoPhrases(currentIdx, actualEnd));
     }
 
     if (sectionPhrases.length > 0) {
