@@ -119,6 +119,7 @@ export const BaseSongMapSchema = z.object({
   baseBpm: z.number().positive(),
   absoluteBeatMap: z.array(z.number().int()).optional(),
   rawTaps: z.array(z.number().int()).optional(),
+  rawTapsHistory: z.array(z.array(z.number().int())).optional(),
   schemaVersion: z.literal('2.0')
 });
 

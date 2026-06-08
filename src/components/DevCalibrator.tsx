@@ -65,6 +65,7 @@ export default function DevCalibrator({
   const [editorSections, setEditorSections] = useState<any[]>([]);
   const [phrases, setPhrases] = useState<any[]>([]);
   const [tappedDownbeats, setTappedDownbeats] = useState<number[]>([]);
+  const [tappedHistory, setTappedHistory] = useState<number[][]>([]);
   const [focusedSectionId, setFocusedSectionId] = useState<string | null>(null);
   const [tapFlash, setTapFlash] = useState(false);
   const [validationErrors, setValidationErrors] = useState<any[] | null>(null);
@@ -131,6 +132,11 @@ export default function DevCalibrator({
         });
         setTappedDownbeats(restoredDownbeats);
       }
+      if (songData.rawTapsHistory && Array.isArray(songData.rawTapsHistory)) {
+        setTappedHistory(songData.rawTapsHistory);
+      } else {
+        setTappedHistory([]);
+      }
     }
   }, [songData, duration]);
 
@@ -155,14 +161,22 @@ export default function DevCalibrator({
     });
   };
 
-  const syncSongMapState = (sections: any[], phrasesList: any[], absoluteBeatMap: number[], baseBpm?: number, rawTaps?: number[]) => {
+  const syncSongMapState = (
+    sections: any[],
+    phrasesList: any[],
+    absoluteBeatMap: number[],
+    baseBpm?: number,
+    rawTaps?: number[],
+    rawTapsHistory?: number[][]
+  ) => {
     const updated = {
       ...songData,
       sections,
       phrases: phrasesList,
       absoluteBeatMap,
       ...(baseBpm !== undefined ? { baseBpm } : {}),
-      ...(rawTaps !== undefined ? { rawTaps } : {})
+      ...(rawTaps !== undefined ? { rawTaps } : {}),
+      ...(rawTapsHistory !== undefined ? { rawTapsHistory } : {})
     };
     setCalibratedSongData(updated);
     setSongData(updated);
@@ -216,7 +230,7 @@ export default function DevCalibrator({
         const gapDur = tEnd - tStart;
         if (gapDur <= 0) continue;
 
-        const N = Math.max(4, Math.round(gapDur / (beatIntervalMs * 4)) * 4);
+        const N = Math.max(8, Math.round(gapDur / (beatIntervalMs * 8)) * 8);
         const delta = gapDur / N;
 
         const phraseLengths: number[] = [];
@@ -224,13 +238,6 @@ export default function DevCalibrator({
         while (rem >= 8) {
           phraseLengths.push(8);
           rem -= 8;
-        }
-        if (rem >= 4) {
-          phraseLengths.push(4);
-          rem -= 4;
-        }
-        if (rem > 0) {
-          phraseLengths.push(rem);
         }
 
         let currentGapBeatIdx = 0;
@@ -253,13 +260,6 @@ export default function DevCalibrator({
           }
 
           let type = "STANDARD_8_COUNT";
-          if (length === 8) {
-            type = "STANDARD_8_COUNT";
-          } else if (length === 4) {
-            type = "HALF_PHRASE_4_COUNT";
-          } else {
-            type = "TRANSITION_BREAK";
-          }
 
           const phraseId = crypto.randomUUID();
           phraseIds.push(phraseId);
@@ -304,9 +304,10 @@ export default function DevCalibrator({
       phrases: allPhrases,
       absoluteBeatMap: allBeatTimes,
       baseBpm: calculatedBpm,
-      rawTaps: sortedTaps
+      rawTaps: sortedTaps,
+      rawTapsHistory: tappedHistory
     };
-    syncSongMapState(updatedSections, allPhrases, allBeatTimes, calculatedBpm, sortedTaps);
+    syncSongMapState(updatedSections, allPhrases, allBeatTimes, calculatedBpm, sortedTaps, tappedHistory);
 
     if (triggerAutoSave && songData.status === "DRAFT_CUTTING") {
       autoSaveSongMap(updated);
@@ -500,8 +501,19 @@ export default function DevCalibrator({
   };
 
   const handleSaveTaps = () => {
+    let updatedHistory = [...tappedHistory];
+    const exists = updatedHistory.some(arr => 
+      arr.length === tappedDownbeats.length && 
+      arr.every((val, index) => val === tappedDownbeats[index])
+    );
+    if (!exists && tappedDownbeats.length > 0) {
+      updatedHistory.push(tappedDownbeats);
+      setTappedHistory(updatedHistory);
+    }
+
     const updated = {
       ...latestSongDataRef.current,
+      rawTapsHistory: updatedHistory,
       status: "DRAFT_LABELING"
     };
     setCalibratedSongData(updated);
@@ -528,6 +540,40 @@ export default function DevCalibrator({
       setSaving(false);
       showToast("❌ Failed to save taps: " + err.message);
     });
+  };
+
+  const handleConsolidateTaps = () => {
+    const allAttempts = [...tappedHistory];
+    if (tappedDownbeats.length > 0) {
+      allAttempts.push(tappedDownbeats);
+    }
+    if (allAttempts.length === 0) return;
+    const allTaps = allAttempts.flat().sort((a, b) => a - b);
+    const groups: number[][] = [];
+    allTaps.forEach(tap => {
+      let placed = false;
+      for (const group of groups) {
+        const avg = group.reduce((sum, v) => sum + v, 0) / group.length;
+        if (Math.abs(tap - avg) < 600) {
+          group.push(tap);
+          placed = true;
+          break;
+        }
+      }
+      if (!placed) {
+        groups.push([tap]);
+      }
+    });
+    const consensusTaps = groups.map(group => {
+      const sorted = [...group].sort((a, b) => a - b);
+      const half = Math.floor(sorted.length / 2);
+      return sorted.length % 2 !== 0
+        ? sorted[half]
+        : Math.round((sorted[half - 1] + sorted[half]) / 2.0);
+    }).sort((a, b) => a - b);
+    setTappedDownbeats(consensusTaps);
+    repartitionAllPhrases(editorSections, consensusTaps);
+    showToast("Consolidated tap history using median consensus!");
   };
 
   const handlePublishSong = () => {
@@ -744,9 +790,30 @@ export default function DevCalibrator({
           </button>
 
           <div style={{ display: "flex", justifyContent: "space-between", width: "100%", fontSize: "0.75rem", color: "#d1d5db", alignItems: "center" }}>
-            <span>Taps logged: <strong style={{ color: "#ffffff" }}>{tappedDownbeats.length}</strong></span>
+            <span>
+              Taps logged: <strong style={{ color: "#ffffff" }}>{tappedDownbeats.length}</strong>
+              {tappedHistory.length > 0 && ` (${tappedHistory.length} attempts in history)`}
+            </span>
             
             <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+              {tappedHistory.length > 0 && (
+                <button
+                  onClick={handleConsolidateTaps}
+                  style={{
+                    fontSize: "0.7rem",
+                    fontWeight: 700,
+                    background: "rgba(255, 255, 255, 0.05)",
+                    border: "1px solid #27272a",
+                    color: "#ffffff",
+                    padding: "6px 12px",
+                    borderRadius: "6px",
+                    cursor: "pointer"
+                  }}
+                >
+                  Merge History 🤝
+                </button>
+              )}
+
               {tappedDownbeats.length > 0 && (
                 <button
                   onClick={handleClearTaps}
