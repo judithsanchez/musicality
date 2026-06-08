@@ -55,25 +55,6 @@ export default function DevCalibrationPanel({
         </button>
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-        <span style={{ fontSize: "0.75rem", color: "#a1a1aa" }}>Calibrated Delay Offset (ms)</span>
-        <input
-          type="number"
-          value={userDelaySetting}
-          onChange={(e) => onUserDelaySettingChange(Number(e.target.value))}
-          style={{
-            width: "100%",
-            padding: "8px 12px",
-            borderRadius: "8px",
-            border: "1px solid rgba(255,255,255,0.08)",
-            background: "rgba(0,0,0,0.3)",
-            color: "#fff",
-            fontSize: "0.8rem",
-            boxSizing: "border-box"
-          }}
-        />
-      </div>
-
       <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
         <span style={{ fontSize: "0.8rem", fontWeight: "800", color: "#ffffff", textTransform: "uppercase", letterSpacing: "0.5px" }}>
           🏷️ Song Sections & Details
