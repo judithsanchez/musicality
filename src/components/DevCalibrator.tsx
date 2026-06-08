@@ -116,7 +116,11 @@ export default function DevCalibrator({
       setPhrases(activePhrases);
 
       if (songData.taps && Array.isArray(songData.taps)) {
-        setTappedDownbeats([...songData.taps].sort((a, b) => a - b));
+        const sortedTaps = [...songData.taps].sort((a, b) => a - b);
+        setTappedDownbeats(sortedTaps);
+        if (activePhrases.length === 0) {
+          repartitionAllPhrases(sortedSections, sortedTaps);
+        }
       } else {
         const restoredDownbeats: number[] = [];
         activePhrases.forEach((ph: any) => {
