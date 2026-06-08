@@ -98,14 +98,15 @@ export default function DevCalibrator({
     const activePhrases = songData.phrases || [];
 
     if (sortedSections.length === 0) {
+      const isSalsa = songData.genre === "SALSA";
       const defaultSec = {
         id: "sec-default",
         startTimeMs: 0,
         endTimeMs: Math.round(duration * 1000),
-        label: "Intro",
-        energyState: "INTRO",
+        label: isSalsa ? "Verse" : "Derecho",
+        energyState: isSalsa ? "VERSE" : "DERECHO",
         phraseIds: [],
-        emoji: "🎵"
+        emoji: isSalsa ? "🎤" : "🎸"
       };
       setEditorSections([defaultSec]);
       setPhrases([]);
@@ -407,11 +408,12 @@ export default function DevCalibrator({
         return;
       }
 
+      const isSalsa = songData.genre === "SALSA";
       const newSec = {
         id: crypto.randomUUID(),
-        label: "Intro",
-        emoji: "🎵",
-        energyState: "INTRO",
+        label: isSalsa ? "Verse" : "Derecho",
+        emoji: isSalsa ? "🎤" : "🎸",
+        energyState: isSalsa ? "VERSE" : "DERECHO",
         startTimeMs: playheadMs,
         endTimeMs: target.endTimeMs,
         phraseIds: []

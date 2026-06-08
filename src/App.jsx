@@ -165,15 +165,16 @@ export default function App() {
           const lastBeatTimeMs = adjustedData.absoluteBeatMap && adjustedData.absoluteBeatMap.length > 0
             ? adjustedData.absoluteBeatMap[adjustedData.absoluteBeatMap.length - 1]
             : 300000;
+          const isSalsa = adjustedData.genre === "SALSA";
           adjustedData.sections = [
             {
               id: "sec-default",
               startTimeMs: 0,
               endTimeMs: lastBeatTimeMs,
-              label: "Intro",
-              energyState: "INTRO",
+              label: isSalsa ? "Verse" : "Derecho",
+              energyState: isSalsa ? "VERSE" : "DERECHO",
               phraseIds: [],
-              emoji: "🎵"
+              emoji: isSalsa ? "🎤" : "🎸"
             }
           ];
         }
