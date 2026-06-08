@@ -64,7 +64,7 @@ export default function DevCalibrator({
 }: DevCalibratorProps) {
   const [editorSections, setEditorSections] = useState<any[]>([]);
   const [phrases, setPhrases] = useState<any[]>([]);
-  const [tappedDownbeatIndices, setTappedDownbeatIndices] = useState<number[]>([]);
+  const [tappedDownbeats, setTappedDownbeats] = useState<number[]>([]);
   const [focusedSectionId, setFocusedSectionId] = useState<string | null>(null);
   const [tapFlash, setTapFlash] = useState(false);
   const [validationErrors, setValidationErrors] = useState<any[] | null>(null);
@@ -110,22 +110,19 @@ export default function DevCalibrator({
       };
       setEditorSections([defaultSec]);
       setPhrases([]);
-      setTappedDownbeatIndices([]);
+      setTappedDownbeats([]);
     } else {
       setEditorSections(sortedSections);
       setPhrases(activePhrases);
 
       const restoredDownbeats: number[] = [];
       activePhrases.forEach((ph: any) => {
-        if (ph.calibratedBeats && ph.calibratedBeats.length > 0) {
-          const firstBeatTime = ph.calibratedBeats[0].timestampMs;
-          const idx = songData.absoluteBeatMap.indexOf(firstBeatTime);
-          if (idx !== -1) {
-            restoredDownbeats.push(idx);
-          }
+        const startsAtSectionBoundary = sortedSections.some(s => s.startTimeMs === ph.startTimeMs);
+        if (!startsAtSectionBoundary) {
+          restoredDownbeats.push(ph.startTimeMs);
         }
       });
-      setTappedDownbeatIndices(restoredDownbeats);
+      setTappedDownbeats(restoredDownbeats);
     }
   }, [songData, duration]);
 
@@ -149,158 +146,104 @@ export default function DevCalibrator({
     });
   };
 
-  const syncSongMapState = (sections: any[], phrasesList: any[]) => {
+  const syncSongMapState = (sections: any[], phrasesList: any[], absoluteBeatMap: number[]) => {
     const updated = {
       ...songData,
       sections,
-      phrases: phrasesList
+      phrases: phrasesList,
+      absoluteBeatMap
     };
     setCalibratedSongData(updated);
     setSongData(updated);
   };
 
-  const generatePhrasesForSection = (
-    section: any,
-    allDownbeats: number[],
-    absoluteBeatMap: number[],
-    genre: string
-  ) => {
-    const startIdx = absoluteBeatMap.findIndex(t => t >= section.startTimeMs);
-    const endIdx = absoluteBeatMap.findIndex(t => t >= section.endTimeMs);
-    const actualStart = startIdx !== -1 ? startIdx : 0;
-    const actualEnd = endIdx !== -1 ? endIdx : absoluteBeatMap.length - 1;
+  const repartitionAllPhrases = (sectionsList: any[], downbeatsList: number[], triggerAutoSave = false) => {
+    const sortedSections = [...sectionsList].sort((a, b) => a.startTimeMs - b.startTimeMs);
+    const sortedTaps = [...downbeatsList].sort((a, b) => a - b);
+    const beatIntervalMs = 60000.0 / songData.baseBpm;
+    const allPhrases: any[] = [];
+    const allBeatTimes: number[] = [];
 
-    const secDownbeats = allDownbeats.filter(d => d >= actualStart && d < actualEnd);
-
-    const sectionPhrases: any[] = [];
-    let currentIdx = actualStart;
-
-    const claveProps = genre === "SALSA" ? {
+    const claveProps = songData.genre === "SALSA" ? {
       claveDirection: "NOT_SET",
       claveIsVerified: false,
       claveSource: "DEFAULT"
     } : {};
 
-    const partitionGapIntoPhrases = (start: number, end: number) => {
-      const gapPhrases: any[] = [];
-      let current = start;
-      while (current < end) {
-        const available = end - current;
-        let phraseLength = 8;
-        let type = "STANDARD_8_COUNT";
-        if (available >= 8) {
-          phraseLength = 8;
-          type = "STANDARD_8_COUNT";
-        } else if (available >= 4) {
-          phraseLength = 4;
-          type = "HALF_PHRASE_4_COUNT";
-        } else {
-          phraseLength = available;
-          type = "TRANSITION_BREAK";
+    const updatedSections = sortedSections.map(sec => {
+      const secTaps = sortedTaps.filter(t => t > sec.startTimeMs && t < sec.endTimeMs);
+      const anchors = [sec.startTimeMs, ...secTaps, sec.endTimeMs];
+      const phraseIds: string[] = [];
+
+      for (let i = 0; i < anchors.length - 1; i++) {
+        const tStart = anchors[i];
+        const tEnd = anchors[i + 1];
+        const gapDur = tEnd - tStart;
+        if (gapDur <= 0) continue;
+
+        const N = Math.max(1, Math.round(gapDur / beatIntervalMs));
+        const delta = gapDur / N;
+
+        const phraseLengths: number[] = [];
+        let rem = N;
+        while (rem >= 8) {
+          phraseLengths.push(8);
+          rem -= 8;
+        }
+        if (rem >= 4) {
+          phraseLengths.push(4);
+          rem -= 4;
+        }
+        if (rem > 0) {
+          phraseLengths.push(rem);
         }
 
-        const phraseEnd = current + phraseLength;
-        const calibratedBeats = [];
-        for (let k = 0; k < phraseLength; k++) {
-          const beatIdx = current + k;
-          if (beatIdx < absoluteBeatMap.length) {
+        let currentGapBeatIdx = 0;
+        for (let pIdx = 0; pIdx < phraseLengths.length; pIdx++) {
+          const length = phraseLengths[pIdx];
+          const pStartBeatIdx = currentGapBeatIdx;
+          const pEndBeatIdx = currentGapBeatIdx + length;
+
+          const phraseStartMs = Math.round(tStart + pStartBeatIdx * delta);
+          const phraseEndMs = pIdx === phraseLengths.length - 1 ? tEnd : Math.round(tStart + pEndBeatIdx * delta);
+
+          const calibratedBeats = [];
+          for (let k = 0; k < length; k++) {
+            const beatTime = Math.round(tStart + (pStartBeatIdx + k) * delta);
             calibratedBeats.push({
               count: k + 1,
-              timestampMs: absoluteBeatMap[beatIdx]
+              timestampMs: beatTime
             });
+            allBeatTimes.push(beatTime);
           }
-        }
 
-        gapPhrases.push({
-          id: crypto.randomUUID(),
-          index: 0,
-          startTimeMs: absoluteBeatMap[current],
-          endTimeMs: absoluteBeatMap[phraseEnd] ?? absoluteBeatMap[absoluteBeatMap.length - 1],
-          type,
-          genre,
-          calibratedBeats,
-          events: [],
-          ...claveProps
-        });
+          let type = "STANDARD_8_COUNT";
+          if (length === 8) {
+            type = "STANDARD_8_COUNT";
+          } else if (length === 4) {
+            type = "HALF_PHRASE_4_COUNT";
+          } else {
+            type = "TRANSITION_BREAK";
+          }
 
-        current = phraseEnd;
-      }
-      return gapPhrases;
-    };
+          const phraseId = crypto.randomUUID();
+          phraseIds.push(phraseId);
 
-    for (const tap of secDownbeats) {
-      if (tap < currentIdx) continue;
-
-      if (tap > currentIdx) {
-        sectionPhrases.push(...partitionGapIntoPhrases(currentIdx, tap));
-        currentIdx = tap;
-      }
-
-      const nextEventIdx = secDownbeats.find(t => t > tap) ?? actualEnd;
-      const available = nextEventIdx - tap;
-
-      let phraseLength = 8;
-      let type = "STANDARD_8_COUNT";
-      if (available >= 8) {
-        phraseLength = 8;
-        type = "STANDARD_8_COUNT";
-      } else if (available >= 4) {
-        phraseLength = 4;
-        type = "HALF_PHRASE_4_COUNT";
-      } else {
-        phraseLength = available;
-        type = "TRANSITION_BREAK";
-      }
-
-      const phraseEnd = tap + phraseLength;
-
-      const calibratedBeats = [];
-      for (let k = 0; k < phraseLength; k++) {
-        const beatIdx = tap + k;
-        if (beatIdx < absoluteBeatMap.length) {
-          calibratedBeats.push({
-            count: k + 1,
-            timestampMs: absoluteBeatMap[beatIdx]
+          allPhrases.push({
+            id: phraseId,
+            index: 0,
+            startTimeMs: phraseStartMs,
+            endTimeMs: phraseEndMs,
+            type,
+            genre: songData.genre,
+            calibratedBeats,
+            events: [],
+            ...claveProps
           });
+
+          currentGapBeatIdx = pEndBeatIdx;
         }
       }
-
-      sectionPhrases.push({
-        id: crypto.randomUUID(),
-        index: 0,
-        startTimeMs: absoluteBeatMap[tap],
-        endTimeMs: absoluteBeatMap[phraseEnd] ?? absoluteBeatMap[absoluteBeatMap.length - 1],
-        type,
-        genre,
-        calibratedBeats,
-        events: [],
-        ...claveProps
-      });
-
-      currentIdx = phraseEnd;
-    }
-
-    if (currentIdx < actualEnd) {
-      sectionPhrases.push(...partitionGapIntoPhrases(currentIdx, actualEnd));
-    }
-
-    if (sectionPhrases.length > 0) {
-      sectionPhrases[0].startTimeMs = section.startTimeMs;
-      sectionPhrases[sectionPhrases.length - 1].endTimeMs = section.endTimeMs;
-    }
-
-    return sectionPhrases;
-  };
-
-  const repartitionAllPhrases = (sectionsList: any[], downbeatsList: number[], triggerAutoSave = false) => {
-    const allPhrases: any[] = [];
-    const updatedSections = sectionsList.map(sec => {
-      const secPhrases = generatePhrasesForSection(sec, downbeatsList, songData.absoluteBeatMap, songData.genre);
-      
-      const phraseIds = secPhrases.map(ph => {
-        allPhrases.push(ph);
-        return ph.id;
-      });
 
       return {
         ...sec,
@@ -308,52 +251,62 @@ export default function DevCalibrator({
       };
     });
 
+    if (updatedSections.length > 0) {
+      const lastSec = updatedSections[updatedSections.length - 1];
+      allBeatTimes.push(lastSec.endTimeMs);
+    }
+
     allPhrases.forEach((ph, idx) => {
       ph.index = idx + 1;
     });
 
     setEditorSections(updatedSections);
     setPhrases(allPhrases);
-    
+
     const updated = {
       ...songData,
       sections: updatedSections,
-      phrases: allPhrases
+      phrases: allPhrases,
+      absoluteBeatMap: allBeatTimes
     };
-    syncSongMapState(updatedSections, allPhrases);
+    syncSongMapState(updatedSections, allPhrases, allBeatTimes);
 
     if (triggerAutoSave && songData.status === "DRAFT_CUTTING") {
       autoSaveSongMap(updated);
     }
-
   };
 
   const handleTap = () => {
-    if (!player || !songData?.absoluteBeatMap) return;
+    if (!player) return;
     setTapFlash(true);
     setTimeout(() => setTapFlash(false), 80);
 
     const tapTimeMs = Math.round((currentTime - (userDelaySetting / 1000)) * 1000);
-    let closestIdx = 0;
-    let minDiff = Infinity;
-    for (let i = 0; i < songData.absoluteBeatMap.length; i++) {
-      const diff = Math.abs(songData.absoluteBeatMap[i] - tapTimeMs);
-      if (diff < minDiff) {
-        minDiff = diff;
-        closestIdx = i;
-      }
+    if (tapTimeMs < 0 || tapTimeMs > duration * 1000) return;
+
+    const tooCloseToBoundary = editorSections.some(
+      sec => Math.abs(sec.startTimeMs - tapTimeMs) < 200 || Math.abs(sec.endTimeMs - tapTimeMs) < 200
+    );
+    if (tooCloseToBoundary) {
+      showToast("⚠️ Tap is too close to a section boundary.");
+      return;
     }
 
-    const updatedDownbeats = [...tappedDownbeatIndices, closestIdx]
-      .filter((v, i, a) => a.indexOf(v) === i)
+    const tooCloseToTap = tappedDownbeats.some(t => Math.abs(t - tapTimeMs) < 300);
+    if (tooCloseToTap) {
+      showToast("⚠️ Tap is too close to an existing tap.");
+      return;
+    }
+
+    const updatedDownbeats = [...tappedDownbeats, tapTimeMs]
       .sort((a, b) => a - b);
 
-    setTappedDownbeatIndices(updatedDownbeats);
+    setTappedDownbeats(updatedDownbeats);
     repartitionAllPhrases(editorSections, updatedDownbeats);
   };
 
   const handleClearTaps = () => {
-    setTappedDownbeatIndices([]);
+    setTappedDownbeats([]);
     repartitionAllPhrases(editorSections, []);
     showToast("🔄 Taps cleared.");
   };
@@ -405,7 +358,7 @@ export default function DevCalibrator({
       endTimeMs: B[i + 1],
     }));
 
-    repartitionAllPhrases(updated, tappedDownbeatIndices);
+    repartitionAllPhrases(updated, tappedDownbeats);
     throttledSeek(clampedVal / 1000, false);
   };
 
@@ -421,7 +374,7 @@ export default function DevCalibrator({
       return s;
     });
     setEditorSections(updated);
-    syncSongMapState(updated, phrases);
+    syncSongMapState(updated, phrases, songData.absoluteBeatMap);
   };
 
   const handleAddNewSection = () => {
@@ -452,7 +405,7 @@ export default function DevCalibrator({
       updated[targetIdx] = { ...target, endTimeMs: playheadMs };
       updated.splice(targetIdx + 1, 0, newSec);
 
-      repartitionAllPhrases(updated, tappedDownbeatIndices, true);
+      repartitionAllPhrases(updated, tappedDownbeats, true);
       setFocusedSectionId(newSec.id);
       throttledSeek(newSec.startTimeMs / 1000, true);
       showToast("✂️ Sliced section at playhead.");
@@ -476,7 +429,7 @@ export default function DevCalibrator({
     }
 
     updated.splice(idx, 1);
-    repartitionAllPhrases(updated, tappedDownbeatIndices, true);
+    repartitionAllPhrases(updated, tappedDownbeats, true);
     if (focusedSectionId === id) setFocusedSectionId(updated[Math.max(0, idx - 1)]?.id ?? null);
     showToast("🗑️ Section removed.");
   };
@@ -494,7 +447,7 @@ export default function DevCalibrator({
       return p;
     });
     setPhrases(updatedPhrases);
-    syncSongMapState(editorSections, updatedPhrases);
+    syncSongMapState(editorSections, updatedPhrases, songData.absoluteBeatMap);
   };
 
   const handleLockSections = () => {
@@ -625,7 +578,7 @@ export default function DevCalibrator({
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [currentTime, editorSections, tappedDownbeatIndices, player, duration, activeTab, songData?.status]);
+  }, [currentTime, editorSections, tappedDownbeats, player, duration, activeTab, songData?.status]);
 
   const handleTimelineClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!timelineRef.current) return;
@@ -752,10 +705,10 @@ export default function DevCalibrator({
           </button>
 
           <div style={{ display: "flex", justifyContent: "space-between", width: "100%", fontSize: "0.75rem", color: "#d1d5db", alignItems: "center" }}>
-            <span>Taps logged: <strong style={{ color: "#ffffff" }}>{tappedDownbeatIndices.length}</strong></span>
+            <span>Taps logged: <strong style={{ color: "#ffffff" }}>{tappedDownbeats.length}</strong></span>
             
             <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-              {tappedDownbeatIndices.length > 0 && (
+              {tappedDownbeats.length > 0 && (
                 <button
                   onClick={handleClearTaps}
                   style={{ background: "none", border: "none", color: "#a1a1aa", cursor: "pointer", fontSize: "0.7rem", display: "flex", alignItems: "center", gap: "4px" }}

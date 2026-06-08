@@ -11,17 +11,18 @@ def main():
     parser.add_argument("--artist", required=True, help="Artist of the song")
     parser.add_argument("--genre", choices=["SALSA", "BACHATA"], required=True, help="Song genre")
     parser.add_argument("--output", required=True, help="Path where output JSON should be written")
+    parser.add_argument("--bpm", type=float, help="Base BPM of the song (optional)")
     
     args = parser.parse_args()
     
     if not os.path.exists(args.audio):
-        print(f"[ERROR] Audio file not found at: {args.audio}")
-        sys.exit(1)
+      print(f"[ERROR] Audio file not found at: {args.audio}")
+      sys.exit(1)
         
     print(f"\n[INGEST] Starting dependency-free ingestion for: {args.title} - {args.artist} ({args.genre})")
     
     # Set default BPM based on genre
-    bpm = 150.0 if args.genre == "SALSA" else 120.0
+    bpm = args.bpm if args.bpm else (150.0 if args.genre == "SALSA" else 120.0)
     beat_interval_ms = int(round(60000.0 / bpm))
     
     # Generate 10 minutes (600 seconds) of steady beats
