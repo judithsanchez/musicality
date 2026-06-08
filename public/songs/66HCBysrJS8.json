@@ -4,7 +4,7 @@
   "title": "Pobre Diablo",
   "artist": "Ronald Borjas",
   "genre": "SALSA",
-  "status": "DRAFT_CUTTING",
+  "status": "DRAFT_TAPPING",
   "baseBpm": 76.7,
   "absoluteBeatMap": [
     1480,
@@ -388,7 +388,7 @@
       "endTimeMs": 19913,
       "label": "Intro",
       "phraseIds": [
-        "7618136d-e7fb-4e10-b673-92586ccf8777"
+        "186499b0-5f55-42bc-b7de-cb3b03b54831"
       ],
       "emoji": "🎵",
       "energyState": "INTRO"
@@ -399,7 +399,7 @@
       "endTimeMs": 29931,
       "label": "Intro",
       "phraseIds": [
-        "bbed7549-0993-4042-92d7-9e890dac62f6"
+        "2e649a66-6713-4372-b4be-54cdc9450f53"
       ],
       "emoji": "🎵",
       "energyState": "INTRO"
@@ -410,7 +410,7 @@
       "endTimeMs": 55215,
       "label": "Intro",
       "phraseIds": [
-        "6e35b1ee-1fc4-41b7-9e08-c9fd43ad60c7"
+        "e0459d5a-bfb9-4e03-b6c4-2555233ed28c"
       ],
       "emoji": "🎵",
       "energyState": "INTRO"
@@ -421,7 +421,7 @@
       "endTimeMs": 102878,
       "label": "Intro",
       "phraseIds": [
-        "db926451-6dc8-47f8-82f2-3b631a15860f"
+        "0468556a-655e-4b94-be74-b7116be6b236"
       ],
       "emoji": "🎵",
       "energyState": "INTRO"
@@ -432,7 +432,7 @@
       "endTimeMs": 111442,
       "label": "Intro",
       "phraseIds": [
-        "83862901-e5d0-4876-9be5-aecd52344285"
+        "becb75c6-4d88-4724-882f-0a1591afe9a4"
       ],
       "emoji": "🎵",
       "energyState": "INTRO"
@@ -443,7 +443,7 @@
       "endTimeMs": 146420,
       "label": "Intro",
       "phraseIds": [
-        "0cdab608-2dc4-4e1d-9cfe-ede0b43c61d3"
+        "20eb2fbb-5344-4c59-ad1c-c7dfaafadb8c"
       ],
       "emoji": "🎵",
       "energyState": "INTRO"
@@ -451,10 +451,43 @@
     {
       "id": "7cb760d4-fa9c-457c-b874-5687bb2e4f5d",
       "startTimeMs": 146420,
+      "endTimeMs": 190750,
+      "label": "Intro",
+      "phraseIds": [
+        "fe0841e4-b087-4ce4-be69-ea1b048e728c"
+      ],
+      "emoji": "🎵",
+      "energyState": "INTRO"
+    },
+    {
+      "id": "8f64fca8-4974-4e8f-8b97-25629ada4c1c",
+      "startTimeMs": 190750,
+      "endTimeMs": 229330,
+      "label": "Intro",
+      "phraseIds": [
+        "edd82d98-74f9-49e4-a386-cbdba276459a"
+      ],
+      "emoji": "🎵",
+      "energyState": "INTRO"
+    },
+    {
+      "id": "efbdee97-c1c6-4d59-8360-c66ae28fe64d",
+      "startTimeMs": 229330,
+      "endTimeMs": 280878,
+      "label": "Intro",
+      "phraseIds": [
+        "dded1ffd-ce4c-4b21-abca-89d4654b431e"
+      ],
+      "emoji": "🎵",
+      "energyState": "INTRO"
+    },
+    {
+      "id": "dc39ea2d-e2da-4742-9533-1e9dcc8dab47",
+      "startTimeMs": 280878,
       "endTimeMs": 290920,
       "label": "Intro",
       "phraseIds": [
-        "ee94537d-de91-4c10-aab4-6e4bb1e1e340"
+        "9231d766-c783-4226-95e0-06e5cec7bb8d"
       ],
       "emoji": "🎵",
       "energyState": "INTRO"
@@ -462,7 +495,7 @@
   ],
   "phrases": [
     {
-      "id": "7618136d-e7fb-4e10-b673-92586ccf8777",
+      "id": "186499b0-5f55-42bc-b7de-cb3b03b54831",
       "index": 1,
       "startTimeMs": 0,
       "endTimeMs": 19913,
@@ -474,7 +507,7 @@
       "claveSource": "DEFAULT"
     },
     {
-      "id": "bbed7549-0993-4042-92d7-9e890dac62f6",
+      "id": "2e649a66-6713-4372-b4be-54cdc9450f53",
       "index": 2,
       "startTimeMs": 19913,
       "endTimeMs": 29931,
@@ -486,7 +519,7 @@
       "claveSource": "DEFAULT"
     },
     {
-      "id": "6e35b1ee-1fc4-41b7-9e08-c9fd43ad60c7",
+      "id": "e0459d5a-bfb9-4e03-b6c4-2555233ed28c",
       "index": 3,
       "startTimeMs": 29931,
       "endTimeMs": 55215,
@@ -498,7 +531,7 @@
       "claveSource": "DEFAULT"
     },
     {
-      "id": "db926451-6dc8-47f8-82f2-3b631a15860f",
+      "id": "0468556a-655e-4b94-be74-b7116be6b236",
       "index": 4,
       "startTimeMs": 55215,
       "endTimeMs": 102878,
@@ -510,7 +543,7 @@
       "claveSource": "DEFAULT"
     },
     {
-      "id": "83862901-e5d0-4876-9be5-aecd52344285",
+      "id": "becb75c6-4d88-4724-882f-0a1591afe9a4",
       "index": 5,
       "startTimeMs": 102878,
       "endTimeMs": 111442,
@@ -522,7 +555,7 @@
       "claveSource": "DEFAULT"
     },
     {
-      "id": "0cdab608-2dc4-4e1d-9cfe-ede0b43c61d3",
+      "id": "20eb2fbb-5344-4c59-ad1c-c7dfaafadb8c",
       "index": 6,
       "startTimeMs": 111442,
       "endTimeMs": 146420,
@@ -534,9 +567,45 @@
       "claveSource": "DEFAULT"
     },
     {
-      "id": "ee94537d-de91-4c10-aab4-6e4bb1e1e340",
+      "id": "fe0841e4-b087-4ce4-be69-ea1b048e728c",
       "index": 7,
       "startTimeMs": 146420,
+      "endTimeMs": 190750,
+      "type": "NO_COUNT",
+      "events": [],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "edd82d98-74f9-49e4-a386-cbdba276459a",
+      "index": 8,
+      "startTimeMs": 190750,
+      "endTimeMs": 229330,
+      "type": "NO_COUNT",
+      "events": [],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "dded1ffd-ce4c-4b21-abca-89d4654b431e",
+      "index": 9,
+      "startTimeMs": 229330,
+      "endTimeMs": 280878,
+      "type": "NO_COUNT",
+      "events": [],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "9231d766-c783-4226-95e0-06e5cec7bb8d",
+      "index": 10,
+      "startTimeMs": 280878,
       "endTimeMs": 290920,
       "type": "NO_COUNT",
       "events": [],

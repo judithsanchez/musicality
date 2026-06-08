@@ -91,6 +91,92 @@ export default function DevCalibrator({
   }, [songData?.status]);
 
   useEffect(() => {
+    if (activeTab !== 3 || songData?.genre !== "SALSA") return;
+
+    const targetPhrases = phrases.filter(ph => 
+      (ph.type === "STANDARD_8_COUNT" || ph.type === "HALF_PHRASE_4_COUNT") && 
+      ph.claveDirection === "NOT_SET" &&
+      ph.claveSource === "DEFAULT"
+    );
+
+    if (targetPhrases.length === 0) return;
+
+    let active = true;
+
+    const inferAll = async () => {
+      for (const ph of targetPhrases) {
+        if (!active) break;
+        try {
+          const res = await fetch("/api/songs/infer-clave", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              youtubeId: songData.youtubeId,
+              startTimeMs: ph.startTimeMs,
+              endTimeMs: ph.endTimeMs
+            })
+          });
+          const result = await res.json();
+          if (active && result.success && result.claveDirection) {
+            setPhrases(prevPhrases => {
+              const newPhrases = prevPhrases.map(p => {
+                if (p.id === ph.id && p.claveSource === "DEFAULT") {
+                  return {
+                    ...p,
+                    claveDirection: result.claveDirection,
+                    claveIsVerified: false,
+                    claveSource: "AI"
+                  };
+                }
+                return p;
+              });
+              syncSongMapState(editorSections, newPhrases);
+              return newPhrases;
+            });
+          } else if (active) {
+            setPhrases(prevPhrases => {
+              const newPhrases = prevPhrases.map(p => {
+                if (p.id === ph.id && p.claveSource === "DEFAULT") {
+                  return {
+                    ...p,
+                    claveSource: "AI"
+                  };
+                }
+                return p;
+              });
+              syncSongMapState(editorSections, newPhrases);
+              return newPhrases;
+            });
+          }
+        } catch (err) {
+          console.error("Infer clave failed for phrase:", ph.id, err);
+          if (active) {
+            setPhrases(prevPhrases => {
+              const newPhrases = prevPhrases.map(p => {
+                if (p.id === ph.id && p.claveSource === "DEFAULT") {
+                  return {
+                    ...p,
+                    claveSource: "AI"
+                  };
+                }
+                return p;
+              });
+              syncSongMapState(editorSections, newPhrases);
+              return newPhrases;
+            });
+          }
+        }
+      }
+    };
+
+    inferAll();
+
+    return () => {
+      active = false;
+    };
+  }, [activeTab, phrases, songData?.genre, songData?.youtubeId, editorSections]);
+
+  useEffect(() => {
     if (!songData || duration <= 0) return;
 
     const activeSections = songData.sections || [];
@@ -296,42 +382,6 @@ export default function DevCalibrator({
       autoSaveSongMap(updated);
     }
 
-    if (songData.genre === "SALSA") {
-      allPhrases.forEach(ph => {
-        if ((ph.type === "STANDARD_8_COUNT" || ph.type === "HALF_PHRASE_4_COUNT") && ph.claveDirection === "NOT_SET") {
-          fetch("/api/songs/infer-clave", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              youtubeId: songData.youtubeId,
-              startTimeMs: ph.startTimeMs,
-              endTimeMs: ph.endTimeMs
-            })
-          })
-          .then(res => res.json())
-          .then(result => {
-            if (result.success && result.claveDirection) {
-              setPhrases(prevPhrases => {
-                const newPhrases = prevPhrases.map(p => {
-                  if (p.id === ph.id && p.claveSource === "DEFAULT") {
-                    return {
-                      ...p,
-                      claveDirection: result.claveDirection,
-                      claveIsVerified: false,
-                      claveSource: "AI"
-                    };
-                  }
-                  return p;
-                });
-                syncSongMapState(updatedSections, newPhrases);
-                return newPhrases;
-              });
-            }
-          })
-          .catch(err => console.error(err));
-        }
-      });
-    }
   };
 
   const handleTap = () => {
