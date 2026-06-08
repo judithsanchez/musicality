@@ -149,12 +149,13 @@ export function useSyncEngine(
 
         let closestBeat: any = null;
         let minDiff = Infinity;
+        const beatDuration = 60000.0 / (sData.baseBpm || 150.0);
 
         if (matchedPhrase?.calibratedBeats && matchedPhrase.calibratedBeats.length > 0) {
           for (let i = 0; i < matchedPhrase.calibratedBeats.length; i++) {
             const beat = matchedPhrase.calibratedBeats[i];
             const timeDiff = visualTimeMs - beat.timestampMs;
-            if (timeDiff >= -30 && timeDiff < 100) {
+            if (timeDiff >= -40 && timeDiff < beatDuration * 0.6) {
               const absDiff = Math.abs(timeDiff);
               if (absDiff < minDiff) {
                 minDiff = absDiff;
@@ -166,7 +167,7 @@ export function useSyncEngine(
           for (let i = 0; i < sData.absoluteBeatMap.length; i++) {
             const timestampMs = sData.absoluteBeatMap[i];
             const timeDiff = visualTimeMs - timestampMs;
-            if (timeDiff >= -30 && timeDiff < 100) {
+            if (timeDiff >= -40 && timeDiff < beatDuration * 0.6) {
               const absDiff = Math.abs(timeDiff);
               if (absDiff < minDiff) {
                 minDiff = absDiff;

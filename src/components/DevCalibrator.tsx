@@ -216,7 +216,7 @@ export default function DevCalibrator({
         const gapDur = tEnd - tStart;
         if (gapDur <= 0) continue;
 
-        const N = Math.max(1, Math.round(gapDur / beatIntervalMs));
+        const N = Math.max(4, Math.round(gapDur / (beatIntervalMs * 4)) * 4);
         const delta = gapDur / N;
 
         const phraseLengths: number[] = [];

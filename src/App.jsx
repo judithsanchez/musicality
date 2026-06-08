@@ -391,7 +391,7 @@ export default function App() {
     calibratedSongData || songData,
     null,
     false,
-    0,
+    userDelaySetting,
     0
   );
 
