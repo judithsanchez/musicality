@@ -116,15 +116,26 @@ export default function DevCalibrator({
       setEditorSections(sortedSections);
       setPhrases(activePhrases);
 
-      if (songData.consensusDownbeats && Array.isArray(songData.consensusDownbeats)) {
-        const sortedTaps = [...songData.consensusDownbeats].sort((a, b) => a - b);
-        setTappedDownbeats(sortedTaps);
+      const status = songData.status || "DRAFT_CUTTING";
+      if (status === "DRAFT_CUTTING" || status === "DRAFT_TAPPING") {
+        if (songData.downbeats && Array.isArray(songData.downbeats) && songData.downbeats.length > 0) {
+          const latestSession = songData.downbeats[songData.downbeats.length - 1];
+          const sortedTaps = [...(latestSession.rawDownbeats || [])].sort((a, b) => a - b);
+          setTappedDownbeats(sortedTaps);
+        } else {
+          setTappedDownbeats([]);
+        }
       } else {
-        const restoredDownbeats: number[] = [];
-        activePhrases.forEach((ph: any) => {
-          restoredDownbeats.push(ph.startTimeMs);
-        });
-        setTappedDownbeats(Array.from(new Set(restoredDownbeats)).sort((a, b) => a - b));
+        if (songData.consensusDownbeats && Array.isArray(songData.consensusDownbeats)) {
+          const sortedTaps = [...songData.consensusDownbeats].sort((a, b) => a - b);
+          setTappedDownbeats(sortedTaps);
+        } else {
+          const restoredDownbeats: number[] = [];
+          activePhrases.forEach((ph: any) => {
+            restoredDownbeats.push(ph.startTimeMs);
+          });
+          setTappedDownbeats(Array.from(new Set(restoredDownbeats)).sort((a, b) => a - b));
+        }
       }
 
       if (songData.downbeats && Array.isArray(songData.downbeats)) {
