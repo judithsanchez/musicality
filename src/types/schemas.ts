@@ -46,9 +46,12 @@ export const BachataInstrumentSchema = z.enum([
 
 export const ClaveDirectionSchema = z.enum(['2-3', '3-2', 'NOT_SET', 'NONE']);
 
+export const BeatTypeSchema = z.enum(['DOWNBEAT', 'NORMAL']);
+
 export const BeatSchema = z.object({
-  count: z.number().int().min(1),
-  timestampMs: z.number().int()
+  timestampMs: z.number().int(),
+  type: BeatTypeSchema,
+  count: z.number().int().optional()
 });
 
 export const DanceEventSchema = z.object({
@@ -65,7 +68,7 @@ export const BasePhraseSchema = z.object({
   startTimeMs: z.number().int(),
   endTimeMs: z.number().int(),
   type: z.enum(['STANDARD_8_COUNT', 'HALF_PHRASE_4_COUNT', 'TRANSITION_BREAK', 'NO_COUNT']),
-  calibratedBeats: z.array(BeatSchema).optional(),
+  beats: z.array(BeatSchema).optional(),
   events: z.array(DanceEventSchema)
 });
 
@@ -122,7 +125,6 @@ export const BaseSongMapSchema = z.object({
   genre: GenreSchema,
   status: z.enum(['DRAFT_CUTTING', 'DRAFT_TAPPING', 'DRAFT_LABELING', 'READY']).default('DRAFT_CUTTING'),
   baseBpm: z.number().positive(),
-  absoluteBeatMap: z.array(z.number().int()).optional(),
   rawTaps: z.array(z.number().int()).optional(),
   calibratedTaps: z.array(z.number().int()).optional(),
   rawTapsHistory: z.array(TapSessionSchema).optional(),
@@ -149,7 +151,9 @@ export const SongMapSchema = z.discriminatedUnion('genre', [
 
 export type Genre = z.infer<typeof GenreSchema>;
 export type ClaveDirection = z.infer<typeof ClaveDirectionSchema>;
+export type BeatType = z.infer<typeof BeatTypeSchema>;
 export type Beat = z.infer<typeof BeatSchema>;
+
 export type DanceEvent = z.infer<typeof DanceEventSchema>;
 export type BasePhrase = z.infer<typeof BasePhraseSchema>;
 export type BachataPhrase = z.infer<typeof BachataPhraseSchema>;
@@ -236,23 +240,7 @@ export const StrictSongMapSchema = SongMapSchema.superRefine((data, ctx) => {
       }
     }
 
-    if (!data.absoluteBeatMap || data.absoluteBeatMap.length === 0) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'absoluteBeatMap cannot be empty',
-        path: ['absoluteBeatMap'],
-      });
-    } else {
-      const lastBeatTime = data.absoluteBeatMap[data.absoluteBeatMap.length - 1];
-      const lastSection = sortedSections[sortedSections.length - 1];
-      if (lastSection.endTimeMs !== lastBeatTime) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: `Last section end time (${lastSection.endTimeMs}ms) must match the last beat in absoluteBeatMap (${lastBeatTime}ms)`,
-          path: ['sections', data.sections.findIndex(s => s.id === lastSection.id), 'endTimeMs'],
-        });
-      }
-    }
+
   }
 
   const phrasesMap = new Map(data.phrases.map(p => [p.id, p]));

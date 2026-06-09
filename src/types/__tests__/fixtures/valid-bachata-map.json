@@ -5,7 +5,6 @@
   "artist": "Bachata Artist",
   "genre": "BACHATA",
   "baseBpm": 130,
-  "absoluteBeatMap": [0, 461, 922, 1383, 1844],
   "schemaVersion": "2.0",
   "sections": [
     {

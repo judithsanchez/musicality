@@ -52,17 +52,6 @@ describe('StrictSongMapSchema Validation', () => {
       }
     });
 
-    it('should fail if the last section end time does not match the last beat time', () => {
-      const invalid = JSON.parse(JSON.stringify(validSalsaMap));
-      invalid.sections[1].endTimeMs = 2500; // last beat is at 2000
-      invalid.phrases[1].endTimeMs = 2500;
-      
-      const res = StrictSongMapSchema.safeParse(invalid);
-      expect(res.success).toBe(false);
-      if (!res.success) {
-        expect(res.error.issues.some(i => i.message.includes('must match the last beat in absoluteBeatMap'))).toBe(true);
-      }
-    });
   });
 
   describe('Phrase Contiguity & Boundary Checks', () => {
@@ -195,6 +184,27 @@ describe('StrictSongMapSchema Validation', () => {
     it('should fail for invalid status values', () => {
       const copy = JSON.parse(JSON.stringify(validSalsaMap));
       copy.status = 'INVALID_STATUS';
+      const res = StrictSongMapSchema.safeParse(copy);
+      expect(res.success).toBe(false);
+    });
+  });
+
+  describe('Phrase Beats Validation', () => {
+    it('should pass if a phrase contains valid beats', () => {
+      const copy = JSON.parse(JSON.stringify(validSalsaMap));
+      copy.phrases[0].beats = [
+        { timestampMs: 0, type: 'DOWNBEAT', count: 1 },
+        { timestampMs: 125, type: 'NORMAL', count: 2 }
+      ];
+      const res = StrictSongMapSchema.safeParse(copy);
+      expect(res.success).toBe(true);
+    });
+
+    it('should fail if a phrase contains a beat with an invalid type', () => {
+      const copy = JSON.parse(JSON.stringify(validSalsaMap));
+      copy.phrases[0].beats = [
+        { timestampMs: 0, type: 'INVALID_BEAT_TYPE', count: 1 }
+      ];
       const res = StrictSongMapSchema.safeParse(copy);
       expect(res.success).toBe(false);
     });
