@@ -142,11 +142,10 @@ export default function DevCalibrator({
 
   const autoSaveSongMap = (updatedData: any) => {
     setSaving(true);
-    const { absoluteBeatMap, ...saveData } = updatedData;
     fetch("/api/songs", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(saveData)
+      body: JSON.stringify(updatedData)
     })
     .then(r => r.json())
     .then(res => {
@@ -164,7 +163,6 @@ export default function DevCalibrator({
   const syncSongMapState = (
     sections: any[],
     phrasesList: any[],
-    absoluteBeatMap: number[],
     baseBpm?: number,
     rawTaps?: number[],
     rawTapsHistory?: any[],
@@ -174,7 +172,6 @@ export default function DevCalibrator({
       ...songData,
       sections,
       phrases: phrasesList,
-      absoluteBeatMap,
       ...(baseBpm !== undefined ? { baseBpm } : {}),
       ...(rawTaps !== undefined ? { rawTaps } : {}),
       ...(rawTapsHistory !== undefined ? { rawTapsHistory } : {}),
@@ -240,7 +237,6 @@ export default function DevCalibrator({
     const finalCalibratedTaps = Array.from(new Set(calculatedCalibratedTaps)).sort((a, b) => a - b);
 
     const allPhrases: any[] = [];
-    const allBeatTimes: number[] = [];
 
     const claveProps = songData.genre === "SALSA" ? {
       claveDirection: "NOT_SET",
@@ -262,14 +258,14 @@ export default function DevCalibrator({
       if (pDur <= 0) continue;
 
       const delta = pDur / 8;
-      const calibratedBeats = [];
+      const beats = [];
       for (let k = 0; k < 8; k++) {
         const beatTime = Math.round(pStart + k * delta);
-        calibratedBeats.push({
+        beats.push({
           count: k + 1,
-          timestampMs: beatTime
+          timestampMs: beatTime,
+          type: k === 0 ? "DOWNBEAT" : "NORMAL"
         });
-        allBeatTimes.push(beatTime);
       }
 
       const phraseId = crypto.randomUUID();
@@ -286,15 +282,13 @@ export default function DevCalibrator({
         endTimeMs: pEnd,
         type: "STANDARD_8_COUNT",
         genre: songData.genre,
-        calibratedBeats,
+        beats,
         events: [],
         ...claveProps
       });
     }
 
     if (updatedSections.length > 0) {
-      const lastSec = updatedSections[updatedSections.length - 1];
-      allBeatTimes.push(lastSec.endTimeMs);
     }
 
     allPhrases.forEach((ph, idx) => {
@@ -308,13 +302,12 @@ export default function DevCalibrator({
       ...songData,
       sections: updatedSections,
       phrases: allPhrases,
-      absoluteBeatMap: allBeatTimes,
       baseBpm: calculatedBpm,
       rawTaps: sortedTaps,
       calibratedTaps: finalCalibratedTaps,
       rawTapsHistory: tappedHistory
     };
-    syncSongMapState(updatedSections, allPhrases, allBeatTimes, calculatedBpm, sortedTaps, tappedHistory, finalCalibratedTaps);
+    syncSongMapState(updatedSections, allPhrases, calculatedBpm, sortedTaps, tappedHistory, finalCalibratedTaps);
 
     if (triggerAutoSave && songData.status === "DRAFT_CUTTING") {
       autoSaveSongMap(updated);

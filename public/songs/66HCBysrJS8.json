@@ -209,44 +209,52 @@
       "endTimeMs": 3319,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 0
-        },
-        {
-          "count": 2,
-          "timestampMs": 415
-        },
-        {
-          "count": 3,
-          "timestampMs": 830
-        },
-        {
-          "count": 4,
-          "timestampMs": 1245
-        },
-        {
-          "count": 5,
-          "timestampMs": 1660
-        },
-        {
-          "count": 6,
-          "timestampMs": 2074
-        },
-        {
-          "count": 7,
-          "timestampMs": 2489
-        },
-        {
-          "count": 8,
-          "timestampMs": 2904
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 0,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 415,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 830,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 1245,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 1660,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 2074,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 2489,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 2904,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "67c83a18-9623-48d8-8b42-fec394fa6929",
@@ -255,44 +263,52 @@
       "endTimeMs": 6638,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 3319
-        },
-        {
-          "count": 2,
-          "timestampMs": 3734
-        },
-        {
-          "count": 3,
-          "timestampMs": 4149
-        },
-        {
-          "count": 4,
-          "timestampMs": 4564
-        },
-        {
-          "count": 5,
-          "timestampMs": 4979
-        },
-        {
-          "count": 6,
-          "timestampMs": 5393
-        },
-        {
-          "count": 7,
-          "timestampMs": 5808
-        },
-        {
-          "count": 8,
-          "timestampMs": 6223
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 3319,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 3734,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 4149,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 4564,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 4979,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 5393,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 5808,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 6223,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "47a4ebe0-4ccf-40c9-9a32-9f9357fe398d",
@@ -301,44 +317,52 @@
       "endTimeMs": 9957,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 6638
-        },
-        {
-          "count": 2,
-          "timestampMs": 7053
-        },
-        {
-          "count": 3,
-          "timestampMs": 7468
-        },
-        {
-          "count": 4,
-          "timestampMs": 7883
-        },
-        {
-          "count": 5,
-          "timestampMs": 8298
-        },
-        {
-          "count": 6,
-          "timestampMs": 8712
-        },
-        {
-          "count": 7,
-          "timestampMs": 9127
-        },
-        {
-          "count": 8,
-          "timestampMs": 9542
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 6638,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 7053,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 7468,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 7883,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 8298,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 8712,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 9127,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 9542,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "9e534dc4-6c70-49a2-ab88-5a1d95667ad7",
@@ -347,44 +371,52 @@
       "endTimeMs": 13275,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 9957
-        },
-        {
-          "count": 2,
-          "timestampMs": 10372
-        },
-        {
-          "count": 3,
-          "timestampMs": 10787
-        },
-        {
-          "count": 4,
-          "timestampMs": 11201
-        },
-        {
-          "count": 5,
-          "timestampMs": 11616
-        },
-        {
-          "count": 6,
-          "timestampMs": 12031
-        },
-        {
-          "count": 7,
-          "timestampMs": 12446
-        },
-        {
-          "count": 8,
-          "timestampMs": 12860
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 9957,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 10372,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 10787,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 11201,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 11616,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 12031,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 12446,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 12860,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "e69ec3de-a171-4f1f-8d56-cc0e40758178",
@@ -393,44 +425,52 @@
       "endTimeMs": 16594,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 13275
-        },
-        {
-          "count": 2,
-          "timestampMs": 13690
-        },
-        {
-          "count": 3,
-          "timestampMs": 14105
-        },
-        {
-          "count": 4,
-          "timestampMs": 14520
-        },
-        {
-          "count": 5,
-          "timestampMs": 14935
-        },
-        {
-          "count": 6,
-          "timestampMs": 15349
-        },
-        {
-          "count": 7,
-          "timestampMs": 15764
-        },
-        {
-          "count": 8,
-          "timestampMs": 16179
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 13275,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 13690,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 14105,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 14520,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 14935,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 15349,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 15764,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 16179,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "1350bf3e-1354-4b61-a8d6-acc83e6c7085",
@@ -439,44 +479,52 @@
       "endTimeMs": 19913,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 16594
-        },
-        {
-          "count": 2,
-          "timestampMs": 17009
-        },
-        {
-          "count": 3,
-          "timestampMs": 17424
-        },
-        {
-          "count": 4,
-          "timestampMs": 17839
-        },
-        {
-          "count": 5,
-          "timestampMs": 18254
-        },
-        {
-          "count": 6,
-          "timestampMs": 18668
-        },
-        {
-          "count": 7,
-          "timestampMs": 19083
-        },
-        {
-          "count": 8,
-          "timestampMs": 19498
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 16594,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 17009,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 17424,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 17839,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 18254,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 18668,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 19083,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 19498,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "81d4886b-54a6-481c-aa67-f3a8719f307c",
@@ -485,44 +533,52 @@
       "endTimeMs": 23252,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 19913
-        },
-        {
-          "count": 2,
-          "timestampMs": 20330
-        },
-        {
-          "count": 3,
-          "timestampMs": 20748
-        },
-        {
-          "count": 4,
-          "timestampMs": 21165
-        },
-        {
-          "count": 5,
-          "timestampMs": 21583
-        },
-        {
-          "count": 6,
-          "timestampMs": 22000
-        },
-        {
-          "count": 7,
-          "timestampMs": 22417
-        },
-        {
-          "count": 8,
-          "timestampMs": 22835
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 19913,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 20330,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 20748,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 21165,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 21583,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 22000,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 22417,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 22835,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "75293477-da43-409e-9140-59078c504635",
@@ -531,44 +587,52 @@
       "endTimeMs": 26592,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 23252
-        },
-        {
-          "count": 2,
-          "timestampMs": 23670
-        },
-        {
-          "count": 3,
-          "timestampMs": 24087
-        },
-        {
-          "count": 4,
-          "timestampMs": 24505
-        },
-        {
-          "count": 5,
-          "timestampMs": 24922
-        },
-        {
-          "count": 6,
-          "timestampMs": 25340
-        },
-        {
-          "count": 7,
-          "timestampMs": 25757
-        },
-        {
-          "count": 8,
-          "timestampMs": 26175
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 23252,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 23670,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 24087,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 24505,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 24922,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 25340,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 25757,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 26175,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "654e5917-7cd7-4e49-8b7e-48e8cb243669",
@@ -577,44 +641,52 @@
       "endTimeMs": 29931,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 26592
-        },
-        {
-          "count": 2,
-          "timestampMs": 27009
-        },
-        {
-          "count": 3,
-          "timestampMs": 27427
-        },
-        {
-          "count": 4,
-          "timestampMs": 27844
-        },
-        {
-          "count": 5,
-          "timestampMs": 28262
-        },
-        {
-          "count": 6,
-          "timestampMs": 28679
-        },
-        {
-          "count": 7,
-          "timestampMs": 29096
-        },
-        {
-          "count": 8,
-          "timestampMs": 29514
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 26592,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 27009,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 27427,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 27844,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 28262,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 28679,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 29096,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 29514,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "6a0de08f-ab3c-41bc-bd81-0f925816a8fe",
@@ -623,44 +695,52 @@
       "endTimeMs": 33092,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 29931
-        },
-        {
-          "count": 2,
-          "timestampMs": 30326
-        },
-        {
-          "count": 3,
-          "timestampMs": 30721
-        },
-        {
-          "count": 4,
-          "timestampMs": 31116
-        },
-        {
-          "count": 5,
-          "timestampMs": 31512
-        },
-        {
-          "count": 6,
-          "timestampMs": 31907
-        },
-        {
-          "count": 7,
-          "timestampMs": 32302
-        },
-        {
-          "count": 8,
-          "timestampMs": 32697
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 29931,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 30326,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 30721,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 31116,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 31512,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 31907,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 32302,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 32697,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "825fae89-8e00-416d-9174-57748c49d86b",
@@ -669,44 +749,52 @@
       "endTimeMs": 36252,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 33092
-        },
-        {
-          "count": 2,
-          "timestampMs": 33487
-        },
-        {
-          "count": 3,
-          "timestampMs": 33882
-        },
-        {
-          "count": 4,
-          "timestampMs": 34277
-        },
-        {
-          "count": 5,
-          "timestampMs": 34672
-        },
-        {
-          "count": 6,
-          "timestampMs": 35067
-        },
-        {
-          "count": 7,
-          "timestampMs": 35462
-        },
-        {
-          "count": 8,
-          "timestampMs": 35857
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 33092,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 33487,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 33882,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 34277,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 34672,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 35067,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 35462,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 35857,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "6a581e78-c2c9-447a-953e-415014026b87",
@@ -715,44 +803,52 @@
       "endTimeMs": 39413,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 36252
-        },
-        {
-          "count": 2,
-          "timestampMs": 36647
-        },
-        {
-          "count": 3,
-          "timestampMs": 37042
-        },
-        {
-          "count": 4,
-          "timestampMs": 37437
-        },
-        {
-          "count": 5,
-          "timestampMs": 37833
-        },
-        {
-          "count": 6,
-          "timestampMs": 38228
-        },
-        {
-          "count": 7,
-          "timestampMs": 38623
-        },
-        {
-          "count": 8,
-          "timestampMs": 39018
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 36252,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 36647,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 37042,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 37437,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 37833,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 38228,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 38623,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 39018,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "7d82aaba-ec61-466f-89fb-b307220d2eda",
@@ -761,44 +857,52 @@
       "endTimeMs": 42573,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 39413
-        },
-        {
-          "count": 2,
-          "timestampMs": 39808
-        },
-        {
-          "count": 3,
-          "timestampMs": 40203
-        },
-        {
-          "count": 4,
-          "timestampMs": 40598
-        },
-        {
-          "count": 5,
-          "timestampMs": 40993
-        },
-        {
-          "count": 6,
-          "timestampMs": 41388
-        },
-        {
-          "count": 7,
-          "timestampMs": 41783
-        },
-        {
-          "count": 8,
-          "timestampMs": 42178
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 39413,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 39808,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 40203,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 40598,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 40993,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 41388,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 41783,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 42178,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "d99fa219-6fa7-42db-a819-d369ef17ab81",
@@ -807,44 +911,52 @@
       "endTimeMs": 45734,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 42573
-        },
-        {
-          "count": 2,
-          "timestampMs": 42968
-        },
-        {
-          "count": 3,
-          "timestampMs": 43363
-        },
-        {
-          "count": 4,
-          "timestampMs": 43758
-        },
-        {
-          "count": 5,
-          "timestampMs": 44154
-        },
-        {
-          "count": 6,
-          "timestampMs": 44549
-        },
-        {
-          "count": 7,
-          "timestampMs": 44944
-        },
-        {
-          "count": 8,
-          "timestampMs": 45339
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 42573,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 42968,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 43363,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 43758,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 44154,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 44549,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 44944,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 45339,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "0779e4bd-bca5-452f-887c-808a80d9f130",
@@ -853,44 +965,52 @@
       "endTimeMs": 48894,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 45734
-        },
-        {
-          "count": 2,
-          "timestampMs": 46129
-        },
-        {
-          "count": 3,
-          "timestampMs": 46524
-        },
-        {
-          "count": 4,
-          "timestampMs": 46919
-        },
-        {
-          "count": 5,
-          "timestampMs": 47314
-        },
-        {
-          "count": 6,
-          "timestampMs": 47709
-        },
-        {
-          "count": 7,
-          "timestampMs": 48104
-        },
-        {
-          "count": 8,
-          "timestampMs": 48499
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 45734,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 46129,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 46524,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 46919,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 47314,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 47709,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 48104,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 48499,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "9cd3244c-2d13-432d-b080-8a385744974c",
@@ -899,44 +1019,52 @@
       "endTimeMs": 52055,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 48894
-        },
-        {
-          "count": 2,
-          "timestampMs": 49289
-        },
-        {
-          "count": 3,
-          "timestampMs": 49684
-        },
-        {
-          "count": 4,
-          "timestampMs": 50079
-        },
-        {
-          "count": 5,
-          "timestampMs": 50475
-        },
-        {
-          "count": 6,
-          "timestampMs": 50870
-        },
-        {
-          "count": 7,
-          "timestampMs": 51265
-        },
-        {
-          "count": 8,
-          "timestampMs": 51660
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 48894,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 49289,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 49684,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 50079,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 50475,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 50870,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 51265,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 51660,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "adb0a45a-96a3-401e-9bf3-2f90d64495b6",
@@ -945,44 +1073,52 @@
       "endTimeMs": 55215,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 52055
-        },
-        {
-          "count": 2,
-          "timestampMs": 52450
-        },
-        {
-          "count": 3,
-          "timestampMs": 52845
-        },
-        {
-          "count": 4,
-          "timestampMs": 53240
-        },
-        {
-          "count": 5,
-          "timestampMs": 53635
-        },
-        {
-          "count": 6,
-          "timestampMs": 54030
-        },
-        {
-          "count": 7,
-          "timestampMs": 54425
-        },
-        {
-          "count": 8,
-          "timestampMs": 54820
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 52055,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 52450,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 52845,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 53240,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 53635,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 54030,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 54425,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 54820,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "c45ce7c2-5bd1-475a-bb7f-ad4bd87aa46c",
@@ -991,44 +1127,52 @@
       "endTimeMs": 58393,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 55215
-        },
-        {
-          "count": 2,
-          "timestampMs": 55612
-        },
-        {
-          "count": 3,
-          "timestampMs": 56010
-        },
-        {
-          "count": 4,
-          "timestampMs": 56407
-        },
-        {
-          "count": 5,
-          "timestampMs": 56804
-        },
-        {
-          "count": 6,
-          "timestampMs": 57201
-        },
-        {
-          "count": 7,
-          "timestampMs": 57599
-        },
-        {
-          "count": 8,
-          "timestampMs": 57996
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 55215,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 55612,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 56010,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 56407,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 56804,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 57201,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 57599,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 57996,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "b075aa50-735d-4bfc-990c-c15c0144c32c",
@@ -1037,44 +1181,52 @@
       "endTimeMs": 61570,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 58393
-        },
-        {
-          "count": 2,
-          "timestampMs": 58790
-        },
-        {
-          "count": 3,
-          "timestampMs": 59187
-        },
-        {
-          "count": 4,
-          "timestampMs": 59584
-        },
-        {
-          "count": 5,
-          "timestampMs": 59982
-        },
-        {
-          "count": 6,
-          "timestampMs": 60379
-        },
-        {
-          "count": 7,
-          "timestampMs": 60776
-        },
-        {
-          "count": 8,
-          "timestampMs": 61173
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 58393,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 58790,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 59187,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 59584,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 59982,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 60379,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 60776,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 61173,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "914ab1fe-e787-4af8-8ca5-b125a67d8600",
@@ -1083,44 +1235,52 @@
       "endTimeMs": 64748,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 61570
-        },
-        {
-          "count": 2,
-          "timestampMs": 61967
-        },
-        {
-          "count": 3,
-          "timestampMs": 62365
-        },
-        {
-          "count": 4,
-          "timestampMs": 62762
-        },
-        {
-          "count": 5,
-          "timestampMs": 63159
-        },
-        {
-          "count": 6,
-          "timestampMs": 63556
-        },
-        {
-          "count": 7,
-          "timestampMs": 63954
-        },
-        {
-          "count": 8,
-          "timestampMs": 64351
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 61570,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 61967,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 62365,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 62762,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 63159,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 63556,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 63954,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 64351,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "c4c76eef-5b1b-4176-8632-8b501bb1a1d1",
@@ -1129,44 +1289,52 @@
       "endTimeMs": 67925,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 64748
-        },
-        {
-          "count": 2,
-          "timestampMs": 65145
-        },
-        {
-          "count": 3,
-          "timestampMs": 65542
-        },
-        {
-          "count": 4,
-          "timestampMs": 65939
-        },
-        {
-          "count": 5,
-          "timestampMs": 66337
-        },
-        {
-          "count": 6,
-          "timestampMs": 66734
-        },
-        {
-          "count": 7,
-          "timestampMs": 67131
-        },
-        {
-          "count": 8,
-          "timestampMs": 67528
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 64748,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 65145,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 65542,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 65939,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 66337,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 66734,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 67131,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 67528,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "342a3265-7cd9-4bcb-801b-cab7888e0adf",
@@ -1175,44 +1343,52 @@
       "endTimeMs": 71103,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 67925
-        },
-        {
-          "count": 2,
-          "timestampMs": 68322
-        },
-        {
-          "count": 3,
-          "timestampMs": 68720
-        },
-        {
-          "count": 4,
-          "timestampMs": 69117
-        },
-        {
-          "count": 5,
-          "timestampMs": 69514
-        },
-        {
-          "count": 6,
-          "timestampMs": 69911
-        },
-        {
-          "count": 7,
-          "timestampMs": 70309
-        },
-        {
-          "count": 8,
-          "timestampMs": 70706
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 67925,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 68322,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 68720,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 69117,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 69514,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 69911,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 70309,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 70706,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "2b714ec2-6a9b-452f-ab20-faacd5ca27a8",
@@ -1221,44 +1397,52 @@
       "endTimeMs": 74280,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 71103
-        },
-        {
-          "count": 2,
-          "timestampMs": 71500
-        },
-        {
-          "count": 3,
-          "timestampMs": 71897
-        },
-        {
-          "count": 4,
-          "timestampMs": 72294
-        },
-        {
-          "count": 5,
-          "timestampMs": 72692
-        },
-        {
-          "count": 6,
-          "timestampMs": 73089
-        },
-        {
-          "count": 7,
-          "timestampMs": 73486
-        },
-        {
-          "count": 8,
-          "timestampMs": 73883
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 71103,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 71500,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 71897,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 72294,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 72692,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 73089,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 73486,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 73883,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "9299c123-5b92-43f4-9e13-c58801144326",
@@ -1267,44 +1451,52 @@
       "endTimeMs": 77458,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 74280
-        },
-        {
-          "count": 2,
-          "timestampMs": 74677
-        },
-        {
-          "count": 3,
-          "timestampMs": 75075
-        },
-        {
-          "count": 4,
-          "timestampMs": 75472
-        },
-        {
-          "count": 5,
-          "timestampMs": 75869
-        },
-        {
-          "count": 6,
-          "timestampMs": 76266
-        },
-        {
-          "count": 7,
-          "timestampMs": 76664
-        },
-        {
-          "count": 8,
-          "timestampMs": 77061
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 74280,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 74677,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 75075,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 75472,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 75869,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 76266,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 76664,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 77061,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "e8f80703-ffae-4c36-9225-0fe9790efd23",
@@ -1313,44 +1505,52 @@
       "endTimeMs": 80635,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 77458
-        },
-        {
-          "count": 2,
-          "timestampMs": 77855
-        },
-        {
-          "count": 3,
-          "timestampMs": 78252
-        },
-        {
-          "count": 4,
-          "timestampMs": 78649
-        },
-        {
-          "count": 5,
-          "timestampMs": 79047
-        },
-        {
-          "count": 6,
-          "timestampMs": 79444
-        },
-        {
-          "count": 7,
-          "timestampMs": 79841
-        },
-        {
-          "count": 8,
-          "timestampMs": 80238
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 77458,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 77855,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 78252,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 78649,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 79047,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 79444,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 79841,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 80238,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "f043d959-a58f-4484-8791-f66643b5cd10",
@@ -1359,44 +1559,52 @@
       "endTimeMs": 83813,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 80635
-        },
-        {
-          "count": 2,
-          "timestampMs": 81032
-        },
-        {
-          "count": 3,
-          "timestampMs": 81430
-        },
-        {
-          "count": 4,
-          "timestampMs": 81827
-        },
-        {
-          "count": 5,
-          "timestampMs": 82224
-        },
-        {
-          "count": 6,
-          "timestampMs": 82621
-        },
-        {
-          "count": 7,
-          "timestampMs": 83019
-        },
-        {
-          "count": 8,
-          "timestampMs": 83416
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 80635,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 81032,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 81430,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 81827,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 82224,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 82621,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 83019,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 83416,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "ed187db7-edc4-441a-98d2-a10f6a284716",
@@ -1405,44 +1613,52 @@
       "endTimeMs": 86990,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 83813
-        },
-        {
-          "count": 2,
-          "timestampMs": 84210
-        },
-        {
-          "count": 3,
-          "timestampMs": 84607
-        },
-        {
-          "count": 4,
-          "timestampMs": 85004
-        },
-        {
-          "count": 5,
-          "timestampMs": 85402
-        },
-        {
-          "count": 6,
-          "timestampMs": 85799
-        },
-        {
-          "count": 7,
-          "timestampMs": 86196
-        },
-        {
-          "count": 8,
-          "timestampMs": 86593
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 83813,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 84210,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 84607,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 85004,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 85402,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 85799,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 86196,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 86593,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "f58afa29-bf43-4675-9f29-1da624c18fc7",
@@ -1451,44 +1667,52 @@
       "endTimeMs": 90168,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 86990
-        },
-        {
-          "count": 2,
-          "timestampMs": 87387
-        },
-        {
-          "count": 3,
-          "timestampMs": 87785
-        },
-        {
-          "count": 4,
-          "timestampMs": 88182
-        },
-        {
-          "count": 5,
-          "timestampMs": 88579
-        },
-        {
-          "count": 6,
-          "timestampMs": 88976
-        },
-        {
-          "count": 7,
-          "timestampMs": 89374
-        },
-        {
-          "count": 8,
-          "timestampMs": 89771
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 86990,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 87387,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 87785,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 88182,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 88579,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 88976,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 89374,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 89771,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "1ddd3877-1311-468c-9bf3-a050a523451f",
@@ -1497,44 +1721,52 @@
       "endTimeMs": 93345,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 90168
-        },
-        {
-          "count": 2,
-          "timestampMs": 90565
-        },
-        {
-          "count": 3,
-          "timestampMs": 90962
-        },
-        {
-          "count": 4,
-          "timestampMs": 91359
-        },
-        {
-          "count": 5,
-          "timestampMs": 91757
-        },
-        {
-          "count": 6,
-          "timestampMs": 92154
-        },
-        {
-          "count": 7,
-          "timestampMs": 92551
-        },
-        {
-          "count": 8,
-          "timestampMs": 92948
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 90168,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 90565,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 90962,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 91359,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 91757,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 92154,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 92551,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 92948,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "48bf9f8e-727b-4fcf-81f9-5897d2d02c72",
@@ -1543,44 +1775,52 @@
       "endTimeMs": 96523,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 93345
-        },
-        {
-          "count": 2,
-          "timestampMs": 93742
-        },
-        {
-          "count": 3,
-          "timestampMs": 94140
-        },
-        {
-          "count": 4,
-          "timestampMs": 94537
-        },
-        {
-          "count": 5,
-          "timestampMs": 94934
-        },
-        {
-          "count": 6,
-          "timestampMs": 95331
-        },
-        {
-          "count": 7,
-          "timestampMs": 95729
-        },
-        {
-          "count": 8,
-          "timestampMs": 96126
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 93345,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 93742,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 94140,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 94537,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 94934,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 95331,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 95729,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 96126,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "8467c20d-9840-467b-9524-ff229cd39234",
@@ -1589,44 +1829,52 @@
       "endTimeMs": 99700,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 96523
-        },
-        {
-          "count": 2,
-          "timestampMs": 96920
-        },
-        {
-          "count": 3,
-          "timestampMs": 97317
-        },
-        {
-          "count": 4,
-          "timestampMs": 97714
-        },
-        {
-          "count": 5,
-          "timestampMs": 98112
-        },
-        {
-          "count": 6,
-          "timestampMs": 98509
-        },
-        {
-          "count": 7,
-          "timestampMs": 98906
-        },
-        {
-          "count": 8,
-          "timestampMs": 99303
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 96523,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 96920,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 97317,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 97714,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 98112,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 98509,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 98906,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 99303,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "4f124668-6213-4a81-b3db-912c688b24aa",
@@ -1635,44 +1883,52 @@
       "endTimeMs": 102878,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 99700
-        },
-        {
-          "count": 2,
-          "timestampMs": 100097
-        },
-        {
-          "count": 3,
-          "timestampMs": 100495
-        },
-        {
-          "count": 4,
-          "timestampMs": 100892
-        },
-        {
-          "count": 5,
-          "timestampMs": 101289
-        },
-        {
-          "count": 6,
-          "timestampMs": 101686
-        },
-        {
-          "count": 7,
-          "timestampMs": 102084
-        },
-        {
-          "count": 8,
-          "timestampMs": 102481
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 99700,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 100097,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 100495,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 100892,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 101289,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 101686,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 102084,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 102481,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "8933a968-1cef-4d0f-9e35-b81c83dd5929",
@@ -1681,44 +1937,52 @@
       "endTimeMs": 105733,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 102878
-        },
-        {
-          "count": 2,
-          "timestampMs": 103235
-        },
-        {
-          "count": 3,
-          "timestampMs": 103592
-        },
-        {
-          "count": 4,
-          "timestampMs": 103949
-        },
-        {
-          "count": 5,
-          "timestampMs": 104306
-        },
-        {
-          "count": 6,
-          "timestampMs": 104662
-        },
-        {
-          "count": 7,
-          "timestampMs": 105019
-        },
-        {
-          "count": 8,
-          "timestampMs": 105376
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 102878,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 103235,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 103592,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 103949,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 104306,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 104662,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 105019,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 105376,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "6a45ffe7-23bd-44aa-ba4a-b75d665d0364",
@@ -1727,44 +1991,52 @@
       "endTimeMs": 108587,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 105733
-        },
-        {
-          "count": 2,
-          "timestampMs": 106090
-        },
-        {
-          "count": 3,
-          "timestampMs": 106447
-        },
-        {
-          "count": 4,
-          "timestampMs": 106803
-        },
-        {
-          "count": 5,
-          "timestampMs": 107160
-        },
-        {
-          "count": 6,
-          "timestampMs": 107517
-        },
-        {
-          "count": 7,
-          "timestampMs": 107874
-        },
-        {
-          "count": 8,
-          "timestampMs": 108230
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 105733,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 106090,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 106447,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 106803,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 107160,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 107517,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 107874,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 108230,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "44199830-6bf3-4835-9ffb-018b14830f44",
@@ -1773,44 +2045,52 @@
       "endTimeMs": 111442,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 108587
-        },
-        {
-          "count": 2,
-          "timestampMs": 108944
-        },
-        {
-          "count": 3,
-          "timestampMs": 109301
-        },
-        {
-          "count": 4,
-          "timestampMs": 109658
-        },
-        {
-          "count": 5,
-          "timestampMs": 110015
-        },
-        {
-          "count": 6,
-          "timestampMs": 110371
-        },
-        {
-          "count": 7,
-          "timestampMs": 110728
-        },
-        {
-          "count": 8,
-          "timestampMs": 111085
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 108587,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 108944,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 109301,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 109658,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 110015,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 110371,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 110728,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 111085,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "16421c21-467a-48c2-a67d-ce2d8c3856e1",
@@ -1819,44 +2099,52 @@
       "endTimeMs": 114622,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 111442
-        },
-        {
-          "count": 2,
-          "timestampMs": 111840
-        },
-        {
-          "count": 3,
-          "timestampMs": 112237
-        },
-        {
-          "count": 4,
-          "timestampMs": 112635
-        },
-        {
-          "count": 5,
-          "timestampMs": 113032
-        },
-        {
-          "count": 6,
-          "timestampMs": 113430
-        },
-        {
-          "count": 7,
-          "timestampMs": 113827
-        },
-        {
-          "count": 8,
-          "timestampMs": 114225
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 111442,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 111840,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 112237,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 112635,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 113032,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 113430,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 113827,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 114225,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "b942dee3-d61f-4883-be32-11d66206826a",
@@ -1865,44 +2153,52 @@
       "endTimeMs": 117802,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 114622
-        },
-        {
-          "count": 2,
-          "timestampMs": 115020
-        },
-        {
-          "count": 3,
-          "timestampMs": 115417
-        },
-        {
-          "count": 4,
-          "timestampMs": 115815
-        },
-        {
-          "count": 5,
-          "timestampMs": 116212
-        },
-        {
-          "count": 6,
-          "timestampMs": 116610
-        },
-        {
-          "count": 7,
-          "timestampMs": 117007
-        },
-        {
-          "count": 8,
-          "timestampMs": 117405
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 114622,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 115020,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 115417,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 115815,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 116212,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 116610,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 117007,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 117405,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "7c5a45f5-2f27-410f-9211-860867562013",
@@ -1911,44 +2207,52 @@
       "endTimeMs": 120981,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 117802
-        },
-        {
-          "count": 2,
-          "timestampMs": 118199
-        },
-        {
-          "count": 3,
-          "timestampMs": 118597
-        },
-        {
-          "count": 4,
-          "timestampMs": 118994
-        },
-        {
-          "count": 5,
-          "timestampMs": 119392
-        },
-        {
-          "count": 6,
-          "timestampMs": 119789
-        },
-        {
-          "count": 7,
-          "timestampMs": 120186
-        },
-        {
-          "count": 8,
-          "timestampMs": 120584
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 117802,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 118199,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 118597,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 118994,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 119392,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 119789,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 120186,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 120584,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "eb869867-6c20-4b39-951d-aae60bed76ca",
@@ -1957,44 +2261,52 @@
       "endTimeMs": 124161,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 120981
-        },
-        {
-          "count": 2,
-          "timestampMs": 121379
-        },
-        {
-          "count": 3,
-          "timestampMs": 121776
-        },
-        {
-          "count": 4,
-          "timestampMs": 122174
-        },
-        {
-          "count": 5,
-          "timestampMs": 122571
-        },
-        {
-          "count": 6,
-          "timestampMs": 122969
-        },
-        {
-          "count": 7,
-          "timestampMs": 123366
-        },
-        {
-          "count": 8,
-          "timestampMs": 123764
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 120981,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 121379,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 121776,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 122174,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 122571,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 122969,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 123366,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 123764,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "84f2f656-18d5-4df2-8a70-5438ba294514",
@@ -2003,44 +2315,52 @@
       "endTimeMs": 127341,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 124161
-        },
-        {
-          "count": 2,
-          "timestampMs": 124559
-        },
-        {
-          "count": 3,
-          "timestampMs": 124956
-        },
-        {
-          "count": 4,
-          "timestampMs": 125354
-        },
-        {
-          "count": 5,
-          "timestampMs": 125751
-        },
-        {
-          "count": 6,
-          "timestampMs": 126149
-        },
-        {
-          "count": 7,
-          "timestampMs": 126546
-        },
-        {
-          "count": 8,
-          "timestampMs": 126944
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 124161,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 124559,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 124956,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 125354,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 125751,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 126149,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 126546,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 126944,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "ad8330c7-3e4b-4458-997d-fa4b784052b0",
@@ -2049,44 +2369,52 @@
       "endTimeMs": 130521,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 127341
-        },
-        {
-          "count": 2,
-          "timestampMs": 127739
-        },
-        {
-          "count": 3,
-          "timestampMs": 128136
-        },
-        {
-          "count": 4,
-          "timestampMs": 128534
-        },
-        {
-          "count": 5,
-          "timestampMs": 128931
-        },
-        {
-          "count": 6,
-          "timestampMs": 129329
-        },
-        {
-          "count": 7,
-          "timestampMs": 129726
-        },
-        {
-          "count": 8,
-          "timestampMs": 130124
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 127341,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 127739,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 128136,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 128534,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 128931,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 129329,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 129726,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 130124,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "2ca3e93b-73fd-422c-8408-4f316e54ca0f",
@@ -2095,44 +2423,52 @@
       "endTimeMs": 133701,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 130521
-        },
-        {
-          "count": 2,
-          "timestampMs": 130919
-        },
-        {
-          "count": 3,
-          "timestampMs": 131316
-        },
-        {
-          "count": 4,
-          "timestampMs": 131714
-        },
-        {
-          "count": 5,
-          "timestampMs": 132111
-        },
-        {
-          "count": 6,
-          "timestampMs": 132509
-        },
-        {
-          "count": 7,
-          "timestampMs": 132906
-        },
-        {
-          "count": 8,
-          "timestampMs": 133304
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 130521,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 130919,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 131316,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 131714,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 132111,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 132509,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 132906,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 133304,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "d5f06882-d30c-4a51-9ce7-d10ae2dd3fc2",
@@ -2141,44 +2477,52 @@
       "endTimeMs": 136881,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 133701
-        },
-        {
-          "count": 2,
-          "timestampMs": 134099
-        },
-        {
-          "count": 3,
-          "timestampMs": 134496
-        },
-        {
-          "count": 4,
-          "timestampMs": 134894
-        },
-        {
-          "count": 5,
-          "timestampMs": 135291
-        },
-        {
-          "count": 6,
-          "timestampMs": 135689
-        },
-        {
-          "count": 7,
-          "timestampMs": 136086
-        },
-        {
-          "count": 8,
-          "timestampMs": 136484
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 133701,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 134099,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 134496,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 134894,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 135291,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 135689,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 136086,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 136484,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "fb90387a-021a-457b-bd48-b996bc72659f",
@@ -2187,44 +2531,52 @@
       "endTimeMs": 140060,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 136881
-        },
-        {
-          "count": 2,
-          "timestampMs": 137278
-        },
-        {
-          "count": 3,
-          "timestampMs": 137676
-        },
-        {
-          "count": 4,
-          "timestampMs": 138073
-        },
-        {
-          "count": 5,
-          "timestampMs": 138471
-        },
-        {
-          "count": 6,
-          "timestampMs": 138868
-        },
-        {
-          "count": 7,
-          "timestampMs": 139265
-        },
-        {
-          "count": 8,
-          "timestampMs": 139663
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 136881,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 137278,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 137676,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 138073,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 138471,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 138868,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 139265,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 139663,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "b9aa1f9f-0b22-49bd-abd0-e5eae19dd4c2",
@@ -2233,44 +2585,52 @@
       "endTimeMs": 143240,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 140060
-        },
-        {
-          "count": 2,
-          "timestampMs": 140458
-        },
-        {
-          "count": 3,
-          "timestampMs": 140855
-        },
-        {
-          "count": 4,
-          "timestampMs": 141253
-        },
-        {
-          "count": 5,
-          "timestampMs": 141650
-        },
-        {
-          "count": 6,
-          "timestampMs": 142048
-        },
-        {
-          "count": 7,
-          "timestampMs": 142445
-        },
-        {
-          "count": 8,
-          "timestampMs": 142843
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 140060,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 140458,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 140855,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 141253,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 141650,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 142048,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 142445,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 142843,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "5ef441aa-a081-4633-8e33-8c141f7dd495",
@@ -2279,44 +2639,52 @@
       "endTimeMs": 146420,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 143240
-        },
-        {
-          "count": 2,
-          "timestampMs": 143638
-        },
-        {
-          "count": 3,
-          "timestampMs": 144035
-        },
-        {
-          "count": 4,
-          "timestampMs": 144433
-        },
-        {
-          "count": 5,
-          "timestampMs": 144830
-        },
-        {
-          "count": 6,
-          "timestampMs": 145228
-        },
-        {
-          "count": 7,
-          "timestampMs": 145625
-        },
-        {
-          "count": 8,
-          "timestampMs": 146023
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 143240,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 143638,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 144035,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 144433,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 144830,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 145228,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 145625,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 146023,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "25165e6d-838c-4ba9-b49b-3d3e23b9ca49",
@@ -2325,44 +2693,52 @@
       "endTimeMs": 149586,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 146420
-        },
-        {
-          "count": 2,
-          "timestampMs": 146816
-        },
-        {
-          "count": 3,
-          "timestampMs": 147212
-        },
-        {
-          "count": 4,
-          "timestampMs": 147607
-        },
-        {
-          "count": 5,
-          "timestampMs": 148003
-        },
-        {
-          "count": 6,
-          "timestampMs": 148399
-        },
-        {
-          "count": 7,
-          "timestampMs": 148795
-        },
-        {
-          "count": 8,
-          "timestampMs": 149190
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 146420,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 146816,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 147212,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 147607,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 148003,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 148399,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 148795,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 149190,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "d4560800-af06-44ca-b2d4-b22732857e0b",
@@ -2371,44 +2747,52 @@
       "endTimeMs": 152753,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 149586
-        },
-        {
-          "count": 2,
-          "timestampMs": 149982
-        },
-        {
-          "count": 3,
-          "timestampMs": 150378
-        },
-        {
-          "count": 4,
-          "timestampMs": 150774
-        },
-        {
-          "count": 5,
-          "timestampMs": 151170
-        },
-        {
-          "count": 6,
-          "timestampMs": 151565
-        },
-        {
-          "count": 7,
-          "timestampMs": 151961
-        },
-        {
-          "count": 8,
-          "timestampMs": 152357
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 149586,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 149982,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 150378,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 150774,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 151170,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 151565,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 151961,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 152357,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "19773a80-25f3-4f00-b256-955826189786",
@@ -2417,44 +2801,52 @@
       "endTimeMs": 155919,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 152753
-        },
-        {
-          "count": 2,
-          "timestampMs": 153149
-        },
-        {
-          "count": 3,
-          "timestampMs": 153545
-        },
-        {
-          "count": 4,
-          "timestampMs": 153940
-        },
-        {
-          "count": 5,
-          "timestampMs": 154336
-        },
-        {
-          "count": 6,
-          "timestampMs": 154732
-        },
-        {
-          "count": 7,
-          "timestampMs": 155128
-        },
-        {
-          "count": 8,
-          "timestampMs": 155523
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 152753,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 153149,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 153545,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 153940,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 154336,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 154732,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 155128,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 155523,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "3f9415bf-2575-4cfb-aa9b-e6194b613dcd",
@@ -2463,44 +2855,52 @@
       "endTimeMs": 159086,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 155919
-        },
-        {
-          "count": 2,
-          "timestampMs": 156315
-        },
-        {
-          "count": 3,
-          "timestampMs": 156711
-        },
-        {
-          "count": 4,
-          "timestampMs": 157107
-        },
-        {
-          "count": 5,
-          "timestampMs": 157503
-        },
-        {
-          "count": 6,
-          "timestampMs": 157898
-        },
-        {
-          "count": 7,
-          "timestampMs": 158294
-        },
-        {
-          "count": 8,
-          "timestampMs": 158690
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 155919,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 156315,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 156711,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 157107,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 157503,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 157898,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 158294,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 158690,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "e86bbe14-7bb5-44b3-ab68-fa046735d1c6",
@@ -2509,44 +2909,52 @@
       "endTimeMs": 162252,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 159086
-        },
-        {
-          "count": 2,
-          "timestampMs": 159482
-        },
-        {
-          "count": 3,
-          "timestampMs": 159878
-        },
-        {
-          "count": 4,
-          "timestampMs": 160273
-        },
-        {
-          "count": 5,
-          "timestampMs": 160669
-        },
-        {
-          "count": 6,
-          "timestampMs": 161065
-        },
-        {
-          "count": 7,
-          "timestampMs": 161461
-        },
-        {
-          "count": 8,
-          "timestampMs": 161856
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 159086,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 159482,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 159878,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 160273,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 160669,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 161065,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 161461,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 161856,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "af5f0343-6cc6-4556-893f-941476e77b10",
@@ -2555,44 +2963,52 @@
       "endTimeMs": 165419,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 162252
-        },
-        {
-          "count": 2,
-          "timestampMs": 162648
-        },
-        {
-          "count": 3,
-          "timestampMs": 163044
-        },
-        {
-          "count": 4,
-          "timestampMs": 163440
-        },
-        {
-          "count": 5,
-          "timestampMs": 163836
-        },
-        {
-          "count": 6,
-          "timestampMs": 164231
-        },
-        {
-          "count": 7,
-          "timestampMs": 164627
-        },
-        {
-          "count": 8,
-          "timestampMs": 165023
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 162252,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 162648,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 163044,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 163440,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 163836,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 164231,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 164627,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 165023,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "2bd3f1f6-2df5-4dd0-8402-83e1ad5be665",
@@ -2601,44 +3017,52 @@
       "endTimeMs": 168585,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 165419
-        },
-        {
-          "count": 2,
-          "timestampMs": 165815
-        },
-        {
-          "count": 3,
-          "timestampMs": 166211
-        },
-        {
-          "count": 4,
-          "timestampMs": 166606
-        },
-        {
-          "count": 5,
-          "timestampMs": 167002
-        },
-        {
-          "count": 6,
-          "timestampMs": 167398
-        },
-        {
-          "count": 7,
-          "timestampMs": 167794
-        },
-        {
-          "count": 8,
-          "timestampMs": 168189
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 165419,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 165815,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 166211,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 166606,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 167002,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 167398,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 167794,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 168189,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "6e3c2910-938a-4218-bb95-91a1ccbd1cb2",
@@ -2647,44 +3071,52 @@
       "endTimeMs": 171751,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 168585
-        },
-        {
-          "count": 2,
-          "timestampMs": 168981
-        },
-        {
-          "count": 3,
-          "timestampMs": 169377
-        },
-        {
-          "count": 4,
-          "timestampMs": 169772
-        },
-        {
-          "count": 5,
-          "timestampMs": 170168
-        },
-        {
-          "count": 6,
-          "timestampMs": 170564
-        },
-        {
-          "count": 7,
-          "timestampMs": 170960
-        },
-        {
-          "count": 8,
-          "timestampMs": 171355
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 168585,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 168981,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 169377,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 169772,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 170168,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 170564,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 170960,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 171355,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "dcf2cccc-7ba6-4f89-ad82-f97bbaeac07a",
@@ -2693,44 +3125,52 @@
       "endTimeMs": 174918,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 171751
-        },
-        {
-          "count": 2,
-          "timestampMs": 172147
-        },
-        {
-          "count": 3,
-          "timestampMs": 172543
-        },
-        {
-          "count": 4,
-          "timestampMs": 172939
-        },
-        {
-          "count": 5,
-          "timestampMs": 173335
-        },
-        {
-          "count": 6,
-          "timestampMs": 173730
-        },
-        {
-          "count": 7,
-          "timestampMs": 174126
-        },
-        {
-          "count": 8,
-          "timestampMs": 174522
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 171751,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 172147,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 172543,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 172939,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 173335,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 173730,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 174126,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 174522,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "7fc28122-9f6c-4bf7-83ec-039c0cd4ffc4",
@@ -2739,44 +3179,52 @@
       "endTimeMs": 178084,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 174918
-        },
-        {
-          "count": 2,
-          "timestampMs": 175314
-        },
-        {
-          "count": 3,
-          "timestampMs": 175710
-        },
-        {
-          "count": 4,
-          "timestampMs": 176105
-        },
-        {
-          "count": 5,
-          "timestampMs": 176501
-        },
-        {
-          "count": 6,
-          "timestampMs": 176897
-        },
-        {
-          "count": 7,
-          "timestampMs": 177293
-        },
-        {
-          "count": 8,
-          "timestampMs": 177688
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 174918,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 175314,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 175710,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 176105,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 176501,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 176897,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 177293,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 177688,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "a9c2b898-2a62-49c9-829b-f88ca2d84c16",
@@ -2785,44 +3233,52 @@
       "endTimeMs": 181251,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 178084
-        },
-        {
-          "count": 2,
-          "timestampMs": 178480
-        },
-        {
-          "count": 3,
-          "timestampMs": 178876
-        },
-        {
-          "count": 4,
-          "timestampMs": 179272
-        },
-        {
-          "count": 5,
-          "timestampMs": 179668
-        },
-        {
-          "count": 6,
-          "timestampMs": 180063
-        },
-        {
-          "count": 7,
-          "timestampMs": 180459
-        },
-        {
-          "count": 8,
-          "timestampMs": 180855
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 178084,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 178480,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 178876,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 179272,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 179668,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 180063,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 180459,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 180855,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "b3237602-0a09-44de-8f3e-812cea961776",
@@ -2831,44 +3287,52 @@
       "endTimeMs": 184417,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 181251
-        },
-        {
-          "count": 2,
-          "timestampMs": 181647
-        },
-        {
-          "count": 3,
-          "timestampMs": 182043
-        },
-        {
-          "count": 4,
-          "timestampMs": 182438
-        },
-        {
-          "count": 5,
-          "timestampMs": 182834
-        },
-        {
-          "count": 6,
-          "timestampMs": 183230
-        },
-        {
-          "count": 7,
-          "timestampMs": 183626
-        },
-        {
-          "count": 8,
-          "timestampMs": 184021
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 181251,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 181647,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 182043,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 182438,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 182834,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 183230,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 183626,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 184021,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "0b7f2277-afa9-4d00-987b-3717ae24161b",
@@ -2877,44 +3341,52 @@
       "endTimeMs": 187584,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 184417
-        },
-        {
-          "count": 2,
-          "timestampMs": 184813
-        },
-        {
-          "count": 3,
-          "timestampMs": 185209
-        },
-        {
-          "count": 4,
-          "timestampMs": 185605
-        },
-        {
-          "count": 5,
-          "timestampMs": 186001
-        },
-        {
-          "count": 6,
-          "timestampMs": 186396
-        },
-        {
-          "count": 7,
-          "timestampMs": 186792
-        },
-        {
-          "count": 8,
-          "timestampMs": 187188
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 184417,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 184813,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 185209,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 185605,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 186001,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 186396,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 186792,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 187188,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "0eced654-88ec-4361-a38a-bfa10c8a83e6",
@@ -2923,44 +3395,52 @@
       "endTimeMs": 190750,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 187584
-        },
-        {
-          "count": 2,
-          "timestampMs": 187980
-        },
-        {
-          "count": 3,
-          "timestampMs": 188376
-        },
-        {
-          "count": 4,
-          "timestampMs": 188771
-        },
-        {
-          "count": 5,
-          "timestampMs": 189167
-        },
-        {
-          "count": 6,
-          "timestampMs": 189563
-        },
-        {
-          "count": 7,
-          "timestampMs": 189959
-        },
-        {
-          "count": 8,
-          "timestampMs": 190354
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 187584,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 187980,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 188376,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 188771,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 189167,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 189563,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 189959,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 190354,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "b1a0eecb-b0d2-440c-8f67-9399e7fda35e",
@@ -2969,44 +3449,52 @@
       "endTimeMs": 193965,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 190750
-        },
-        {
-          "count": 2,
-          "timestampMs": 191152
-        },
-        {
-          "count": 3,
-          "timestampMs": 191554
-        },
-        {
-          "count": 4,
-          "timestampMs": 191956
-        },
-        {
-          "count": 5,
-          "timestampMs": 192358
-        },
-        {
-          "count": 6,
-          "timestampMs": 192759
-        },
-        {
-          "count": 7,
-          "timestampMs": 193161
-        },
-        {
-          "count": 8,
-          "timestampMs": 193563
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 190750,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 191152,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 191554,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 191956,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 192358,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 192759,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 193161,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 193563,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "f043d8ba-6b06-4b0c-97eb-6e207a56e7e0",
@@ -3015,44 +3503,52 @@
       "endTimeMs": 197180,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 193965
-        },
-        {
-          "count": 2,
-          "timestampMs": 194367
-        },
-        {
-          "count": 3,
-          "timestampMs": 194769
-        },
-        {
-          "count": 4,
-          "timestampMs": 195171
-        },
-        {
-          "count": 5,
-          "timestampMs": 195573
-        },
-        {
-          "count": 6,
-          "timestampMs": 195974
-        },
-        {
-          "count": 7,
-          "timestampMs": 196376
-        },
-        {
-          "count": 8,
-          "timestampMs": 196778
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 193965,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 194367,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 194769,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 195171,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 195573,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 195974,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 196376,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 196778,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "1315f940-3e59-47f2-80f6-a60aecf80359",
@@ -3061,44 +3557,52 @@
       "endTimeMs": 200395,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 197180
-        },
-        {
-          "count": 2,
-          "timestampMs": 197582
-        },
-        {
-          "count": 3,
-          "timestampMs": 197984
-        },
-        {
-          "count": 4,
-          "timestampMs": 198386
-        },
-        {
-          "count": 5,
-          "timestampMs": 198788
-        },
-        {
-          "count": 6,
-          "timestampMs": 199189
-        },
-        {
-          "count": 7,
-          "timestampMs": 199591
-        },
-        {
-          "count": 8,
-          "timestampMs": 199993
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 197180,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 197582,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 197984,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 198386,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 198788,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 199189,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 199591,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 199993,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "c89540d0-45b4-4e04-bb41-f68294c978fc",
@@ -3107,44 +3611,52 @@
       "endTimeMs": 203610,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 200395
-        },
-        {
-          "count": 2,
-          "timestampMs": 200797
-        },
-        {
-          "count": 3,
-          "timestampMs": 201199
-        },
-        {
-          "count": 4,
-          "timestampMs": 201601
-        },
-        {
-          "count": 5,
-          "timestampMs": 202003
-        },
-        {
-          "count": 6,
-          "timestampMs": 202404
-        },
-        {
-          "count": 7,
-          "timestampMs": 202806
-        },
-        {
-          "count": 8,
-          "timestampMs": 203208
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 200395,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 200797,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 201199,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 201601,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 202003,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 202404,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 202806,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 203208,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "84cf1093-db7a-418d-8c36-e0ed71a2f93f",
@@ -3153,44 +3665,52 @@
       "endTimeMs": 206825,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 203610
-        },
-        {
-          "count": 2,
-          "timestampMs": 204012
-        },
-        {
-          "count": 3,
-          "timestampMs": 204414
-        },
-        {
-          "count": 4,
-          "timestampMs": 204816
-        },
-        {
-          "count": 5,
-          "timestampMs": 205218
-        },
-        {
-          "count": 6,
-          "timestampMs": 205619
-        },
-        {
-          "count": 7,
-          "timestampMs": 206021
-        },
-        {
-          "count": 8,
-          "timestampMs": 206423
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 203610,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 204012,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 204414,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 204816,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 205218,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 205619,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 206021,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 206423,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "de2a9190-6bb1-452c-9d23-60071e011217",
@@ -3199,44 +3719,52 @@
       "endTimeMs": 210040,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 206825
-        },
-        {
-          "count": 2,
-          "timestampMs": 207227
-        },
-        {
-          "count": 3,
-          "timestampMs": 207629
-        },
-        {
-          "count": 4,
-          "timestampMs": 208031
-        },
-        {
-          "count": 5,
-          "timestampMs": 208433
-        },
-        {
-          "count": 6,
-          "timestampMs": 208834
-        },
-        {
-          "count": 7,
-          "timestampMs": 209236
-        },
-        {
-          "count": 8,
-          "timestampMs": 209638
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 206825,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 207227,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 207629,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 208031,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 208433,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 208834,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 209236,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 209638,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "f61e910b-8f75-4ef2-b18e-734d9c66d630",
@@ -3245,44 +3773,52 @@
       "endTimeMs": 213255,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 210040
-        },
-        {
-          "count": 2,
-          "timestampMs": 210442
-        },
-        {
-          "count": 3,
-          "timestampMs": 210844
-        },
-        {
-          "count": 4,
-          "timestampMs": 211246
-        },
-        {
-          "count": 5,
-          "timestampMs": 211648
-        },
-        {
-          "count": 6,
-          "timestampMs": 212049
-        },
-        {
-          "count": 7,
-          "timestampMs": 212451
-        },
-        {
-          "count": 8,
-          "timestampMs": 212853
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 210040,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 210442,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 210844,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 211246,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 211648,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 212049,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 212451,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 212853,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "18987be8-3830-4b46-a373-b92dbfca7bd9",
@@ -3291,44 +3827,52 @@
       "endTimeMs": 216470,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 213255
-        },
-        {
-          "count": 2,
-          "timestampMs": 213657
-        },
-        {
-          "count": 3,
-          "timestampMs": 214059
-        },
-        {
-          "count": 4,
-          "timestampMs": 214461
-        },
-        {
-          "count": 5,
-          "timestampMs": 214863
-        },
-        {
-          "count": 6,
-          "timestampMs": 215264
-        },
-        {
-          "count": 7,
-          "timestampMs": 215666
-        },
-        {
-          "count": 8,
-          "timestampMs": 216068
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 213255,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 213657,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 214059,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 214461,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 214863,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 215264,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 215666,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 216068,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "03e6fe07-4d6e-403e-93c9-61903004016b",
@@ -3337,44 +3881,52 @@
       "endTimeMs": 219685,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 216470
-        },
-        {
-          "count": 2,
-          "timestampMs": 216872
-        },
-        {
-          "count": 3,
-          "timestampMs": 217274
-        },
-        {
-          "count": 4,
-          "timestampMs": 217676
-        },
-        {
-          "count": 5,
-          "timestampMs": 218078
-        },
-        {
-          "count": 6,
-          "timestampMs": 218479
-        },
-        {
-          "count": 7,
-          "timestampMs": 218881
-        },
-        {
-          "count": 8,
-          "timestampMs": 219283
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 216470,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 216872,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 217274,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 217676,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 218078,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 218479,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 218881,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 219283,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "5eeb43f0-09f3-412a-b2fa-c103b9296841",
@@ -3383,44 +3935,52 @@
       "endTimeMs": 222900,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 219685
-        },
-        {
-          "count": 2,
-          "timestampMs": 220087
-        },
-        {
-          "count": 3,
-          "timestampMs": 220489
-        },
-        {
-          "count": 4,
-          "timestampMs": 220891
-        },
-        {
-          "count": 5,
-          "timestampMs": 221293
-        },
-        {
-          "count": 6,
-          "timestampMs": 221694
-        },
-        {
-          "count": 7,
-          "timestampMs": 222096
-        },
-        {
-          "count": 8,
-          "timestampMs": 222498
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 219685,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 220087,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 220489,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 220891,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 221293,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 221694,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 222096,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 222498,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "7e858d64-bdd7-4631-b971-9fa55156bcb2",
@@ -3429,44 +3989,52 @@
       "endTimeMs": 226115,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 222900
-        },
-        {
-          "count": 2,
-          "timestampMs": 223302
-        },
-        {
-          "count": 3,
-          "timestampMs": 223704
-        },
-        {
-          "count": 4,
-          "timestampMs": 224106
-        },
-        {
-          "count": 5,
-          "timestampMs": 224508
-        },
-        {
-          "count": 6,
-          "timestampMs": 224909
-        },
-        {
-          "count": 7,
-          "timestampMs": 225311
-        },
-        {
-          "count": 8,
-          "timestampMs": 225713
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 222900,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 223302,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 223704,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 224106,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 224508,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 224909,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 225311,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 225713,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "368a88b9-8a35-4647-8faf-8c5e3e1b61bb",
@@ -3475,44 +4043,52 @@
       "endTimeMs": 229330,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 226115
-        },
-        {
-          "count": 2,
-          "timestampMs": 226517
-        },
-        {
-          "count": 3,
-          "timestampMs": 226919
-        },
-        {
-          "count": 4,
-          "timestampMs": 227321
-        },
-        {
-          "count": 5,
-          "timestampMs": 227723
-        },
-        {
-          "count": 6,
-          "timestampMs": 228124
-        },
-        {
-          "count": 7,
-          "timestampMs": 228526
-        },
-        {
-          "count": 8,
-          "timestampMs": 228928
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 226115,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 226517,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 226919,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 227321,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 227723,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 228124,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 228526,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 228928,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "24f2b887-d8ad-4791-9f51-5ac288e8f448",
@@ -3521,44 +4097,52 @@
       "endTimeMs": 232552,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 229330
-        },
-        {
-          "count": 2,
-          "timestampMs": 229733
-        },
-        {
-          "count": 3,
-          "timestampMs": 230136
-        },
-        {
-          "count": 4,
-          "timestampMs": 230538
-        },
-        {
-          "count": 5,
-          "timestampMs": 230941
-        },
-        {
-          "count": 6,
-          "timestampMs": 231344
-        },
-        {
-          "count": 7,
-          "timestampMs": 231747
-        },
-        {
-          "count": 8,
-          "timestampMs": 232149
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 229330,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 229733,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 230136,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 230538,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 230941,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 231344,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 231747,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 232149,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "171a381b-4250-4d90-bc00-ec8be39901ea",
@@ -3567,44 +4151,52 @@
       "endTimeMs": 235774,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 232552
-        },
-        {
-          "count": 2,
-          "timestampMs": 232955
-        },
-        {
-          "count": 3,
-          "timestampMs": 233358
-        },
-        {
-          "count": 4,
-          "timestampMs": 233760
-        },
-        {
-          "count": 5,
-          "timestampMs": 234163
-        },
-        {
-          "count": 6,
-          "timestampMs": 234566
-        },
-        {
-          "count": 7,
-          "timestampMs": 234969
-        },
-        {
-          "count": 8,
-          "timestampMs": 235371
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 232552,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 232955,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 233358,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 233760,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 234163,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 234566,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 234969,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 235371,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "beeb6a5b-21c0-4323-9c8e-ad96ae5c9ed1",
@@ -3613,44 +4205,52 @@
       "endTimeMs": 238995,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 235774
-        },
-        {
-          "count": 2,
-          "timestampMs": 236177
-        },
-        {
-          "count": 3,
-          "timestampMs": 236579
-        },
-        {
-          "count": 4,
-          "timestampMs": 236982
-        },
-        {
-          "count": 5,
-          "timestampMs": 237385
-        },
-        {
-          "count": 6,
-          "timestampMs": 237787
-        },
-        {
-          "count": 7,
-          "timestampMs": 238190
-        },
-        {
-          "count": 8,
-          "timestampMs": 238592
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 235774,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 236177,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 236579,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 236982,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 237385,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 237787,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 238190,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 238592,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "5b6f7a17-8f16-4185-bb6f-4b1fd1795d9c",
@@ -3659,44 +4259,52 @@
       "endTimeMs": 242217,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 238995
-        },
-        {
-          "count": 2,
-          "timestampMs": 239398
-        },
-        {
-          "count": 3,
-          "timestampMs": 239801
-        },
-        {
-          "count": 4,
-          "timestampMs": 240203
-        },
-        {
-          "count": 5,
-          "timestampMs": 240606
-        },
-        {
-          "count": 6,
-          "timestampMs": 241009
-        },
-        {
-          "count": 7,
-          "timestampMs": 241412
-        },
-        {
-          "count": 8,
-          "timestampMs": 241814
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 238995,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 239398,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 239801,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 240203,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 240606,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 241009,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 241412,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 241814,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "b8dff980-95a3-4067-84f6-bd494ad2345f",
@@ -3705,44 +4313,52 @@
       "endTimeMs": 245439,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 242217
-        },
-        {
-          "count": 2,
-          "timestampMs": 242620
-        },
-        {
-          "count": 3,
-          "timestampMs": 243023
-        },
-        {
-          "count": 4,
-          "timestampMs": 243425
-        },
-        {
-          "count": 5,
-          "timestampMs": 243828
-        },
-        {
-          "count": 6,
-          "timestampMs": 244231
-        },
-        {
-          "count": 7,
-          "timestampMs": 244634
-        },
-        {
-          "count": 8,
-          "timestampMs": 245036
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 242217,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 242620,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 243023,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 243425,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 243828,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 244231,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 244634,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 245036,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "6696cf34-054a-4970-8903-67d2f4e3f29c",
@@ -3751,44 +4367,52 @@
       "endTimeMs": 248661,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 245439
-        },
-        {
-          "count": 2,
-          "timestampMs": 245842
-        },
-        {
-          "count": 3,
-          "timestampMs": 246245
-        },
-        {
-          "count": 4,
-          "timestampMs": 246647
-        },
-        {
-          "count": 5,
-          "timestampMs": 247050
-        },
-        {
-          "count": 6,
-          "timestampMs": 247453
-        },
-        {
-          "count": 7,
-          "timestampMs": 247856
-        },
-        {
-          "count": 8,
-          "timestampMs": 248258
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 245439,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 245842,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 246245,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 246647,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 247050,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 247453,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 247856,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 248258,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "2e70cbf7-a993-40e9-9e60-8ec888638e3a",
@@ -3797,44 +4421,52 @@
       "endTimeMs": 251882,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 248661
-        },
-        {
-          "count": 2,
-          "timestampMs": 249064
-        },
-        {
-          "count": 3,
-          "timestampMs": 249466
-        },
-        {
-          "count": 4,
-          "timestampMs": 249869
-        },
-        {
-          "count": 5,
-          "timestampMs": 250272
-        },
-        {
-          "count": 6,
-          "timestampMs": 250674
-        },
-        {
-          "count": 7,
-          "timestampMs": 251077
-        },
-        {
-          "count": 8,
-          "timestampMs": 251479
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 248661,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 249064,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 249466,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 249869,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 250272,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 250674,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 251077,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 251479,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "1d61a15f-af13-43eb-8852-29fe82b43e05",
@@ -3843,44 +4475,52 @@
       "endTimeMs": 255104,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 251882
-        },
-        {
-          "count": 2,
-          "timestampMs": 252285
-        },
-        {
-          "count": 3,
-          "timestampMs": 252688
-        },
-        {
-          "count": 4,
-          "timestampMs": 253090
-        },
-        {
-          "count": 5,
-          "timestampMs": 253493
-        },
-        {
-          "count": 6,
-          "timestampMs": 253896
-        },
-        {
-          "count": 7,
-          "timestampMs": 254299
-        },
-        {
-          "count": 8,
-          "timestampMs": 254701
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 251882,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 252285,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 252688,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 253090,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 253493,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 253896,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 254299,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 254701,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "a34c5d20-1587-455b-ba39-1eb177a95e51",
@@ -3889,44 +4529,52 @@
       "endTimeMs": 258326,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 255104
-        },
-        {
-          "count": 2,
-          "timestampMs": 255507
-        },
-        {
-          "count": 3,
-          "timestampMs": 255910
-        },
-        {
-          "count": 4,
-          "timestampMs": 256312
-        },
-        {
-          "count": 5,
-          "timestampMs": 256715
-        },
-        {
-          "count": 6,
-          "timestampMs": 257118
-        },
-        {
-          "count": 7,
-          "timestampMs": 257521
-        },
-        {
-          "count": 8,
-          "timestampMs": 257923
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 255104,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 255507,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 255910,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 256312,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 256715,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 257118,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 257521,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 257923,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "f6b111c2-53b5-415f-8d48-4b1e1d33d4b3",
@@ -3935,44 +4583,52 @@
       "endTimeMs": 261548,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 258326
-        },
-        {
-          "count": 2,
-          "timestampMs": 258729
-        },
-        {
-          "count": 3,
-          "timestampMs": 259132
-        },
-        {
-          "count": 4,
-          "timestampMs": 259534
-        },
-        {
-          "count": 5,
-          "timestampMs": 259937
-        },
-        {
-          "count": 6,
-          "timestampMs": 260340
-        },
-        {
-          "count": 7,
-          "timestampMs": 260743
-        },
-        {
-          "count": 8,
-          "timestampMs": 261145
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 258326,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 258729,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 259132,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 259534,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 259937,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 260340,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 260743,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 261145,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "12c3d172-1472-410f-b434-27d2f0bdd472",
@@ -3981,44 +4637,52 @@
       "endTimeMs": 264769,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 261548
-        },
-        {
-          "count": 2,
-          "timestampMs": 261951
-        },
-        {
-          "count": 3,
-          "timestampMs": 262353
-        },
-        {
-          "count": 4,
-          "timestampMs": 262756
-        },
-        {
-          "count": 5,
-          "timestampMs": 263159
-        },
-        {
-          "count": 6,
-          "timestampMs": 263561
-        },
-        {
-          "count": 7,
-          "timestampMs": 263964
-        },
-        {
-          "count": 8,
-          "timestampMs": 264366
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 261548,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 261951,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 262353,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 262756,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 263159,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 263561,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 263964,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 264366,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "ea5ad9aa-32e4-421c-9edb-8b168100dd27",
@@ -4027,44 +4691,52 @@
       "endTimeMs": 267991,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 264769
-        },
-        {
-          "count": 2,
-          "timestampMs": 265172
-        },
-        {
-          "count": 3,
-          "timestampMs": 265575
-        },
-        {
-          "count": 4,
-          "timestampMs": 265977
-        },
-        {
-          "count": 5,
-          "timestampMs": 266380
-        },
-        {
-          "count": 6,
-          "timestampMs": 266783
-        },
-        {
-          "count": 7,
-          "timestampMs": 267186
-        },
-        {
-          "count": 8,
-          "timestampMs": 267588
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 264769,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 265172,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 265575,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 265977,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 266380,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 266783,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 267186,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 267588,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "13d55161-c62a-46d9-808a-8c808265bfb8",
@@ -4073,44 +4745,52 @@
       "endTimeMs": 271213,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 267991
-        },
-        {
-          "count": 2,
-          "timestampMs": 268394
-        },
-        {
-          "count": 3,
-          "timestampMs": 268797
-        },
-        {
-          "count": 4,
-          "timestampMs": 269199
-        },
-        {
-          "count": 5,
-          "timestampMs": 269602
-        },
-        {
-          "count": 6,
-          "timestampMs": 270005
-        },
-        {
-          "count": 7,
-          "timestampMs": 270408
-        },
-        {
-          "count": 8,
-          "timestampMs": 270810
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 267991,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 268394,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 268797,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 269199,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 269602,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 270005,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 270408,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 270810,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "dc5f3068-5074-443e-b182-c8ff95c97216",
@@ -4119,44 +4799,52 @@
       "endTimeMs": 274435,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 271213
-        },
-        {
-          "count": 2,
-          "timestampMs": 271616
-        },
-        {
-          "count": 3,
-          "timestampMs": 272019
-        },
-        {
-          "count": 4,
-          "timestampMs": 272421
-        },
-        {
-          "count": 5,
-          "timestampMs": 272824
-        },
-        {
-          "count": 6,
-          "timestampMs": 273227
-        },
-        {
-          "count": 7,
-          "timestampMs": 273630
-        },
-        {
-          "count": 8,
-          "timestampMs": 274032
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 271213,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 271616,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 272019,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 272421,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 272824,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 273227,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 273630,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 274032,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "4a02d5d0-2d22-4b25-9e5e-26dfdd33a366",
@@ -4165,44 +4853,52 @@
       "endTimeMs": 277656,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 274435
-        },
-        {
-          "count": 2,
-          "timestampMs": 274838
-        },
-        {
-          "count": 3,
-          "timestampMs": 275240
-        },
-        {
-          "count": 4,
-          "timestampMs": 275643
-        },
-        {
-          "count": 5,
-          "timestampMs": 276046
-        },
-        {
-          "count": 6,
-          "timestampMs": 276448
-        },
-        {
-          "count": 7,
-          "timestampMs": 276851
-        },
-        {
-          "count": 8,
-          "timestampMs": 277253
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 274435,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 274838,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 275240,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 275643,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 276046,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 276448,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 276851,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 277253,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "254b7029-d96b-4c0d-be01-e4e7ac00d02a",
@@ -4211,44 +4907,52 @@
       "endTimeMs": 280878,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 277656
-        },
-        {
-          "count": 2,
-          "timestampMs": 278059
-        },
-        {
-          "count": 3,
-          "timestampMs": 278462
-        },
-        {
-          "count": 4,
-          "timestampMs": 278864
-        },
-        {
-          "count": 5,
-          "timestampMs": 279267
-        },
-        {
-          "count": 6,
-          "timestampMs": 279670
-        },
-        {
-          "count": 7,
-          "timestampMs": 280073
-        },
-        {
-          "count": 8,
-          "timestampMs": 280475
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 277656,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 278059,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 278462,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 278864,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 279267,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 279670,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 280073,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 280475,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "3d211e92-8cf3-4fd6-8e29-8b5e7660ad48",
@@ -4257,44 +4961,52 @@
       "endTimeMs": 284356,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 280878
-        },
-        {
-          "count": 2,
-          "timestampMs": 281313
-        },
-        {
-          "count": 3,
-          "timestampMs": 281748
-        },
-        {
-          "count": 4,
-          "timestampMs": 282182
-        },
-        {
-          "count": 5,
-          "timestampMs": 282617
-        },
-        {
-          "count": 6,
-          "timestampMs": 283052
-        },
-        {
-          "count": 7,
-          "timestampMs": 283487
-        },
-        {
-          "count": 8,
-          "timestampMs": 283921
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 280878,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 281313,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 281748,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 282182,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 282617,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 283052,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 283487,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 283921,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "5231ce3e-1ff1-4044-a213-b37cc83275d0",
@@ -4303,44 +5015,52 @@
       "endTimeMs": 287833,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 284356
-        },
-        {
-          "count": 2,
-          "timestampMs": 284791
-        },
-        {
-          "count": 3,
-          "timestampMs": 285225
-        },
-        {
-          "count": 4,
-          "timestampMs": 285660
-        },
-        {
-          "count": 5,
-          "timestampMs": 286095
-        },
-        {
-          "count": 6,
-          "timestampMs": 286529
-        },
-        {
-          "count": 7,
-          "timestampMs": 286964
-        },
-        {
-          "count": 8,
-          "timestampMs": 287398
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 284356,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 284791,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 285225,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 285660,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 286095,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 286529,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 286964,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 287398,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     },
     {
       "id": "e7d03323-3f02-4bde-9658-8da2ad8d17e1",
@@ -4349,778 +5069,55 @@
       "endTimeMs": 291311,
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
-      "calibratedBeats": [
-        {
-          "count": 1,
-          "timestampMs": 287833
-        },
-        {
-          "count": 2,
-          "timestampMs": 288268
-        },
-        {
-          "count": 3,
-          "timestampMs": 288703
-        },
-        {
-          "count": 4,
-          "timestampMs": 289137
-        },
-        {
-          "count": 5,
-          "timestampMs": 289572
-        },
-        {
-          "count": 6,
-          "timestampMs": 290007
-        },
-        {
-          "count": 7,
-          "timestampMs": 290442
-        },
-        {
-          "count": 8,
-          "timestampMs": 290876
-        }
-      ],
       "events": [],
       "claveDirection": "NOT_SET",
       "claveIsVerified": false,
-      "claveSource": "DEFAULT"
+      "claveSource": "DEFAULT",
+      "beats": [
+        {
+          "timestampMs": 287833,
+          "type": "DOWNBEAT",
+          "count": 1
+        },
+        {
+          "timestampMs": 288268,
+          "type": "NORMAL",
+          "count": 2
+        },
+        {
+          "timestampMs": 288703,
+          "type": "NORMAL",
+          "count": 3
+        },
+        {
+          "timestampMs": 289137,
+          "type": "NORMAL",
+          "count": 4
+        },
+        {
+          "timestampMs": 289572,
+          "type": "NORMAL",
+          "count": 5
+        },
+        {
+          "timestampMs": 290007,
+          "type": "NORMAL",
+          "count": 6
+        },
+        {
+          "timestampMs": 290442,
+          "type": "NORMAL",
+          "count": 7
+        },
+        {
+          "timestampMs": 290876,
+          "type": "NORMAL",
+          "count": 8
+        }
+      ]
     }
   ],
   "rawTaps": [],
-  "absoluteBeatMap": [
-    0,
-    415,
-    830,
-    1245,
-    1660,
-    2074,
-    2489,
-    2904,
-    3319,
-    3734,
-    4149,
-    4564,
-    4979,
-    5393,
-    5808,
-    6223,
-    6638,
-    7053,
-    7468,
-    7883,
-    8298,
-    8712,
-    9127,
-    9542,
-    9957,
-    10372,
-    10787,
-    11201,
-    11616,
-    12031,
-    12446,
-    12860,
-    13275,
-    13690,
-    14105,
-    14520,
-    14935,
-    15349,
-    15764,
-    16179,
-    16594,
-    17009,
-    17424,
-    17839,
-    18254,
-    18668,
-    19083,
-    19498,
-    19913,
-    20330,
-    20748,
-    21165,
-    21583,
-    22000,
-    22417,
-    22835,
-    23252,
-    23670,
-    24087,
-    24505,
-    24922,
-    25340,
-    25757,
-    26175,
-    26592,
-    27009,
-    27427,
-    27844,
-    28262,
-    28679,
-    29096,
-    29514,
-    29931,
-    30326,
-    30721,
-    31116,
-    31512,
-    31907,
-    32302,
-    32697,
-    33092,
-    33487,
-    33882,
-    34277,
-    34672,
-    35067,
-    35462,
-    35857,
-    36252,
-    36647,
-    37042,
-    37437,
-    37833,
-    38228,
-    38623,
-    39018,
-    39413,
-    39808,
-    40203,
-    40598,
-    40993,
-    41388,
-    41783,
-    42178,
-    42573,
-    42968,
-    43363,
-    43758,
-    44154,
-    44549,
-    44944,
-    45339,
-    45734,
-    46129,
-    46524,
-    46919,
-    47314,
-    47709,
-    48104,
-    48499,
-    48894,
-    49289,
-    49684,
-    50079,
-    50475,
-    50870,
-    51265,
-    51660,
-    52055,
-    52450,
-    52845,
-    53240,
-    53635,
-    54030,
-    54425,
-    54820,
-    55215,
-    55612,
-    56010,
-    56407,
-    56804,
-    57201,
-    57599,
-    57996,
-    58393,
-    58790,
-    59187,
-    59584,
-    59982,
-    60379,
-    60776,
-    61173,
-    61570,
-    61967,
-    62365,
-    62762,
-    63159,
-    63556,
-    63954,
-    64351,
-    64748,
-    65145,
-    65542,
-    65939,
-    66337,
-    66734,
-    67131,
-    67528,
-    67925,
-    68322,
-    68720,
-    69117,
-    69514,
-    69911,
-    70309,
-    70706,
-    71103,
-    71500,
-    71897,
-    72294,
-    72692,
-    73089,
-    73486,
-    73883,
-    74280,
-    74677,
-    75075,
-    75472,
-    75869,
-    76266,
-    76664,
-    77061,
-    77458,
-    77855,
-    78252,
-    78649,
-    79047,
-    79444,
-    79841,
-    80238,
-    80635,
-    81032,
-    81430,
-    81827,
-    82224,
-    82621,
-    83019,
-    83416,
-    83813,
-    84210,
-    84607,
-    85004,
-    85402,
-    85799,
-    86196,
-    86593,
-    86990,
-    87387,
-    87785,
-    88182,
-    88579,
-    88976,
-    89374,
-    89771,
-    90168,
-    90565,
-    90962,
-    91359,
-    91757,
-    92154,
-    92551,
-    92948,
-    93345,
-    93742,
-    94140,
-    94537,
-    94934,
-    95331,
-    95729,
-    96126,
-    96523,
-    96920,
-    97317,
-    97714,
-    98112,
-    98509,
-    98906,
-    99303,
-    99700,
-    100097,
-    100495,
-    100892,
-    101289,
-    101686,
-    102084,
-    102481,
-    102878,
-    103235,
-    103592,
-    103949,
-    104306,
-    104662,
-    105019,
-    105376,
-    105733,
-    106090,
-    106447,
-    106803,
-    107160,
-    107517,
-    107874,
-    108230,
-    108587,
-    108944,
-    109301,
-    109658,
-    110015,
-    110371,
-    110728,
-    111085,
-    111442,
-    111840,
-    112237,
-    112635,
-    113032,
-    113430,
-    113827,
-    114225,
-    114622,
-    115020,
-    115417,
-    115815,
-    116212,
-    116610,
-    117007,
-    117405,
-    117802,
-    118199,
-    118597,
-    118994,
-    119392,
-    119789,
-    120186,
-    120584,
-    120981,
-    121379,
-    121776,
-    122174,
-    122571,
-    122969,
-    123366,
-    123764,
-    124161,
-    124559,
-    124956,
-    125354,
-    125751,
-    126149,
-    126546,
-    126944,
-    127341,
-    127739,
-    128136,
-    128534,
-    128931,
-    129329,
-    129726,
-    130124,
-    130521,
-    130919,
-    131316,
-    131714,
-    132111,
-    132509,
-    132906,
-    133304,
-    133701,
-    134099,
-    134496,
-    134894,
-    135291,
-    135689,
-    136086,
-    136484,
-    136881,
-    137278,
-    137676,
-    138073,
-    138471,
-    138868,
-    139265,
-    139663,
-    140060,
-    140458,
-    140855,
-    141253,
-    141650,
-    142048,
-    142445,
-    142843,
-    143240,
-    143638,
-    144035,
-    144433,
-    144830,
-    145228,
-    145625,
-    146023,
-    146420,
-    146816,
-    147212,
-    147607,
-    148003,
-    148399,
-    148795,
-    149190,
-    149586,
-    149982,
-    150378,
-    150774,
-    151170,
-    151565,
-    151961,
-    152357,
-    152753,
-    153149,
-    153545,
-    153940,
-    154336,
-    154732,
-    155128,
-    155523,
-    155919,
-    156315,
-    156711,
-    157107,
-    157503,
-    157898,
-    158294,
-    158690,
-    159086,
-    159482,
-    159878,
-    160273,
-    160669,
-    161065,
-    161461,
-    161856,
-    162252,
-    162648,
-    163044,
-    163440,
-    163836,
-    164231,
-    164627,
-    165023,
-    165419,
-    165815,
-    166211,
-    166606,
-    167002,
-    167398,
-    167794,
-    168189,
-    168585,
-    168981,
-    169377,
-    169772,
-    170168,
-    170564,
-    170960,
-    171355,
-    171751,
-    172147,
-    172543,
-    172939,
-    173335,
-    173730,
-    174126,
-    174522,
-    174918,
-    175314,
-    175710,
-    176105,
-    176501,
-    176897,
-    177293,
-    177688,
-    178084,
-    178480,
-    178876,
-    179272,
-    179668,
-    180063,
-    180459,
-    180855,
-    181251,
-    181647,
-    182043,
-    182438,
-    182834,
-    183230,
-    183626,
-    184021,
-    184417,
-    184813,
-    185209,
-    185605,
-    186001,
-    186396,
-    186792,
-    187188,
-    187584,
-    187980,
-    188376,
-    188771,
-    189167,
-    189563,
-    189959,
-    190354,
-    190750,
-    191152,
-    191554,
-    191956,
-    192358,
-    192759,
-    193161,
-    193563,
-    193965,
-    194367,
-    194769,
-    195171,
-    195573,
-    195974,
-    196376,
-    196778,
-    197180,
-    197582,
-    197984,
-    198386,
-    198788,
-    199189,
-    199591,
-    199993,
-    200395,
-    200797,
-    201199,
-    201601,
-    202003,
-    202404,
-    202806,
-    203208,
-    203610,
-    204012,
-    204414,
-    204816,
-    205218,
-    205619,
-    206021,
-    206423,
-    206825,
-    207227,
-    207629,
-    208031,
-    208433,
-    208834,
-    209236,
-    209638,
-    210040,
-    210442,
-    210844,
-    211246,
-    211648,
-    212049,
-    212451,
-    212853,
-    213255,
-    213657,
-    214059,
-    214461,
-    214863,
-    215264,
-    215666,
-    216068,
-    216470,
-    216872,
-    217274,
-    217676,
-    218078,
-    218479,
-    218881,
-    219283,
-    219685,
-    220087,
-    220489,
-    220891,
-    221293,
-    221694,
-    222096,
-    222498,
-    222900,
-    223302,
-    223704,
-    224106,
-    224508,
-    224909,
-    225311,
-    225713,
-    226115,
-    226517,
-    226919,
-    227321,
-    227723,
-    228124,
-    228526,
-    228928,
-    229330,
-    229733,
-    230136,
-    230538,
-    230941,
-    231344,
-    231747,
-    232149,
-    232552,
-    232955,
-    233358,
-    233760,
-    234163,
-    234566,
-    234969,
-    235371,
-    235774,
-    236177,
-    236579,
-    236982,
-    237385,
-    237787,
-    238190,
-    238592,
-    238995,
-    239398,
-    239801,
-    240203,
-    240606,
-    241009,
-    241412,
-    241814,
-    242217,
-    242620,
-    243023,
-    243425,
-    243828,
-    244231,
-    244634,
-    245036,
-    245439,
-    245842,
-    246245,
-    246647,
-    247050,
-    247453,
-    247856,
-    248258,
-    248661,
-    249064,
-    249466,
-    249869,
-    250272,
-    250674,
-    251077,
-    251479,
-    251882,
-    252285,
-    252688,
-    253090,
-    253493,
-    253896,
-    254299,
-    254701,
-    255104,
-    255507,
-    255910,
-    256312,
-    256715,
-    257118,
-    257521,
-    257923,
-    258326,
-    258729,
-    259132,
-    259534,
-    259937,
-    260340,
-    260743,
-    261145,
-    261548,
-    261951,
-    262353,
-    262756,
-    263159,
-    263561,
-    263964,
-    264366,
-    264769,
-    265172,
-    265575,
-    265977,
-    266380,
-    266783,
-    267186,
-    267588,
-    267991,
-    268394,
-    268797,
-    269199,
-    269602,
-    270005,
-    270408,
-    270810,
-    271213,
-    271616,
-    272019,
-    272421,
-    272824,
-    273227,
-    273630,
-    274032,
-    274435,
-    274838,
-    275240,
-    275643,
-    276046,
-    276448,
-    276851,
-    277253,
-    277656,
-    278059,
-    278462,
-    278864,
-    279267,
-    279670,
-    280073,
-    280475,
-    280878,
-    281313,
-    281748,
-    282182,
-    282617,
-    283052,
-    283487,
-    283921,
-    284356,
-    284791,
-    285225,
-    285660,
-    286095,
-    286529,
-    286964,
-    287398,
-    287833,
-    288268,
-    288703,
-    289137,
-    289572,
-    290007,
-    290442,
-    290876,
-    291311
-  ],
   "rawTapsHistory": [],
   "calibratedTaps": [
     0,

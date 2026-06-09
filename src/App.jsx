@@ -165,48 +165,25 @@ export default function App() {
           adjustedData.phrases = [];
         }
 
-        if (!adjustedData.absoluteBeatMap || adjustedData.absoluteBeatMap.length === 0) {
-          const bpm = adjustedData.baseBpm || (adjustedData.genre === "SALSA" ? 150.0 : 120.0);
-          const beatInterval = 60000.0 / bpm;
-
-          let lastSectionEndTime = 300000;
-          if (adjustedData.sections && adjustedData.sections.length > 0) {
-            const sortedSecs = [...adjustedData.sections].sort((a, b) => a.startTimeMs - b.startTimeMs);
-            lastSectionEndTime = sortedSecs[sortedSecs.length - 1].endTimeMs;
-          }
-
-          if (adjustedData.phrases && adjustedData.phrases.length > 0) {
-            const beats = [];
-            adjustedData.phrases.forEach((ph) => {
-              if (ph.calibratedBeats) {
-                ph.calibratedBeats.forEach((b) => {
-                  beats.push(b.timestampMs);
+        if (adjustedData.phrases) {
+          adjustedData.phrases.forEach((ph) => {
+            if (!ph.beats) {
+              const delta = (ph.endTimeMs - ph.startTimeMs) / 8;
+              ph.beats = [];
+              for (let k = 0; k < 8; k++) {
+                ph.beats.push({
+                  count: k + 1,
+                  timestampMs: Math.round(ph.startTimeMs + k * delta),
+                  type: k === 0 ? "DOWNBEAT" : "NORMAL"
                 });
               }
-            });
-            beats.sort((a, b) => a - b);
-            const uniqueBeats = beats.filter((v, i, a) => a.indexOf(v) === i);
-            if (uniqueBeats.length > 0 && uniqueBeats[uniqueBeats.length - 1] !== lastSectionEndTime) {
-              uniqueBeats.push(lastSectionEndTime);
             }
-            adjustedData.absoluteBeatMap = uniqueBeats;
-          } else {
-            const beats = [];
-            let t = 0.0;
-            while (t < lastSectionEndTime) {
-              beats.push(Math.round(t));
-              t += beatInterval;
-            }
-            if (beats.length === 0 || beats[beats.length - 1] !== lastSectionEndTime) {
-              beats.push(lastSectionEndTime);
-            }
-            adjustedData.absoluteBeatMap = beats;
-          }
+          });
         }
 
         if (!adjustedData.sections || adjustedData.sections.length === 0) {
-          const lastBeatTimeMs = adjustedData.absoluteBeatMap && adjustedData.absoluteBeatMap.length > 0
-            ? adjustedData.absoluteBeatMap[adjustedData.absoluteBeatMap.length - 1]
+          const lastBeatTimeMs = adjustedData.phrases && adjustedData.phrases.length > 0
+            ? adjustedData.phrases[adjustedData.phrases.length - 1].endTimeMs
             : 300000;
           const isSalsa = adjustedData.genre === "SALSA";
           adjustedData.sections = [

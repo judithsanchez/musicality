@@ -2,6 +2,8 @@ import { describe, it, expect } from 'vitest';
 import { StrictSongMapSchema } from '../schemas';
 import validSalsaMap from './fixtures/valid-salsa-map.json';
 import validBachataMap from './fixtures/valid-bachata-map.json';
+import fs from 'fs';
+import path from 'path';
 
 const UUID_1 = '11111111-1111-4111-8111-111111111111';
 const UUID_2 = '22222222-2222-4222-8222-222222222222';
@@ -23,6 +25,16 @@ describe('StrictSongMapSchema Validation', () => {
     const res = StrictSongMapSchema.safeParse(validBachataMap);
     if (!res.success) {
       console.log('Bachata Errors:', JSON.stringify(res.error.issues, null, 2));
+    }
+    expect(res.success).toBe(true);
+  });
+
+  it('should pass validation for the production Salsa song map Pobre Diablo', () => {
+    const songPath = path.resolve(__dirname, '../../../public/songs/66HCBysrJS8.json');
+    const songData = JSON.parse(fs.readFileSync(songPath, 'utf8'));
+    const res = StrictSongMapSchema.safeParse(songData);
+    if (!res.success) {
+      console.log('Pobre Diablo Validation Errors:', JSON.stringify(res.error.issues, null, 2));
     }
     expect(res.success).toBe(true);
   });
