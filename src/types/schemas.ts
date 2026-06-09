@@ -114,7 +114,7 @@ export const SectionSchema = z.union([
 
 export const TapSessionSchema = z.object({
   rawTaps: z.array(z.number().int()),
-  calibratedTaps: z.array(z.number().int()),
+  calibratedDownbeats: z.array(z.number().int()),
   tappedAt: z.string()
 });
 
@@ -128,7 +128,7 @@ export const BaseSongMapSchema = z.object({
   isSectionsProcessed: z.boolean().default(false),
   isTappingProcessed: z.boolean().default(false),
   baseBpm: z.number().positive(),
-  calibratedTaps: z.array(z.number().int()).optional(),
+  calibratedDownbeats: z.array(z.number().int()).optional(),
   rawTaps: z.array(TapSessionSchema).optional(),
   schemaVersion: z.literal('2.0')
 });

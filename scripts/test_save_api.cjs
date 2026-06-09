@@ -21,7 +21,7 @@ const validSalsaMap = {
   rawTaps: [
     {
       rawTaps: [0, 1000],
-      calibratedTaps: [0, 1000],
+      calibratedDownbeats: [0, 1000],
       tappedAt: '2026-06-09T08:09:00.000Z'
     }
   ],
