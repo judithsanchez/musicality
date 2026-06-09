@@ -189,6 +189,23 @@ export default function DevCalibrator({
     const sortedSections = [...sectionsList].sort((a, b) => a.startTimeMs - b.startTimeMs);
     const sortedTaps = [...downbeatsList].sort((a, b) => a - b);
 
+    if (sortedTaps.length === 0) {
+      setEditorSections(sortedSections);
+      setPhrases([]);
+      const updated = {
+        ...songData,
+        sections: sortedSections,
+        phrases: [],
+        consensusDownbeats: [],
+        downbeats: tappedHistory
+      };
+      syncSongMapState(sortedSections, [], songData.baseBpm || (songData.genre === "SALSA" ? 153.4 : 120.0), tappedHistory, []);
+      if (triggerAutoSave && songData.status === "DRAFT_CUTTING") {
+        autoSaveSongMap(updated);
+      }
+      return;
+    }
+
     let calculatedBpm = songData.baseBpm || (songData.genre === "SALSA" ? 153.4 : 120.0);
     if (sortedTaps.length >= 2) {
       const referenceBpm = songData.baseBpm || (songData.genre === "SALSA" ? 153.4 : 120.0);

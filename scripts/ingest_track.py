@@ -5,7 +5,7 @@ import argparse
 
 def main():
     parser = argparse.ArgumentParser(description="Automated Ingestion Pipeline (Steady Fallback Grid)")
-    parser.add_argument("--audio", required=True, help="Path to input audio file")
+    parser.add_argument("--audio", required=False, help="Path to input audio file")
     parser.add_argument("--youtubeId", required=True, help="YouTube ID of the song")
     parser.add_argument("--title", required=True, help="Title of the song")
     parser.add_argument("--artist", required=True, help="Artist of the song")
@@ -15,7 +15,7 @@ def main():
     
     args = parser.parse_args()
     
-    if not os.path.exists(args.audio):
+    if args.audio and not os.path.exists(args.audio):
       print(f"[ERROR] Audio file not found at: {args.audio}")
       sys.exit(1)
         

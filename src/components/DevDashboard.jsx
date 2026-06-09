@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect } from "react";
-import { ArrowLeft, Upload, FileAudio, Youtube, CheckCircle, AlertTriangle, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { ArrowLeft, Youtube, CheckCircle, AlertTriangle, Loader2 } from "lucide-react";
 
 function extractYoutubeId(input) {
   if (!input) return "";
@@ -42,15 +42,11 @@ export default function DevDashboard({ onBack, onIngestSuccess }) {
   const youtubeId = extractYoutubeId(youtubeInput);
   const [difficulty, setDifficulty] = useState("medium");
   const [danceStyle, setDanceStyle] = useState("salsa");
-  const [audioFile, setAudioFile] = useState(null);
-
   // Status & Progress states
   const [status, setStatus] = useState("idle"); // idle | uploading | analyzing | success | error
   const [progress, setProgress] = useState(0);
   const [statusMessage, setStatusMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-
-  const fileInputRef = useRef(null);
 
   const [existingSongs, setExistingSongs] = useState([]);
   const [catalogLoading, setCatalogLoading] = useState(true);
@@ -71,32 +67,11 @@ export default function DevDashboard({ onBack, onIngestSuccess }) {
       });
   }, []);
 
-  const handleDragOver = (e) => {
-    e.preventDefault();
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      const file = e.dataTransfer.files[0];
-      if (file.type.startsWith("audio/") || file.name.endsWith(".mp3") || file.name.endsWith(".mp4")) {
-        setAudioFile(file);
-      } else {
-        alert("Please select a valid audio file (.mp3 / .mp4)");
-      }
-    }
-  };
-
-  const handleFileSelect = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      setAudioFile(e.target.files[0]);
-    }
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!title || !artist || !youtubeId || !audioFile) {
-      alert("Please fill in all fields, select a valid audio file, and provide a valid YouTube link or iframe.");
+    if (!title || !artist || !youtubeId) {
+      alert("Please fill in all fields and provide a valid YouTube link or iframe.");
       return;
     }
 
@@ -106,66 +81,37 @@ export default function DevDashboard({ onBack, onIngestSuccess }) {
     }
 
     setStatus("uploading");
-    setProgress(0);
-    setStatusMessage("[1/3] Uploading MP3 audio track...");
+    setProgress(50);
+    setStatusMessage("Ingesting track...");
 
     try {
-      const formData = new FormData();
-      formData.append("youtubeId", youtubeId);
-      formData.append("title", title);
-      formData.append("artist", artist);
-      formData.append("genre", danceStyle.toUpperCase());
-      formData.append("audio", audioFile);
+      const res = await fetch("/api/ingest", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          youtubeId,
+          title,
+          artist,
+          genre: danceStyle.toUpperCase()
+        })
+      });
 
-      const xhr = new XMLHttpRequest();
-      xhr.open("POST", "/api/ingest", true);
-
-      xhr.upload.onprogress = (event) => {
-        if (event.lengthComputable) {
-          const percent = Math.round((event.loaded / event.total) * 100);
-          setProgress(percent);
-          setStatusMessage(`[1/3] Uploading MP3 audio track... (${percent}%)`);
-        }
-      };
-
-      xhr.onload = () => {
-        if (xhr.status >= 200 && xhr.status < 300) {
-          try {
-            const result = JSON.parse(xhr.responseText);
-            if (result.success) {
-              setStatus("success");
-              setStatusMessage("[3/3] Ingestion complete! Initializing unified data schema...");
-              setTimeout(() => {
-                onIngestSuccess(result.song);
-              }, 1500);
-            } else {
-              throw new Error(result.error || "Analysis failed");
-            }
-          } catch (err) {
-            handleUploadError(err.message);
-          }
+      if (res.ok) {
+        const result = await res.json();
+        if (result.success) {
+          setStatus("success");
+          setProgress(100);
+          setStatusMessage("Ingestion complete!");
+          setTimeout(() => {
+            onIngestSuccess(result.song);
+          }, 1500);
         } else {
-          try {
-            const errResult = JSON.parse(xhr.responseText);
-            handleUploadError(errResult.error || "Upload failed");
-          } catch {
-            handleUploadError(`Upload failed with status code ${xhr.status}`);
-          }
+          throw new Error(result.error || "Analysis failed");
         }
-      };
-
-      xhr.onerror = () => {
-        handleUploadError("Network connection error occurred during upload");
-      };
-
-      xhr.send(formData);
-
-      xhr.upload.onload = () => {
-        setStatus("analyzing");
-        setProgress(100);
-        setStatusMessage("[2/3] Analyzing audio beat intervals (Spawning Salsa-AI Librosa)...");
-      };
-
+      } else {
+        const errResult = await res.json();
+        throw new Error(errResult.error || "Ingestion failed");
+      }
     } catch (err) {
       handleUploadError(err.message);
     }
@@ -307,50 +253,7 @@ export default function DevDashboard({ onBack, onIngestSuccess }) {
               </select>
             </div>
 
-            {/* Row 4: Audio File Upload Dropzone */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-              <label style={{ fontSize: "0.75rem", fontWeight: "bold", color: "#ffffff", textTransform: "uppercase" }}>Audio Track (.mp3 / .mp4)</label>
-              <div 
-                onDragOver={handleDragOver}
-                onDrop={handleDrop}
-                onClick={() => fileInputRef.current?.click()}
-                style={{
-                  border: "2px dashed #27272a",
-                  background: audioFile ? "rgba(255, 255, 255, 0.04)" : "rgba(0,0,0,0.2)",
-                  borderRadius: "12px",
-                  padding: "24px",
-                  textAlign: "center",
-                  cursor: "pointer",
-                  transition: "all 0.2s ease",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "10px"
-                }}
-              >
-                <input 
-                  type="file" 
-                  ref={fileInputRef} 
-                  onChange={handleFileSelect} 
-                  accept="audio/*,.mp3,.mp4" 
-                  style={{ display: "none" }} 
-                />
-                {audioFile ? (
-                  <>
-                    <FileAudio size={36} style={{ color: "#ffffff" }} />
-                    <span style={{ fontSize: "0.9rem", color: "#ffffff", fontWeight: "bold" }}>{audioFile.name}</span>
-                    <span style={{ fontSize: "0.75rem", color: "#6b7280" }}>Click or drop another file to replace</span>
-                  </>
-                ) : (
-                  <>
-                    <Upload size={36} style={{ color: "#ffffff" }} />
-                    <span style={{ fontSize: "0.9rem", color: "#e5e7eb", fontWeight: "bold" }}>Drag & Drop MP3 file here</span>
-                    <span style={{ fontSize: "0.75rem", color: "#6b7280" }}>Or click to browse your files</span>
-                  </>
-                )}
-              </div>
-            </div>
+
 
             {/* Submit Button */}
             <button 
