@@ -127,8 +127,8 @@ export default function DevCalibrator({
         setTappedDownbeats(Array.from(new Set(restoredDownbeats)).sort((a, b) => a - b));
       }
 
-      if (songData.rawTaps && Array.isArray(songData.rawTaps)) {
-        setTappedHistory(songData.rawTaps);
+      if (songData.downbeats && Array.isArray(songData.downbeats)) {
+        setTappedHistory(songData.downbeats);
       } else {
         setTappedHistory([]);
       }
@@ -159,7 +159,7 @@ export default function DevCalibrator({
     sections: any[],
     phrasesList: any[],
     baseBpm?: number,
-    rawTaps?: any[],
+    downbeats?: any[],
     consensusDownbeats?: number[]
   ) => {
     const updated = {
@@ -167,7 +167,7 @@ export default function DevCalibrator({
       sections,
       phrases: phrasesList,
       ...(baseBpm !== undefined ? { baseBpm } : {}),
-      ...(rawTaps !== undefined ? { rawTaps } : {}),
+      ...(downbeats !== undefined ? { downbeats } : {}),
       ...(consensusDownbeats !== undefined ? { consensusDownbeats } : {})
     };
     setCalibratedSongData(updated);
@@ -274,7 +274,7 @@ export default function DevCalibrator({
       phrases: allPhrases,
       baseBpm: calculatedBpm,
       consensusDownbeats: finalCalibratedTaps,
-      rawTaps: tappedHistory
+      downbeats: tappedHistory
     };
     syncSongMapState(sortedSections, allPhrases, calculatedBpm, tappedHistory, finalCalibratedTaps);
 
@@ -471,13 +471,13 @@ export default function DevCalibrator({
   const handleSaveTaps = () => {
     let updatedHistory = [...tappedHistory];
     const exists = updatedHistory.some(session => 
-      session.rawTaps.length === tappedDownbeats.length && 
-      session.rawTaps.every((val: number, index: number) => val === tappedDownbeats[index])
+      session.rawDownbeats.length === tappedDownbeats.length && 
+      session.rawDownbeats.every((val: number, index: number) => val === tappedDownbeats[index])
     );
     const currentCalibratedTaps = latestSongDataRef.current?.consensusDownbeats || [];
     if (!exists && tappedDownbeats.length > 0) {
       updatedHistory.push({
-        rawTaps: tappedDownbeats,
+        rawDownbeats: tappedDownbeats,
         calibratedDownbeats: currentCalibratedTaps,
         tappedAt: new Date().toISOString()
       });
@@ -487,7 +487,7 @@ export default function DevCalibrator({
     const updated = {
       ...latestSongDataRef.current,
       consensusDownbeats: currentCalibratedTaps,
-      rawTaps: updatedHistory,
+      downbeats: updatedHistory,
       status: "DRAFT_LABELING"
     };
     setCalibratedSongData(updated);
@@ -516,7 +516,7 @@ export default function DevCalibrator({
   };
 
   const handleConsolidateTaps = () => {
-    const allAttempts = tappedHistory.map(h => h.rawTaps);
+    const allAttempts = tappedHistory.map(h => h.rawDownbeats);
     if (tappedDownbeats.length > 0) {
       allAttempts.push(tappedDownbeats);
     }
