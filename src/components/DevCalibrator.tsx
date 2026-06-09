@@ -292,6 +292,11 @@ export default function DevCalibrator({
       });
     }
 
+    if (updatedSections.length > 0) {
+      const lastSec = updatedSections[updatedSections.length - 1];
+      allBeatTimes.push(lastSec.endTimeMs);
+    }
+
     allPhrases.forEach((ph, idx) => {
       ph.index = idx + 1;
     });

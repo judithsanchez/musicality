@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { ArrowLeft, Upload, FileAudio, Youtube, CheckCircle, AlertTriangle, Loader2 } from "lucide-react";
 
 function extractYoutubeId(input) {
@@ -51,6 +51,25 @@ export default function DevDashboard({ onBack, onIngestSuccess }) {
   const [errorMessage, setErrorMessage] = useState("");
 
   const fileInputRef = useRef(null);
+
+  const [existingSongs, setExistingSongs] = useState([]);
+  const [catalogLoading, setCatalogLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/songs/catalog.json")
+      .then((res) => {
+        if (!res.ok) throw new Error("Catalog fetch failed");
+        return res.json();
+      })
+      .then((data) => {
+        setExistingSongs(data);
+        setCatalogLoading(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        setCatalogLoading(false);
+      });
+  }, []);
 
   const handleDragOver = (e) => {
     e.preventDefault();
@@ -414,6 +433,77 @@ export default function DevDashboard({ onBack, onIngestSuccess }) {
                 </span>
               )}
             </div>
+          </div>
+        )}
+      </div>
+
+      <div className="glass-panel" style={{ marginTop: "24px", padding: "30px", borderRadius: "20px", border: "1px solid #27272a", background: "rgba(9, 9, 11, 0.85)", backdropFilter: "blur(12px)" }}>
+        <h3 style={{ margin: "0 0 16px 0", fontSize: "1.2rem", fontWeight: "900", color: "#fff" }}>
+          📂 Existing Tracks & Drafts
+        </h3>
+        {catalogLoading ? (
+          <div style={{ color: "#9ca3af", fontSize: "0.85rem" }}>Loading existing tracks...</div>
+        ) : existingSongs.length === 0 ? (
+          <div style={{ color: "#9ca3af", fontSize: "0.85rem", fontStyle: "italic" }}>No existing tracks found.</div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+            {existingSongs.map((song) => (
+              <div 
+                key={song.id} 
+                style={{ 
+                  display: "flex", 
+                  justifyContent: "space-between", 
+                  alignItems: "center", 
+                  padding: "12px", 
+                  borderRadius: "10px", 
+                  background: "rgba(255, 255, 255, 0.02)", 
+                  border: "1px solid rgba(255, 255, 255, 0.05)" 
+                }}
+              >
+                <div>
+                  <div style={{ fontWeight: "bold", color: "#ffffff", fontSize: "0.9rem" }}>{song.title}</div>
+                  <div style={{ fontSize: "0.75rem", color: "#9ca3af" }}>{song.artist} • <span style={{ textTransform: "capitalize" }}>{song.genre}</span></div>
+                </div>
+                <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                  <span 
+                    style={{ 
+                      fontSize: "0.65rem", 
+                      padding: "3px 8px", 
+                      borderRadius: "6px", 
+                      fontWeight: "bold",
+                      textTransform: "uppercase",
+                      background: song.status === "READY" ? "rgba(52, 211, 153, 0.15)" : "rgba(239, 68, 68, 0.15)",
+                      color: song.status === "READY" ? "#34d399" : "#fca5a5",
+                      border: song.status === "READY" ? "1px solid rgba(52, 211, 153, 0.3)" : "1px solid rgba(239, 68, 68, 0.3)"
+                    }}
+                  >
+                    {song.status ? song.status.replace("DRAFT_", "") : "READY"}
+                  </span>
+                  <button
+                    onClick={() => onIngestSuccess(song)}
+                    style={{
+                      background: "rgba(255, 255, 255, 0.08)",
+                      border: "1px solid rgba(255, 255, 255, 0.1)",
+                      color: "#ffffff",
+                      padding: "6px 12px",
+                      borderRadius: "8px",
+                      fontSize: "0.75rem",
+                      fontWeight: "bold",
+                      cursor: "pointer",
+                      transition: "all 0.2s ease"
+                    }}
+                    onMouseOver={(e) => {
+                      e.currentTarget.style.background = "rgba(255, 255, 255, 0.15)";
+                    }}
+                    onMouseOut={(e) => {
+                      e.currentTarget.style.background = "rgba(255, 255, 255, 0.08)";
+                    }}
+                  >
+                    Calibrate 🛠️
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>

@@ -30,7 +30,7 @@ export default function SongSelector({ onSelectSong, onOpenDevDashboard }) {
 
   const filteredSongs = catalog.filter((song) => {
     const status = song.status || "READY";
-    if (!onOpenDevDashboard && status !== "READY") {
+    if (status !== "READY") {
       return false;
     }
     const matchesSearch =
