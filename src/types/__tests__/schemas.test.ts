@@ -67,33 +67,21 @@ describe('StrictSongMapSchema Validation', () => {
   });
 
   describe('Phrase Contiguity & Boundary Checks', () => {
-    it('should fail if the first phrase in a section does not start at section start time', () => {
+    it('should fail if the first phrase in the song does not start at 0 ms', () => {
       const invalid = JSON.parse(JSON.stringify(validSalsaMap));
-      invalid.phrases[0].startTimeMs = 100; // Section start is 0
+      invalid.phrases[0].startTimeMs = 100;
       
       const res = StrictSongMapSchema.safeParse(invalid);
       expect(res.success).toBe(false);
       if (!res.success) {
-        expect(res.error.issues.some(i => i.message.includes('must start at section start time'))).toBe(true);
+        expect(res.error.issues.some(i => i.message.includes('First phrase must start at 0 ms'))).toBe(true);
       }
     });
 
-    it('should fail if there is a gap/overlap between phrases inside a section', () => {
+    it('should fail if there is a gap/overlap between phrases in the song', () => {
       const invalid = JSON.parse(JSON.stringify(validSalsaMap));
-      invalid.sections[0].phraseIds = [UUID_1, UUID_EXTRA];
-      invalid.phrases.push({
-        id: UUID_EXTRA,
-        index: 3,
-        startTimeMs: 600, // gap from 500 to 600
-        endTimeMs: 1000,
-        type: 'STANDARD_8_COUNT',
-        genre: 'SALSA',
-        claveDirection: '2-3',
-        claveIsVerified: true,
-        events: []
-      });
-      invalid.phrases[0].endTimeMs = 500; // starts 0, ends 500
-
+      invalid.phrases[1].startTimeMs = 1200; // gap from 1000 to 1200
+      
       const res = StrictSongMapSchema.safeParse(invalid);
       expect(res.success).toBe(false);
       if (!res.success) {
@@ -101,46 +89,14 @@ describe('StrictSongMapSchema Validation', () => {
       }
     });
 
-    it('should fail if the last phrase in a section does not end at section end time', () => {
+    it('should fail if the last phrase does not end at the end of the sections/song', () => {
       const invalid = JSON.parse(JSON.stringify(validSalsaMap));
-      invalid.phrases[0].endTimeMs = 900; // Section end is 1000
+      invalid.phrases[1].endTimeMs = 1900; // last section ends at 2000
       
       const res = StrictSongMapSchema.safeParse(invalid);
       expect(res.success).toBe(false);
       if (!res.success) {
-        expect(res.error.issues.some(i => i.message.includes('must end at section end time'))).toBe(true);
-      }
-    });
-
-    it('should fail if a phrase is not referenced by any section', () => {
-      const invalid = JSON.parse(JSON.stringify(validSalsaMap));
-      invalid.phrases.push({
-        id: UUID_UNREF,
-        index: 3,
-        startTimeMs: 2000,
-        endTimeMs: 3000,
-        type: 'STANDARD_8_COUNT',
-        genre: 'SALSA',
-        claveDirection: '2-3',
-        claveIsVerified: true,
-        events: []
-      });
-
-      const res = StrictSongMapSchema.safeParse(invalid);
-      expect(res.success).toBe(false);
-      if (!res.success) {
-        expect(res.error.issues.some(i => i.message.includes('is not referenced by any section'))).toBe(true);
-      }
-    });
-
-    it('should fail if a phrase is referenced by multiple sections', () => {
-      const invalid = JSON.parse(JSON.stringify(validSalsaMap));
-      invalid.sections[1].phraseIds = [UUID_1]; // both sections reference UUID_1
-
-      const res = StrictSongMapSchema.safeParse(invalid);
-      expect(res.success).toBe(false);
-      if (!res.success) {
-        expect(res.error.issues.some(i => i.message.includes('referenced in multiple sections'))).toBe(true);
+        expect(res.error.issues.some(i => i.message.includes('Last phrase must end at the end of the song/sections'))).toBe(true);
       }
     });
   });

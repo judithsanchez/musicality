@@ -93,7 +93,6 @@ export const BaseSectionSchema = z.object({
   startTimeMs: z.number().int(),
   endTimeMs: z.number().int(),
   label: z.string(),
-  phraseIds: z.array(z.string()),
   emoji: z.string().optional()
 });
 
@@ -244,85 +243,49 @@ export const StrictSongMapSchema = SongMapSchema.superRefine((data, ctx) => {
       }
     }
 
-    const phrasesMap = new Map(data.phrases.map(p => [p.id, p]));
-    const referencedPhraseIds = new Set<string>();
-
-    data.sections.forEach((section, sIdx) => {
-      const sectionPhrases = section.phraseIds
-        .map(pid => {
-          referencedPhraseIds.add(pid);
-          return phrasesMap.get(pid);
-        })
-        .filter((p): p is NonNullable<typeof p> => p !== undefined);
-
-      section.phraseIds.forEach((pid, pIdx) => {
-        if (!phrasesMap.has(pid)) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: `Section ${section.label} references phrase ID ${pid} which does not exist in phrases list`,
-            path: ['sections', sIdx, 'phraseIds', pIdx],
-          });
-        }
+  if (data.isTappingProcessed) {
+    if (data.phrases.length === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Phrases array cannot be empty when tapping is processed',
+        path: ['phrases'],
       });
-
-      if (sectionPhrases.length > 0) {
-        const sortedPhrases = [...sectionPhrases].sort((a, b) => a.startTimeMs - b.startTimeMs);
-
-        if (sortedPhrases[0].startTimeMs !== section.startTimeMs) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: `First phrase in section ${section.label} must start at section start time (${section.startTimeMs}ms), but starts at ${sortedPhrases[0].startTimeMs}ms`,
-            path: ['sections', sIdx, 'phraseIds'],
-          });
-        }
-
-        for (let i = 1; i < sortedPhrases.length; i++) {
-          const prev = sortedPhrases[i - 1];
-          const curr = sortedPhrases[i];
-          if (curr.startTimeMs !== prev.endTimeMs) {
-            ctx.addIssue({
-              code: z.ZodIssueCode.custom,
-              message: `Phrase gap or overlap detected in section ${section.label} between phrase index ${prev.index} (${prev.endTimeMs}ms) and phrase index ${curr.index} (${curr.startTimeMs}ms)`,
-              path: ['sections', sIdx, 'phraseIds'],
-            });
-          }
-        }
-
-        const lastPhrase = sortedPhrases[sortedPhrases.length - 1];
-        if (lastPhrase.endTimeMs !== section.endTimeMs) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: `Last phrase in section ${section.label} must end at section end time (${section.endTimeMs}ms), but ends at ${lastPhrase.endTimeMs}ms`,
-            path: ['sections', sIdx, 'phraseIds'],
-          });
-        }
-      }
-    });
-
-    data.phrases.forEach((phrase, idx) => {
-      if (!referencedPhraseIds.has(phrase.id)) {
+    } else {
+      const sortedPhrases = [...data.phrases].sort((a, b) => a.startTimeMs - b.startTimeMs);
+      
+      if (sortedPhrases[0].startTimeMs !== 0) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: `Phrase at index ${idx} with ID ${phrase.id} is not referenced by any section`,
-          path: ['phrases', idx, 'id'],
+          message: `First phrase must start at 0 ms, but starts at ${sortedPhrases[0].startTimeMs} ms`,
+          path: ['phrases', 0, 'startTimeMs'],
         });
       }
-    });
 
-    const phraseUsageCount = new Map<string, number>();
-    data.sections.forEach(s => {
-      s.phraseIds.forEach(pid => {
-        phraseUsageCount.set(pid, (phraseUsageCount.get(pid) || 0) + 1);
-      });
-    });
-    phraseUsageCount.forEach((count, pid) => {
-      if (count > 1) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: `Phrase with ID ${pid} is referenced in multiple sections`,
-          path: ['sections'],
-        });
+      for (let i = 1; i < sortedPhrases.length; i++) {
+        const prev = sortedPhrases[i - 1];
+        const curr = sortedPhrases[i];
+        if (curr.startTimeMs !== prev.endTimeMs) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `Phrase gap or overlap detected between phrase index ${prev.index} (${prev.endTimeMs}ms) and phrase index ${curr.index} (${curr.startTimeMs}ms)`,
+            path: ['phrases', i, 'startTimeMs'],
+          });
+        }
       }
-    });
+
+      if (data.sections.length > 0) {
+        const sortedSections = [...data.sections].sort((a, b) => a.startTimeMs - b.startTimeMs);
+        const lastSectionEnd = sortedSections[sortedSections.length - 1].endTimeMs;
+        const lastPhraseEnd = sortedPhrases[sortedPhrases.length - 1].endTimeMs;
+        if (lastPhraseEnd !== lastSectionEnd) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `Last phrase must end at the end of the song/sections (${lastSectionEnd}ms), but ends at ${lastPhraseEnd}ms`,
+            path: ['phrases', data.phrases.length - 1, 'endTimeMs'],
+          });
+        }
+      }
+    }
+  }
   }
 });

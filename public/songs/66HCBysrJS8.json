@@ -14,14 +14,6 @@
       "startTimeMs": 0,
       "endTimeMs": 19913,
       "label": "Intro",
-      "phraseIds": [
-        "a97dd8ff-970e-40e3-9f0d-dfb5513e2cea",
-        "67c83a18-9623-48d8-8b42-fec394fa6929",
-        "47a4ebe0-4ccf-40c9-9a32-9f9357fe398d",
-        "9e534dc4-6c70-49a2-ab88-5a1d95667ad7",
-        "e69ec3de-a171-4f1f-8d56-cc0e40758178",
-        "1350bf3e-1354-4b61-a8d6-acc83e6c7085"
-      ],
       "emoji": "🎵",
       "energyState": "INTRO"
     },
@@ -30,11 +22,6 @@
       "startTimeMs": 19913,
       "endTimeMs": 29931,
       "label": "Verse",
-      "phraseIds": [
-        "81d4886b-54a6-481c-aa67-f3a8719f307c",
-        "75293477-da43-409e-9140-59078c504635",
-        "654e5917-7cd7-4e49-8b7e-48e8cb243669"
-      ],
       "emoji": "🎤",
       "energyState": "VERSE"
     },
@@ -43,16 +30,6 @@
       "startTimeMs": 29931,
       "endTimeMs": 55215,
       "label": "Verse",
-      "phraseIds": [
-        "6a0de08f-ab3c-41bc-bd81-0f925816a8fe",
-        "825fae89-8e00-416d-9174-57748c49d86b",
-        "6a581e78-c2c9-447a-953e-415014026b87",
-        "7d82aaba-ec61-466f-89fb-b307220d2eda",
-        "d99fa219-6fa7-42db-a819-d369ef17ab81",
-        "0779e4bd-bca5-452f-887c-808a80d9f130",
-        "9cd3244c-2d13-432d-b080-8a385744974c",
-        "adb0a45a-96a3-401e-9bf3-2f90d64495b6"
-      ],
       "emoji": "🎤",
       "energyState": "VERSE"
     },
@@ -61,23 +38,6 @@
       "startTimeMs": 55215,
       "endTimeMs": 102878,
       "label": "Verse",
-      "phraseIds": [
-        "c45ce7c2-5bd1-475a-bb7f-ad4bd87aa46c",
-        "b075aa50-735d-4bfc-990c-c15c0144c32c",
-        "914ab1fe-e787-4af8-8ca5-b125a67d8600",
-        "c4c76eef-5b1b-4176-8632-8b501bb1a1d1",
-        "342a3265-7cd9-4bcb-801b-cab7888e0adf",
-        "2b714ec2-6a9b-452f-ab20-faacd5ca27a8",
-        "9299c123-5b92-43f4-9e13-c58801144326",
-        "e8f80703-ffae-4c36-9225-0fe9790efd23",
-        "f043d959-a58f-4484-8791-f66643b5cd10",
-        "ed187db7-edc4-441a-98d2-a10f6a284716",
-        "f58afa29-bf43-4675-9f29-1da624c18fc7",
-        "1ddd3877-1311-468c-9bf3-a050a523451f",
-        "48bf9f8e-727b-4fcf-81f9-5897d2d02c72",
-        "8467c20d-9840-467b-9524-ff229cd39234",
-        "4f124668-6213-4a81-b3db-912c688b24aa"
-      ],
       "emoji": "🎤",
       "energyState": "VERSE"
     },
@@ -86,11 +46,6 @@
       "startTimeMs": 102878,
       "endTimeMs": 111442,
       "label": "Verse",
-      "phraseIds": [
-        "8933a968-1cef-4d0f-9e35-b81c83dd5929",
-        "6a45ffe7-23bd-44aa-ba4a-b75d665d0364",
-        "44199830-6bf3-4835-9ffb-018b14830f44"
-      ],
       "emoji": "🎤",
       "energyState": "VERSE"
     },
@@ -99,19 +54,6 @@
       "startTimeMs": 111442,
       "endTimeMs": 146420,
       "label": "Verse",
-      "phraseIds": [
-        "16421c21-467a-48c2-a67d-ce2d8c3856e1",
-        "b942dee3-d61f-4883-be32-11d66206826a",
-        "7c5a45f5-2f27-410f-9211-860867562013",
-        "eb869867-6c20-4b39-951d-aae60bed76ca",
-        "84f2f656-18d5-4df2-8a70-5438ba294514",
-        "ad8330c7-3e4b-4458-997d-fa4b784052b0",
-        "2ca3e93b-73fd-422c-8408-4f316e54ca0f",
-        "d5f06882-d30c-4a51-9ce7-d10ae2dd3fc2",
-        "fb90387a-021a-457b-bd48-b996bc72659f",
-        "b9aa1f9f-0b22-49bd-abd0-e5eae19dd4c2",
-        "5ef441aa-a081-4633-8e33-8c141f7dd495"
-      ],
       "emoji": "🎤",
       "energyState": "VERSE"
     },
@@ -120,22 +62,6 @@
       "startTimeMs": 146420,
       "endTimeMs": 190750,
       "label": "Verse",
-      "phraseIds": [
-        "25165e6d-838c-4ba9-b49b-3d3e23b9ca49",
-        "d4560800-af06-44ca-b2d4-b22732857e0b",
-        "19773a80-25f3-4f00-b256-955826189786",
-        "3f9415bf-2575-4cfb-aa9b-e6194b613dcd",
-        "e86bbe14-7bb5-44b3-ab68-fa046735d1c6",
-        "af5f0343-6cc6-4556-893f-941476e77b10",
-        "2bd3f1f6-2df5-4dd0-8402-83e1ad5be665",
-        "6e3c2910-938a-4218-bb95-91a1ccbd1cb2",
-        "dcf2cccc-7ba6-4f89-ad82-f97bbaeac07a",
-        "7fc28122-9f6c-4bf7-83ec-039c0cd4ffc4",
-        "a9c2b898-2a62-49c9-829b-f88ca2d84c16",
-        "b3237602-0a09-44de-8f3e-812cea961776",
-        "0b7f2277-afa9-4d00-987b-3717ae24161b",
-        "0eced654-88ec-4361-a38a-bfa10c8a83e6"
-      ],
       "emoji": "🎤",
       "energyState": "VERSE"
     },
@@ -144,20 +70,6 @@
       "startTimeMs": 190750,
       "endTimeMs": 229330,
       "label": "Verse",
-      "phraseIds": [
-        "b1a0eecb-b0d2-440c-8f67-9399e7fda35e",
-        "f043d8ba-6b06-4b0c-97eb-6e207a56e7e0",
-        "1315f940-3e59-47f2-80f6-a60aecf80359",
-        "c89540d0-45b4-4e04-bb41-f68294c978fc",
-        "84cf1093-db7a-418d-8c36-e0ed71a2f93f",
-        "de2a9190-6bb1-452c-9d23-60071e011217",
-        "f61e910b-8f75-4ef2-b18e-734d9c66d630",
-        "18987be8-3830-4b46-a373-b92dbfca7bd9",
-        "03e6fe07-4d6e-403e-93c9-61903004016b",
-        "5eeb43f0-09f3-412a-b2fa-c103b9296841",
-        "7e858d64-bdd7-4631-b971-9fa55156bcb2",
-        "368a88b9-8a35-4647-8faf-8c5e3e1b61bb"
-      ],
       "emoji": "🎤",
       "energyState": "VERSE"
     },
@@ -166,24 +78,6 @@
       "startTimeMs": 229330,
       "endTimeMs": 280878,
       "label": "Verse",
-      "phraseIds": [
-        "24f2b887-d8ad-4791-9f51-5ac288e8f448",
-        "171a381b-4250-4d90-bc00-ec8be39901ea",
-        "beeb6a5b-21c0-4323-9c8e-ad96ae5c9ed1",
-        "5b6f7a17-8f16-4185-bb6f-4b1fd1795d9c",
-        "b8dff980-95a3-4067-84f6-bd494ad2345f",
-        "6696cf34-054a-4970-8903-67d2f4e3f29c",
-        "2e70cbf7-a993-40e9-9e60-8ec888638e3a",
-        "1d61a15f-af13-43eb-8852-29fe82b43e05",
-        "a34c5d20-1587-455b-ba39-1eb177a95e51",
-        "f6b111c2-53b5-415f-8d48-4b1e1d33d4b3",
-        "12c3d172-1472-410f-b434-27d2f0bdd472",
-        "ea5ad9aa-32e4-421c-9edb-8b168100dd27",
-        "13d55161-c62a-46d9-808a-8c808265bfb8",
-        "dc5f3068-5074-443e-b182-c8ff95c97216",
-        "4a02d5d0-2d22-4b25-9e5e-26dfdd33a366",
-        "254b7029-d96b-4c0d-be01-e4e7ac00d02a"
-      ],
       "emoji": "🎤",
       "energyState": "VERSE"
     },
@@ -192,11 +86,6 @@
       "startTimeMs": 280878,
       "endTimeMs": 291311,
       "label": "Outro",
-      "phraseIds": [
-        "3d211e92-8cf3-4fd6-8e29-8b5e7660ad48",
-        "5231ce3e-1ff1-4044-a213-b37cc83275d0",
-        "e7d03323-3f02-4bde-9658-8da2ad8d17e1"
-      ],
       "emoji": "🏁",
       "energyState": "OUTRO"
     }
