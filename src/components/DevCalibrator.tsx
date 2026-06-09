@@ -65,7 +65,7 @@ export default function DevCalibrator({
   const [editorSections, setEditorSections] = useState<any[]>([]);
   const [phrases, setPhrases] = useState<any[]>([]);
   const [tappedDownbeats, setTappedDownbeats] = useState<number[]>([]);
-  const [tappedHistory, setTappedHistory] = useState<number[][]>([]);
+  const [tappedHistory, setTappedHistory] = useState<any[]>([]);
   const [focusedSectionId, setFocusedSectionId] = useState<string | null>(null);
   const [tapFlash, setTapFlash] = useState(false);
   const [validationErrors, setValidationErrors] = useState<any[] | null>(null);
@@ -167,7 +167,8 @@ export default function DevCalibrator({
     absoluteBeatMap: number[],
     baseBpm?: number,
     rawTaps?: number[],
-    rawTapsHistory?: number[][]
+    rawTapsHistory?: any[],
+    calibratedTaps?: number[]
   ) => {
     const updated = {
       ...songData,
@@ -176,7 +177,8 @@ export default function DevCalibrator({
       absoluteBeatMap,
       ...(baseBpm !== undefined ? { baseBpm } : {}),
       ...(rawTaps !== undefined ? { rawTaps } : {}),
-      ...(rawTapsHistory !== undefined ? { rawTapsHistory } : {})
+      ...(rawTapsHistory !== undefined ? { rawTapsHistory } : {}),
+      ...(calibratedTaps !== undefined ? { calibratedTaps } : {})
     };
     setCalibratedSongData(updated);
     setSongData(updated);
@@ -210,6 +212,33 @@ export default function DevCalibrator({
     }
 
     const beatIntervalMs = 60000.0 / calculatedBpm;
+    const calculatedCalibratedTaps: number[] = [];
+
+    sortedSections.forEach(sec => {
+      const secTaps = sortedTaps.filter(t => t > sec.startTimeMs && t < sec.endTimeMs);
+      const anchors = [sec.startTimeMs, ...secTaps, sec.endTimeMs];
+
+      for (let i = 0; i < anchors.length - 1; i++) {
+        const tStart = anchors[i];
+        const tEnd = anchors[i + 1];
+        const gapDur = tEnd - tStart;
+        if (gapDur <= 0) continue;
+
+        const N = Math.max(8, Math.round(gapDur / (beatIntervalMs * 8)) * 8);
+        const numPhrases = N / 8;
+        const phraseDur = gapDur / numPhrases;
+
+        for (let p = 0; p < numPhrases; p++) {
+          calculatedCalibratedTaps.push(Math.round(tStart + p * phraseDur));
+        }
+      }
+    });
+
+    if (sortedSections.length > 0) {
+      calculatedCalibratedTaps.push(sortedSections[sortedSections.length - 1].endTimeMs);
+    }
+    const finalCalibratedTaps = Array.from(new Set(calculatedCalibratedTaps)).sort((a, b) => a - b);
+
     const allPhrases: any[] = [];
     const allBeatTimes: number[] = [];
 
@@ -220,75 +249,47 @@ export default function DevCalibrator({
     } : {};
 
     const updatedSections = sortedSections.map(sec => {
-      const secTaps = sortedTaps.filter(t => t > sec.startTimeMs && t < sec.endTimeMs);
-      const anchors = [sec.startTimeMs, ...secTaps, sec.endTimeMs];
-      const phraseIds: string[] = [];
-
-      for (let i = 0; i < anchors.length - 1; i++) {
-        const tStart = anchors[i];
-        const tEnd = anchors[i + 1];
-        const gapDur = tEnd - tStart;
-        if (gapDur <= 0) continue;
-
-        const N = Math.max(8, Math.round(gapDur / (beatIntervalMs * 8)) * 8);
-        const delta = gapDur / N;
-
-        const phraseLengths: number[] = [];
-        let rem = N;
-        while (rem >= 8) {
-          phraseLengths.push(8);
-          rem -= 8;
-        }
-
-        let currentGapBeatIdx = 0;
-        for (let pIdx = 0; pIdx < phraseLengths.length; pIdx++) {
-          const length = phraseLengths[pIdx];
-          const pStartBeatIdx = currentGapBeatIdx;
-          const pEndBeatIdx = currentGapBeatIdx + length;
-
-          const phraseStartMs = Math.round(tStart + pStartBeatIdx * delta);
-          const phraseEndMs = pIdx === phraseLengths.length - 1 ? tEnd : Math.round(tStart + pEndBeatIdx * delta);
-
-          const calibratedBeats = [];
-          for (let k = 0; k < length; k++) {
-            const beatTime = Math.round(tStart + (pStartBeatIdx + k) * delta);
-            calibratedBeats.push({
-              count: k + 1,
-              timestampMs: beatTime
-            });
-            allBeatTimes.push(beatTime);
-          }
-
-          let type = "STANDARD_8_COUNT";
-
-          const phraseId = crypto.randomUUID();
-          phraseIds.push(phraseId);
-
-          allPhrases.push({
-            id: phraseId,
-            index: 0,
-            startTimeMs: phraseStartMs,
-            endTimeMs: phraseEndMs,
-            type,
-            genre: songData.genre,
-            calibratedBeats,
-            events: [],
-            ...claveProps
-          });
-
-          currentGapBeatIdx = pEndBeatIdx;
-        }
-      }
-
       return {
         ...sec,
-        phraseIds
+        phraseIds: []
       };
     });
 
-    if (updatedSections.length > 0) {
-      const lastSec = updatedSections[updatedSections.length - 1];
-      allBeatTimes.push(lastSec.endTimeMs);
+    for (let i = 0; i < finalCalibratedTaps.length - 1; i++) {
+      const pStart = finalCalibratedTaps[i];
+      const pEnd = finalCalibratedTaps[i + 1];
+      const pDur = pEnd - pStart;
+      if (pDur <= 0) continue;
+
+      const delta = pDur / 8;
+      const calibratedBeats = [];
+      for (let k = 0; k < 8; k++) {
+        const beatTime = Math.round(pStart + k * delta);
+        calibratedBeats.push({
+          count: k + 1,
+          timestampMs: beatTime
+        });
+        allBeatTimes.push(beatTime);
+      }
+
+      const phraseId = crypto.randomUUID();
+      const midpoint = (pStart + pEnd) / 2;
+      const secIdx = sortedSections.findIndex(s => midpoint >= s.startTimeMs && midpoint <= s.endTimeMs);
+      if (secIdx >= 0) {
+        updatedSections[secIdx].phraseIds.push(phraseId);
+      }
+
+      allPhrases.push({
+        id: phraseId,
+        index: 0,
+        startTimeMs: pStart,
+        endTimeMs: pEnd,
+        type: "STANDARD_8_COUNT",
+        genre: songData.genre,
+        calibratedBeats,
+        events: [],
+        ...claveProps
+      });
     }
 
     allPhrases.forEach((ph, idx) => {
@@ -305,9 +306,10 @@ export default function DevCalibrator({
       absoluteBeatMap: allBeatTimes,
       baseBpm: calculatedBpm,
       rawTaps: sortedTaps,
+      calibratedTaps: finalCalibratedTaps,
       rawTapsHistory: tappedHistory
     };
-    syncSongMapState(updatedSections, allPhrases, allBeatTimes, calculatedBpm, sortedTaps, tappedHistory);
+    syncSongMapState(updatedSections, allPhrases, allBeatTimes, calculatedBpm, sortedTaps, tappedHistory, finalCalibratedTaps);
 
     if (triggerAutoSave && songData.status === "DRAFT_CUTTING") {
       autoSaveSongMap(updated);
@@ -502,17 +504,23 @@ export default function DevCalibrator({
 
   const handleSaveTaps = () => {
     let updatedHistory = [...tappedHistory];
-    const exists = updatedHistory.some(arr => 
-      arr.length === tappedDownbeats.length && 
-      arr.every((val, index) => val === tappedDownbeats[index])
+    const exists = updatedHistory.some(session => 
+      session.rawTaps.length === tappedDownbeats.length && 
+      session.rawTaps.every((val: number, index: number) => val === tappedDownbeats[index])
     );
+    const currentCalibratedTaps = latestSongDataRef.current?.calibratedTaps || [];
     if (!exists && tappedDownbeats.length > 0) {
-      updatedHistory.push(tappedDownbeats);
+      updatedHistory.push({
+        rawTaps: tappedDownbeats,
+        calibratedTaps: currentCalibratedTaps
+      });
       setTappedHistory(updatedHistory);
     }
 
     const updated = {
       ...latestSongDataRef.current,
+      rawTaps: tappedDownbeats,
+      calibratedTaps: currentCalibratedTaps,
       rawTapsHistory: updatedHistory,
       status: "DRAFT_LABELING"
     };
@@ -543,7 +551,7 @@ export default function DevCalibrator({
   };
 
   const handleConsolidateTaps = () => {
-    const allAttempts = [...tappedHistory];
+    const allAttempts = tappedHistory.map(h => h.rawTaps);
     if (tappedDownbeats.length > 0) {
       allAttempts.push(tappedDownbeats);
     }

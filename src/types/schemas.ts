@@ -109,6 +109,11 @@ export const SectionSchema = z.union([
   SalsaSectionSchema
 ]);
 
+export const TapSessionSchema = z.object({
+  rawTaps: z.array(z.number().int()),
+  calibratedTaps: z.array(z.number().int())
+});
+
 export const BaseSongMapSchema = z.object({
   id: z.string(),
   youtubeId: z.string(),
@@ -119,7 +124,8 @@ export const BaseSongMapSchema = z.object({
   baseBpm: z.number().positive(),
   absoluteBeatMap: z.array(z.number().int()).optional(),
   rawTaps: z.array(z.number().int()).optional(),
-  rawTapsHistory: z.array(z.array(z.number().int())).optional(),
+  calibratedTaps: z.array(z.number().int()).optional(),
+  rawTapsHistory: z.array(TapSessionSchema).optional(),
   schemaVersion: z.literal('2.0')
 });
 
