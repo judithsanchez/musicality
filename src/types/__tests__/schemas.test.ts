@@ -222,9 +222,9 @@ describe('StrictSongMapSchema Validation', () => {
   });
 
   describe('Tap History Validation', () => {
-    it('should pass if rawTapsHistory contains valid sessions', () => {
+    it('should pass if rawTaps contains valid sessions', () => {
       const copy = JSON.parse(JSON.stringify(validSalsaMap));
-      copy.rawTapsHistory = [
+      copy.rawTaps = [
         {
           rawTaps: [0, 1000],
           calibratedTaps: [0, 1000],
@@ -235,9 +235,9 @@ describe('StrictSongMapSchema Validation', () => {
       expect(res.success).toBe(true);
     });
 
-    it('should fail if a rawTapsHistory session is missing tappedAt', () => {
+    it('should fail if a rawTaps session is missing tappedAt', () => {
       const copy = JSON.parse(JSON.stringify(validSalsaMap));
-      copy.rawTapsHistory = [
+      copy.rawTaps = [
         {
           rawTaps: [0, 1000],
           calibratedTaps: [0, 1000]

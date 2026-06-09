@@ -1932,7 +1932,6 @@
       ]
     }
   ],
-  "rawTapsHistory": [],
   "calibratedTaps": [
     0,
     3319,
@@ -2028,5 +2027,6 @@
     291311
   ],
   "isSectionsProcessed": true,
-  "isTappingProcessed": true
+  "isTappingProcessed": true,
+  "rawTaps": []
 }

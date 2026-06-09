@@ -129,7 +129,7 @@ export const BaseSongMapSchema = z.object({
   isTappingProcessed: z.boolean().default(false),
   baseBpm: z.number().positive(),
   calibratedTaps: z.array(z.number().int()).optional(),
-  rawTapsHistory: z.array(TapSessionSchema).optional(),
+  rawTaps: z.array(TapSessionSchema).optional(),
   schemaVersion: z.literal('2.0')
 });
 

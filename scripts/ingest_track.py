@@ -35,7 +35,7 @@ def main():
         "isTappingProcessed": False,
         "baseBpm": float(round(bpm, 2)),
         "calibratedTaps": [],
-        "rawTapsHistory": [],
+        "rawTaps": [],
         "schemaVersion": "2.0",
         "sections": [],
         "phrases": []
