@@ -31,7 +31,11 @@ def main():
         "artist": args.artist,
         "genre": args.genre,
         "status": "DRAFT_CUTTING",
+        "isSectionsProcessed": False,
+        "isTappingProcessed": False,
         "baseBpm": float(round(bpm, 2)),
+        "calibratedTaps": [],
+        "rawTapsHistory": [],
         "schemaVersion": "2.0",
         "sections": [],
         "phrases": []

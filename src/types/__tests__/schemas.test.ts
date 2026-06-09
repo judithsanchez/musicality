@@ -221,6 +221,33 @@ describe('StrictSongMapSchema Validation', () => {
     });
   });
 
+  describe('Tap History Validation', () => {
+    it('should pass if rawTapsHistory contains valid sessions', () => {
+      const copy = JSON.parse(JSON.stringify(validSalsaMap));
+      copy.rawTapsHistory = [
+        {
+          rawTaps: [0, 1000],
+          calibratedTaps: [0, 1000],
+          tappedAt: '2026-06-09T08:09:00.000Z'
+        }
+      ];
+      const res = StrictSongMapSchema.safeParse(copy);
+      expect(res.success).toBe(true);
+    });
+
+    it('should fail if a rawTapsHistory session is missing tappedAt', () => {
+      const copy = JSON.parse(JSON.stringify(validSalsaMap));
+      copy.rawTapsHistory = [
+        {
+          rawTaps: [0, 1000],
+          calibratedTaps: [0, 1000]
+        }
+      ];
+      const res = StrictSongMapSchema.safeParse(copy);
+      expect(res.success).toBe(false);
+    });
+  });
+
   describe('isSectionsProcessed Toggle Validation', () => {
     it('should pass with empty sections and phrases if isSectionsProcessed is false', () => {
       const copy = JSON.parse(JSON.stringify(validSalsaMap));

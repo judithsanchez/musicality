@@ -18,6 +18,13 @@ const validSalsaMap = {
   isTappingProcessed: true,
   schemaVersion: '2.0',
   defaultClave: '2-3',
+  rawTapsHistory: [
+    {
+      rawTaps: [0, 1000],
+      calibratedTaps: [0, 1000],
+      tappedAt: '2026-06-09T08:09:00.000Z'
+    }
+  ],
   sections: [
     {
       id: 'sec-1',
