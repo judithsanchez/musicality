@@ -202,32 +202,27 @@ export default function DevCalibrator({
     }
 
     const beatIntervalMs = 60000.0 / calculatedBpm;
-    const calculatedCalibratedTaps: number[] = [];
-
     const songEndMs = sortedSections.length > 0 ? sortedSections[sortedSections.length - 1].endTimeMs : (duration * 1000 || 300000);
-    const filteredTaps = sortedTaps.filter(t => t > 0 && t < songEndMs);
-    const anchors = [0, ...filteredTaps, songEndMs];
 
-    for (let i = 0; i < anchors.length - 1; i++) {
-      const tStart = anchors[i];
-      const tEnd = anchors[i + 1];
-      const gapDur = tEnd - tStart;
-      if (gapDur <= 0) continue;
+    const firstTap = sortedTaps.find(t => t > 0);
 
-      const N = Math.max(8, Math.round(gapDur / (beatIntervalMs * 8)) * 8);
-      const numPhrases = N / 8;
-      const phraseDur = gapDur / numPhrases;
-
-      for (let p = 0; p < numPhrases; p++) {
-        calculatedCalibratedTaps.push(Math.round(tStart + p * phraseDur));
-      }
+    let snappedTaps: number[] = [];
+    if (firstTap !== undefined) {
+      const uniqueSnapped = new Set<number>();
+      sortedTaps.forEach(t => {
+        if (t <= 0) return;
+        if (t >= songEndMs) return;
+        const k = Math.round((t - firstTap) / (beatIntervalMs * 4));
+        const snappedTime = Math.round(firstTap + k * (beatIntervalMs * 4));
+        if (snappedTime > 0 && snappedTime < songEndMs) {
+          uniqueSnapped.add(snappedTime);
+        }
+      });
+      snappedTaps = Array.from(uniqueSnapped).sort((a, b) => a - b);
     }
 
-    if (sortedSections.length > 0) {
-      calculatedCalibratedTaps.push(songEndMs);
-    }
-    const finalCalibratedTaps = Array.from(new Set(calculatedCalibratedTaps)).sort((a, b) => a - b);
-
+    const anchors = [0, ...snappedTaps, songEndMs];
+    const calculatedCalibratedTaps: number[] = [];
     const allPhrases: any[] = [];
 
     const claveProps = songData.genre === "SALSA" ? {
@@ -236,34 +231,79 @@ export default function DevCalibrator({
       claveSource: "DEFAULT"
     } : {};
 
-    for (let i = 0; i < finalCalibratedTaps.length - 1; i++) {
-      const pStart = finalCalibratedTaps[i];
-      const pEnd = finalCalibratedTaps[i + 1];
-      const pDur = pEnd - pStart;
-      if (pDur <= 0) continue;
+    let phraseIdx = 1;
 
-      const beats = [
-        {
-          count: 1,
-          timestampMs: pStart,
-          type: "DOWNBEAT"
+    for (let i = 0; i < anchors.length - 1; i++) {
+      const tStart = anchors[i];
+      const tEnd = anchors[i + 1];
+      const gapDur = tEnd - tStart;
+      if (gapDur <= 0) continue;
+
+      const isMiddleGap = (tStart !== 0 && tEnd !== songEndMs);
+
+      if (isMiddleGap && firstTap !== undefined) {
+        const numBeats = Math.max(4, Math.round(gapDur / beatIntervalMs));
+        let currentOffset = 0;
+
+        while (currentOffset < numBeats) {
+          const beatsLeft = numBeats - currentOffset;
+          const pStart = Math.round(tStart + currentOffset * beatIntervalMs);
+          let pEnd = 0;
+          let pType: "STANDARD_8_COUNT" | "HALF_PHRASE_4_COUNT" = "STANDARD_8_COUNT";
+
+          if (beatsLeft === 4) {
+            pEnd = Math.round(tStart + (currentOffset + 4) * beatIntervalMs);
+            pType = "HALF_PHRASE_4_COUNT";
+            currentOffset += 4;
+          } else {
+            pEnd = Math.round(tStart + (currentOffset + 8) * beatIntervalMs);
+            pType = "STANDARD_8_COUNT";
+            currentOffset += 8;
+          }
+
+          calculatedCalibratedTaps.push(pStart);
+
+          allPhrases.push({
+            id: crypto.randomUUID(),
+            index: phraseIdx++,
+            startTimeMs: pStart,
+            endTimeMs: pEnd,
+            type: pType,
+            genre: songData.genre,
+            beats: [{ count: 1, timestampMs: pStart, type: "DOWNBEAT" }],
+            events: [],
+            ...claveProps
+          });
         }
-      ];
+      } else {
+        const numPhrases = Math.max(1, Math.round(gapDur / (beatIntervalMs * 8)));
+        const phraseDur = gapDur / numPhrases;
 
-      const phraseId = crypto.randomUUID();
+        for (let p = 0; p < numPhrases; p++) {
+          const pStart = Math.round(tStart + p * phraseDur);
+          const pEnd = Math.round(tStart + (p + 1) * phraseDur);
 
-      allPhrases.push({
-        id: phraseId,
-        index: i + 1,
-        startTimeMs: pStart,
-        endTimeMs: pEnd,
-        type: "STANDARD_8_COUNT",
-        genre: songData.genre,
-        beats,
-        events: [],
-        ...claveProps
-      });
+          calculatedCalibratedTaps.push(pStart);
+
+          allPhrases.push({
+            id: crypto.randomUUID(),
+            index: phraseIdx++,
+            startTimeMs: pStart,
+            endTimeMs: pEnd,
+            type: "STANDARD_8_COUNT",
+            genre: songData.genre,
+            beats: [{ count: 1, timestampMs: pStart, type: "DOWNBEAT" }],
+            events: [],
+            ...claveProps
+          });
+        }
+      }
     }
+
+    if (sortedSections.length > 0) {
+      calculatedCalibratedTaps.push(songEndMs);
+    }
+    const finalCalibratedTaps = Array.from(new Set(calculatedCalibratedTaps)).sort((a, b) => a - b);
 
     setEditorSections(sortedSections);
     setPhrases(allPhrases);
@@ -299,7 +339,11 @@ export default function DevCalibrator({
       return;
     }
 
-    const tooCloseToTap = tappedDownbeats.some(t => Math.abs(t - tapTimeMs) < 300);
+    const currentBpm = songData.baseBpm || (songData.genre === "SALSA" ? 153.4 : 120.0);
+    const beatIntervalMs = 60000.0 / currentBpm;
+    const minTapGapMs = beatIntervalMs * 3.5;
+
+    const tooCloseToTap = tappedDownbeats.some(t => Math.abs(t - tapTimeMs) < minTapGapMs);
     if (tooCloseToTap) {
       showToast("⚠️ Tap is too close to an existing tap.");
       return;
@@ -591,6 +635,7 @@ export default function DevCalibrator({
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if (e.repeat) return;
       const tag = (e.target as HTMLElement).tagName;
       if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
 
