@@ -151,6 +151,7 @@ export function useSyncEngine(
         let minDiff = Infinity;
         const beatDuration = 60000.0 / (sData.baseBpm || 150.0);
 
+        /*
         if (matchedPhrase?.beats && matchedPhrase.beats.length > 0) {
           for (let i = 0; i < matchedPhrase.beats.length; i++) {
             const beat = matchedPhrase.beats[i];
@@ -160,6 +161,27 @@ export function useSyncEngine(
               if (absDiff < minDiff) {
                 minDiff = absDiff;
                 closestBeat = beat;
+              }
+            }
+          }
+        }
+        */
+
+        const latestSession = sData.downbeats?.[sData.downbeats.length - 1];
+        const rawDownbeats = latestSession?.rawDownbeats || [];
+        if (rawDownbeats.length > 0) {
+          for (let i = 0; i < rawDownbeats.length; i++) {
+            const rawTimeMs = rawDownbeats[i];
+            const timeDiff = visualTimeMs - rawTimeMs;
+            if (timeDiff >= -40 && timeDiff < beatDuration * 0.6) {
+              const absDiff = Math.abs(timeDiff);
+              if (absDiff < minDiff) {
+                minDiff = absDiff;
+                closestBeat = {
+                  count: 1,
+                  timestampMs: rawTimeMs,
+                  type: "DOWNBEAT"
+                };
               }
             }
           }
