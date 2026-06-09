@@ -10,36 +10,6 @@ import { StrictSongMapSchema } from './src/types/schemas';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-function parseMultipart(body: Buffer, boundary: string) {
-  const boundaryBuffer = Buffer.from('--' + boundary);
-  const parts: { headers: Record<string, string>; data: Buffer }[] = [];
-  
-  let index = body.indexOf(boundaryBuffer);
-  while (index !== -1) {
-    const nextIndex = body.indexOf(boundaryBuffer, index + boundaryBuffer.length);
-    if (nextIndex === -1) break;
-    
-    const part = body.subarray(index + boundaryBuffer.length, nextIndex);
-    const sep = part.indexOf(Buffer.from('\r\n\r\n'));
-    if (sep !== -1) {
-      const headerStr = part.subarray(0, sep).toString('utf8');
-      const data = part.subarray(sep + 4, part.length - 2);
-      
-      const headers: Record<string, string> = {};
-      headerStr.split('\r\n').forEach(line => {
-        const colon = line.indexOf(':');
-        if (colon !== -1) {
-          const key = line.substring(0, colon).trim().toLowerCase();
-          const val = line.substring(colon + 1).trim();
-          headers[key] = val;
-        }
-      });
-      parts.push({ headers, data });
-    }
-    index = nextIndex;
-  }
-  return parts;
-}
 
 function songDbPlugin() {
   return {

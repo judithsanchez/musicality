@@ -151,22 +151,6 @@ export function useSyncEngine(
         let minDiff = Infinity;
         const beatDuration = 60000.0 / (sData.baseBpm || 150.0);
 
-        /*
-        if (matchedPhrase?.beats && matchedPhrase.beats.length > 0) {
-          for (let i = 0; i < matchedPhrase.beats.length; i++) {
-            const beat = matchedPhrase.beats[i];
-            const timeDiff = visualTimeMs - beat.timestampMs;
-            if (timeDiff >= -40 && timeDiff < beatDuration * 0.6) {
-              const absDiff = Math.abs(timeDiff);
-              if (absDiff < minDiff) {
-                minDiff = absDiff;
-                closestBeat = beat;
-              }
-            }
-          }
-        }
-        */
-
         const latestSession = sData.downbeats?.[sData.downbeats.length - 1];
         const rawDownbeats = latestSession?.rawDownbeats || [];
         if (rawDownbeats.length > 0) {
