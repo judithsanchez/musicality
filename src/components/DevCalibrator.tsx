@@ -98,42 +98,37 @@ export default function DevCalibrator({
     const sortedSections = [...activeSections].sort((a, b) => a.startTimeMs - b.startTimeMs);
     const activePhrases = songData.phrases || [];
 
-    if (sortedSections.length === 0) {
+    if (!songData.sections || songData.sections.length === 0) {
       const isSalsa = songData.genre === "SALSA";
       const defaultSec = {
         id: "sec-default",
-        startTimeMs: 0,
-        endTimeMs: Math.round(duration * 1000),
         label: isSalsa ? "Verse" : "Derecho",
+        emoji: isSalsa ? "🎤" : "🎸",
         energyState: isSalsa ? "VERSE" : "DERECHO",
-        phraseIds: [],
-        emoji: isSalsa ? "🎤" : "🎸"
+        startTimeMs: 0,
+        endTimeMs: duration * 1000 || 300000
       };
       setEditorSections([defaultSec]);
       setPhrases([]);
       setTappedDownbeats([]);
+      setTappedHistory([]);
     } else {
       setEditorSections(sortedSections);
       setPhrases(activePhrases);
 
-      if (songData.rawTaps && Array.isArray(songData.rawTaps)) {
-        const sortedTaps = [...songData.rawTaps].sort((a, b) => a - b);
+      if (songData.consensusDownbeats && Array.isArray(songData.consensusDownbeats)) {
+        const sortedTaps = [...songData.consensusDownbeats].sort((a, b) => a - b);
         setTappedDownbeats(sortedTaps);
-        if (activePhrases.length === 0) {
-          repartitionAllPhrases(sortedSections, sortedTaps);
-        }
       } else {
         const restoredDownbeats: number[] = [];
         activePhrases.forEach((ph: any) => {
-          const startsAtSectionBoundary = sortedSections.some(s => s.startTimeMs === ph.startTimeMs);
-          if (!startsAtSectionBoundary) {
-            restoredDownbeats.push(ph.startTimeMs);
-          }
+          restoredDownbeats.push(ph.startTimeMs);
         });
-        setTappedDownbeats(restoredDownbeats);
+        setTappedDownbeats(Array.from(new Set(restoredDownbeats)).sort((a, b) => a - b));
       }
-      if (songData.rawTapsHistory && Array.isArray(songData.rawTapsHistory)) {
-        setTappedHistory(songData.rawTapsHistory);
+
+      if (songData.rawTaps && Array.isArray(songData.rawTaps)) {
+        setTappedHistory(songData.rawTaps);
       } else {
         setTappedHistory([]);
       }
@@ -164,9 +159,8 @@ export default function DevCalibrator({
     sections: any[],
     phrasesList: any[],
     baseBpm?: number,
-    rawTaps?: number[],
-    rawTapsHistory?: any[],
-    calibratedTaps?: number[]
+    rawTaps?: any[],
+    consensusDownbeats?: number[]
   ) => {
     const updated = {
       ...songData,
@@ -174,8 +168,7 @@ export default function DevCalibrator({
       phrases: phrasesList,
       ...(baseBpm !== undefined ? { baseBpm } : {}),
       ...(rawTaps !== undefined ? { rawTaps } : {}),
-      ...(rawTapsHistory !== undefined ? { rawTapsHistory } : {}),
-      ...(calibratedTaps !== undefined ? { calibratedTaps } : {})
+      ...(consensusDownbeats !== undefined ? { consensusDownbeats } : {})
     };
     setCalibratedSongData(updated);
     setSongData(updated);
@@ -211,28 +204,27 @@ export default function DevCalibrator({
     const beatIntervalMs = 60000.0 / calculatedBpm;
     const calculatedCalibratedTaps: number[] = [];
 
-    sortedSections.forEach(sec => {
-      const secTaps = sortedTaps.filter(t => t > sec.startTimeMs && t < sec.endTimeMs);
-      const anchors = [sec.startTimeMs, ...secTaps, sec.endTimeMs];
+    const songEndMs = sortedSections.length > 0 ? sortedSections[sortedSections.length - 1].endTimeMs : (duration * 1000 || 300000);
+    const filteredTaps = sortedTaps.filter(t => t > 0 && t < songEndMs);
+    const anchors = [0, ...filteredTaps, songEndMs];
 
-      for (let i = 0; i < anchors.length - 1; i++) {
-        const tStart = anchors[i];
-        const tEnd = anchors[i + 1];
-        const gapDur = tEnd - tStart;
-        if (gapDur <= 0) continue;
+    for (let i = 0; i < anchors.length - 1; i++) {
+      const tStart = anchors[i];
+      const tEnd = anchors[i + 1];
+      const gapDur = tEnd - tStart;
+      if (gapDur <= 0) continue;
 
-        const N = Math.max(8, Math.round(gapDur / (beatIntervalMs * 8)) * 8);
-        const numPhrases = N / 8;
-        const phraseDur = gapDur / numPhrases;
+      const N = Math.max(8, Math.round(gapDur / (beatIntervalMs * 8)) * 8);
+      const numPhrases = N / 8;
+      const phraseDur = gapDur / numPhrases;
 
-        for (let p = 0; p < numPhrases; p++) {
-          calculatedCalibratedTaps.push(Math.round(tStart + p * phraseDur));
-        }
+      for (let p = 0; p < numPhrases; p++) {
+        calculatedCalibratedTaps.push(Math.round(tStart + p * phraseDur));
       }
-    });
+    }
 
     if (sortedSections.length > 0) {
-      calculatedCalibratedTaps.push(sortedSections[sortedSections.length - 1].endTimeMs);
+      calculatedCalibratedTaps.push(songEndMs);
     }
     const finalCalibratedTaps = Array.from(new Set(calculatedCalibratedTaps)).sort((a, b) => a - b);
 
@@ -244,40 +236,25 @@ export default function DevCalibrator({
       claveSource: "DEFAULT"
     } : {};
 
-    const updatedSections = sortedSections.map(sec => {
-      return {
-        ...sec,
-        phraseIds: []
-      };
-    });
-
     for (let i = 0; i < finalCalibratedTaps.length - 1; i++) {
       const pStart = finalCalibratedTaps[i];
       const pEnd = finalCalibratedTaps[i + 1];
       const pDur = pEnd - pStart;
       if (pDur <= 0) continue;
 
-      const delta = pDur / 8;
-      const beats = [];
-      for (let k = 0; k < 8; k++) {
-        const beatTime = Math.round(pStart + k * delta);
-        beats.push({
-          count: k + 1,
-          timestampMs: beatTime,
-          type: k === 0 ? "DOWNBEAT" : "NORMAL"
-        });
-      }
+      const beats = [
+        {
+          count: 1,
+          timestampMs: pStart,
+          type: "DOWNBEAT"
+        }
+      ];
 
       const phraseId = crypto.randomUUID();
-      const midpoint = (pStart + pEnd) / 2;
-      const secIdx = sortedSections.findIndex(s => midpoint >= s.startTimeMs && midpoint <= s.endTimeMs);
-      if (secIdx >= 0) {
-        updatedSections[secIdx].phraseIds.push(phraseId);
-      }
 
       allPhrases.push({
         id: phraseId,
-        index: 0,
+        index: i + 1,
         startTimeMs: pStart,
         endTimeMs: pEnd,
         type: "STANDARD_8_COUNT",
@@ -288,26 +265,18 @@ export default function DevCalibrator({
       });
     }
 
-    if (updatedSections.length > 0) {
-    }
-
-    allPhrases.forEach((ph, idx) => {
-      ph.index = idx + 1;
-    });
-
-    setEditorSections(updatedSections);
+    setEditorSections(sortedSections);
     setPhrases(allPhrases);
 
     const updated = {
       ...songData,
-      sections: updatedSections,
+      sections: sortedSections,
       phrases: allPhrases,
       baseBpm: calculatedBpm,
-      rawTaps: sortedTaps,
-      calibratedTaps: finalCalibratedTaps,
-      rawTapsHistory: tappedHistory
+      consensusDownbeats: finalCalibratedTaps,
+      rawTaps: tappedHistory
     };
-    syncSongMapState(updatedSections, allPhrases, calculatedBpm, sortedTaps, tappedHistory, finalCalibratedTaps);
+    syncSongMapState(sortedSections, allPhrases, calculatedBpm, tappedHistory, finalCalibratedTaps);
 
     if (triggerAutoSave && songData.status === "DRAFT_CUTTING") {
       autoSaveSongMap(updated);
@@ -412,7 +381,7 @@ export default function DevCalibrator({
       return s;
     });
     setEditorSections(updated);
-    syncSongMapState(updated, phrases, songData.absoluteBeatMap, songData.baseBpm, tappedDownbeats);
+    syncSongMapState(updated, phrases, songData.baseBpm, tappedHistory, tappedDownbeats);
   };
 
   const handleAddNewSection = () => {
@@ -435,8 +404,7 @@ export default function DevCalibrator({
         emoji: isSalsa ? "🎤" : "🎸",
         energyState: isSalsa ? "VERSE" : "DERECHO",
         startTimeMs: playheadMs,
-        endTimeMs: target.endTimeMs,
-        phraseIds: []
+        endTimeMs: target.endTimeMs
       };
 
       const updated = [...editorSections];
@@ -485,7 +453,7 @@ export default function DevCalibrator({
       return p;
     });
     setPhrases(updatedPhrases);
-    syncSongMapState(editorSections, updatedPhrases, songData.absoluteBeatMap, songData.baseBpm, tappedDownbeats);
+    syncSongMapState(editorSections, updatedPhrases, songData.baseBpm, tappedHistory, tappedDownbeats);
   };
 
   const handleLockSections = () => {
@@ -506,31 +474,30 @@ export default function DevCalibrator({
       session.rawTaps.length === tappedDownbeats.length && 
       session.rawTaps.every((val: number, index: number) => val === tappedDownbeats[index])
     );
-    const currentCalibratedTaps = latestSongDataRef.current?.calibratedTaps || [];
+    const currentCalibratedTaps = latestSongDataRef.current?.consensusDownbeats || [];
     if (!exists && tappedDownbeats.length > 0) {
       updatedHistory.push({
         rawTaps: tappedDownbeats,
-        calibratedTaps: currentCalibratedTaps
+        calibratedDownbeats: currentCalibratedTaps,
+        tappedAt: new Date().toISOString()
       });
       setTappedHistory(updatedHistory);
     }
 
     const updated = {
       ...latestSongDataRef.current,
-      rawTaps: tappedDownbeats,
-      calibratedTaps: currentCalibratedTaps,
-      rawTapsHistory: updatedHistory,
+      consensusDownbeats: currentCalibratedTaps,
+      rawTaps: updatedHistory,
       status: "DRAFT_LABELING"
     };
     setCalibratedSongData(updated);
     setSongData(updated);
     
     setSaving(true);
-    const { absoluteBeatMap, ...saveData } = updated;
     fetch("/api/songs", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(saveData)
+      body: JSON.stringify(updated)
     })
     .then(r => r.json())
     .then(res => {
@@ -591,11 +558,10 @@ export default function DevCalibrator({
     setSongData(updated);
     
     setSaving(true);
-    const { absoluteBeatMap, ...saveData } = updated;
     fetch("/api/songs", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(saveData)
+      body: JSON.stringify(updated)
     })
     .then(r => r.json())
     .then(res => {

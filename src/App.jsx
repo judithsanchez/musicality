@@ -42,12 +42,13 @@ export default function App() {
   const seekThrottleTimeoutRef = useRef(null);
   const headerClicksRef = useRef(0);
 
+  const [ytPlayerMountedVal, setYtPlayerMountedVal] = useState(0);
+
   const ytPlayerRefCallback = useCallback((node) => {
     if (node) {
       setYtPlayerMountedVal(prev => prev + 1);
     }
   }, []);
-  const [ytPlayerMountedVal, setYtPlayerMountedVal] = useState(0);
 
   const showToast = (msg) => {
     setToastMessage(msg);
@@ -88,6 +89,81 @@ export default function App() {
       window.history.pushState(null, "", targetPath);
     }
   }, [viewingDevDashboard, currentSong, showDiagnostic]);
+
+  const handleSelectSong = (song) => {
+    setLoadingSong(true);
+    setValidationErrors(null);
+    setSongData(null);
+    setCalibratedSongData(null);
+    setMode("learn");
+
+    fetch(import.meta.env.BASE_URL + `songs/${song.youtubeId}.json`)
+      .then((res) => {
+        if (!res.ok) throw new Error("Beatmap load failed");
+        return res.json();
+      })
+      .then((data) => {
+        const adjustedData = { ...data };
+        if (!adjustedData.status) {
+          adjustedData.status = "DRAFT_CUTTING";
+        }
+        if (!adjustedData.phrases) {
+          adjustedData.phrases = [];
+        }
+
+        if (adjustedData.phrases) {
+          adjustedData.phrases.forEach((ph) => {
+            if (!ph.beats || ph.beats.length === 0) {
+              ph.beats = [
+                {
+                  count: 1,
+                  timestampMs: ph.startTimeMs,
+                  type: "DOWNBEAT"
+                }
+              ];
+            } else {
+              ph.beats = ph.beats.filter((b) => b.count === 1 || b.type === "DOWNBEAT");
+            }
+          });
+        }
+
+        if (!adjustedData.sections || adjustedData.sections.length === 0) {
+          const lastBeatTimeMs = adjustedData.phrases && adjustedData.phrases.length > 0
+            ? adjustedData.phrases[adjustedData.phrases.length - 1].endTimeMs
+            : 300000;
+          const isSalsa = adjustedData.genre === "SALSA";
+          adjustedData.sections = [
+            {
+              id: "sec-default",
+              startTimeMs: 0,
+              endTimeMs: lastBeatTimeMs,
+              label: isSalsa ? "Verse" : "Derecho",
+              energyState: isSalsa ? "VERSE" : "DERECHO",
+              emoji: isSalsa ? "🎤" : "🎸"
+            }
+          ];
+        }
+
+        const parsed = StrictSongMapSchema.safeParse(adjustedData);
+        if (!parsed.success) {
+          setValidationErrors(parsed.error.issues);
+          setCurrentSong(song);
+          setLoadingSong(false);
+          return;
+        }
+
+        const validSongMap = parsed.data;
+        setSongData(validSongMap);
+        setCalibratedSongData(JSON.parse(JSON.stringify(validSongMap)));
+        setCurrentSong(song);
+        setLoadingSong(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        setLoadingSong(false);
+        showToast("❌ Failed to load song beatmap.");
+      });
+  };
 
   useEffect(() => {
     const handleNavigationRestore = () => {
@@ -143,82 +219,6 @@ export default function App() {
     window.addEventListener("popstate", handleNavigationRestore);
     return () => window.removeEventListener("popstate", handleNavigationRestore);
   }, [currentSong]);
-
-  const handleSelectSong = (song) => {
-    setLoadingSong(true);
-    setValidationErrors(null);
-    setSongData(null);
-    setCalibratedSongData(null);
-    setMode("learn");
-
-    fetch(import.meta.env.BASE_URL + `songs/${song.youtubeId}.json`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Beatmap load failed");
-        return res.json();
-      })
-      .then((data) => {
-        const adjustedData = { ...data };
-        if (!adjustedData.status) {
-          adjustedData.status = "DRAFT_CUTTING";
-        }
-        if (!adjustedData.phrases) {
-          adjustedData.phrases = [];
-        }
-
-        if (adjustedData.phrases) {
-          adjustedData.phrases.forEach((ph) => {
-            if (!ph.beats) {
-              const delta = (ph.endTimeMs - ph.startTimeMs) / 8;
-              ph.beats = [];
-              for (let k = 0; k < 8; k++) {
-                ph.beats.push({
-                  count: k + 1,
-                  timestampMs: Math.round(ph.startTimeMs + k * delta),
-                  type: k === 0 ? "DOWNBEAT" : "NORMAL"
-                });
-              }
-            }
-          });
-        }
-
-        if (!adjustedData.sections || adjustedData.sections.length === 0) {
-          const lastBeatTimeMs = adjustedData.phrases && adjustedData.phrases.length > 0
-            ? adjustedData.phrases[adjustedData.phrases.length - 1].endTimeMs
-            : 300000;
-          const isSalsa = adjustedData.genre === "SALSA";
-          adjustedData.sections = [
-            {
-              id: "sec-default",
-              startTimeMs: 0,
-              endTimeMs: lastBeatTimeMs,
-              label: isSalsa ? "Verse" : "Derecho",
-              energyState: isSalsa ? "VERSE" : "DERECHO",
-              phraseIds: [],
-              emoji: isSalsa ? "🎤" : "🎸"
-            }
-          ];
-        }
-
-        const parsed = StrictSongMapSchema.safeParse(adjustedData);
-        if (!parsed.success) {
-          setValidationErrors(parsed.error.issues);
-          setCurrentSong(song);
-          setLoadingSong(false);
-          return;
-        }
-
-        const validSongMap = parsed.data;
-        setSongData(validSongMap);
-        setCalibratedSongData(JSON.parse(JSON.stringify(validSongMap)));
-        setCurrentSong(song);
-        setLoadingSong(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setLoadingSong(false);
-        showToast("❌ Failed to load song beatmap.");
-      });
-  };
 
   const handleBackToCatalog = () => {
     if (player && typeof player.pauseVideo === "function") {

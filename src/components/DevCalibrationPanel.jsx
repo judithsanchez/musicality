@@ -62,7 +62,7 @@ export default function DevCalibrationPanel({
 
         <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
           {editorSections.map((section, sIdx) => {
-            const sectionPhrases = phrases.filter(p => section.phraseIds.includes(p.id));
+            const sectionPhrases = phrases.filter(p => p.startTimeMs >= section.startTimeMs && p.startTimeMs < section.endTimeMs);
 
             return (
               <div key={section.id} style={{
