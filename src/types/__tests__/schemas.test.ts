@@ -178,11 +178,11 @@ describe('StrictSongMapSchema Validation', () => {
   });
 
   describe('Tap History Validation', () => {
-    it('should pass if rawTaps contains valid sessions', () => {
+    it('should pass if downbeats contains valid sessions', () => {
       const copy = JSON.parse(JSON.stringify(validSalsaMap));
-      copy.rawTaps = [
+      copy.downbeats = [
         {
-          rawTaps: [0, 1000],
+          rawDownbeats: [0, 1000],
           calibratedDownbeats: [0, 1000],
           tappedAt: '2026-06-09T08:09:00.000Z'
         }
@@ -191,11 +191,11 @@ describe('StrictSongMapSchema Validation', () => {
       expect(res.success).toBe(true);
     });
 
-    it('should fail if a rawTaps session is missing tappedAt', () => {
+    it('should fail if a downbeats session is missing tappedAt', () => {
       const copy = JSON.parse(JSON.stringify(validSalsaMap));
-      copy.rawTaps = [
+      copy.downbeats = [
         {
-          rawTaps: [0, 1000],
+          rawDownbeats: [0, 1000],
           calibratedDownbeats: [0, 1000]
         }
       ];

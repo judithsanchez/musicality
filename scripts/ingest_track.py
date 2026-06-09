@@ -35,7 +35,7 @@ def main():
         "isTappingProcessed": False,
         "baseBpm": float(round(bpm, 2)),
         "consensusDownbeats": [],
-        "rawTaps": [],
+        "downbeats": [],
         "schemaVersion": "2.0",
         "sections": [],
         "phrases": []

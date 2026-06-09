@@ -19,9 +19,9 @@ const validSalsaMap = {
   consensusDownbeats: [0, 1000],
   schemaVersion: '2.0',
   defaultClave: '2-3',
-  rawTaps: [
+  downbeats: [
     {
-      rawTaps: [0, 1000],
+      rawDownbeats: [0, 1000],
       calibratedDownbeats: [0, 1000],
       tappedAt: '2026-06-09T08:09:00.000Z'
     }
