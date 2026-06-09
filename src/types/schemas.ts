@@ -124,6 +124,8 @@ export const BaseSongMapSchema = z.object({
   artist: z.string(),
   genre: GenreSchema,
   status: z.enum(['DRAFT_CUTTING', 'DRAFT_TAPPING', 'DRAFT_LABELING', 'READY']).default('DRAFT_CUTTING'),
+  isSectionsProcessed: z.boolean().default(false),
+  isTappingProcessed: z.boolean().default(false),
   baseBpm: z.number().positive(),
   rawTaps: z.array(z.number().int()).optional(),
   calibratedTaps: z.array(z.number().int()).optional(),
@@ -211,116 +213,116 @@ export const StrictSongMapSchema = SongMapSchema.superRefine((data, ctx) => {
     });
   }
 
-  if (data.sections.length === 0) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: 'Sections array cannot be empty',
-      path: ['sections'],
-    });
-  } else {
-    const sortedSections = [...data.sections].sort((a, b) => a.startTimeMs - b.startTimeMs);
-    
-    if (sortedSections[0].startTimeMs !== 0) {
+  if (data.isSectionsProcessed) {
+    if (data.sections.length === 0) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: `First section must start at 0 ms, but starts at ${sortedSections[0].startTimeMs} ms`,
-        path: ['sections', 0, 'startTimeMs'],
+        message: 'Sections array cannot be empty',
+        path: ['sections'],
       });
-    }
-
-    for (let i = 1; i < sortedSections.length; i++) {
-      const prev = sortedSections[i - 1];
-      const curr = sortedSections[i];
-      if (curr.startTimeMs !== prev.endTimeMs) {
+    } else {
+      const sortedSections = [...data.sections].sort((a, b) => a.startTimeMs - b.startTimeMs);
+      
+      if (sortedSections[0].startTimeMs !== 0) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: `Section gap or overlap detected between ${prev.label} (${prev.endTimeMs}ms) and ${curr.label} (${curr.startTimeMs}ms)`,
-          path: ['sections', i, 'startTimeMs'],
-        });
-      }
-    }
-
-
-  }
-
-  const phrasesMap = new Map(data.phrases.map(p => [p.id, p]));
-  const referencedPhraseIds = new Set<string>();
-
-  data.sections.forEach((section, sIdx) => {
-    const sectionPhrases = section.phraseIds
-      .map(pid => {
-        referencedPhraseIds.add(pid);
-        return phrasesMap.get(pid);
-      })
-      .filter((p): p is NonNullable<typeof p> => p !== undefined);
-
-    section.phraseIds.forEach((pid, pIdx) => {
-      if (!phrasesMap.has(pid)) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: `Section ${section.label} references phrase ID ${pid} which does not exist in phrases list`,
-          path: ['sections', sIdx, 'phraseIds', pIdx],
-        });
-      }
-    });
-
-    if (sectionPhrases.length > 0) {
-      const sortedPhrases = [...sectionPhrases].sort((a, b) => a.startTimeMs - b.startTimeMs);
-
-      if (sortedPhrases[0].startTimeMs !== section.startTimeMs) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: `First phrase in section ${section.label} must start at section start time (${section.startTimeMs}ms), but starts at ${sortedPhrases[0].startTimeMs}ms`,
-          path: ['sections', sIdx, 'phraseIds'],
+          message: `First section must start at 0 ms, but starts at ${sortedSections[0].startTimeMs} ms`,
+          path: ['sections', 0, 'startTimeMs'],
         });
       }
 
-      for (let i = 1; i < sortedPhrases.length; i++) {
-        const prev = sortedPhrases[i - 1];
-        const curr = sortedPhrases[i];
+      for (let i = 1; i < sortedSections.length; i++) {
+        const prev = sortedSections[i - 1];
+        const curr = sortedSections[i];
         if (curr.startTimeMs !== prev.endTimeMs) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
-            message: `Phrase gap or overlap detected in section ${section.label} between phrase index ${prev.index} (${prev.endTimeMs}ms) and phrase index ${curr.index} (${curr.startTimeMs}ms)`,
+            message: `Section gap or overlap detected between ${prev.label} (${prev.endTimeMs}ms) and ${curr.label} (${curr.startTimeMs}ms)`,
+            path: ['sections', i, 'startTimeMs'],
+          });
+        }
+      }
+    }
+
+    const phrasesMap = new Map(data.phrases.map(p => [p.id, p]));
+    const referencedPhraseIds = new Set<string>();
+
+    data.sections.forEach((section, sIdx) => {
+      const sectionPhrases = section.phraseIds
+        .map(pid => {
+          referencedPhraseIds.add(pid);
+          return phrasesMap.get(pid);
+        })
+        .filter((p): p is NonNullable<typeof p> => p !== undefined);
+
+      section.phraseIds.forEach((pid, pIdx) => {
+        if (!phrasesMap.has(pid)) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `Section ${section.label} references phrase ID ${pid} which does not exist in phrases list`,
+            path: ['sections', sIdx, 'phraseIds', pIdx],
+          });
+        }
+      });
+
+      if (sectionPhrases.length > 0) {
+        const sortedPhrases = [...sectionPhrases].sort((a, b) => a.startTimeMs - b.startTimeMs);
+
+        if (sortedPhrases[0].startTimeMs !== section.startTimeMs) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `First phrase in section ${section.label} must start at section start time (${section.startTimeMs}ms), but starts at ${sortedPhrases[0].startTimeMs}ms`,
+            path: ['sections', sIdx, 'phraseIds'],
+          });
+        }
+
+        for (let i = 1; i < sortedPhrases.length; i++) {
+          const prev = sortedPhrases[i - 1];
+          const curr = sortedPhrases[i];
+          if (curr.startTimeMs !== prev.endTimeMs) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: `Phrase gap or overlap detected in section ${section.label} between phrase index ${prev.index} (${prev.endTimeMs}ms) and phrase index ${curr.index} (${curr.startTimeMs}ms)`,
+              path: ['sections', sIdx, 'phraseIds'],
+            });
+          }
+        }
+
+        const lastPhrase = sortedPhrases[sortedPhrases.length - 1];
+        if (lastPhrase.endTimeMs !== section.endTimeMs) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `Last phrase in section ${section.label} must end at section end time (${section.endTimeMs}ms), but ends at ${lastPhrase.endTimeMs}ms`,
             path: ['sections', sIdx, 'phraseIds'],
           });
         }
       }
+    });
 
-      const lastPhrase = sortedPhrases[sortedPhrases.length - 1];
-      if (lastPhrase.endTimeMs !== section.endTimeMs) {
+    data.phrases.forEach((phrase, idx) => {
+      if (!referencedPhraseIds.has(phrase.id)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: `Last phrase in section ${section.label} must end at section end time (${section.endTimeMs}ms), but ends at ${lastPhrase.endTimeMs}ms`,
-          path: ['sections', sIdx, 'phraseIds'],
+          message: `Phrase at index ${idx} with ID ${phrase.id} is not referenced by any section`,
+          path: ['phrases', idx, 'id'],
         });
       }
-    }
-  });
-
-  data.phrases.forEach((phrase, idx) => {
-    if (!referencedPhraseIds.has(phrase.id)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: `Phrase at index ${idx} with ID ${phrase.id} is not referenced by any section`,
-        path: ['phrases', idx, 'id'],
-      });
-    }
-  });
-
-  const phraseUsageCount = new Map<string, number>();
-  data.sections.forEach(s => {
-    s.phraseIds.forEach(pid => {
-      phraseUsageCount.set(pid, (phraseUsageCount.get(pid) || 0) + 1);
     });
-  });
-  phraseUsageCount.forEach((count, pid) => {
-    if (count > 1) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: `Phrase with ID ${pid} is referenced in multiple sections`,
-        path: ['sections'],
+
+    const phraseUsageCount = new Map<string, number>();
+    data.sections.forEach(s => {
+      s.phraseIds.forEach(pid => {
+        phraseUsageCount.set(pid, (phraseUsageCount.get(pid) || 0) + 1);
       });
-    }
-  });
+    });
+    phraseUsageCount.forEach((count, pid) => {
+      if (count > 1) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `Phrase with ID ${pid} is referenced in multiple sections`,
+          path: ['sections'],
+        });
+      }
+    });
+  }
 });

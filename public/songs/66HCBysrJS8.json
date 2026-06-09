@@ -218,41 +218,6 @@
           "timestampMs": 0,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 415,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 830,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 1245,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 1660,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 2074,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 2489,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 2904,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -272,41 +237,6 @@
           "timestampMs": 3319,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 3734,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 4149,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 4564,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 4979,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 5393,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 5808,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 6223,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -326,41 +256,6 @@
           "timestampMs": 6638,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 7053,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 7468,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 7883,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 8298,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 8712,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 9127,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 9542,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -380,41 +275,6 @@
           "timestampMs": 9957,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 10372,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 10787,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 11201,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 11616,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 12031,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 12446,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 12860,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -434,41 +294,6 @@
           "timestampMs": 13275,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 13690,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 14105,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 14520,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 14935,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 15349,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 15764,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 16179,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -488,41 +313,6 @@
           "timestampMs": 16594,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 17009,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 17424,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 17839,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 18254,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 18668,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 19083,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 19498,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -542,41 +332,6 @@
           "timestampMs": 19913,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 20330,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 20748,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 21165,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 21583,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 22000,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 22417,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 22835,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -596,41 +351,6 @@
           "timestampMs": 23252,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 23670,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 24087,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 24505,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 24922,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 25340,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 25757,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 26175,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -650,41 +370,6 @@
           "timestampMs": 26592,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 27009,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 27427,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 27844,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 28262,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 28679,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 29096,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 29514,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -704,41 +389,6 @@
           "timestampMs": 29931,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 30326,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 30721,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 31116,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 31512,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 31907,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 32302,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 32697,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -758,41 +408,6 @@
           "timestampMs": 33092,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 33487,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 33882,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 34277,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 34672,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 35067,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 35462,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 35857,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -812,41 +427,6 @@
           "timestampMs": 36252,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 36647,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 37042,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 37437,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 37833,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 38228,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 38623,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 39018,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -866,41 +446,6 @@
           "timestampMs": 39413,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 39808,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 40203,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 40598,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 40993,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 41388,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 41783,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 42178,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -920,41 +465,6 @@
           "timestampMs": 42573,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 42968,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 43363,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 43758,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 44154,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 44549,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 44944,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 45339,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -974,41 +484,6 @@
           "timestampMs": 45734,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 46129,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 46524,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 46919,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 47314,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 47709,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 48104,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 48499,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -1028,41 +503,6 @@
           "timestampMs": 48894,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 49289,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 49684,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 50079,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 50475,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 50870,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 51265,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 51660,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -1082,41 +522,6 @@
           "timestampMs": 52055,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 52450,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 52845,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 53240,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 53635,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 54030,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 54425,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 54820,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -1136,41 +541,6 @@
           "timestampMs": 55215,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 55612,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 56010,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 56407,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 56804,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 57201,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 57599,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 57996,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -1190,41 +560,6 @@
           "timestampMs": 58393,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 58790,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 59187,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 59584,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 59982,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 60379,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 60776,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 61173,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -1244,41 +579,6 @@
           "timestampMs": 61570,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 61967,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 62365,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 62762,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 63159,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 63556,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 63954,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 64351,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -1298,41 +598,6 @@
           "timestampMs": 64748,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 65145,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 65542,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 65939,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 66337,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 66734,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 67131,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 67528,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -1352,41 +617,6 @@
           "timestampMs": 67925,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 68322,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 68720,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 69117,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 69514,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 69911,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 70309,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 70706,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -1406,41 +636,6 @@
           "timestampMs": 71103,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 71500,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 71897,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 72294,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 72692,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 73089,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 73486,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 73883,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -1460,41 +655,6 @@
           "timestampMs": 74280,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 74677,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 75075,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 75472,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 75869,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 76266,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 76664,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 77061,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -1514,41 +674,6 @@
           "timestampMs": 77458,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 77855,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 78252,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 78649,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 79047,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 79444,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 79841,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 80238,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -1568,41 +693,6 @@
           "timestampMs": 80635,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 81032,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 81430,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 81827,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 82224,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 82621,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 83019,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 83416,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -1622,41 +712,6 @@
           "timestampMs": 83813,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 84210,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 84607,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 85004,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 85402,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 85799,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 86196,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 86593,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -1676,41 +731,6 @@
           "timestampMs": 86990,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 87387,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 87785,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 88182,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 88579,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 88976,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 89374,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 89771,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -1730,41 +750,6 @@
           "timestampMs": 90168,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 90565,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 90962,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 91359,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 91757,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 92154,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 92551,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 92948,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -1784,41 +769,6 @@
           "timestampMs": 93345,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 93742,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 94140,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 94537,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 94934,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 95331,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 95729,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 96126,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -1838,41 +788,6 @@
           "timestampMs": 96523,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 96920,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 97317,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 97714,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 98112,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 98509,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 98906,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 99303,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -1892,41 +807,6 @@
           "timestampMs": 99700,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 100097,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 100495,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 100892,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 101289,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 101686,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 102084,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 102481,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -1946,41 +826,6 @@
           "timestampMs": 102878,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 103235,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 103592,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 103949,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 104306,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 104662,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 105019,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 105376,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -2000,41 +845,6 @@
           "timestampMs": 105733,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 106090,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 106447,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 106803,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 107160,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 107517,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 107874,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 108230,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -2054,41 +864,6 @@
           "timestampMs": 108587,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 108944,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 109301,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 109658,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 110015,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 110371,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 110728,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 111085,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -2108,41 +883,6 @@
           "timestampMs": 111442,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 111840,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 112237,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 112635,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 113032,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 113430,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 113827,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 114225,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -2162,41 +902,6 @@
           "timestampMs": 114622,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 115020,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 115417,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 115815,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 116212,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 116610,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 117007,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 117405,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -2216,41 +921,6 @@
           "timestampMs": 117802,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 118199,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 118597,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 118994,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 119392,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 119789,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 120186,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 120584,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -2270,41 +940,6 @@
           "timestampMs": 120981,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 121379,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 121776,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 122174,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 122571,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 122969,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 123366,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 123764,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -2324,41 +959,6 @@
           "timestampMs": 124161,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 124559,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 124956,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 125354,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 125751,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 126149,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 126546,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 126944,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -2378,41 +978,6 @@
           "timestampMs": 127341,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 127739,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 128136,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 128534,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 128931,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 129329,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 129726,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 130124,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -2432,41 +997,6 @@
           "timestampMs": 130521,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 130919,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 131316,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 131714,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 132111,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 132509,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 132906,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 133304,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -2486,41 +1016,6 @@
           "timestampMs": 133701,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 134099,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 134496,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 134894,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 135291,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 135689,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 136086,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 136484,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -2540,41 +1035,6 @@
           "timestampMs": 136881,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 137278,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 137676,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 138073,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 138471,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 138868,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 139265,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 139663,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -2594,41 +1054,6 @@
           "timestampMs": 140060,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 140458,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 140855,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 141253,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 141650,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 142048,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 142445,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 142843,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -2648,41 +1073,6 @@
           "timestampMs": 143240,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 143638,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 144035,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 144433,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 144830,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 145228,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 145625,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 146023,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -2702,41 +1092,6 @@
           "timestampMs": 146420,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 146816,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 147212,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 147607,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 148003,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 148399,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 148795,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 149190,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -2756,41 +1111,6 @@
           "timestampMs": 149586,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 149982,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 150378,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 150774,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 151170,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 151565,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 151961,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 152357,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -2810,41 +1130,6 @@
           "timestampMs": 152753,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 153149,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 153545,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 153940,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 154336,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 154732,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 155128,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 155523,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -2864,41 +1149,6 @@
           "timestampMs": 155919,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 156315,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 156711,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 157107,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 157503,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 157898,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 158294,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 158690,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -2918,41 +1168,6 @@
           "timestampMs": 159086,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 159482,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 159878,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 160273,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 160669,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 161065,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 161461,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 161856,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -2972,41 +1187,6 @@
           "timestampMs": 162252,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 162648,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 163044,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 163440,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 163836,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 164231,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 164627,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 165023,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -3026,41 +1206,6 @@
           "timestampMs": 165419,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 165815,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 166211,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 166606,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 167002,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 167398,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 167794,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 168189,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -3080,41 +1225,6 @@
           "timestampMs": 168585,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 168981,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 169377,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 169772,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 170168,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 170564,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 170960,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 171355,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -3134,41 +1244,6 @@
           "timestampMs": 171751,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 172147,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 172543,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 172939,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 173335,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 173730,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 174126,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 174522,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -3188,41 +1263,6 @@
           "timestampMs": 174918,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 175314,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 175710,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 176105,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 176501,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 176897,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 177293,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 177688,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -3242,41 +1282,6 @@
           "timestampMs": 178084,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 178480,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 178876,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 179272,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 179668,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 180063,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 180459,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 180855,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -3296,41 +1301,6 @@
           "timestampMs": 181251,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 181647,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 182043,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 182438,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 182834,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 183230,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 183626,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 184021,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -3350,41 +1320,6 @@
           "timestampMs": 184417,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 184813,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 185209,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 185605,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 186001,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 186396,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 186792,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 187188,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -3404,41 +1339,6 @@
           "timestampMs": 187584,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 187980,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 188376,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 188771,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 189167,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 189563,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 189959,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 190354,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -3458,41 +1358,6 @@
           "timestampMs": 190750,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 191152,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 191554,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 191956,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 192358,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 192759,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 193161,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 193563,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -3512,41 +1377,6 @@
           "timestampMs": 193965,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 194367,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 194769,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 195171,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 195573,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 195974,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 196376,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 196778,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -3566,41 +1396,6 @@
           "timestampMs": 197180,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 197582,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 197984,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 198386,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 198788,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 199189,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 199591,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 199993,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -3620,41 +1415,6 @@
           "timestampMs": 200395,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 200797,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 201199,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 201601,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 202003,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 202404,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 202806,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 203208,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -3674,41 +1434,6 @@
           "timestampMs": 203610,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 204012,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 204414,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 204816,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 205218,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 205619,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 206021,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 206423,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -3728,41 +1453,6 @@
           "timestampMs": 206825,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 207227,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 207629,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 208031,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 208433,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 208834,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 209236,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 209638,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -3782,41 +1472,6 @@
           "timestampMs": 210040,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 210442,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 210844,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 211246,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 211648,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 212049,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 212451,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 212853,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -3836,41 +1491,6 @@
           "timestampMs": 213255,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 213657,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 214059,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 214461,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 214863,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 215264,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 215666,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 216068,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -3890,41 +1510,6 @@
           "timestampMs": 216470,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 216872,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 217274,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 217676,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 218078,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 218479,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 218881,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 219283,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -3944,41 +1529,6 @@
           "timestampMs": 219685,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 220087,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 220489,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 220891,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 221293,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 221694,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 222096,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 222498,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -3998,41 +1548,6 @@
           "timestampMs": 222900,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 223302,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 223704,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 224106,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 224508,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 224909,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 225311,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 225713,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -4052,41 +1567,6 @@
           "timestampMs": 226115,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 226517,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 226919,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 227321,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 227723,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 228124,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 228526,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 228928,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -4106,41 +1586,6 @@
           "timestampMs": 229330,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 229733,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 230136,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 230538,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 230941,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 231344,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 231747,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 232149,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -4160,41 +1605,6 @@
           "timestampMs": 232552,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 232955,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 233358,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 233760,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 234163,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 234566,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 234969,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 235371,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -4214,41 +1624,6 @@
           "timestampMs": 235774,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 236177,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 236579,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 236982,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 237385,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 237787,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 238190,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 238592,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -4268,41 +1643,6 @@
           "timestampMs": 238995,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 239398,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 239801,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 240203,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 240606,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 241009,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 241412,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 241814,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -4322,41 +1662,6 @@
           "timestampMs": 242217,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 242620,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 243023,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 243425,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 243828,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 244231,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 244634,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 245036,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -4376,41 +1681,6 @@
           "timestampMs": 245439,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 245842,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 246245,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 246647,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 247050,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 247453,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 247856,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 248258,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -4430,41 +1700,6 @@
           "timestampMs": 248661,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 249064,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 249466,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 249869,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 250272,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 250674,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 251077,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 251479,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -4484,41 +1719,6 @@
           "timestampMs": 251882,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 252285,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 252688,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 253090,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 253493,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 253896,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 254299,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 254701,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -4538,41 +1738,6 @@
           "timestampMs": 255104,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 255507,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 255910,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 256312,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 256715,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 257118,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 257521,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 257923,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -4592,41 +1757,6 @@
           "timestampMs": 258326,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 258729,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 259132,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 259534,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 259937,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 260340,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 260743,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 261145,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -4646,41 +1776,6 @@
           "timestampMs": 261548,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 261951,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 262353,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 262756,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 263159,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 263561,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 263964,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 264366,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -4700,41 +1795,6 @@
           "timestampMs": 264769,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 265172,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 265575,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 265977,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 266380,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 266783,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 267186,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 267588,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -4754,41 +1814,6 @@
           "timestampMs": 267991,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 268394,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 268797,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 269199,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 269602,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 270005,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 270408,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 270810,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -4808,41 +1833,6 @@
           "timestampMs": 271213,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 271616,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 272019,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 272421,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 272824,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 273227,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 273630,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 274032,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -4862,41 +1852,6 @@
           "timestampMs": 274435,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 274838,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 275240,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 275643,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 276046,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 276448,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 276851,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 277253,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -4916,41 +1871,6 @@
           "timestampMs": 277656,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 278059,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 278462,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 278864,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 279267,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 279670,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 280073,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 280475,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -4970,41 +1890,6 @@
           "timestampMs": 280878,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 281313,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 281748,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 282182,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 282617,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 283052,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 283487,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 283921,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -5024,41 +1909,6 @@
           "timestampMs": 284356,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 284791,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 285225,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 285660,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 286095,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 286529,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 286964,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 287398,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     },
@@ -5078,41 +1928,6 @@
           "timestampMs": 287833,
           "type": "DOWNBEAT",
           "count": 1
-        },
-        {
-          "timestampMs": 288268,
-          "type": "NORMAL",
-          "count": 2
-        },
-        {
-          "timestampMs": 288703,
-          "type": "NORMAL",
-          "count": 3
-        },
-        {
-          "timestampMs": 289137,
-          "type": "NORMAL",
-          "count": 4
-        },
-        {
-          "timestampMs": 289572,
-          "type": "NORMAL",
-          "count": 5
-        },
-        {
-          "timestampMs": 290007,
-          "type": "NORMAL",
-          "count": 6
-        },
-        {
-          "timestampMs": 290442,
-          "type": "NORMAL",
-          "count": 7
-        },
-        {
-          "timestampMs": 290876,
-          "type": "NORMAL",
-          "count": 8
         }
       ]
     }
@@ -5212,5 +2027,7 @@
     284356,
     287833,
     291311
-  ]
+  ],
+  "isSectionsProcessed": true,
+  "isTappingProcessed": true
 }

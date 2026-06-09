@@ -5,6 +5,8 @@
   "artist": "Bachata Artist",
   "genre": "BACHATA",
   "baseBpm": 130,
+  "isSectionsProcessed": true,
+  "isTappingProcessed": true,
   "schemaVersion": "2.0",
   "sections": [
     {

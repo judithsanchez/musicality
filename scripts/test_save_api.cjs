@@ -14,6 +14,8 @@ const validSalsaMap = {
   artist: 'API Test Artist',
   genre: 'SALSA',
   baseBpm: 120,
+  isSectionsProcessed: true,
+  isTappingProcessed: true,
   schemaVersion: '2.0',
   defaultClave: '2-3',
   sections: [
@@ -47,8 +49,7 @@ const validSalsaMap = {
       claveDirection: '2-3',
       claveIsVerified: true,
       beats: [
-        { timestampMs: 0, type: 'DOWNBEAT', count: 1 },
-        { timestampMs: 500, type: 'NORMAL', count: 5 }
+        { timestampMs: 0, type: 'DOWNBEAT', count: 1 }
       ],
       events: []
     },
@@ -62,8 +63,7 @@ const validSalsaMap = {
       claveDirection: '2-3',
       claveIsVerified: true,
       beats: [
-        { timestampMs: 1000, type: 'DOWNBEAT', count: 1 },
-        { timestampMs: 1500, type: 'NORMAL', count: 5 }
+        { timestampMs: 1000, type: 'DOWNBEAT', count: 1 }
       ],
       events: []
     }

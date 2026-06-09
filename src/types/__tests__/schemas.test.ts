@@ -205,8 +205,7 @@ describe('StrictSongMapSchema Validation', () => {
     it('should pass if a phrase contains valid beats', () => {
       const copy = JSON.parse(JSON.stringify(validSalsaMap));
       copy.phrases[0].beats = [
-        { timestampMs: 0, type: 'DOWNBEAT', count: 1 },
-        { timestampMs: 125, type: 'NORMAL', count: 2 }
+        { timestampMs: 0, type: 'DOWNBEAT', count: 1 }
       ];
       const res = StrictSongMapSchema.safeParse(copy);
       expect(res.success).toBe(true);
@@ -219,6 +218,29 @@ describe('StrictSongMapSchema Validation', () => {
       ];
       const res = StrictSongMapSchema.safeParse(copy);
       expect(res.success).toBe(false);
+    });
+  });
+
+  describe('isSectionsProcessed Toggle Validation', () => {
+    it('should pass with empty sections and phrases if isSectionsProcessed is false', () => {
+      const copy = JSON.parse(JSON.stringify(validSalsaMap));
+      copy.isSectionsProcessed = false;
+      copy.sections = [];
+      copy.phrases = [];
+      const res = StrictSongMapSchema.safeParse(copy);
+      expect(res.success).toBe(true);
+    });
+
+    it('should fail with empty sections if isSectionsProcessed is true', () => {
+      const copy = JSON.parse(JSON.stringify(validSalsaMap));
+      copy.isSectionsProcessed = true;
+      copy.sections = [];
+      copy.phrases = [];
+      const res = StrictSongMapSchema.safeParse(copy);
+      expect(res.success).toBe(false);
+      if (!res.success) {
+        expect(res.error.issues.some(i => i.message.includes('Sections array cannot be empty'))).toBe(true);
+      }
     });
   });
 });
