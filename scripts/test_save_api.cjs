@@ -16,6 +16,7 @@ const validSalsaMap = {
   baseBpm: 120,
   isSectionsProcessed: true,
   isTappingProcessed: true,
+  consensusDownbeats: [0, 1000],
   schemaVersion: '2.0',
   defaultClave: '2-3',
   rawTaps: [

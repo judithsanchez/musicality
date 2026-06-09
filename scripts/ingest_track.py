@@ -34,7 +34,7 @@ def main():
         "isSectionsProcessed": False,
         "isTappingProcessed": False,
         "baseBpm": float(round(bpm, 2)),
-        "calibratedDownbeats": [],
+        "consensusDownbeats": [],
         "rawTaps": [],
         "schemaVersion": "2.0",
         "sections": [],
