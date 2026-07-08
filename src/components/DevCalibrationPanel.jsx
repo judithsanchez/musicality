@@ -6,16 +6,20 @@ import {
   SalsaInstrumentSchema,
   BachataInstrumentSchema
 } from "../types/schemas";
+import EventAnnotationPanel from "./EventAnnotationPanel";
 
 export default function DevCalibrationPanel({
   songData,
   editorSections,
   phrases,
+  currentTime,
   userDelaySetting,
   onUserDelaySettingChange,
   onExit,
   onUpdateSectionField,
   onUpdatePhraseField,
+  onAddEvent,
+  onRemoveEvent,
   validationErrors,
   saving,
   onPublishSong
@@ -154,6 +158,13 @@ export default function DevCalibrationPanel({
           })}
         </div>
       </div>
+
+      <EventAnnotationPanel
+        currentTime={currentTime}
+        phrases={phrases}
+        onAddEvent={onAddEvent}
+        onRemoveEvent={onRemoveEvent}
+      />
 
       <button
         onClick={onPublishSong}

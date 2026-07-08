@@ -177,6 +177,33 @@ describe('StrictSongMapSchema Validation', () => {
     });
   });
 
+  describe('Dance Event Validation', () => {
+    it('should accept point and range events inside a phrase', () => {
+      const copy = JSON.parse(JSON.stringify(validSalsaMap));
+      copy.phrases[0].events = [
+        { timestampMs: 250, type: 'ACCENT', description: 'Brass hit', uiHighlight: true },
+        { timestampMs: 500, durationMs: 400, type: 'BUILD_UP', description: 'Percussion build', uiHighlight: true }
+      ];
+      expect(StrictSongMapSchema.safeParse(copy).success).toBe(true);
+    });
+
+    it('should reject an event outside its phrase', () => {
+      const copy = JSON.parse(JSON.stringify(validSalsaMap));
+      copy.phrases[0].events = [
+        { timestampMs: 1100, type: 'ACCENT', description: 'Wrong phrase', uiHighlight: true }
+      ];
+      expect(StrictSongMapSchema.safeParse(copy).success).toBe(false);
+    });
+
+    it('should reject a range that crosses a phrase boundary', () => {
+      const copy = JSON.parse(JSON.stringify(validSalsaMap));
+      copy.phrases[0].events = [
+        { timestampMs: 900, durationMs: 200, type: 'BUILD_UP', description: 'Too long', uiHighlight: true }
+      ];
+      expect(StrictSongMapSchema.safeParse(copy).success).toBe(false);
+    });
+  });
+
   describe('Tap History Validation', () => {
     it('should pass if downbeats contains valid sessions', () => {
       const copy = JSON.parse(JSON.stringify(validSalsaMap));

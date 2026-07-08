@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Scissors, Play, Pause, RotateCcw } from "lucide-react";
 import DevCalibrationPanel from "./DevCalibrationPanel";
 import { StrictSongMapSchema } from "../types/schemas";
+import { addDanceEvent, removeDanceEvent, type DanceEventDraft } from "../utils/danceEvents";
 
 interface DevCalibratorProps {
   songData: any;
@@ -528,6 +529,25 @@ export default function DevCalibrator({
     syncSongMapState(editorSections, updatedPhrases, songData.baseBpm, tappedHistory, tappedDownbeats);
   };
 
+  const handleAddEvent = (draft: DanceEventDraft) => {
+    const result = addDanceEvent(phrases, draft);
+    if (result.error) {
+      showToast(`⚠️ ${result.error}`);
+      return false;
+    }
+    setPhrases(result.phrases);
+    syncSongMapState(editorSections, result.phrases, songData.baseBpm, tappedHistory, tappedDownbeats);
+    showToast("Event added.");
+    return true;
+  };
+
+  const handleRemoveEvent = (phraseId: string, eventIndex: number) => {
+    const updatedPhrases = removeDanceEvent(phrases, phraseId, eventIndex);
+    setPhrases(updatedPhrases);
+    syncSongMapState(editorSections, updatedPhrases, songData.baseBpm, tappedHistory, tappedDownbeats);
+    showToast("Event removed.");
+  };
+
   const handleLockSections = () => {
     const updated = {
       ...latestSongDataRef.current,
@@ -632,6 +652,13 @@ export default function DevCalibrator({
       isSectionsProcessed: true,
       isTappingProcessed: true
     };
+    const validation = StrictSongMapSchema.safeParse(updated);
+    if (!validation.success) {
+      setValidationErrors(validation.error.issues);
+      showToast("Publish blocked by validation errors.");
+      return;
+    }
+    setValidationErrors(null);
     setCalibratedSongData(updated);
     setSongData(updated);
     
@@ -910,11 +937,14 @@ export default function DevCalibrator({
             songData={songData}
             editorSections={editorSections}
             phrases={phrases}
+            currentTime={currentTime}
             userDelaySetting={userDelaySetting}
             onUserDelaySettingChange={setUserDelaySetting}
             onExit={onBackToCatalog}
             onUpdateSectionField={handleUpdateSectionField}
             onUpdatePhraseField={handleUpdatePhraseField}
+            onAddEvent={handleAddEvent}
+            onRemoveEvent={handleRemoveEvent}
             validationErrors={validationErrors}
             saving={saving}
             onPublishSong={handlePublishSong}
