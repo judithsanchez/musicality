@@ -15,7 +15,9 @@ const validSalsaMap = {
   genre: 'SALSA',
   baseBpm: 120,
   isSectionsProcessed: true,
+  isEventsProcessed: true,
   isTappingProcessed: true,
+  events: [],
   consensusDownbeats: [0, 1000],
   schemaVersion: '2.0',
   defaultClave: '2-3',
@@ -57,7 +59,6 @@ const validSalsaMap = {
       beats: [
         { timestampMs: 0, type: 'DOWNBEAT', count: 1 }
       ],
-      events: []
     },
     {
       id: UUID_2,
@@ -71,7 +72,6 @@ const validSalsaMap = {
       beats: [
         { timestampMs: 1000, type: 'DOWNBEAT', count: 1 }
       ],
-      events: []
     }
   ]
 };
@@ -109,7 +109,6 @@ const invalidSalsaMap = {
       beats: [
         { timestampMs: 0, type: 'DOWNBEAT', count: 1 }
       ],
-      events: []
     },
     {
       id: UUID_2,
@@ -123,7 +122,6 @@ const invalidSalsaMap = {
       beats: [
         { timestampMs: 1000, type: 'DOWNBEAT', count: 1 }
       ],
-      events: []
     }
   ]
 };

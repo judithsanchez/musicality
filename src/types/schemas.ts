@@ -3,6 +3,7 @@ import { z } from 'zod';
 export const GenreSchema = z.enum(['SALSA', 'BACHATA']);
 
 export const BachataEnergyStateSchema = z.enum([
+  'UNLABELED',
   'INTRO',
   'DERECHO',
   'MAJAO',
@@ -12,6 +13,7 @@ export const BachataEnergyStateSchema = z.enum([
 ]);
 
 export const SalsaEnergyStateSchema = z.enum([
+  'UNLABELED',
   'INTRO',
   'VERSE',
   'CHORUS',
@@ -77,8 +79,7 @@ export const BasePhraseSchema = z.object({
   startTimeMs: z.number().int(),
   endTimeMs: z.number().int(),
   type: z.enum(['STANDARD_8_COUNT', 'HALF_PHRASE_4_COUNT', 'TRANSITION_BREAK', 'NO_COUNT']),
-  beats: z.array(BeatSchema).optional(),
-  events: z.array(DanceEventSchema)
+  beats: z.array(BeatSchema).optional()
 });
 
 export const BachataPhraseSchema = BasePhraseSchema.extend({
@@ -132,12 +133,14 @@ export const BaseSongMapSchema = z.object({
   title: z.string(),
   artist: z.string(),
   genre: GenreSchema,
-  status: z.enum(['DRAFT_CUTTING', 'DRAFT_TAPPING', 'DRAFT_LABELING', 'READY']).default('DRAFT_CUTTING'),
+  status: z.enum(['DRAFT_CUTTING', 'DRAFT_EVENTS', 'DRAFT_TAPPING', 'DRAFT_LABELING', 'READY']).default('DRAFT_CUTTING'),
   isSectionsProcessed: z.boolean().default(false),
+  isEventsProcessed: z.boolean().default(false),
   isTappingProcessed: z.boolean().default(false),
   baseBpm: z.number().positive(),
   consensusDownbeats: z.array(z.number().int()).optional(),
   downbeats: z.array(TapSessionSchema).optional(),
+  events: z.array(DanceEventSchema).default([]),
   schemaVersion: z.literal('2.0')
 });
 
@@ -222,25 +225,42 @@ export const StrictSongMapSchema = SongMapSchema.superRefine((data, ctx) => {
     });
   }
 
-  data.phrases.forEach((phrase, phraseIndex) => {
-    phrase.events.forEach((event, eventIndex) => {
-      const eventEndTimeMs = event.timestampMs + (event.durationMs || 0);
-      if (event.timestampMs < phrase.startTimeMs || event.timestampMs >= phrase.endTimeMs) {
+  data.events.forEach((event, eventIndex) => {
+    const section = data.sections.find(item => event.timestampMs >= item.startTimeMs && event.timestampMs < item.endTimeMs);
+    const eventEndTimeMs = event.timestampMs + (event.durationMs || 0);
+    if (!section) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Event timestamp must be inside a section',
+        path: ['events', eventIndex, 'timestampMs']
+      });
+    } else if (event.durationMs && eventEndTimeMs > section.endTimeMs) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Event range must end inside the section where it starts',
+        path: ['events', eventIndex, 'durationMs']
+      });
+    }
+  });
+
+  if (data.status === 'READY') {
+    data.sections.forEach((section, sectionIndex) => {
+      if (!section.label.trim()) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: `Event timestamp must be inside phrase ${phrase.index}`,
-          path: ['phrases', phraseIndex, 'events', eventIndex, 'timestampMs']
+          message: 'Ready songs require a label for every section',
+          path: ['sections', sectionIndex, 'label']
         });
       }
-      if (event.durationMs && eventEndTimeMs > phrase.endTimeMs) {
+      if (section.energyState === 'UNLABELED') {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: `Event range must end inside phrase ${phrase.index}`,
-          path: ['phrases', phraseIndex, 'events', eventIndex, 'durationMs']
+          message: 'Ready songs require an energy state for every section',
+          path: ['sections', sectionIndex, 'energyState']
         });
       }
     });
-  });
+  }
 
   if (data.isSectionsProcessed) {
     if (data.sections.length === 0) {

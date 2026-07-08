@@ -1,0 +1,1860 @@
+{
+  "id": "song-k7Bd6xNw4Hg",
+  "youtubeId": "k7Bd6xNw4Hg",
+  "title": "Guaguanco",
+  "artist": "Avenida B",
+  "genre": "SALSA",
+  "status": "READY",
+  "isSectionsProcessed": true,
+  "isEventsProcessed": true,
+  "isTappingProcessed": true,
+  "baseBpm": 150,
+  "consensusDownbeats": [
+    0,
+    3219,
+    6439,
+    9658,
+    12877,
+    16097,
+    19316,
+    22535,
+    25755,
+    28974,
+    32193,
+    35413,
+    38632,
+    41851,
+    45071,
+    48290,
+    51510,
+    54729,
+    57948,
+    61168,
+    64387,
+    67606,
+    70826,
+    74045,
+    77264,
+    80484,
+    83703,
+    86922,
+    90142,
+    93361,
+    96580,
+    99800,
+    103019,
+    106238,
+    109458,
+    112677,
+    115896,
+    119116,
+    122335,
+    125554,
+    128774,
+    131993,
+    135212,
+    138432,
+    141651,
+    144870,
+    148090,
+    151309,
+    154529,
+    157748,
+    160967,
+    164187,
+    167406,
+    170625,
+    173845,
+    177064,
+    180283,
+    183503,
+    186722,
+    189941,
+    193161,
+    196380,
+    199599,
+    202819,
+    206038,
+    209278,
+    212518,
+    215758,
+    218998,
+    222238,
+    225478,
+    228718,
+    231959,
+    235199,
+    238439,
+    241679,
+    244919,
+    248159,
+    251399,
+    254639,
+    257879,
+    261119,
+    264359,
+    267599,
+    270839,
+    274079,
+    277320,
+    280560,
+    283800,
+    287040,
+    290280,
+    293520,
+    296760,
+    300000
+  ],
+  "downbeats": [],
+  "events": [
+    {
+      "timestampMs": 91310,
+      "type": "ACCENT",
+      "description": "test",
+      "uiHighlight": true
+    }
+  ],
+  "schemaVersion": "2.0",
+  "defaultClave": "NOT_SET",
+  "sections": [
+    {
+      "id": "sec-default",
+      "startTimeMs": 0,
+      "endTimeMs": 16225,
+      "label": "intro",
+      "emoji": "🎵",
+      "energyState": "INTRO",
+      "focusInstrument": "VOCALS"
+    },
+    {
+      "id": "c40eed31-19a7-4927-bcfc-7e1f0bfe8fe5",
+      "startTimeMs": 16225,
+      "endTimeMs": 47083,
+      "label": "test",
+      "emoji": "🔥",
+      "energyState": "MONTUNO",
+      "focusInstrument": "TIMBALES"
+    },
+    {
+      "id": "774b1f2d-ced5-4465-b30e-c69363bcf90f",
+      "startTimeMs": 47083,
+      "endTimeMs": 68707,
+      "label": "test",
+      "emoji": "🎺",
+      "energyState": "MAMBO",
+      "focusInstrument": "TIMBALES"
+    },
+    {
+      "id": "4f4aed2f-080b-49aa-95f6-7800b56e5ee3",
+      "startTimeMs": 68707,
+      "endTimeMs": 137727,
+      "label": "test",
+      "emoji": "🗣️",
+      "energyState": "CHORUS",
+      "focusInstrument": "BASS"
+    },
+    {
+      "id": "8abbdc29-e3eb-4b02-8c7c-7c26bc72c714",
+      "startTimeMs": 137727,
+      "endTimeMs": 164304,
+      "label": "test",
+      "emoji": "🔥",
+      "energyState": "MONTUNO",
+      "focusInstrument": "TIMBALES"
+    },
+    {
+      "id": "9496cdc9-a13d-4bfd-9916-938ceb82319d",
+      "startTimeMs": 164304,
+      "endTimeMs": 195501,
+      "label": "test",
+      "emoji": "🎺",
+      "energyState": "MAMBO",
+      "focusInstrument": "TIMBALES"
+    },
+    {
+      "id": "0a17b5ba-5f79-4c8e-9015-22fb2a01508a",
+      "startTimeMs": 195501,
+      "endTimeMs": 300000,
+      "label": "test",
+      "emoji": "🔥",
+      "energyState": "MONTUNO",
+      "focusInstrument": "TIMBALES"
+    }
+  ],
+  "phrases": [
+    {
+      "id": "b49054e2-9581-41ee-bba9-dc4f7bb62946",
+      "index": 1,
+      "startTimeMs": 0,
+      "endTimeMs": 3219,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 0,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "55833eca-f225-4416-92e7-3986612fad1f",
+      "index": 2,
+      "startTimeMs": 3219,
+      "endTimeMs": 6439,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 3219,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "add10073-6fb2-4a7f-8adb-bd8a15501100",
+      "index": 3,
+      "startTimeMs": 6439,
+      "endTimeMs": 9658,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 6439,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "ae099722-9f14-4fde-8487-9e0ca7f2ff4a",
+      "index": 4,
+      "startTimeMs": 9658,
+      "endTimeMs": 12877,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 9658,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "00d68f00-d072-4a26-990e-5d9c813f1fcb",
+      "index": 5,
+      "startTimeMs": 12877,
+      "endTimeMs": 16097,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 12877,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "e9f9d2d2-aa21-4dd6-8b43-caf8116d8f90",
+      "index": 6,
+      "startTimeMs": 16097,
+      "endTimeMs": 19316,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 16097,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "1da0da0b-67a8-4bb3-91a5-27989761f459",
+      "index": 7,
+      "startTimeMs": 19316,
+      "endTimeMs": 22535,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 19316,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "da3b6a1c-b45a-4fb9-85e5-5d7b47afe78e",
+      "index": 8,
+      "startTimeMs": 22535,
+      "endTimeMs": 25755,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 22535,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "801456d7-2edf-45b8-b1d9-654dc0e0230f",
+      "index": 9,
+      "startTimeMs": 25755,
+      "endTimeMs": 28974,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 25755,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "8c3bb019-9588-442e-960c-7bf921457a67",
+      "index": 10,
+      "startTimeMs": 28974,
+      "endTimeMs": 32193,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 28974,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "b218a1dd-5acf-42a3-94d0-5c64455e4acb",
+      "index": 11,
+      "startTimeMs": 32193,
+      "endTimeMs": 35413,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 32193,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "bd2538a3-715c-4a49-94f7-3d141e5a8519",
+      "index": 12,
+      "startTimeMs": 35413,
+      "endTimeMs": 38632,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 35413,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "2cb38306-cc7a-455b-b9c3-25cb8f216407",
+      "index": 13,
+      "startTimeMs": 38632,
+      "endTimeMs": 41851,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 38632,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "d80303b7-0350-4627-aea6-562cca7d219a",
+      "index": 14,
+      "startTimeMs": 41851,
+      "endTimeMs": 45071,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 41851,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "4852395c-ac3d-41e6-8e64-8399f5330232",
+      "index": 15,
+      "startTimeMs": 45071,
+      "endTimeMs": 48290,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 45071,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "9be610aa-6766-47fe-a1e9-7f5405a85940",
+      "index": 16,
+      "startTimeMs": 48290,
+      "endTimeMs": 51510,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 48290,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "1db3a686-491c-4c5f-ad3a-f1ce6a30f9af",
+      "index": 17,
+      "startTimeMs": 51510,
+      "endTimeMs": 54729,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 51510,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "c994997b-5d16-48e4-b228-9342e7a96722",
+      "index": 18,
+      "startTimeMs": 54729,
+      "endTimeMs": 57948,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 54729,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "26683aca-495c-4c05-9858-c0ae87474708",
+      "index": 19,
+      "startTimeMs": 57948,
+      "endTimeMs": 61168,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 57948,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "719b05a2-cc0f-42a6-a566-f3611b8e1b32",
+      "index": 20,
+      "startTimeMs": 61168,
+      "endTimeMs": 64387,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 61168,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "c1b5b99c-cb4b-45e8-9fc5-2e253238db5e",
+      "index": 21,
+      "startTimeMs": 64387,
+      "endTimeMs": 67606,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 64387,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "1e42fac2-70d0-400f-b9f1-541160f022fb",
+      "index": 22,
+      "startTimeMs": 67606,
+      "endTimeMs": 70826,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 67606,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "9ef399ba-ac65-40f7-b039-69d42f634116",
+      "index": 23,
+      "startTimeMs": 70826,
+      "endTimeMs": 74045,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 70826,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "15440807-958f-4064-9427-64c906f7d9ae",
+      "index": 24,
+      "startTimeMs": 74045,
+      "endTimeMs": 77264,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 74045,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "fa073b53-dddb-4a61-882a-af4409451733",
+      "index": 25,
+      "startTimeMs": 77264,
+      "endTimeMs": 80484,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 77264,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "5898272d-f039-4b58-9e0f-5f154c0940b2",
+      "index": 26,
+      "startTimeMs": 80484,
+      "endTimeMs": 83703,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 80484,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "dad6e20d-08f7-4bac-a3a8-0dea801b6407",
+      "index": 27,
+      "startTimeMs": 83703,
+      "endTimeMs": 86922,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 83703,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "cf1e4a49-6a5f-4032-9d62-c1f603c30579",
+      "index": 28,
+      "startTimeMs": 86922,
+      "endTimeMs": 90142,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 86922,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "aa50166b-1343-46c9-89b5-4f4b5f0f4cdc",
+      "index": 29,
+      "startTimeMs": 90142,
+      "endTimeMs": 93361,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 90142,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "50800b10-aabb-477a-99db-5311afcdbb5d",
+      "index": 30,
+      "startTimeMs": 93361,
+      "endTimeMs": 96580,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 93361,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "ede5f72c-3361-42c1-ba30-d5455727044d",
+      "index": 31,
+      "startTimeMs": 96580,
+      "endTimeMs": 99800,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 96580,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "aab4edc8-c64a-4346-9627-a0d6304ec68b",
+      "index": 32,
+      "startTimeMs": 99800,
+      "endTimeMs": 103019,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 99800,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "2d844805-3b75-408f-a4cd-b46f1e5dd9e7",
+      "index": 33,
+      "startTimeMs": 103019,
+      "endTimeMs": 106238,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 103019,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "1a91f3fa-5b6a-4e6e-8fa6-f190f0da0510",
+      "index": 34,
+      "startTimeMs": 106238,
+      "endTimeMs": 109458,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 106238,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "fb3a9c28-c42c-4b25-83f9-1c84d14d6dee",
+      "index": 35,
+      "startTimeMs": 109458,
+      "endTimeMs": 112677,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 109458,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "84f9b679-7f16-40e3-806a-a4276a89a25a",
+      "index": 36,
+      "startTimeMs": 112677,
+      "endTimeMs": 115896,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 112677,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "97227040-09cf-4cb5-ac70-c4d21c98674a",
+      "index": 37,
+      "startTimeMs": 115896,
+      "endTimeMs": 119116,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 115896,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "a79e4ce8-56aa-488b-a626-f5e60629ba3f",
+      "index": 38,
+      "startTimeMs": 119116,
+      "endTimeMs": 122335,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 119116,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "dae8ec13-b7ee-4720-b8af-e147d55e605c",
+      "index": 39,
+      "startTimeMs": 122335,
+      "endTimeMs": 125554,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 122335,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "f8920871-0930-4509-b624-5157ba32380f",
+      "index": 40,
+      "startTimeMs": 125554,
+      "endTimeMs": 128774,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 125554,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "1606035b-0c3d-47da-bee6-41853817ab0c",
+      "index": 41,
+      "startTimeMs": 128774,
+      "endTimeMs": 131993,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 128774,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "53837b20-e042-40f5-9327-878200cfed23",
+      "index": 42,
+      "startTimeMs": 131993,
+      "endTimeMs": 135212,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 131993,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "01a12979-0e50-4024-a65f-e6a6bd510d3a",
+      "index": 43,
+      "startTimeMs": 135212,
+      "endTimeMs": 138432,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 135212,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "824c2b84-6659-41ba-8072-005a8c13f006",
+      "index": 44,
+      "startTimeMs": 138432,
+      "endTimeMs": 141651,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 138432,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "23655037-ad95-4114-ba16-b8bcdb538559",
+      "index": 45,
+      "startTimeMs": 141651,
+      "endTimeMs": 144870,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 141651,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "91911fca-6769-4f54-bc85-e8f70b219b85",
+      "index": 46,
+      "startTimeMs": 144870,
+      "endTimeMs": 148090,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 144870,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "fbf57fc6-38f1-4b98-8c63-0dc1f7924f13",
+      "index": 47,
+      "startTimeMs": 148090,
+      "endTimeMs": 151309,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 148090,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "72712ff6-f362-4b45-b116-310764c0cd61",
+      "index": 48,
+      "startTimeMs": 151309,
+      "endTimeMs": 154529,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 151309,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "3164519f-772f-4b34-ace1-9ed5b9ff614c",
+      "index": 49,
+      "startTimeMs": 154529,
+      "endTimeMs": 157748,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 154529,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "2670d073-23fa-46c0-8037-95303ee76026",
+      "index": 50,
+      "startTimeMs": 157748,
+      "endTimeMs": 160967,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 157748,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "7ab7179b-602e-4222-bf3d-22b4933a6906",
+      "index": 51,
+      "startTimeMs": 160967,
+      "endTimeMs": 164187,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 160967,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "55c6459c-51f9-4183-b11e-2da1d9df8ebe",
+      "index": 52,
+      "startTimeMs": 164187,
+      "endTimeMs": 167406,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 164187,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "77b0ca6f-594b-4cd0-8de7-5cc824e4985e",
+      "index": 53,
+      "startTimeMs": 167406,
+      "endTimeMs": 170625,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 167406,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "2ab10ee5-51aa-495c-8134-f61bd12fc749",
+      "index": 54,
+      "startTimeMs": 170625,
+      "endTimeMs": 173845,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 170625,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "1cd3f855-c612-42ae-b442-7a90377a0157",
+      "index": 55,
+      "startTimeMs": 173845,
+      "endTimeMs": 177064,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 173845,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "d4cba64d-40b5-4633-b125-f5532bd0c915",
+      "index": 56,
+      "startTimeMs": 177064,
+      "endTimeMs": 180283,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 177064,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "f119e385-b96c-422c-86a4-2f2aa8ec9b4d",
+      "index": 57,
+      "startTimeMs": 180283,
+      "endTimeMs": 183503,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 180283,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "ca4e9489-f05e-47db-a9e1-8fdf06559daf",
+      "index": 58,
+      "startTimeMs": 183503,
+      "endTimeMs": 186722,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 183503,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "16b840e4-a9ca-496e-bf57-8a2bce87638c",
+      "index": 59,
+      "startTimeMs": 186722,
+      "endTimeMs": 189941,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 186722,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "5b1e4cba-a662-471a-97bd-f02367839ae6",
+      "index": 60,
+      "startTimeMs": 189941,
+      "endTimeMs": 193161,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 189941,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "91177c5b-6fbb-474c-ba1c-1a78fdf599f4",
+      "index": 61,
+      "startTimeMs": 193161,
+      "endTimeMs": 196380,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 193161,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "74fbe18c-38f0-4ac0-9e70-c20820d9d708",
+      "index": 62,
+      "startTimeMs": 196380,
+      "endTimeMs": 199599,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 196380,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "80b404b7-9a59-4e50-8556-84422c2bc66a",
+      "index": 63,
+      "startTimeMs": 199599,
+      "endTimeMs": 202819,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 199599,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "584bacd2-5d09-49f8-a17c-3a1fc164707d",
+      "index": 64,
+      "startTimeMs": 202819,
+      "endTimeMs": 206038,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 202819,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "5a1b7f90-1289-4dda-b15c-c09f538cd81d",
+      "index": 65,
+      "startTimeMs": 206038,
+      "endTimeMs": 209278,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 206038,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "e3e418df-f60c-485d-b283-94816061f860",
+      "index": 66,
+      "startTimeMs": 209278,
+      "endTimeMs": 212518,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 209278,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "6560890d-6af0-4647-9f66-02aef3db1157",
+      "index": 67,
+      "startTimeMs": 212518,
+      "endTimeMs": 215758,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 212518,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "6327c0f0-b764-4586-b661-eeb084737e60",
+      "index": 68,
+      "startTimeMs": 215758,
+      "endTimeMs": 218998,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 215758,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "c0d8fa91-9cb9-4e6c-aace-90bff97c7969",
+      "index": 69,
+      "startTimeMs": 218998,
+      "endTimeMs": 222238,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 218998,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "e31846b0-6d05-4a30-852a-4a7484f87e57",
+      "index": 70,
+      "startTimeMs": 222238,
+      "endTimeMs": 225478,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 222238,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "d7dfc4f0-80b7-4bd7-8657-adb5273a3439",
+      "index": 71,
+      "startTimeMs": 225478,
+      "endTimeMs": 228718,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 225478,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "9e9d302c-17bf-49c0-8d3f-0b22ffda4269",
+      "index": 72,
+      "startTimeMs": 228718,
+      "endTimeMs": 231959,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 228718,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "30acda2f-871e-4f52-88a9-d7c93a279485",
+      "index": 73,
+      "startTimeMs": 231959,
+      "endTimeMs": 235199,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 231959,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "09d8f69a-f2c6-431e-99ec-2da6b7693480",
+      "index": 74,
+      "startTimeMs": 235199,
+      "endTimeMs": 238439,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 235199,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "02eded15-c1b4-4eeb-8d0d-ff3e0bd8570e",
+      "index": 75,
+      "startTimeMs": 238439,
+      "endTimeMs": 241679,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 238439,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "a573db62-0ac2-4803-b7e7-12d6f275a967",
+      "index": 76,
+      "startTimeMs": 241679,
+      "endTimeMs": 244919,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 241679,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "ca4bd55a-96ef-4fd3-b40c-d903b8f62c06",
+      "index": 77,
+      "startTimeMs": 244919,
+      "endTimeMs": 248159,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 244919,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "83739a2f-ae80-428c-8ca3-59383ae80482",
+      "index": 78,
+      "startTimeMs": 248159,
+      "endTimeMs": 251399,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 248159,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "dd72dcc2-82fb-4d2a-ab1b-660cb3f70160",
+      "index": 79,
+      "startTimeMs": 251399,
+      "endTimeMs": 254639,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 251399,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "9c40d172-4fbb-449b-b265-589023573f99",
+      "index": 80,
+      "startTimeMs": 254639,
+      "endTimeMs": 257879,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 254639,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "0484ddb3-748b-4009-9607-68895632bd13",
+      "index": 81,
+      "startTimeMs": 257879,
+      "endTimeMs": 261119,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 257879,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "0de53709-7d2f-423f-b953-1b243e090649",
+      "index": 82,
+      "startTimeMs": 261119,
+      "endTimeMs": 264359,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 261119,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "9a2696a0-b2b9-4dd2-b5ab-61668da4520b",
+      "index": 83,
+      "startTimeMs": 264359,
+      "endTimeMs": 267599,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 264359,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "3ee0d52f-9431-41a6-a6de-d6313a8ade3f",
+      "index": 84,
+      "startTimeMs": 267599,
+      "endTimeMs": 270839,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 267599,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "dca640dd-141a-4905-bc81-a63605e1a7f1",
+      "index": 85,
+      "startTimeMs": 270839,
+      "endTimeMs": 274079,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 270839,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "a6e84d25-4f6d-4fdd-92a3-2c8ca87d0113",
+      "index": 86,
+      "startTimeMs": 274079,
+      "endTimeMs": 277320,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 274079,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "a0e8a393-6de4-495b-86ef-a9e8e71a7d07",
+      "index": 87,
+      "startTimeMs": 277320,
+      "endTimeMs": 280560,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 277320,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "42019938-c761-4a21-bc35-a056e9976966",
+      "index": 88,
+      "startTimeMs": 280560,
+      "endTimeMs": 283800,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 280560,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "609c5a5e-9160-474e-b401-6eac7c45975e",
+      "index": 89,
+      "startTimeMs": 283800,
+      "endTimeMs": 287040,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 283800,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "29836b86-8003-4c50-8590-1168d51322a0",
+      "index": 90,
+      "startTimeMs": 287040,
+      "endTimeMs": 290280,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 287040,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "479e5ba3-d063-475d-89a8-0ab1cc767183",
+      "index": 91,
+      "startTimeMs": 290280,
+      "endTimeMs": 293520,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 290280,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "36f6e93e-2e46-4942-853c-39f8ab0a5591",
+      "index": 92,
+      "startTimeMs": 293520,
+      "endTimeMs": 296760,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 293520,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    },
+    {
+      "id": "109ae482-fa71-4f60-97e1-d16fe0ac1339",
+      "index": 93,
+      "startTimeMs": 296760,
+      "endTimeMs": 300000,
+      "type": "STANDARD_8_COUNT",
+      "beats": [
+        {
+          "timestampMs": 296760,
+          "type": "DOWNBEAT",
+          "count": 1
+        }
+      ],
+      "genre": "SALSA",
+      "claveDirection": "NOT_SET",
+      "claveIsVerified": false,
+      "claveSource": "DEFAULT"
+    }
+  ]
+}

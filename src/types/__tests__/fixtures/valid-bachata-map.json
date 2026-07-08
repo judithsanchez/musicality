@@ -31,8 +31,7 @@
       "startTimeMs": 0,
       "endTimeMs": 922,
       "type": "STANDARD_8_COUNT",
-      "genre": "BACHATA",
-      "events": []
+      "genre": "BACHATA"
     },
     {
       "id": "44444444-4444-4444-8444-444444444444",
@@ -40,8 +39,9 @@
       "startTimeMs": 922,
       "endTimeMs": 1844,
       "type": "STANDARD_8_COUNT",
-      "genre": "BACHATA",
-      "events": []
+      "genre": "BACHATA"
     }
-  ]
+  ],
+  "events": [],
+  "isEventsProcessed": true
 }

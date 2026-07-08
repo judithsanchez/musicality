@@ -178,28 +178,46 @@ describe('StrictSongMapSchema Validation', () => {
   });
 
   describe('Dance Event Validation', () => {
-    it('should accept point and range events inside a phrase', () => {
+    it('should accept point and range events inside a section', () => {
       const copy = JSON.parse(JSON.stringify(validSalsaMap));
-      copy.phrases[0].events = [
+      copy.events = [
         { timestampMs: 250, type: 'ACCENT', description: 'Brass hit', uiHighlight: true },
         { timestampMs: 500, durationMs: 400, type: 'BUILD_UP', description: 'Percussion build', uiHighlight: true }
       ];
       expect(StrictSongMapSchema.safeParse(copy).success).toBe(true);
     });
 
-    it('should reject an event outside its phrase', () => {
+    it('should reject an event outside the sliced timeline', () => {
       const copy = JSON.parse(JSON.stringify(validSalsaMap));
-      copy.phrases[0].events = [
-        { timestampMs: 1100, type: 'ACCENT', description: 'Wrong phrase', uiHighlight: true }
+      copy.events = [
+        { timestampMs: 2100, type: 'ACCENT', description: 'Outside sections', uiHighlight: true }
       ];
       expect(StrictSongMapSchema.safeParse(copy).success).toBe(false);
     });
 
-    it('should reject a range that crosses a phrase boundary', () => {
+    it('should reject a range that crosses a section boundary', () => {
       const copy = JSON.parse(JSON.stringify(validSalsaMap));
-      copy.phrases[0].events = [
+      copy.events = [
         { timestampMs: 900, durationMs: 200, type: 'BUILD_UP', description: 'Too long', uiHighlight: true }
       ];
+      expect(StrictSongMapSchema.safeParse(copy).success).toBe(false);
+    });
+  });
+
+  describe('Labeling Validation', () => {
+    it('should allow unlabeled sections before publishing', () => {
+      const copy = JSON.parse(JSON.stringify(validSalsaMap));
+      copy.status = 'DRAFT_EVENTS';
+      copy.sections[0].label = '';
+      copy.sections[0].energyState = 'UNLABELED';
+      expect(StrictSongMapSchema.safeParse(copy).success).toBe(true);
+    });
+
+    it('should reject unlabeled sections when publishing', () => {
+      const copy = JSON.parse(JSON.stringify(validSalsaMap));
+      copy.status = 'READY';
+      copy.sections[0].label = '';
+      copy.sections[0].energyState = 'UNLABELED';
       expect(StrictSongMapSchema.safeParse(copy).success).toBe(false);
     });
   });

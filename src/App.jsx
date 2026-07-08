@@ -30,7 +30,7 @@ export default function App() {
   const [apiReady, setApiReady] = useState(false);
   const [showDiagnostic, setShowDiagnostic] = useState(false);
   const [calibratedSongData, setCalibratedSongData] = useState(null);
-  const [userDelaySetting, setUserDelaySetting] = useState(200);
+  const [userDelaySetting] = useState(200);
   const [toastMessage, setToastMessage] = useState(null);
   const [currentSong, setCurrentSong] = useState(null);
   const [loadingSong, setLoadingSong] = useState(false);
@@ -131,15 +131,13 @@ export default function App() {
           const lastBeatTimeMs = adjustedData.phrases && adjustedData.phrases.length > 0
             ? adjustedData.phrases[adjustedData.phrases.length - 1].endTimeMs
             : 300000;
-          const isSalsa = adjustedData.genre === "SALSA";
           adjustedData.sections = [
             {
               id: "sec-default",
               startTimeMs: 0,
               endTimeMs: lastBeatTimeMs,
-              label: isSalsa ? "Verse" : "Derecho",
-              energyState: isSalsa ? "VERSE" : "DERECHO",
-              emoji: isSalsa ? "🎤" : "🎸"
+              label: "",
+              energyState: "UNLABELED"
             }
           ];
         }
@@ -595,7 +593,6 @@ export default function App() {
                 player={player}
                 throttledSeek={throttledSeek}
                 userDelaySetting={userDelaySetting}
-                setUserDelaySetting={setUserDelaySetting}
                 onBackToCatalog={() => {
                   setShowDiagnostic(false);
                   showToast("🔒 Dev Panel Locked!");
