@@ -32,10 +32,12 @@ def main():
         "genre": args.genre,
         "status": "DRAFT_CUTTING",
         "isSectionsProcessed": False,
+        "isEventsProcessed": False,
         "isTappingProcessed": False,
         "baseBpm": float(round(bpm, 2)),
         "consensusDownbeats": [],
         "downbeats": [],
+        "events": [],
         "schemaVersion": "2.0",
         "sections": [],
         "phrases": []

@@ -36,8 +36,7 @@
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
       "claveDirection": "2-3",
-      "claveIsVerified": true,
-      "events": []
+      "claveIsVerified": true
     },
     {
       "id": "22222222-2222-4222-8222-222222222222",
@@ -47,8 +46,9 @@
       "type": "STANDARD_8_COUNT",
       "genre": "SALSA",
       "claveDirection": "2-3",
-      "claveIsVerified": true,
-      "events": []
+      "claveIsVerified": true
     }
-  ]
+  ],
+  "events": [],
+  "isEventsProcessed": true
 }

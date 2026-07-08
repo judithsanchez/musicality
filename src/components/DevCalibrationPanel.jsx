@@ -6,20 +6,14 @@ import {
   SalsaInstrumentSchema,
   BachataInstrumentSchema
 } from "../types/schemas";
-import EventAnnotationPanel from "./EventAnnotationPanel";
 
 export default function DevCalibrationPanel({
   songData,
   editorSections,
   phrases,
-  currentTime,
-  userDelaySetting,
-  onUserDelaySettingChange,
   onExit,
   onUpdateSectionField,
   onUpdatePhraseField,
-  onAddEvent,
-  onRemoveEvent,
   validationErrors,
   saving,
   onPublishSong
@@ -92,6 +86,13 @@ export default function DevCalibrationPanel({
                     onChange={(e) => onUpdateSectionField(section.id, "emoji", e.target.value)}
                     style={{ width: "32px", textAlign: "center", padding: "4px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#fff" }}
                   />
+                  <input
+                    type="text"
+                    value={section.label}
+                    placeholder={`Section ${sIdx + 1} label`}
+                    onChange={(e) => onUpdateSectionField(section.id, "label", e.target.value)}
+                    style={{ flexGrow: 1, minWidth: "90px", padding: "4px 6px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#fff" }}
+                  />
                   <select
                     value={section.energyState}
                     onChange={(e) => onUpdateSectionField(section.id, "energyState", e.target.value)}
@@ -158,13 +159,6 @@ export default function DevCalibrationPanel({
           })}
         </div>
       </div>
-
-      <EventAnnotationPanel
-        currentTime={currentTime}
-        phrases={phrases}
-        onAddEvent={onAddEvent}
-        onRemoveEvent={onRemoveEvent}
-      />
 
       <button
         onClick={onPublishSong}

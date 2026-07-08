@@ -15,7 +15,17 @@
     "title": "El Amor que espere",
     "artist": "Leoni Torres",
     "genre": "SALSA",
-    "status": "DRAFT_TAPPING",
+    "status": "DRAFT_CUTTING",
+    "baseBpm": 150,
+    "defaultClave": "NOT_SET"
+  },
+  {
+    "id": "song-k7Bd6xNw4Hg",
+    "youtubeId": "k7Bd6xNw4Hg",
+    "title": "Guaguanco",
+    "artist": "Avenida B",
+    "genre": "SALSA",
+    "status": "READY",
     "baseBpm": 150,
     "defaultClave": "NOT_SET"
   }

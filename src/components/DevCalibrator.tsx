@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Scissors, Play, Pause, RotateCcw } from "lucide-react";
 import DevCalibrationPanel from "./DevCalibrationPanel";
+import EventAnnotationPanel from "./EventAnnotationPanel";
 import { StrictSongMapSchema } from "../types/schemas";
 import { addDanceEvent, removeDanceEvent, type DanceEventDraft } from "../utils/danceEvents";
 
@@ -18,7 +19,6 @@ interface DevCalibratorProps {
   player: any;
   throttledSeek: (time: number, immediate: boolean) => void;
   userDelaySetting: number;
-  setUserDelaySetting: (delay: number) => void;
   onBackToCatalog: () => void;
   showToast: (msg: string) => void;
   videoElement?: React.ReactNode;
@@ -33,17 +33,17 @@ const SECTION_PALETTE = [
   { bg: "rgba(255,255,255,0.14)", border: "rgba(255,255,255,0.37)", text: "#ffffff" },
 ];
 
-const ENERGY_STATE_DEFAULTS: Record<string, { label: string; emoji: string }> = {
-  INTRO: { label: "Intro", emoji: "🎵" },
-  VERSE: { label: "Verse", emoji: "🎤" },
-  CHORUS: { label: "Chorus", emoji: "🗣️" },
-  MONTUNO: { label: "Montuno", emoji: "🔥" },
-  MAMBO: { label: "Mambo", emoji: "🎺" },
-  DESCARGA: { label: "Descarga", emoji: "🥁" },
-  BREAK: { label: "Break", emoji: "🛑" },
-  OUTRO: { label: "Outro", emoji: "🏁" },
-  DERECHO: { label: "Derecho", emoji: "🎸" },
-  MAJAO: { label: "Majao", emoji: "💥" }
+const ENERGY_STATE_DEFAULTS: Record<string, { emoji: string }> = {
+  INTRO: { emoji: "🎵" },
+  VERSE: { emoji: "🎤" },
+  CHORUS: { emoji: "🗣️" },
+  MONTUNO: { emoji: "🔥" },
+  MAMBO: { emoji: "🎺" },
+  DESCARGA: { emoji: "🥁" },
+  BREAK: { emoji: "🛑" },
+  OUTRO: { emoji: "🏁" },
+  DERECHO: { emoji: "🎸" },
+  MAJAO: { emoji: "💥" }
 };
 
 export default function DevCalibrator({
@@ -58,7 +58,6 @@ export default function DevCalibrator({
   player,
   throttledSeek,
   userDelaySetting,
-  setUserDelaySetting,
   onBackToCatalog,
   showToast,
   videoElement
@@ -72,6 +71,7 @@ export default function DevCalibrator({
   const [validationErrors, setValidationErrors] = useState<any[] | null>(null);
   const [activeTab, setActiveTab] = useState<number>(1);
   const [saving, setSaving] = useState<boolean>(false);
+  const [timelineLayers, setTimelineLayers] = useState({ sections: true, events: true, downbeats: true });
 
   const duration = videoDuration || 300;
   const timelineRef = useRef<HTMLDivElement>(null);
@@ -85,10 +85,12 @@ export default function DevCalibrator({
     const status = songData?.status || "DRAFT_CUTTING";
     if (status === "DRAFT_CUTTING") {
       setActiveTab(1);
-    } else if (status === "DRAFT_TAPPING") {
+    } else if (status === "DRAFT_EVENTS") {
       setActiveTab(2);
-    } else {
+    } else if (status === "DRAFT_TAPPING") {
       setActiveTab(3);
+    } else {
+      setActiveTab(4);
     }
   }, [songData?.status]);
 
@@ -100,12 +102,10 @@ export default function DevCalibrator({
     const activePhrases = songData.phrases || [];
 
     if (!songData.sections || songData.sections.length === 0) {
-      const isSalsa = songData.genre === "SALSA";
       const defaultSec = {
         id: "sec-default",
-        label: isSalsa ? "Verse" : "Derecho",
-        emoji: isSalsa ? "🎤" : "🎸",
-        energyState: isSalsa ? "VERSE" : "DERECHO",
+        label: "",
+        energyState: "UNLABELED",
         startTimeMs: 0,
         endTimeMs: duration * 1000 || 300000
       };
@@ -118,7 +118,7 @@ export default function DevCalibrator({
       setPhrases(activePhrases);
 
       const status = songData.status || "DRAFT_CUTTING";
-      if (status === "DRAFT_CUTTING" || status === "DRAFT_TAPPING") {
+      if (status === "DRAFT_CUTTING" || status === "DRAFT_EVENTS" || status === "DRAFT_TAPPING") {
         if (songData.downbeats && Array.isArray(songData.downbeats) && songData.downbeats.length > 0) {
           const latestSession = songData.downbeats[songData.downbeats.length - 1];
           const sortedTaps = [...(latestSession.rawDownbeats || [])].sort((a, b) => a - b);
@@ -300,7 +300,6 @@ export default function DevCalibrator({
             type: pType,
             genre: songData.genre,
             beats: [{ count: 1, timestampMs: pStart, type: "DOWNBEAT" }],
-            events: [],
             ...claveProps
           });
         }
@@ -322,7 +321,6 @@ export default function DevCalibrator({
             type: "STANDARD_8_COUNT",
             genre: songData.genre,
             beats: [{ count: 1, timestampMs: pStart, type: "DOWNBEAT" }],
-            events: [],
             ...claveProps
           });
         }
@@ -446,8 +444,8 @@ export default function DevCalibrator({
     const updated = editorSections.map(s => {
       if (s.id === id) {
         if (field === "energyState") {
-          const defaults = ENERGY_STATE_DEFAULTS[value] || { label: value.charAt(0).toUpperCase() + value.slice(1).toLowerCase(), emoji: "🎵" };
-          return { ...s, energyState: value, label: defaults.label, emoji: defaults.emoji };
+          const defaults = ENERGY_STATE_DEFAULTS[value] || { emoji: "🎵" };
+          return { ...s, energyState: value, emoji: value === "UNLABELED" ? undefined : defaults.emoji };
         }
         return { ...s, [field]: value };
       }
@@ -470,12 +468,10 @@ export default function DevCalibrator({
         return;
       }
 
-      const isSalsa = songData.genre === "SALSA";
       const newSec = {
         id: crypto.randomUUID(),
-        label: isSalsa ? "Verse" : "Derecho",
-        emoji: isSalsa ? "🎤" : "🎸",
-        energyState: isSalsa ? "VERSE" : "DERECHO",
+        label: "",
+        energyState: "UNLABELED",
         startTimeMs: playheadMs,
         endTimeMs: target.endTimeMs
       };
@@ -530,36 +526,54 @@ export default function DevCalibrator({
   };
 
   const handleAddEvent = (draft: DanceEventDraft) => {
-    const result = addDanceEvent(phrases, draft);
+    const result = addDanceEvent(editorSections, latestSongDataRef.current?.events || [], draft);
     if (result.error) {
       showToast(`⚠️ ${result.error}`);
       return false;
     }
-    setPhrases(result.phrases);
-    syncSongMapState(editorSections, result.phrases, songData.baseBpm, tappedHistory, tappedDownbeats);
+    const updated = { ...latestSongDataRef.current, events: result.events };
+    setCalibratedSongData(updated);
+    setSongData(updated);
     showToast("Event added.");
     return true;
   };
 
-  const handleRemoveEvent = (phraseId: string, eventIndex: number) => {
-    const updatedPhrases = removeDanceEvent(phrases, phraseId, eventIndex);
-    setPhrases(updatedPhrases);
-    syncSongMapState(editorSections, updatedPhrases, songData.baseBpm, tappedHistory, tappedDownbeats);
+  const handleRemoveEvent = (eventIndex: number) => {
+    const events = removeDanceEvent(latestSongDataRef.current?.events || [], eventIndex);
+    const updated = { ...latestSongDataRef.current, events };
+    setCalibratedSongData(updated);
+    setSongData(updated);
     showToast("Event removed.");
   };
 
   const handleLockSections = () => {
     const updated = {
       ...latestSongDataRef.current,
-      status: "DRAFT_TAPPING",
+      status: "DRAFT_EVENTS",
       isSectionsProcessed: true,
+      isEventsProcessed: false,
       isTappingProcessed: false
     };
     setCalibratedSongData(updated);
     setSongData(updated);
     autoSaveSongMap(updated);
     setActiveTab(2);
-    showToast("🔒 Sections locked! Downbeat tapping unlocked.");
+    showToast("Sections locked. Event annotation unlocked.");
+  };
+
+  const handleSaveEvents = () => {
+    const updated = {
+      ...latestSongDataRef.current,
+      status: "DRAFT_TAPPING",
+      isSectionsProcessed: true,
+      isEventsProcessed: true,
+      isTappingProcessed: false
+    };
+    setCalibratedSongData(updated);
+    setSongData(updated);
+    autoSaveSongMap(updated);
+    setActiveTab(3);
+    showToast("Events saved. Downbeat tapping unlocked.");
   };
 
   const handleSaveTaps = () => {
@@ -584,6 +598,7 @@ export default function DevCalibrator({
       downbeats: updatedHistory,
       status: "DRAFT_LABELING",
       isSectionsProcessed: true,
+      isEventsProcessed: true,
       isTappingProcessed: true
     };
     setCalibratedSongData(updated);
@@ -600,7 +615,7 @@ export default function DevCalibrator({
       setSaving(false);
       if (res.success) {
         showToast("💾 Taps saved! Labeling phase unlocked.");
-        setActiveTab(3);
+        setActiveTab(4);
       } else {
         throw new Error(res.error || "Save failed");
       }
@@ -650,6 +665,7 @@ export default function DevCalibrator({
       ...latestSongDataRef.current,
       status: "READY",
       isSectionsProcessed: true,
+      isEventsProcessed: true,
       isTappingProcessed: true
     };
     const validation = StrictSongMapSchema.safeParse(updated);
@@ -688,6 +704,7 @@ export default function DevCalibrator({
       ...latestSongDataRef.current,
       status: "DRAFT_CUTTING",
       isSectionsProcessed: false,
+      isEventsProcessed: false,
       isTappingProcessed: false
     };
     setCalibratedSongData(updated);
@@ -736,7 +753,7 @@ export default function DevCalibrator({
 
       if (e.key === "t" || e.key === "T") {
         e.preventDefault();
-        if (activeTab === 2 && songData?.status === "DRAFT_TAPPING") {
+        if (activeTab === 3 && songData?.status === "DRAFT_TAPPING") {
           handleTap();
         }
       }
@@ -795,13 +812,14 @@ export default function DevCalibrator({
         paddingBottom: "8px",
         gap: "16px"
       }}>
-        {["1. Timeline Slicing", "2. Downbeat Tapping", "3. Details & Labeling"].map((tabName, idx) => {
+        {["1. Slicing", "2. Events", "3. Downbeat Tapping", "4. Labeling"].map((tabName, idx) => {
           const tabNum = idx + 1;
           const status = songData?.status || "DRAFT_CUTTING";
           
           let disabled = false;
           if (tabNum === 2 && status === "DRAFT_CUTTING") disabled = true;
-          if (tabNum === 3 && (status === "DRAFT_CUTTING" || status === "DRAFT_TAPPING")) disabled = true;
+          if (tabNum === 3 && (status === "DRAFT_CUTTING" || status === "DRAFT_EVENTS")) disabled = true;
+          if (tabNum === 4 && status !== "DRAFT_LABELING" && status !== "READY") disabled = true;
           
           const isActive = activeTab === tabNum;
           
@@ -829,6 +847,23 @@ export default function DevCalibrator({
       </div>
 
       {activeTab === 2 && (
+        <div style={{ display: "flex", flexDirection: "column", gap: "12px", maxWidth: "800px", width: "100%", margin: "0 auto" }}>
+          <EventAnnotationPanel
+            currentTime={currentTime}
+            events={songData?.events || []}
+            onAddEvent={handleAddEvent}
+            onRemoveEvent={handleRemoveEvent}
+            disabled={songData?.status !== "DRAFT_EVENTS"}
+          />
+          {songData?.status === "DRAFT_EVENTS" && (
+            <button onClick={handleSaveEvents} disabled={saving} style={{ padding: "9px", border: "none", borderRadius: "8px", fontWeight: 800, cursor: saving ? "not-allowed" : "pointer" }}>
+              {saving ? "Saving..." : "Complete Events & Continue"}
+            </button>
+          )}
+        </div>
+      )}
+
+      {activeTab === 3 && (
         <div className={tapFlash ? "active-flash" : ""} style={{
           padding: "20px 16px",
           background: "rgba(255,255,255,0.02)",
@@ -847,13 +882,14 @@ export default function DevCalibrator({
 
           <button
             onClick={handleTap}
+            disabled={songData?.status !== "DRAFT_TAPPING"}
             style={{
               width: "100%",
               height: "90px",
               borderRadius: "14px",
               border: `2px solid ${tapFlash ? "#ffffff" : "#3f3f46"}`,
               background: tapFlash ? "#ffffff" : "rgba(255,255,255,0.04)",
-              cursor: "pointer",
+              cursor: songData?.status === "DRAFT_TAPPING" ? "pointer" : "not-allowed",
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
@@ -905,7 +941,7 @@ export default function DevCalibrator({
               
               <button
                 onClick={handleSaveTaps}
-                disabled={phrases.length === 0 || saving}
+                disabled={phrases.length === 0 || saving || songData?.status !== "DRAFT_TAPPING"}
                 style={{
                   fontSize: "0.72rem",
                   fontWeight: 700,
@@ -914,8 +950,8 @@ export default function DevCalibrator({
                   color: "#000",
                   padding: "6px 14px",
                   borderRadius: "6px",
-                  cursor: (phrases.length === 0 || saving) ? "not-allowed" : "pointer",
-                  opacity: (phrases.length === 0 || saving) ? 0.6 : 1
+                  cursor: (phrases.length === 0 || saving || songData?.status !== "DRAFT_TAPPING") ? "not-allowed" : "pointer",
+                  opacity: (phrases.length === 0 || saving || songData?.status !== "DRAFT_TAPPING") ? 0.6 : 1
                 }}
               >
                 {saving ? "Saving Taps..." : "Save Taps 💾"}
@@ -926,25 +962,20 @@ export default function DevCalibrator({
       )}
 
       <div className="dev-widescreen-top-row" style={{
-        gridTemplateColumns: (activeTab === 1 || activeTab === 2) ? "1fr" : "1.15fr 0.85fr"
+        gridTemplateColumns: activeTab === 4 ? "1.15fr 0.85fr" : "1fr"
       }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: "16px", maxWidth: (activeTab === 1 || activeTab === 2) ? "800px" : "100%", margin: (activeTab === 1 || activeTab === 2) ? "0 auto" : "0", width: "100%" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "16px", maxWidth: activeTab === 4 ? "100%" : "800px", margin: activeTab === 4 ? "0" : "0 auto", width: "100%" }}>
           {videoElement}
         </div>
 
-        {activeTab === 3 && (
+        {activeTab === 4 && (
           <DevCalibrationPanel
             songData={songData}
             editorSections={editorSections}
             phrases={phrases}
-            currentTime={currentTime}
-            userDelaySetting={userDelaySetting}
-            onUserDelaySettingChange={setUserDelaySetting}
             onExit={onBackToCatalog}
             onUpdateSectionField={handleUpdateSectionField}
             onUpdatePhraseField={handleUpdatePhraseField}
-            onAddEvent={handleAddEvent}
-            onRemoveEvent={handleRemoveEvent}
             validationErrors={validationErrors}
             saving={saving}
             onPublishSong={handlePublishSong}
@@ -958,6 +989,15 @@ export default function DevCalibrator({
             Song Timeline Editing Console
           </span>
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            {Object.entries(timelineLayers).map(([layer, visible]) => (
+              <button
+                key={layer}
+                onClick={() => setTimelineLayers(current => ({ ...current, [layer]: !visible }))}
+                style={{ fontSize: "0.65rem", padding: "3px 7px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.12)", background: visible ? "#fff" : "transparent", color: visible ? "#000" : "#71717a", cursor: "pointer", textTransform: "capitalize" }}
+              >
+                {layer}
+              </button>
+            ))}
             <span style={{ fontFamily: "monospace", fontSize: "0.78rem", color: "#ffffff", fontWeight: 600 }}>
               {currentTime.toFixed(2)}s / {duration.toFixed(2)}s
             </span>
@@ -1038,15 +1078,15 @@ export default function DevCalibrator({
             }}
           >
             <div style={{ position: "absolute", inset: 0, borderRadius: "9px", overflow: "hidden" }}>
-              {editorSections.map((sec, idx) => {
+              {timelineLayers.sections && editorSections.map((sec, idx) => {
                 const startSec = sec.startTimeMs / 1000;
                 const endSec = sec.endTimeMs / 1000;
                 const widthPct = ((endSec - startSec) / duration) * 100;
                 const leftPct = (startSec / duration) * 100;
                 const color = SECTION_PALETTE[idx % SECTION_PALETTE.length];
                 const isActive = sec.id === focusedSectionId;
-                const showSimpleLabel = activeTab === 1 || activeTab === 2;
-                const labelText = showSimpleLabel ? String(idx + 1) : `${sec.emoji || "🎵"} ${sec.label}`;
+                const showSimpleLabel = activeTab !== 4;
+                const labelText = showSimpleLabel || !sec.label ? `Section ${idx + 1}` : `${sec.emoji || ""} ${sec.label}`;
 
                 return (
                   <div
@@ -1078,6 +1118,18 @@ export default function DevCalibrator({
                   </div>
                 );
               })}
+
+              {timelineLayers.events && (songData?.events || []).map((event: any, index: number) => {
+                const leftPct = (event.timestampMs / (duration * 1000)) * 100;
+                const widthPct = event.durationMs ? (event.durationMs / (duration * 1000)) * 100 : 0;
+                return (
+                  <div key={`event-${index}-${event.timestampMs}`} title={`${event.type}: ${event.description}`} style={{ position: "absolute", top: "6px", bottom: "6px", left: `${leftPct}%`, width: event.durationMs ? `${Math.max(widthPct, 0.3)}%` : "3px", borderRadius: "3px", background: event.uiHighlight ? "#f59e0b" : "#a1a1aa", zIndex: 7, pointerEvents: "none" }} />
+                );
+              })}
+
+              {timelineLayers.downbeats && (activeTab === 3 ? tappedDownbeats : (songData?.consensusDownbeats || [])).map((downbeat: number, index: number) => (
+                <div key={`downbeat-${index}-${downbeat}`} style={{ position: "absolute", top: "12px", bottom: "12px", left: `${(downbeat / (duration * 1000)) * 100}%`, width: "1px", background: "#60a5fa", opacity: 0.8, zIndex: 6, pointerEvents: "none" }} />
+              ))}
 
               <div style={{
                 position: "absolute",
@@ -1150,8 +1202,8 @@ export default function DevCalibrator({
             {editorSections.map((sec, idx) => {
                const color = SECTION_PALETTE[idx % SECTION_PALETTE.length];
                const isActive = sec.id === focusedSectionId;
-               const showSimpleLabel = activeTab === 1 || activeTab === 2;
-               const labelText = showSimpleLabel ? String(idx + 1) : `${sec.emoji || "🎵"} ${sec.label}`;
+               const showSimpleLabel = activeTab !== 4;
+               const labelText = showSimpleLabel || !sec.label ? `Section ${idx + 1}` : `${sec.emoji || ""} ${sec.label}`;
                return (
                  <button
                    key={sec.id}
