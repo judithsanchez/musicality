@@ -14,16 +14,24 @@ const validSalsaMap = {
   artist: 'API Test Artist',
   genre: 'SALSA',
   baseBpm: 120,
-  absoluteBeatMap: [0, 500, 1000, 1500, 2000],
+  isSectionsProcessed: true,
+  isTappingProcessed: true,
+  consensusDownbeats: [0, 1000],
   schemaVersion: '2.0',
   defaultClave: '2-3',
+  downbeats: [
+    {
+      rawDownbeats: [0, 1000],
+      calibratedDownbeats: [0, 1000],
+      tappedAt: '2026-06-09T08:09:00.000Z'
+    }
+  ],
   sections: [
     {
       id: 'sec-1',
       startTimeMs: 0,
       endTimeMs: 1000,
       label: 'Intro',
-      phraseIds: [UUID_1],
       energyState: 'INTRO',
       emoji: '🎵'
     },
@@ -32,7 +40,6 @@ const validSalsaMap = {
       startTimeMs: 1000,
       endTimeMs: 2000,
       label: 'Verse',
-      phraseIds: [UUID_2],
       energyState: 'VERSE',
       emoji: '🎤'
     }
@@ -47,6 +54,9 @@ const validSalsaMap = {
       genre: 'SALSA',
       claveDirection: '2-3',
       claveIsVerified: true,
+      beats: [
+        { timestampMs: 0, type: 'DOWNBEAT', count: 1 }
+      ],
       events: []
     },
     {
@@ -58,6 +68,9 @@ const validSalsaMap = {
       genre: 'SALSA',
       claveDirection: '2-3',
       claveIsVerified: true,
+      beats: [
+        { timestampMs: 1000, type: 'DOWNBEAT', count: 1 }
+      ],
       events: []
     }
   ]
@@ -69,9 +82,8 @@ const invalidSalsaMap = {
     {
       id: 'sec-1',
       startTimeMs: 0,
-      endTimeMs: 900, // gap: ends at 900 but next starts at 1000
+      endTimeMs: 900,
       label: 'Intro',
-      phraseIds: [UUID_1],
       energyState: 'INTRO',
       emoji: '🎵'
     },
@@ -80,9 +92,38 @@ const invalidSalsaMap = {
       startTimeMs: 1000,
       endTimeMs: 2000,
       label: 'Verse',
-      phraseIds: [UUID_2],
       energyState: 'VERSE',
       emoji: '🎤'
+    }
+  ],
+  phrases: [
+    {
+      id: UUID_1,
+      index: 1,
+      startTimeMs: 0,
+      endTimeMs: 900,
+      type: 'STANDARD_8_COUNT',
+      genre: 'SALSA',
+      claveDirection: '2-3',
+      claveIsVerified: true,
+      beats: [
+        { timestampMs: 0, type: 'DOWNBEAT', count: 1 }
+      ],
+      events: []
+    },
+    {
+      id: UUID_2,
+      index: 2,
+      startTimeMs: 1000,
+      endTimeMs: 2000,
+      type: 'STANDARD_8_COUNT',
+      genre: 'SALSA',
+      claveDirection: '2-3',
+      claveIsVerified: true,
+      beats: [
+        { timestampMs: 1000, type: 'DOWNBEAT', count: 1 }
+      ],
+      events: []
     }
   ]
 };

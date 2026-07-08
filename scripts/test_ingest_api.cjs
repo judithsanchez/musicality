@@ -33,30 +33,12 @@ async function runIngestTests() {
 
   fs.writeFileSync(tempAudioPath, buffer);
 
-  const boundary = '----TestBoundary' + Math.random().toString(36).substring(2);
-  const multipartHeader = `multipart/form-data; boundary=${boundary}`;
-
-  const payloadParts = [
-    `--${boundary}\r\nContent-Disposition: form-data; name="youtubeId"\r\n\r\nyoutube-ingest-test\r\n`,
-    `--${boundary}\r\nContent-Disposition: form-data; name="title"\r\n\r\nIngestion Test track\r\n`,
-    `--${boundary}\r\nContent-Disposition: form-data; name="artist"\r\n\r\nCalibration Artist\r\n`,
-    `--${boundary}\r\nContent-Disposition: form-data; name="genre"\r\n\r\nSALSA\r\n`,
-    `--${boundary}\r\nContent-Disposition: form-data; name="audio"; filename="mock_track.mp3"\r\nContent-Type: audio/mpeg\r\n\r\n`
-  ];
-
-  const partBuffers = payloadParts.map(part => Buffer.from(part, 'utf8'));
-  const fileBuffer = fs.readFileSync(tempAudioPath);
-  const endBuffer = Buffer.from(`\r\n--${boundary}--\r\n`, 'utf8');
-
-  const requestBody = Buffer.concat([
-    partBuffers[0],
-    partBuffers[1],
-    partBuffers[2],
-    partBuffers[3],
-    partBuffers[4],
-    fileBuffer,
-    endBuffer
-  ]);
+  const payload = {
+    youtubeId: 'youtube-ingest-test',
+    title: 'Ingestion Test track',
+    artist: 'Calibration Artist',
+    genre: 'SALSA'
+  };
 
   const finalAudioPath = path.join(songsDir, 'youtube-ingest-test.mp3');
   const finalJsonPath = path.join(songsDir, 'youtube-ingest-test.json');
@@ -71,14 +53,15 @@ async function runIngestTests() {
     if (fs.existsSync(finalAudioPath)) fs.unlinkSync(finalAudioPath);
     if (fs.existsSync(finalJsonPath)) fs.unlinkSync(finalJsonPath);
 
+    fs.writeFileSync(finalAudioPath, buffer);
+
     console.log('Test Case 1: Sending Ingestion Request (Phase 1)...');
     const res = await fetch(INGEST_API_URL, {
       method: 'POST',
       headers: {
-        'Content-Type': multipartHeader,
-        'Content-Length': requestBody.length.toString()
+        'Content-Type': 'application/json'
       },
-      body: requestBody
+      body: JSON.stringify(payload)
     });
 
     console.log(`Ingest response status: ${res.status}`);

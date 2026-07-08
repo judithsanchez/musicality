@@ -1,0 +1,34 @@
+{
+  "id": "song-CEsip93GxdA",
+  "youtubeId": "CEsip93GxdA",
+  "title": "El Amor que espere",
+  "artist": "Leoni Torres",
+  "genre": "SALSA",
+  "status": "DRAFT_TAPPING",
+  "isSectionsProcessed": true,
+  "isTappingProcessed": false,
+  "baseBpm": 150,
+  "consensusDownbeats": [],
+  "downbeats": [],
+  "schemaVersion": "2.0",
+  "defaultClave": "NOT_SET",
+  "sections": [
+    {
+      "id": "sec-default",
+      "startTimeMs": 0,
+      "endTimeMs": 22260,
+      "label": "Verse",
+      "emoji": "🎤",
+      "energyState": "VERSE"
+    },
+    {
+      "id": "0b9a60ec-d432-47da-9dd3-09d635af6509",
+      "startTimeMs": 22260,
+      "endTimeMs": 300000,
+      "label": "Verse",
+      "emoji": "🎤",
+      "energyState": "VERSE"
+    }
+  ],
+  "phrases": []
+}

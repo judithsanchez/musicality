@@ -29,6 +29,16 @@ describe('StrictSongMapSchema Validation', () => {
     expect(res.success).toBe(true);
   });
 
+  it('should pass validation for the production Salsa song map Pobre Diablo', () => {
+    const songPath = path.resolve(__dirname, '../../../public/songs/66HCBysrJS8.json');
+    const songData = JSON.parse(fs.readFileSync(songPath, 'utf8'));
+    const res = StrictSongMapSchema.safeParse(songData);
+    if (!res.success) {
+      console.log('Pobre Diablo Validation Errors:', JSON.stringify(res.error.issues, null, 2));
+    }
+    expect(res.success).toBe(true);
+  });
+
   describe('Section Contiguity Checks', () => {
     it('should fail if the first section does not start at 0', () => {
       const invalid = JSON.parse(JSON.stringify(validSalsaMap));
@@ -54,47 +64,24 @@ describe('StrictSongMapSchema Validation', () => {
       }
     });
 
-    it('should fail if the last section end time does not match the last beat time', () => {
-      const invalid = JSON.parse(JSON.stringify(validSalsaMap));
-      invalid.sections[1].endTimeMs = 2500; // last beat is at 2000
-      invalid.phrases[1].endTimeMs = 2500;
-      
-      const res = StrictSongMapSchema.safeParse(invalid);
-      expect(res.success).toBe(false);
-      if (!res.success) {
-        expect(res.error.issues.some(i => i.message.includes('must match the last beat in absoluteBeatMap'))).toBe(true);
-      }
-    });
   });
 
   describe('Phrase Contiguity & Boundary Checks', () => {
-    it('should fail if the first phrase in a section does not start at section start time', () => {
+    it('should fail if the first phrase in the song does not start at 0 ms', () => {
       const invalid = JSON.parse(JSON.stringify(validSalsaMap));
-      invalid.phrases[0].startTimeMs = 100; // Section start is 0
+      invalid.phrases[0].startTimeMs = 100;
       
       const res = StrictSongMapSchema.safeParse(invalid);
       expect(res.success).toBe(false);
       if (!res.success) {
-        expect(res.error.issues.some(i => i.message.includes('must start at section start time'))).toBe(true);
+        expect(res.error.issues.some(i => i.message.includes('First phrase must start at 0 ms'))).toBe(true);
       }
     });
 
-    it('should fail if there is a gap/overlap between phrases inside a section', () => {
+    it('should fail if there is a gap/overlap between phrases in the song', () => {
       const invalid = JSON.parse(JSON.stringify(validSalsaMap));
-      invalid.sections[0].phraseIds = [UUID_1, UUID_EXTRA];
-      invalid.phrases.push({
-        id: UUID_EXTRA,
-        index: 3,
-        startTimeMs: 600, // gap from 500 to 600
-        endTimeMs: 1000,
-        type: 'STANDARD_8_COUNT',
-        genre: 'SALSA',
-        claveDirection: '2-3',
-        claveIsVerified: true,
-        events: []
-      });
-      invalid.phrases[0].endTimeMs = 500; // starts 0, ends 500
-
+      invalid.phrases[1].startTimeMs = 1200; // gap from 1000 to 1200
+      
       const res = StrictSongMapSchema.safeParse(invalid);
       expect(res.success).toBe(false);
       if (!res.success) {
@@ -102,46 +89,14 @@ describe('StrictSongMapSchema Validation', () => {
       }
     });
 
-    it('should fail if the last phrase in a section does not end at section end time', () => {
+    it('should fail if the last phrase does not end at the end of the sections/song', () => {
       const invalid = JSON.parse(JSON.stringify(validSalsaMap));
-      invalid.phrases[0].endTimeMs = 900; // Section end is 1000
+      invalid.phrases[1].endTimeMs = 1900; // last section ends at 2000
       
       const res = StrictSongMapSchema.safeParse(invalid);
       expect(res.success).toBe(false);
       if (!res.success) {
-        expect(res.error.issues.some(i => i.message.includes('must end at section end time'))).toBe(true);
-      }
-    });
-
-    it('should fail if a phrase is not referenced by any section', () => {
-      const invalid = JSON.parse(JSON.stringify(validSalsaMap));
-      invalid.phrases.push({
-        id: UUID_UNREF,
-        index: 3,
-        startTimeMs: 2000,
-        endTimeMs: 3000,
-        type: 'STANDARD_8_COUNT',
-        genre: 'SALSA',
-        claveDirection: '2-3',
-        claveIsVerified: true,
-        events: []
-      });
-
-      const res = StrictSongMapSchema.safeParse(invalid);
-      expect(res.success).toBe(false);
-      if (!res.success) {
-        expect(res.error.issues.some(i => i.message.includes('is not referenced by any section'))).toBe(true);
-      }
-    });
-
-    it('should fail if a phrase is referenced by multiple sections', () => {
-      const invalid = JSON.parse(JSON.stringify(validSalsaMap));
-      invalid.sections[1].phraseIds = [UUID_1]; // both sections reference UUID_1
-
-      const res = StrictSongMapSchema.safeParse(invalid);
-      expect(res.success).toBe(false);
-      if (!res.success) {
-        expect(res.error.issues.some(i => i.message.includes('referenced in multiple sections'))).toBe(true);
+        expect(res.error.issues.some(i => i.message.includes('Last phrase must end at the end of the song/sections'))).toBe(true);
       }
     });
   });
@@ -161,6 +116,141 @@ describe('StrictSongMapSchema Validation', () => {
       
       const res = StrictSongMapSchema.safeParse(invalid);
       expect(res.success).toBe(false);
+    });
+
+    it('should fail if a Salsa song map contains a NO_COUNT phrase missing claveDirection', () => {
+      const invalid = JSON.parse(JSON.stringify(validSalsaMap));
+      invalid.phrases[0].type = 'NO_COUNT';
+      delete invalid.phrases[0].claveDirection;
+      
+      const res = StrictSongMapSchema.safeParse(invalid);
+      expect(res.success).toBe(false);
+    });
+  });
+
+  describe('Status Field Validation', () => {
+    it('should default status to DRAFT_CUTTING if not specified', () => {
+      const copy = JSON.parse(JSON.stringify(validSalsaMap));
+      delete copy.status;
+      const res = StrictSongMapSchema.safeParse(copy);
+      expect(res.success).toBe(true);
+      if (res.success) {
+        expect(res.data.status).toBe('DRAFT_CUTTING');
+      }
+    });
+
+    it('should validate valid status values', () => {
+      const copy = JSON.parse(JSON.stringify(validSalsaMap));
+      copy.status = 'READY';
+      const res = StrictSongMapSchema.safeParse(copy);
+      expect(res.success).toBe(true);
+      if (res.success) {
+        expect(res.data.status).toBe('READY');
+      }
+    });
+
+    it('should fail for invalid status values', () => {
+      const copy = JSON.parse(JSON.stringify(validSalsaMap));
+      copy.status = 'INVALID_STATUS';
+      const res = StrictSongMapSchema.safeParse(copy);
+      expect(res.success).toBe(false);
+    });
+  });
+
+  describe('Phrase Beats Validation', () => {
+    it('should pass if a phrase contains valid beats', () => {
+      const copy = JSON.parse(JSON.stringify(validSalsaMap));
+      copy.phrases[0].beats = [
+        { timestampMs: 0, type: 'DOWNBEAT', count: 1 }
+      ];
+      const res = StrictSongMapSchema.safeParse(copy);
+      expect(res.success).toBe(true);
+    });
+
+    it('should fail if a phrase contains a beat with an invalid type', () => {
+      const copy = JSON.parse(JSON.stringify(validSalsaMap));
+      copy.phrases[0].beats = [
+        { timestampMs: 0, type: 'INVALID_BEAT_TYPE', count: 1 }
+      ];
+      const res = StrictSongMapSchema.safeParse(copy);
+      expect(res.success).toBe(false);
+    });
+  });
+
+  describe('Dance Event Validation', () => {
+    it('should accept point and range events inside a phrase', () => {
+      const copy = JSON.parse(JSON.stringify(validSalsaMap));
+      copy.phrases[0].events = [
+        { timestampMs: 250, type: 'ACCENT', description: 'Brass hit', uiHighlight: true },
+        { timestampMs: 500, durationMs: 400, type: 'BUILD_UP', description: 'Percussion build', uiHighlight: true }
+      ];
+      expect(StrictSongMapSchema.safeParse(copy).success).toBe(true);
+    });
+
+    it('should reject an event outside its phrase', () => {
+      const copy = JSON.parse(JSON.stringify(validSalsaMap));
+      copy.phrases[0].events = [
+        { timestampMs: 1100, type: 'ACCENT', description: 'Wrong phrase', uiHighlight: true }
+      ];
+      expect(StrictSongMapSchema.safeParse(copy).success).toBe(false);
+    });
+
+    it('should reject a range that crosses a phrase boundary', () => {
+      const copy = JSON.parse(JSON.stringify(validSalsaMap));
+      copy.phrases[0].events = [
+        { timestampMs: 900, durationMs: 200, type: 'BUILD_UP', description: 'Too long', uiHighlight: true }
+      ];
+      expect(StrictSongMapSchema.safeParse(copy).success).toBe(false);
+    });
+  });
+
+  describe('Tap History Validation', () => {
+    it('should pass if downbeats contains valid sessions', () => {
+      const copy = JSON.parse(JSON.stringify(validSalsaMap));
+      copy.downbeats = [
+        {
+          rawDownbeats: [0, 1000],
+          calibratedDownbeats: [0, 1000],
+          tappedAt: '2026-06-09T08:09:00.000Z'
+        }
+      ];
+      const res = StrictSongMapSchema.safeParse(copy);
+      expect(res.success).toBe(true);
+    });
+
+    it('should fail if a downbeats session is missing tappedAt', () => {
+      const copy = JSON.parse(JSON.stringify(validSalsaMap));
+      copy.downbeats = [
+        {
+          rawDownbeats: [0, 1000],
+          calibratedDownbeats: [0, 1000]
+        }
+      ];
+      const res = StrictSongMapSchema.safeParse(copy);
+      expect(res.success).toBe(false);
+    });
+  });
+
+  describe('isSectionsProcessed Toggle Validation', () => {
+    it('should pass with empty sections and phrases if isSectionsProcessed is false', () => {
+      const copy = JSON.parse(JSON.stringify(validSalsaMap));
+      copy.isSectionsProcessed = false;
+      copy.sections = [];
+      copy.phrases = [];
+      const res = StrictSongMapSchema.safeParse(copy);
+      expect(res.success).toBe(true);
+    });
+
+    it('should fail with empty sections if isSectionsProcessed is true', () => {
+      const copy = JSON.parse(JSON.stringify(validSalsaMap));
+      copy.isSectionsProcessed = true;
+      copy.sections = [];
+      copy.phrases = [];
+      const res = StrictSongMapSchema.safeParse(copy);
+      expect(res.success).toBe(false);
+      if (!res.success) {
+        expect(res.error.issues.some(i => i.message.includes('Sections array cannot be empty'))).toBe(true);
+      }
     });
   });
 
