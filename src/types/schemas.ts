@@ -55,8 +55,8 @@ export const BeatSchema = z.object({
 });
 
 export const DanceEventSchema = z.object({
-  timestampMs: z.number().int(),
-  durationMs: z.number().int().optional(),
+  timestampMs: z.number().int().nonnegative(),
+  durationMs: z.number().int().positive().optional(),
   type: z.enum(['ACCENT', 'FILL', 'VOCAL_CUE', 'INSTRUMENT_ENTRY', 'BUILD_UP', 'ENERGY_DROP']),
   description: z.string(),
   uiHighlight: z.boolean()
@@ -211,6 +211,26 @@ export const StrictSongMapSchema = SongMapSchema.superRefine((data, ctx) => {
       }
     });
   }
+
+  data.phrases.forEach((phrase, phraseIndex) => {
+    phrase.events.forEach((event, eventIndex) => {
+      const eventEndTimeMs = event.timestampMs + (event.durationMs || 0);
+      if (event.timestampMs < phrase.startTimeMs || event.timestampMs >= phrase.endTimeMs) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `Event timestamp must be inside phrase ${phrase.index}`,
+          path: ['phrases', phraseIndex, 'events', eventIndex, 'timestampMs']
+        });
+      }
+      if (event.durationMs && eventEndTimeMs > phrase.endTimeMs) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `Event range must end inside phrase ${phrase.index}`,
+          path: ['phrases', phraseIndex, 'events', eventIndex, 'durationMs']
+        });
+      }
+    });
+  });
 
   if (data.isSectionsProcessed) {
     if (data.sections.length === 0) {
