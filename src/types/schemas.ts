@@ -46,6 +46,15 @@ export const BachataInstrumentSchema = z.enum([
 
 export const ClaveDirectionSchema = z.enum(['2-3', '3-2', 'NOT_SET', 'NONE']);
 
+export const SalsaRhythmRoleSchema = z.enum([
+  'DOWNBEAT_PAUSE',
+  'CONGA_SLAP',
+  'BASS_BOMBO',
+  'BASS_PONCHE',
+  'CONGA_OPEN',
+  'UNCLASSIFIED'
+]);
+
 export const BeatTypeSchema = z.enum(['DOWNBEAT', 'NORMAL']);
 
 export const BeatSchema = z.object({
@@ -152,6 +161,7 @@ export const SongMapSchema = z.discriminatedUnion('genre', [
 
 export type Genre = z.infer<typeof GenreSchema>;
 export type ClaveDirection = z.infer<typeof ClaveDirectionSchema>;
+export type SalsaRhythmRole = z.infer<typeof SalsaRhythmRoleSchema>;
 export type BeatType = z.infer<typeof BeatTypeSchema>;
 export type Beat = z.infer<typeof BeatSchema>;
 

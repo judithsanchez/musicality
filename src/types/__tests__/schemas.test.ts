@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { StrictSongMapSchema } from '../schemas';
+import { StrictSongMapSchema, SalsaRhythmRoleSchema } from '../schemas';
 import validSalsaMap from './fixtures/valid-salsa-map.json';
 import validBachataMap from './fixtures/valid-bachata-map.json';
 import fs from 'fs';
@@ -251,6 +251,33 @@ describe('StrictSongMapSchema Validation', () => {
       if (!res.success) {
         expect(res.error.issues.some(i => i.message.includes('Sections array cannot be empty'))).toBe(true);
       }
+    });
+  });
+
+  it('should validate the generated Pobre Diablo song map', () => {
+    const filePath = path.resolve(__dirname, '../../../public/songs/66HCBysrJS8.json');
+    const content = fs.readFileSync(filePath, 'utf8');
+    const songMap = JSON.parse(content);
+    const res = StrictSongMapSchema.safeParse(songMap);
+    if (!res.success) {
+      console.log('Errors:', JSON.stringify(res.error.issues, null, 2));
+    }
+    expect(res.success).toBe(true);
+  });
+
+  describe('SalsaRhythmRoleSchema', () => {
+    it('should validate valid salsa rhythm roles', () => {
+      expect(SalsaRhythmRoleSchema.safeParse('DOWNBEAT_PAUSE').success).toBe(true);
+      expect(SalsaRhythmRoleSchema.safeParse('CONGA_SLAP').success).toBe(true);
+      expect(SalsaRhythmRoleSchema.safeParse('BASS_BOMBO').success).toBe(true);
+      expect(SalsaRhythmRoleSchema.safeParse('BASS_PONCHE').success).toBe(true);
+      expect(SalsaRhythmRoleSchema.safeParse('CONGA_OPEN').success).toBe(true);
+      expect(SalsaRhythmRoleSchema.safeParse('UNCLASSIFIED').success).toBe(true);
+    });
+
+    it('should reject invalid salsa rhythm roles', () => {
+      expect(SalsaRhythmRoleSchema.safeParse('INVALID_ROLE').success).toBe(false);
+      expect(SalsaRhythmRoleSchema.safeParse('').success).toBe(false);
     });
   });
 });

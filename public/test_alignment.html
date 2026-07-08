@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salsa Beatmap Alignment Validator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0b0813;
+            --panel-bg: rgba(25, 20, 38, 0.6);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-color: #f1ecf9;
+            --text-muted: #a39bb8;
+            --primary: #c084fc;
+            --accent-1: #ec4899;
+            --accent-2: #06b6d4;
+            --neon-glow-primary: 0 0 15px rgba(192, 132, 252, 0.6);
+            --neon-glow-accent-1: 0 0 15px rgba(236, 72, 153, 0.6);
+            --neon-glow-accent-2: 0 0 15px rgba(6, 182, 212, 0.6);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: radial-gradient(circle at 50% 0%, #201335 0%, var(--bg-color) 70%);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1rem;
+            overflow-x: hidden;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff 30%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.5px;
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            max-width: 1200px;
+            width: 100%;
+            animation: slideUp 0.8s ease-out;
+        }
+
+        @media (min-width: 968px) {
+            .container {
+                grid-template-columns: 1.2fr 0.8fr;
+            }
+        }
+
+        .card {
+            background: var(--panel-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 12px 40px 0 rgba(192, 132, 252, 0.1);
+        }
+
+        .player-container {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: #000;
+            margin-bottom: 1.5rem;
+        }
+
+        .player-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+
+        .controls-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 1rem 1.5rem;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, #a855f7 100%);
+            border: none;
+            color: #fff;
+            padding: 0.75rem 1.5rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: var(--neon-glow-primary);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(192, 132, 252, 0.8);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 120px;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            box-shadow: var(--neon-glow-primary);
+            transition: transform 0.1s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        .beattrack-viz {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .beat-circle {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            transition: all 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .beat-circle.active-1 {
+            background: linear-gradient(135deg, var(--accent-1) 0%, #db2777 100%);
+            border-color: var(--accent-1);
+            color: #fff;
+            transform: scale(1.2);
+            box-shadow: var(--neon-glow-accent-1);
+        }
+
+        .beat-circle.active-rest {
+            background: linear-gradient(135deg, var(--accent-2) 0%, #0891b2 100%);
+            border-color: var(--accent-2);
+            color: #fff;
+            transform: scale(1.15);
+            box-shadow: var(--neon-glow-accent-2);
+        }
+
+        .info-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .song-details {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .album-art {
+            width: 80px;
+            height: 80px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #3b0764 0%, #1e1b4b 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 2rem;
+        }
+
+        .song-meta h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .song-meta p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .metric-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 1.25rem;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 0.25rem;
+        }
+
+        .metric-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            color: #4ade80;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            align-self: flex-start;
+        }
+
+        .status-badge.inactive {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+        }
+
+        .realtime-stats {
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 20px;
+            padding: 1.5rem;
+        }
+
+        .stat-line {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .stat-line:last-child {
+            border-bottom: none;
+        }
+
+        .stat-name {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .stat-val {
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .console-log {
+            font-family: monospace;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 12px;
+            padding: 1rem;
+            height: 120px;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.8rem;
+            color: #10b981;
+        }
+
+        .log-entry {
+            margin-bottom: 0.25rem;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Salsa Downbeat Tracker</h1>
+        <p class="subtitle">POC Beatmap Alignment Validator</p>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <div class="player-container">
+                <div id="youtube-player"></div>
+            </div>
+
+            <div class="controls-row">
+                <div class="control-group">
+                    <button id="play-btn">Play</button>
+                </div>
+                <div class="control-group">
+                    <label for="volume-range">Metronome</label>
+                    <input type="range" id="volume-range" min="0" max="1" step="0.05" value="0.5">
+                </div>
+                <div class="control-group">
+                    <label for="offset-input">Latency Offset</label>
+                    <input type="range" id="offset-input" min="-200" max="200" step="5" value="0" style="width: 100px;">
+                    <span id="offset-val" style="font-size: 0.85rem; width: 45px;">0ms</span>
+                </div>
+            </div>
+
+            <div class="beattrack-viz">
+                <div class="beat-circle" id="circle-1">1</div>
+                <div class="beat-circle" id="circle-2">2</div>
+                <div class="beat-circle" id="circle-3">3</div>
+                <div class="beat-circle" id="circle-4">4</div>
+                <div class="beat-circle" id="circle-5">5</div>
+                <div class="beat-circle" id="circle-6">6</div>
+                <div class="beat-circle" id="circle-7">7</div>
+                <div class="beat-circle" id="circle-8">8</div>
+            </div>
+
+            <div class="console-log" id="console-output">
+                <div class="log-entry">System ready. Load video and press Play.</div>
+            </div>
+        </div>
+
+        <div class="info-panel">
+            <div class="card">
+                <div class="song-details">
+                    <div class="album-art">💃</div>
+                    <div class="song-meta">
+                        <h2 id="song-title">Pobre Diablo</h2>
+                        <p id="song-artist">Ronald Borjas</p>
+                    </div>
+                </div>
+                <div style="margin-top: 1.5rem;" id="audio-status" class="status-badge inactive">
+                    Audio Context Suspended
+                </div>
+            </div>
+
+            <div class="card metric-grid">
+                <div class="metric-card">
+                    <div class="metric-value" id="bpm-val">--</div>
+                    <div class="metric-label">BPM</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="clave-val">--</div>
+                    <div class="metric-label">Inferred Clave</div>
+                </div>
+            </div>
+
+            <div class="card realtime-stats">
+                <div class="stat-line">
+                    <div class="stat-name">Active Section</div>
+                    <div class="stat-val" id="section-label">--</div>
+                </div>
+                <div class="stat-line">
+                    <div class="stat-name">Phrase Count</div>
+                    <div class="stat-val" id="phrase-index">--</div>
+                </div>
+                <div class="stat-line">
+                    <div class="stat-name">Phrase Type</div>
+                    <div class="stat-val" id="phrase-type">--</div>
+                </div>
+                <div class="stat-line">
+                    <div class="stat-name">Time Elapsed</div>
+                    <div class="stat-val" id="time-elapsed">0.00s</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const songJsonPath = 'songs/66HCBysrJS8.json';
+        let songData = null;
+        let player = null;
+        let audioCtx = null;
+        let metronomeGainNode = null;
+        let lastScheduledBeatIdx = -1;
+        let scheduledBeatsMap = new Set();
+        let animationFrameId = null;
+        
+        let playBtn = document.getElementById('play-btn');
+        let volumeRange = document.getElementById('volume-range');
+        let offsetInput = document.getElementById('offset-input');
+        let offsetVal = document.getElementById('offset-val');
+        let audioStatus = document.getElementById('audio-status');
+        let consoleOutput = document.getElementById('console-output');
+
+        function logToConsole(msg) {
+            let entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            consoleOutput.appendChild(entry);
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        }
+
+        offsetInput.addEventListener('input', (e) => {
+            offsetVal.innerText = `${e.target.value}ms`;
+        });
+
+        fetch(songJsonPath)
+            .then(res => res.json())
+            .then(data => {
+                songData = data;
+                document.getElementById('bpm-val').innerText = data.baseBpm;
+                document.getElementById('clave-val').innerText = data.defaultClave;
+                logToConsole('Beatmap JSON loaded successfully.');
+            })
+            .catch(err => {
+                logToConsole(`Failed to load beatmap: ${err.message}`);
+            });
+
+        const tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('youtube-player', {
+                videoId: '66HCBysrJS8',
+                playerVars: {
+                    playsinline: 1,
+                    controls: 1,
+                    rel: 0
+                },
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+        }
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                metronomeGainNode = audioCtx.createGain();
+                metronomeGainNode.gain.setValueAtTime(parseFloat(volumeRange.value), audioCtx.currentTime);
+                metronomeGainNode.connect(audioCtx.destination);
+                audioStatus.className = "status-badge";
+                audioStatus.innerText = "Audio Context Active";
+                logToConsole('Web Audio Context initialized.');
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+                audioStatus.className = "status-badge";
+                audioStatus.innerText = "Audio Context Active";
+            }
+        }
+
+        volumeRange.addEventListener('input', (e) => {
+            if (metronomeGainNode && audioCtx) {
+                metronomeGainNode.gain.setValueAtTime(parseFloat(e.target.value), audioCtx.currentTime);
+            }
+        });
+
+        function onPlayerReady(event) {
+            logToConsole('YouTube Player ready.');
+        }
+
+        function onPlayerStateChange(event) {
+            if (event.data === YT.PlayerState.PLAYING) {
+                initAudio();
+                playBtn.innerText = "Pause";
+                lastScheduledBeatIdx = -1;
+                scheduledBeatsMap.clear();
+                startTrackingLoop();
+            } else {
+                playBtn.innerText = "Play";
+                stopTrackingLoop();
+            }
+        }
+
+        playBtn.addEventListener('click', () => {
+            if (!player) return;
+            initAudio();
+            const state = player.getPlayerState();
+            if (state === YT.PlayerState.PLAYING) {
+                player.pauseVideo();
+            } else {
+                player.playVideo();
+            }
+        });
+
+        function makeClickSound(time, pitch) {
+            if (!audioCtx || !metronomeGainNode) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            
+            osc.connect(gain);
+            gain.connect(metronomeGainNode);
+            
+            osc.frequency.setValueAtTime(pitch, time);
+            
+            gain.gain.setValueAtTime(1.0, time);
+            gain.gain.exponentialRampToValueAtTime(0.001, time + 0.05);
+            
+            osc.start(time);
+            osc.stop(time + 0.06);
+        }
+
+        function updateVisuals(count) {
+            for (let i = 1; i <= 8; i++) {
+                let el = document.getElementById(`circle-${i}`);
+                el.className = 'beat-circle';
+            }
+            
+            if (count >= 1 && count <= 8) {
+                let activeEl = document.getElementById(`circle-${count}`);
+                if (count === 1) {
+                    activeEl.classList.add('active-1');
+                } else {
+                    activeEl.classList.add('active-rest');
+                }
+            }
+        }
+
+        function startTrackingLoop() {
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+            
+            function tick() {
+                if (!player || !songData) {
+                    animationFrameId = requestAnimationFrame(tick);
+                    return;
+                }
+
+                const currTimeSec = player.getCurrentTime();
+                const playbackRate = player.getPlaybackRate() || 1.0;
+                const offsetMs = parseFloat(offsetInput.value);
+                const adjustedTimeMs = (currTimeSec * 1000) + offsetMs;
+                const adjustedTimeSec = adjustedTimeMs / 1000;
+                
+                document.getElementById('time-elapsed').innerText = `${currTimeSec.toFixed(2)}s`;
+
+                let activeSection = null;
+                for (let s of songData.sections) {
+                    if (adjustedTimeMs >= s.startTimeMs && adjustedTimeMs <= s.endTimeMs) {
+                        activeSection = s;
+                        break;
+                    }
+                }
+                
+                if (activeSection) {
+                    document.getElementById('section-label').innerText = activeSection.label;
+                } else {
+                    document.getElementById('section-label').innerText = '--';
+                }
+
+                let activePhrase = null;
+                for (let p of songData.phrases) {
+                    if (adjustedTimeMs >= p.startTimeMs && adjustedTimeMs <= p.endTimeMs) {
+                        activePhrase = p;
+                        break;
+                    }
+                }
+
+                if (activePhrase) {
+                    document.getElementById('phrase-index').innerText = `#${activePhrase.index}`;
+                    document.getElementById('phrase-type').innerText = activePhrase.type;
+                    document.getElementById('clave-val').innerText = activePhrase.claveDirection;
+                } else {
+                    document.getElementById('phrase-index').innerText = '--';
+                    document.getElementById('phrase-type').innerText = '--';
+                }
+
+                if (activePhrase && (activePhrase.type === 'STANDARD_8_COUNT' || activePhrase.type === 'HALF_PHRASE_4_COUNT')) {
+                    const startMs = activePhrase.startTimeMs;
+                    const beatsInPhrase = songData.absoluteBeatMap.filter(t => t >= startMs && t <= activePhrase.endTimeMs);
+                    
+                    let currentBeatCount = 0;
+                    let lastBeatTimeMs = -1;
+                    
+                    for (let idx = 0; idx < beatsInPhrase.length; idx++) {
+                        const beatMs = beatsInPhrase[idx];
+                        if (adjustedTimeMs >= beatMs) {
+                            currentBeatCount = idx + 1;
+                            lastBeatTimeMs = beatMs;
+                        }
+                    }
+                    
+                    if (currentBeatCount > 0) {
+                        updateVisuals(currentBeatCount);
+                    } else {
+                        updateVisuals(0);
+                    }
+                } else {
+                    updateVisuals(0);
+                }
+
+                const lookaheadSec = 0.15;
+                const nowAudio = audioCtx.currentTime;
+
+                for (let idx = 0; idx < songData.absoluteBeatMap.length; idx++) {
+                    const beatMs = songData.absoluteBeatMap[idx];
+                    const beatSec = (beatMs - offsetMs) / 1000.0;
+                    
+                    if (beatSec >= adjustedTimeSec && beatSec <= adjustedTimeSec + lookaheadSec) {
+                        const key = `${idx}-${beatMs}`;
+                        if (!scheduledBeatsMap.has(key)) {
+                            scheduledBeatsMap.add(key);
+                            
+                            let phrase = null;
+                            for (let p of songData.phrases) {
+                                if (beatMs >= p.startTimeMs && beatMs < p.endTimeMs) {
+                                    phrase = p;
+                                    break;
+                                }
+                            }
+                            
+                            if (phrase && (phrase.type === 'STANDARD_8_COUNT' || phrase.type === 'HALF_PHRASE_4_COUNT')) {
+                                const startMs = phrase.startTimeMs;
+                                const pBeats = songData.absoluteBeatMap.filter(t => t >= startMs && t <= phrase.endTimeMs);
+                                const beatOffsetInPhrase = pBeats.indexOf(beatMs);
+                                
+                                if (beatOffsetInPhrase !== -1) {
+                                    const clickCount = beatOffsetInPhrase + 1;
+                                    const pitch = (clickCount === 1) ? 1000 : 600;
+                                    const scheduleTimeAudio = nowAudio + ((beatSec - adjustedTimeSec) / playbackRate);
+                                    makeClickSound(scheduleTimeAudio, pitch);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                for (let key of scheduledBeatsMap) {
+                    const beatIdx = parseInt(key.split('-')[0]);
+                    const beatMs = songData.absoluteBeatMap[beatIdx];
+                    const beatSec = (beatMs - offsetMs) / 1000.0;
+                    if (beatSec < adjustedTimeSec - 1.0) {
+                        scheduledBeatsMap.delete(key);
+                    }
+                }
+
+                animationFrameId = requestAnimationFrame(tick);
+            }
+            
+            animationFrameId = requestAnimationFrame(tick);
+        }
+
+        function stopTrackingLoop() {
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+                animationFrameId = null;
+            }
+            updateVisuals(0);
+        }
+    </script>
+</body>
+</html>
