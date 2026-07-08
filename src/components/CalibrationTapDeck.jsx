@@ -1,5 +1,5 @@
 export default function CalibrationTapDeck({
-  rawTaps,
+  rawDownbeats,
   onTapOnOne,
   onSaveToDisk,
   onClearTaps
@@ -15,39 +15,39 @@ export default function CalibrationTapDeck({
         <span style={{ fontSize: "0.65rem", opacity: 0.8, fontWeight: "400" }}>Tap every time you hear count 1</span>
       </button>
 
-      {rawTaps.length > 0 && (
+      {rawDownbeats.length > 0 && (
         <div style={{ display: "flex", width: "100%", gap: "10px", marginTop: "4px" }}>
           <button
-            className={`btn-diagnose-action ${rawTaps.length >= 50 ? "active-ready" : "locked-pending"}`}
+            className={`btn-diagnose-action ${rawDownbeats.length >= 50 ? "active-ready" : "locked-pending"}`}
             onClick={onSaveToDisk}
-            disabled={rawTaps.length < 50}
+            disabled={rawDownbeats.length < 50}
             style={{
               flexGrow: 1,
               minHeight: "48px",
-              background: rawTaps.length >= 50
+              background: rawDownbeats.length >= 50
                 ? "linear-gradient(135deg, #ffffff, #d1d5db)"
                 : "rgba(255,255,255,0.03)",
-              boxShadow: rawTaps.length >= 50
+              boxShadow: rawDownbeats.length >= 50
                 ? "0 4px 16px rgba(255, 255, 255, 0.25)"
                 : "none",
-              border: rawTaps.length >= 50
+              border: rawDownbeats.length >= 50
                 ? "none"
                 : "1px solid rgba(255, 255, 255, 0.05)",
-              color: rawTaps.length >= 50 ? "#000000" : "#6b7280",
+              color: rawDownbeats.length >= 50 ? "#000000" : "#6b7280",
               fontWeight: "800",
               textTransform: "uppercase",
               borderRadius: "12px",
               letterSpacing: "0.5px",
-              cursor: rawTaps.length >= 50 ? "pointer" : "not-allowed",
+              cursor: rawDownbeats.length >= 50 ? "pointer" : "not-allowed",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               gap: "8px",
               transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
             }}
-            title={rawTaps.length >= 50 ? "Save the normalized beatmap permanently to disk" : `Record at least 50 taps to unlock. Current: ${rawTaps.length}/50`}
+            title={rawDownbeats.length >= 50 ? "Save the normalized beatmap permanently to disk" : `Record at least 50 taps to unlock. Current: ${rawDownbeats.length}/50`}
           >
-            {rawTaps.length >= 50 ? (
+            {rawDownbeats.length >= 50 ? (
               <>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ animation: "pulse 2s infinite" }}><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
                 <span>Save Calibration</span>
@@ -55,7 +55,7 @@ export default function CalibrationTapDeck({
             ) : (
               <>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.5 }}><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                <span>Locked: {rawTaps.length}/50</span>
+                <span>Locked: {rawDownbeats.length}/50</span>
               </>
             )}
           </button>

@@ -1,1 +1,22 @@
-[]
+[
+  {
+    "id": "song-66HCBysrJS8",
+    "youtubeId": "66HCBysrJS8",
+    "title": "Pobre Diablo",
+    "artist": "Ronald Borjas",
+    "genre": "SALSA",
+    "status": "READY",
+    "baseBpm": 153.4,
+    "defaultClave": "NOT_SET"
+  },
+  {
+    "id": "song-CEsip93GxdA",
+    "youtubeId": "CEsip93GxdA",
+    "title": "El Amor que espere",
+    "artist": "Leoni Torres",
+    "genre": "SALSA",
+    "status": "DRAFT_TAPPING",
+    "baseBpm": 150,
+    "defaultClave": "NOT_SET"
+  }
+]

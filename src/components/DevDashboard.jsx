@@ -1,5 +1,5 @@
-import { useState, useRef } from "react";
-import { ArrowLeft, Upload, FileAudio, Youtube, CheckCircle, AlertTriangle, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { ArrowLeft, Youtube, CheckCircle, AlertTriangle, Loader2 } from "lucide-react";
 
 function extractYoutubeId(input) {
   if (!input) return "";
@@ -42,42 +42,36 @@ export default function DevDashboard({ onBack, onIngestSuccess }) {
   const youtubeId = extractYoutubeId(youtubeInput);
   const [difficulty, setDifficulty] = useState("medium");
   const [danceStyle, setDanceStyle] = useState("salsa");
-  const [audioFile, setAudioFile] = useState(null);
-
   // Status & Progress states
   const [status, setStatus] = useState("idle"); // idle | uploading | analyzing | success | error
   const [progress, setProgress] = useState(0);
   const [statusMessage, setStatusMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
-  const fileInputRef = useRef(null);
+  const [existingSongs, setExistingSongs] = useState([]);
+  const [catalogLoading, setCatalogLoading] = useState(true);
 
-  const handleDragOver = (e) => {
-    e.preventDefault();
-  };
+  useEffect(() => {
+    fetch("/songs/catalog.json")
+      .then((res) => {
+        if (!res.ok) throw new Error("Catalog fetch failed");
+        return res.json();
+      })
+      .then((data) => {
+        setExistingSongs(data);
+        setCatalogLoading(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        setCatalogLoading(false);
+      });
+  }, []);
 
-  const handleDrop = (e) => {
-    e.preventDefault();
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      const file = e.dataTransfer.files[0];
-      if (file.type.startsWith("audio/") || file.name.endsWith(".mp3") || file.name.endsWith(".mp4")) {
-        setAudioFile(file);
-      } else {
-        alert("Please select a valid audio file (.mp3 / .mp4)");
-      }
-    }
-  };
-
-  const handleFileSelect = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      setAudioFile(e.target.files[0]);
-    }
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!title || !artist || !youtubeId || !audioFile) {
-      alert("Please fill in all fields, select a valid audio file, and provide a valid YouTube link or iframe.");
+    if (!title || !artist || !youtubeId) {
+      alert("Please fill in all fields and provide a valid YouTube link or iframe.");
       return;
     }
 
@@ -87,75 +81,37 @@ export default function DevDashboard({ onBack, onIngestSuccess }) {
     }
 
     setStatus("uploading");
-    setProgress(0);
-    setStatusMessage("[1/3] Uploading MP3 audio track...");
+    setProgress(50);
+    setStatusMessage("Ingesting track...");
 
     try {
-      // Step 1: Ingest Metadata
-      const metadataRes = await fetch("/api/ingest-song-metadata", {
+      const res = await fetch("/api/ingest", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, artist, youtubeId, difficulty, danceStyle })
+        body: JSON.stringify({
+          youtubeId,
+          title,
+          artist,
+          genre: danceStyle.toUpperCase()
+        })
       });
 
-      const metadataData = await metadataRes.json();
-      if (!metadataRes.ok) {
-        throw new Error(metadataData.error || "Failed to ingest metadata");
-      }
-
-      // Step 2: Upload Audio & Trigger Analysis
-      const xhr = new XMLHttpRequest();
-      xhr.open("POST", `/api/upload-song-audio?youtubeId=${youtubeId}`, true);
-
-      // Track upload progress
-      xhr.upload.onprogress = (event) => {
-        if (event.lengthComputable) {
-          const percent = Math.round((event.loaded / event.total) * 100);
-          setProgress(percent);
-          setStatusMessage(`[1/3] Uploading MP3 audio track... (${percent}%)`);
-        }
-      };
-
-      xhr.onload = () => {
-        if (xhr.status >= 200 && xhr.status < 300) {
-          try {
-            const result = JSON.parse(xhr.responseText);
-            if (result.success) {
-              setStatus("success");
-              setStatusMessage("[3/3] Ingestion complete! Initializing unified data schema...");
-              setTimeout(() => {
-                onIngestSuccess(result.song);
-              }, 1500);
-            } else {
-              throw new Error(result.error || "Analysis failed");
-            }
-          } catch (err) {
-            handleUploadError(err.message);
-          }
+      if (res.ok) {
+        const result = await res.json();
+        if (result.success) {
+          setStatus("success");
+          setProgress(100);
+          setStatusMessage("Ingestion complete!");
+          setTimeout(() => {
+            onIngestSuccess(result.song);
+          }, 1500);
         } else {
-          try {
-            const errResult = JSON.parse(xhr.responseText);
-            handleUploadError(errResult.error || "Upload failed");
-          } catch {
-            handleUploadError(`Upload failed with status code ${xhr.status}`);
-          }
+          throw new Error(result.error || "Analysis failed");
         }
-      };
-
-      xhr.onerror = () => {
-        handleUploadError("Network connection error occurred during upload");
-      };
-
-      // Start the upload
-      xhr.send(audioFile);
-
-      // Transition to processing state after upload completes but before response returns
-      xhr.upload.onload = () => {
-        setStatus("analyzing");
-        setProgress(100);
-        setStatusMessage("[2/3] Analyzing audio beat intervals (Spawning Salsa-AI Librosa)...");
-      };
-
+      } else {
+        const errResult = await res.json();
+        throw new Error(errResult.error || "Ingestion failed");
+      }
     } catch (err) {
       handleUploadError(err.message);
     }
@@ -297,50 +253,7 @@ export default function DevDashboard({ onBack, onIngestSuccess }) {
               </select>
             </div>
 
-            {/* Row 4: Audio File Upload Dropzone */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-              <label style={{ fontSize: "0.75rem", fontWeight: "bold", color: "#ffffff", textTransform: "uppercase" }}>Audio Track (.mp3 / .mp4)</label>
-              <div 
-                onDragOver={handleDragOver}
-                onDrop={handleDrop}
-                onClick={() => fileInputRef.current?.click()}
-                style={{
-                  border: "2px dashed #27272a",
-                  background: audioFile ? "rgba(255, 255, 255, 0.04)" : "rgba(0,0,0,0.2)",
-                  borderRadius: "12px",
-                  padding: "24px",
-                  textAlign: "center",
-                  cursor: "pointer",
-                  transition: "all 0.2s ease",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "10px"
-                }}
-              >
-                <input 
-                  type="file" 
-                  ref={fileInputRef} 
-                  onChange={handleFileSelect} 
-                  accept="audio/*,.mp3,.mp4" 
-                  style={{ display: "none" }} 
-                />
-                {audioFile ? (
-                  <>
-                    <FileAudio size={36} style={{ color: "#ffffff" }} />
-                    <span style={{ fontSize: "0.9rem", color: "#ffffff", fontWeight: "bold" }}>{audioFile.name}</span>
-                    <span style={{ fontSize: "0.75rem", color: "#6b7280" }}>Click or drop another file to replace</span>
-                  </>
-                ) : (
-                  <>
-                    <Upload size={36} style={{ color: "#ffffff" }} />
-                    <span style={{ fontSize: "0.9rem", color: "#e5e7eb", fontWeight: "bold" }}>Drag & Drop MP3 file here</span>
-                    <span style={{ fontSize: "0.75rem", color: "#6b7280" }}>Or click to browse your files</span>
-                  </>
-                )}
-              </div>
-            </div>
+
 
             {/* Submit Button */}
             <button 
@@ -423,6 +336,77 @@ export default function DevDashboard({ onBack, onIngestSuccess }) {
                 </span>
               )}
             </div>
+          </div>
+        )}
+      </div>
+
+      <div className="glass-panel" style={{ marginTop: "24px", padding: "30px", borderRadius: "20px", border: "1px solid #27272a", background: "rgba(9, 9, 11, 0.85)", backdropFilter: "blur(12px)" }}>
+        <h3 style={{ margin: "0 0 16px 0", fontSize: "1.2rem", fontWeight: "900", color: "#fff" }}>
+          📂 Existing Tracks & Drafts
+        </h3>
+        {catalogLoading ? (
+          <div style={{ color: "#9ca3af", fontSize: "0.85rem" }}>Loading existing tracks...</div>
+        ) : existingSongs.length === 0 ? (
+          <div style={{ color: "#9ca3af", fontSize: "0.85rem", fontStyle: "italic" }}>No existing tracks found.</div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+            {existingSongs.map((song) => (
+              <div 
+                key={song.id} 
+                style={{ 
+                  display: "flex", 
+                  justifyContent: "space-between", 
+                  alignItems: "center", 
+                  padding: "12px", 
+                  borderRadius: "10px", 
+                  background: "rgba(255, 255, 255, 0.02)", 
+                  border: "1px solid rgba(255, 255, 255, 0.05)" 
+                }}
+              >
+                <div>
+                  <div style={{ fontWeight: "bold", color: "#ffffff", fontSize: "0.9rem" }}>{song.title}</div>
+                  <div style={{ fontSize: "0.75rem", color: "#9ca3af" }}>{song.artist} • <span style={{ textTransform: "capitalize" }}>{song.genre}</span></div>
+                </div>
+                <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                  <span 
+                    style={{ 
+                      fontSize: "0.65rem", 
+                      padding: "3px 8px", 
+                      borderRadius: "6px", 
+                      fontWeight: "bold",
+                      textTransform: "uppercase",
+                      background: song.status === "READY" ? "rgba(52, 211, 153, 0.15)" : "rgba(239, 68, 68, 0.15)",
+                      color: song.status === "READY" ? "#34d399" : "#fca5a5",
+                      border: song.status === "READY" ? "1px solid rgba(52, 211, 153, 0.3)" : "1px solid rgba(239, 68, 68, 0.3)"
+                    }}
+                  >
+                    {song.status ? song.status.replace("DRAFT_", "") : "READY"}
+                  </span>
+                  <button
+                    onClick={() => onIngestSuccess(song)}
+                    style={{
+                      background: "rgba(255, 255, 255, 0.08)",
+                      border: "1px solid rgba(255, 255, 255, 0.1)",
+                      color: "#ffffff",
+                      padding: "6px 12px",
+                      borderRadius: "8px",
+                      fontSize: "0.75rem",
+                      fontWeight: "bold",
+                      cursor: "pointer",
+                      transition: "all 0.2s ease"
+                    }}
+                    onMouseOver={(e) => {
+                      e.currentTarget.style.background = "rgba(255, 255, 255, 0.15)";
+                    }}
+                    onMouseOut={(e) => {
+                      e.currentTarget.style.background = "rgba(255, 255, 255, 0.08)";
+                    }}
+                  >
+                    Calibrate 🛠️
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>

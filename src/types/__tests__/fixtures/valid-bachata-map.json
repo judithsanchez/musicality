@@ -5,7 +5,8 @@
   "artist": "Bachata Artist",
   "genre": "BACHATA",
   "baseBpm": 130,
-  "absoluteBeatMap": [0, 461, 922, 1383, 1844],
+  "isSectionsProcessed": true,
+  "isTappingProcessed": true,
   "schemaVersion": "2.0",
   "sections": [
     {
@@ -13,7 +14,6 @@
       "startTimeMs": 0,
       "endTimeMs": 922,
       "label": "Intro",
-      "phraseIds": ["33333333-3333-4333-8333-333333333333"],
       "energyState": "INTRO"
     },
     {
@@ -21,7 +21,6 @@
       "startTimeMs": 922,
       "endTimeMs": 1844,
       "label": "Derecho",
-      "phraseIds": ["44444444-4444-4444-8444-444444444444"],
       "energyState": "DERECHO"
     }
   ],
