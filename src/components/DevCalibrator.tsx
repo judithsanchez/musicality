@@ -531,7 +531,9 @@ export default function DevCalibrator({
   const handleLockSections = () => {
     const updated = {
       ...latestSongDataRef.current,
-      status: "DRAFT_TAPPING"
+      status: "DRAFT_TAPPING",
+      isSectionsProcessed: true,
+      isTappingProcessed: false
     };
     setCalibratedSongData(updated);
     setSongData(updated);
@@ -560,7 +562,9 @@ export default function DevCalibrator({
       ...latestSongDataRef.current,
       consensusDownbeats: currentCalibratedTaps,
       downbeats: updatedHistory,
-      status: "DRAFT_LABELING"
+      status: "DRAFT_LABELING",
+      isSectionsProcessed: true,
+      isTappingProcessed: true
     };
     setCalibratedSongData(updated);
     setSongData(updated);
@@ -624,7 +628,9 @@ export default function DevCalibrator({
   const handlePublishSong = () => {
     const updated = {
       ...latestSongDataRef.current,
-      status: "READY"
+      status: "READY",
+      isSectionsProcessed: true,
+      isTappingProcessed: true
     };
     setCalibratedSongData(updated);
     setSongData(updated);
@@ -653,7 +659,9 @@ export default function DevCalibrator({
   const handleUnlockSlicing = () => {
     const updated = {
       ...latestSongDataRef.current,
-      status: "DRAFT_CUTTING"
+      status: "DRAFT_CUTTING",
+      isSectionsProcessed: false,
+      isTappingProcessed: false
     };
     setCalibratedSongData(updated);
     setSongData(updated);

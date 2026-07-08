@@ -151,19 +151,18 @@ export function useSyncEngine(
         let minDiff = Infinity;
         const beatDuration = 60000.0 / (sData.baseBpm || 150.0);
 
-        const latestSession = sData.downbeats?.[sData.downbeats.length - 1];
-        const rawDownbeats = latestSession?.rawDownbeats || [];
-        if (rawDownbeats.length > 0) {
-          for (let i = 0; i < rawDownbeats.length; i++) {
-            const rawTimeMs = rawDownbeats[i];
-            const timeDiff = visualTimeMs - rawTimeMs;
+        const consensusDownbeats = sData.consensusDownbeats || [];
+        if (consensusDownbeats.length > 0) {
+          for (let i = 0; i < consensusDownbeats.length; i++) {
+            const downbeatTimeMs = consensusDownbeats[i];
+            const timeDiff = visualTimeMs - downbeatTimeMs;
             if (timeDiff >= -40 && timeDiff < beatDuration * 0.6) {
               const absDiff = Math.abs(timeDiff);
               if (absDiff < minDiff) {
                 minDiff = absDiff;
                 closestBeat = {
                   count: 1,
-                  timestampMs: rawTimeMs,
+                  timestampMs: downbeatTimeMs,
                   type: "DOWNBEAT"
                 };
               }
