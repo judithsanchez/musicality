@@ -10,10 +10,8 @@ import {
 export default function DevCalibrationPanel({
   songData,
   editorSections,
-  phrases,
   onExit,
   onUpdateSectionField,
-  onUpdatePhraseField,
   validationErrors,
   saving,
   onPublishSong
@@ -59,10 +57,7 @@ export default function DevCalibrationPanel({
         </span>
 
         <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-          {editorSections.map((section, sIdx) => {
-            const sectionPhrases = phrases.filter(p => p.startTimeMs >= section.startTimeMs && p.startTimeMs < section.endTimeMs);
-
-            return (
+          {editorSections.map((section, sIdx) => (
               <div key={section.id} style={{
                 display: "flex",
                 flexDirection: "column",
@@ -124,39 +119,10 @@ export default function DevCalibrationPanel({
                       <div>End: <strong style={{ color: "#fff" }}>{(section.endTimeMs / 1000).toFixed(2)}s</strong></div>
                     </div>
 
-                    {sectionPhrases.length > 0 && (
-                      <div style={{ display: "flex", flexDirection: "column", gap: "4px", borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: "6px", marginTop: "4px" }}>
-                        <span style={{ fontSize: "0.65rem", fontWeight: "bold", color: "#fff" }}>Phrases ({sectionPhrases.length})</span>
-                        <div style={{ display: "flex", flexDirection: "column", gap: "4px", maxHeight: "120px", overflowY: "auto" }}>
-                          {sectionPhrases.map(ph => (
-                            <div key={ph.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "rgba(255,255,255,0.02)", padding: "4px 6px", borderRadius: "4px", fontSize: "0.65rem" }}>
-                              <span>#{ph.index} {ph.type.replace("_", " ")}</span>
-                              {genre === "SALSA" && (ph.type === "STANDARD_8_COUNT" || ph.type === "HALF_PHRASE_4_COUNT") && (
-                                <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                                  <span style={{ color: ph.claveIsVerified ? "#34d399" : "#f59e0b", fontSize: "0.6rem" }}>
-                                    {ph.claveDirection} ({ph.claveSource})
-                                  </span>
-                                  <button
-                                    onClick={() => {
-                                      const nextDir = ph.claveDirection === "2-3" ? "3-2" : "2-3";
-                                      onUpdatePhraseField(ph.id, nextDir);
-                                    }}
-                                    style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: "3px", color: "#fff", padding: "1px 4px", fontSize: "0.6rem", cursor: "pointer" }}
-                                  >
-                                    Toggle
-                                  </button>
-                                </div>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
                   </>
                 )}
               </div>
-            );
-          })}
+          ))}
         </div>
       </div>
 

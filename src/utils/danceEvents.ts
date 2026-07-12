@@ -1,4 +1,4 @@
-import type { DanceEvent, Section } from "../types/schemas";
+import type { DanceEvent } from "../types/schemas";
 
 export const DANCE_EVENT_TYPES: DanceEvent["type"][] = [
   "ACCENT",
@@ -19,22 +19,19 @@ export type EventMutationResult = {
   error?: string;
 };
 
-export function addDanceEvent(sections: Section[], events: DanceEvent[], draft: DanceEventDraft): EventMutationResult {
+export function addDanceEvent(events: DanceEvent[], draft: DanceEventDraft, songEndTimeMs?: number): EventMutationResult {
   const timestampMs = Math.round(draft.startTimeMs);
   const endTimeMs = draft.endTimeMs === undefined ? undefined : Math.round(draft.endTimeMs);
-  const section = sections.find(
-    item => timestampMs >= item.startTimeMs && timestampMs < item.endTimeMs
-  );
 
-  if (!section) {
-    return { events, error: "Move the playhead inside a sliced section." };
+  if (timestampMs < 0 || (songEndTimeMs !== undefined && timestampMs > songEndTimeMs)) {
+    return { events, error: "Move the playhead inside the song timeline." };
   }
 
   if (endTimeMs !== undefined && endTimeMs <= timestampMs) {
     return { events, error: "The range end must be after its start." };
   }
-  if (endTimeMs !== undefined && endTimeMs > section.endTimeMs) {
-    return { events, error: "Event ranges must end inside the section where they start." };
+  if (endTimeMs !== undefined && songEndTimeMs !== undefined && endTimeMs > songEndTimeMs) {
+    return { events, error: "Event ranges must end inside the song timeline." };
   }
 
   const event: DanceEvent = {

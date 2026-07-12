@@ -105,32 +105,22 @@ export default function App() {
       .then((data) => {
         const adjustedData = { ...data };
         if (!adjustedData.status) {
-          adjustedData.status = "DRAFT_CUTTING";
+          adjustedData.status = "DRAFT";
         }
-        if (!adjustedData.phrases) {
-          adjustedData.phrases = [];
+        if (!adjustedData.metadata) {
+          adjustedData.metadata = {};
         }
-
-        if (adjustedData.phrases) {
-          adjustedData.phrases.forEach((ph) => {
-            if (!ph.beats || ph.beats.length === 0) {
-              ph.beats = [
-                {
-                  count: 1,
-                  timestampMs: ph.startTimeMs,
-                  type: "DOWNBEAT"
-                }
-              ];
-            } else {
-              ph.beats = ph.beats.filter((b) => b.count === 1 || b.type === "DOWNBEAT");
-            }
-          });
+        if (!adjustedData.events) {
+          adjustedData.events = [];
         }
-
+        if (!adjustedData.downbeats) {
+          adjustedData.downbeats = [];
+        }
+        if (!adjustedData.consensusDownbeats) {
+          adjustedData.consensusDownbeats = [];
+        }
         if (!adjustedData.sections || adjustedData.sections.length === 0) {
-          const lastBeatTimeMs = adjustedData.phrases && adjustedData.phrases.length > 0
-            ? adjustedData.phrases[adjustedData.phrases.length - 1].endTimeMs
-            : 300000;
+          const lastBeatTimeMs = adjustedData.consensusDownbeats?.at(-1) || 300000;
           adjustedData.sections = [
             {
               id: "sec-default",
@@ -361,7 +351,7 @@ export default function App() {
     }
   }, [player, currentSong, playerState]);
 
-  const { currentTime, currentBeat, activeSection, activePhrase, synchronizeAnchors } = useSyncEngine(
+  const { currentTime, currentBeat, activeSection, synchronizeAnchors } = useSyncEngine(
     player,
     calibratedSongData || songData,
     null,
@@ -630,7 +620,7 @@ export default function App() {
                   introEnd={0}
                   currentBeat={currentBeat}
                   activeSection={activeSection}
-                  activeBreak={activePhrase?.type === "TRANSITION_BREAK" ? activePhrase : null}
+                  activeBreak={null}
                   isPlaying={isActuallyPlaying}
                 />
               )}

@@ -30,22 +30,16 @@ def main():
         "title": args.title,
         "artist": args.artist,
         "genre": args.genre,
-        "status": "DRAFT_CUTTING",
-        "isSectionsProcessed": False,
-        "isEventsProcessed": False,
-        "isTappingProcessed": False,
+        "status": "DRAFT",
+        "metadata": {},
         "baseBpm": float(round(bpm, 2)),
         "consensusDownbeats": [],
         "downbeats": [],
         "events": [],
         "schemaVersion": "2.0",
-        "sections": [],
-        "phrases": []
+        "sections": []
       }
     
-    if args.genre == "SALSA":
-        song_map["defaultClave"] = "NOT_SET"
-        
     os.makedirs(os.path.dirname(args.output), exist_ok=True)
     with open(args.output, 'w', encoding='utf-8') as f:
         json.dump(song_map, f, indent=2, ensure_ascii=False)

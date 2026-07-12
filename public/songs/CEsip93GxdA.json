@@ -4,16 +4,12 @@
   "title": "El Amor que espere",
   "artist": "Leoni Torres",
   "genre": "SALSA",
-  "status": "DRAFT_CUTTING",
-  "isSectionsProcessed": false,
-  "isEventsProcessed": false,
-  "isTappingProcessed": false,
+  "status": "DRAFT",
   "baseBpm": 150,
   "consensusDownbeats": [],
   "downbeats": [],
   "events": [],
   "schemaVersion": "2.0",
-  "defaultClave": "NOT_SET",
   "sections": [
     {
       "id": "sec-default",
@@ -30,5 +26,5 @@
       "energyState": "UNLABELED"
     }
   ],
-  "phrases": []
+  "metadata": {}
 }

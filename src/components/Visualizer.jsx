@@ -1,12 +1,12 @@
 
 
 export default function Visualizer({
-  danceStyle = "salsa",
+  danceStyle: _danceStyle = "salsa",
   currentTime = 0,
   introEnd = 0,
   currentBeat = null,
-  activeSection = null,
-  activeBreak = null,
+  activeSection: _activeSection = null,
+  activeBreak: _activeBreak = null,
   isPlaying = false
 }) {
   const isActive = 
@@ -50,7 +50,7 @@ export default function Visualizer({
         >
           <span>1</span>
           <span style={{ fontSize: "0.55rem", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.5px", marginTop: "2px", opacity: isActive ? 0.8 : 0.4 }}>
-            Phrase
+            Downbeat
           </span>
         </div>
       </div>

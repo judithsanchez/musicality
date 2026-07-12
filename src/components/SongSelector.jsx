@@ -187,7 +187,7 @@ export default function SongSelector({ onSelectSong, onOpenDevDashboard }) {
                     textTransform: "uppercase",
                     fontSize: "0.6rem"
                   }}>
-                    {song.status.replace("DRAFT_", "")}
+                    {song.status}
                   </span>
                 )}
               </div>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Scissors, Play, Pause, RotateCcw } from "lucide-react";
+import { Scissors, RotateCcw } from "lucide-react";
 import DevCalibrationPanel from "./DevCalibrationPanel";
 import EventAnnotationPanel from "./EventAnnotationPanel";
 import { StrictSongMapSchema } from "../types/schemas";
@@ -63,7 +63,6 @@ export default function DevCalibrator({
   videoElement
 }: DevCalibratorProps) {
   const [editorSections, setEditorSections] = useState<any[]>([]);
-  const [phrases, setPhrases] = useState<any[]>([]);
   const [tappedDownbeats, setTappedDownbeats] = useState<number[]>([]);
   const [tappedHistory, setTappedHistory] = useState<any[]>([]);
   const [focusedSectionId, setFocusedSectionId] = useState<string | null>(null);
@@ -82,24 +81,10 @@ export default function DevCalibrator({
   }, [calibratedSongData, songData]);
 
   useEffect(() => {
-    const status = songData?.status || "DRAFT_CUTTING";
-    if (status === "DRAFT_CUTTING") {
-      setActiveTab(1);
-    } else if (status === "DRAFT_EVENTS") {
-      setActiveTab(2);
-    } else if (status === "DRAFT_TAPPING") {
-      setActiveTab(3);
-    } else {
-      setActiveTab(4);
-    }
-  }, [songData?.status]);
-
-  useEffect(() => {
     if (!songData || duration <= 0) return;
 
     const activeSections = songData.sections || [];
     const sortedSections = [...activeSections].sort((a, b) => a.startTimeMs - b.startTimeMs);
-    const activePhrases = songData.phrases || [];
 
     if (!songData.sections || songData.sections.length === 0) {
       const defaultSec = {
@@ -110,33 +95,20 @@ export default function DevCalibrator({
         endTimeMs: duration * 1000 || 300000
       };
       setEditorSections([defaultSec]);
-      setPhrases([]);
       setTappedDownbeats([]);
       setTappedHistory([]);
     } else {
       setEditorSections(sortedSections);
-      setPhrases(activePhrases);
 
-      const status = songData.status || "DRAFT_CUTTING";
-      if (status === "DRAFT_CUTTING" || status === "DRAFT_EVENTS" || status === "DRAFT_TAPPING") {
-        if (songData.downbeats && Array.isArray(songData.downbeats) && songData.downbeats.length > 0) {
-          const latestSession = songData.downbeats[songData.downbeats.length - 1];
-          const sortedTaps = [...(latestSession.rawDownbeats || [])].sort((a, b) => a - b);
-          setTappedDownbeats(sortedTaps);
-        } else {
-          setTappedDownbeats([]);
-        }
+      if (songData.downbeats && Array.isArray(songData.downbeats) && songData.downbeats.length > 0) {
+        const latestSession = songData.downbeats[songData.downbeats.length - 1];
+        const sortedTaps = [...(latestSession.rawDownbeats || latestSession.calibratedDownbeats || [])].sort((a, b) => a - b);
+        setTappedDownbeats(sortedTaps);
+      } else if (songData.consensusDownbeats && Array.isArray(songData.consensusDownbeats)) {
+        const sortedTaps = [...songData.consensusDownbeats].sort((a, b) => a - b);
+        setTappedDownbeats(sortedTaps);
       } else {
-        if (songData.consensusDownbeats && Array.isArray(songData.consensusDownbeats)) {
-          const sortedTaps = [...songData.consensusDownbeats].sort((a, b) => a - b);
-          setTappedDownbeats(sortedTaps);
-        } else {
-          const restoredDownbeats: number[] = [];
-          activePhrases.forEach((ph: any) => {
-            restoredDownbeats.push(ph.startTimeMs);
-          });
-          setTappedDownbeats(Array.from(new Set(restoredDownbeats)).sort((a, b) => a - b));
-        }
+        setTappedDownbeats([]);
       }
 
       if (songData.downbeats && Array.isArray(songData.downbeats)) {
@@ -169,7 +141,6 @@ export default function DevCalibrator({
 
   const syncSongMapState = (
     sections: any[],
-    phrasesList: any[],
     baseBpm?: number,
     downbeats?: any[],
     consensusDownbeats?: number[]
@@ -177,7 +148,6 @@ export default function DevCalibrator({
     const updated = {
       ...songData,
       sections,
-      phrases: phrasesList,
       ...(baseBpm !== undefined ? { baseBpm } : {}),
       ...(downbeats !== undefined ? { downbeats } : {}),
       ...(consensusDownbeats !== undefined ? { consensusDownbeats } : {})
@@ -186,22 +156,20 @@ export default function DevCalibrator({
     setSongData(updated);
   };
 
-  const repartitionAllPhrases = (sectionsList: any[], downbeatsList: number[], triggerAutoSave = false) => {
+  const updateBeatCalibration = (sectionsList: any[], downbeatsList: number[], triggerAutoSave = false) => {
     const sortedSections = [...sectionsList].sort((a, b) => a.startTimeMs - b.startTimeMs);
     const sortedTaps = [...downbeatsList].sort((a, b) => a - b);
 
     if (sortedTaps.length === 0) {
       setEditorSections(sortedSections);
-      setPhrases([]);
       const updated = {
         ...songData,
         sections: sortedSections,
-        phrases: [],
         consensusDownbeats: [],
         downbeats: tappedHistory
       };
-      syncSongMapState(sortedSections, [], songData.baseBpm || (songData.genre === "SALSA" ? 153.4 : 120.0), tappedHistory, []);
-      if (triggerAutoSave && songData.status === "DRAFT_CUTTING") {
+      syncSongMapState(sortedSections, songData.baseBpm || (songData.genre === "SALSA" ? 153.4 : 120.0), tappedHistory, []);
+      if (triggerAutoSave) {
         autoSaveSongMap(updated);
       }
       return;
@@ -210,21 +178,21 @@ export default function DevCalibrator({
     let calculatedBpm = songData.baseBpm || (songData.genre === "SALSA" ? 153.4 : 120.0);
     if (sortedTaps.length >= 2) {
       const referenceBpm = songData.baseBpm || (songData.genre === "SALSA" ? 153.4 : 120.0);
-      const refPhraseDur = 8.0 * (60000.0 / referenceBpm);
-      const phraseDurations: number[] = [];
+      const refDownbeatGap = 8.0 * (60000.0 / referenceBpm);
+      const downbeatGaps: number[] = [];
       for (let i = 0; i < sortedTaps.length - 1; i++) {
         const diff = sortedTaps[i + 1] - sortedTaps[i];
-        const numPhrases = Math.max(1, Math.round(diff / refPhraseDur));
-        phraseDurations.push(diff / numPhrases);
+        const gapCount = Math.max(1, Math.round(diff / refDownbeatGap));
+        downbeatGaps.push(diff / gapCount);
       }
-      if (phraseDurations.length > 0) {
-        const sortedDurs = [...phraseDurations].sort((a, b) => a - b);
+      if (downbeatGaps.length > 0) {
+        const sortedDurs = [...downbeatGaps].sort((a, b) => a - b);
         const half = Math.floor(sortedDurs.length / 2);
-        const medianPhraseDur = sortedDurs.length % 2 !== 0
+        const medianDownbeatGap = sortedDurs.length % 2 !== 0
           ? sortedDurs[half]
           : (sortedDurs[half - 1] + sortedDurs[half]) / 2.0;
-        if (medianPhraseDur > 0) {
-          const calcBpm = 480000.0 / medianPhraseDur;
+        if (medianDownbeatGap > 0) {
+          const calcBpm = 480000.0 / medianDownbeatGap;
           calculatedBpm = Math.max(80, Math.min(240, Math.round(calcBpm * 100) / 100));
         }
       }
@@ -250,102 +218,20 @@ export default function DevCalibrator({
       snappedTaps = Array.from(uniqueSnapped).sort((a, b) => a - b);
     }
 
-    const anchors = [0, ...snappedTaps, songEndMs];
-    const calculatedCalibratedTaps: number[] = [];
-    const allPhrases: any[] = [];
-
-    const claveProps = songData.genre === "SALSA" ? {
-      claveDirection: "NOT_SET",
-      claveIsVerified: false,
-      claveSource: "DEFAULT"
-    } : {};
-
-    let phraseIdx = 1;
-
-    for (let i = 0; i < anchors.length - 1; i++) {
-      const tStart = anchors[i];
-      const tEnd = anchors[i + 1];
-      const gapDur = tEnd - tStart;
-      if (gapDur <= 0) continue;
-
-      const isMiddleGap = (tStart !== 0 && tEnd !== songEndMs);
-
-      if (isMiddleGap && firstTap !== undefined) {
-        const numBeats = Math.max(4, Math.round(gapDur / beatIntervalMs));
-        let currentOffset = 0;
-
-        while (currentOffset < numBeats) {
-          const beatsLeft = numBeats - currentOffset;
-          const pStart = Math.round(tStart + currentOffset * beatIntervalMs);
-          let pEnd = 0;
-          let pType: "STANDARD_8_COUNT" | "HALF_PHRASE_4_COUNT" = "STANDARD_8_COUNT";
-
-          if (beatsLeft === 4) {
-            pEnd = Math.round(tStart + (currentOffset + 4) * beatIntervalMs);
-            pType = "HALF_PHRASE_4_COUNT";
-            currentOffset += 4;
-          } else {
-            pEnd = Math.round(tStart + (currentOffset + 8) * beatIntervalMs);
-            pType = "STANDARD_8_COUNT";
-            currentOffset += 8;
-          }
-
-          calculatedCalibratedTaps.push(pStart);
-
-          allPhrases.push({
-            id: crypto.randomUUID(),
-            index: phraseIdx++,
-            startTimeMs: pStart,
-            endTimeMs: pEnd,
-            type: pType,
-            genre: songData.genre,
-            beats: [{ count: 1, timestampMs: pStart, type: "DOWNBEAT" }],
-            ...claveProps
-          });
-        }
-      } else {
-        const numPhrases = Math.max(1, Math.round(gapDur / (beatIntervalMs * 8)));
-        const phraseDur = gapDur / numPhrases;
-
-        for (let p = 0; p < numPhrases; p++) {
-          const pStart = Math.round(tStart + p * phraseDur);
-          const pEnd = Math.round(tStart + (p + 1) * phraseDur);
-
-          calculatedCalibratedTaps.push(pStart);
-
-          allPhrases.push({
-            id: crypto.randomUUID(),
-            index: phraseIdx++,
-            startTimeMs: pStart,
-            endTimeMs: pEnd,
-            type: "STANDARD_8_COUNT",
-            genre: songData.genre,
-            beats: [{ count: 1, timestampMs: pStart, type: "DOWNBEAT" }],
-            ...claveProps
-          });
-        }
-      }
-    }
-
-    if (sortedSections.length > 0) {
-      calculatedCalibratedTaps.push(songEndMs);
-    }
-    const finalCalibratedTaps = Array.from(new Set(calculatedCalibratedTaps)).sort((a, b) => a - b);
+    const finalCalibratedTaps = Array.from(new Set([0, ...snappedTaps].filter(t => t >= 0 && t <= songEndMs))).sort((a, b) => a - b);
 
     setEditorSections(sortedSections);
-    setPhrases(allPhrases);
 
     const updated = {
       ...songData,
       sections: sortedSections,
-      phrases: allPhrases,
       baseBpm: calculatedBpm,
       consensusDownbeats: finalCalibratedTaps,
       downbeats: tappedHistory
     };
-    syncSongMapState(sortedSections, allPhrases, calculatedBpm, tappedHistory, finalCalibratedTaps);
+    syncSongMapState(sortedSections, calculatedBpm, tappedHistory, finalCalibratedTaps);
 
-    if (triggerAutoSave && songData.status === "DRAFT_CUTTING") {
+    if (triggerAutoSave) {
       autoSaveSongMap(updated);
     }
   };
@@ -380,12 +266,12 @@ export default function DevCalibrator({
       .sort((a, b) => a - b);
 
     setTappedDownbeats(updatedDownbeats);
-    repartitionAllPhrases(editorSections, updatedDownbeats);
+    updateBeatCalibration(editorSections, updatedDownbeats);
   };
 
   const handleClearTaps = () => {
     setTappedDownbeats([]);
-    repartitionAllPhrases(editorSections, []);
+    updateBeatCalibration(editorSections, []);
     showToast("🔄 Taps cleared.");
   };
 
@@ -436,7 +322,7 @@ export default function DevCalibrator({
       endTimeMs: B[i + 1],
     }));
 
-    repartitionAllPhrases(updated, tappedDownbeats);
+    updateBeatCalibration(updated, tappedDownbeats);
     throttledSeek(clampedVal / 1000, false);
   };
 
@@ -452,7 +338,7 @@ export default function DevCalibrator({
       return s;
     });
     setEditorSections(updated);
-    syncSongMapState(updated, phrases, songData.baseBpm, tappedHistory, tappedDownbeats);
+    syncSongMapState(updated, songData.baseBpm, tappedHistory, tappedDownbeats);
   };
 
   const handleAddNewSection = () => {
@@ -480,7 +366,7 @@ export default function DevCalibrator({
       updated[targetIdx] = { ...target, endTimeMs: playheadMs };
       updated.splice(targetIdx + 1, 0, newSec);
 
-      repartitionAllPhrases(updated, tappedDownbeats, true);
+      updateBeatCalibration(updated, tappedDownbeats, true);
       setFocusedSectionId(newSec.id);
       throttledSeek(newSec.startTimeMs / 1000, true);
       showToast("✂️ Sliced section at playhead.");
@@ -504,29 +390,13 @@ export default function DevCalibrator({
     }
 
     updated.splice(idx, 1);
-    repartitionAllPhrases(updated, tappedDownbeats, true);
+    updateBeatCalibration(updated, tappedDownbeats, true);
     if (focusedSectionId === id) setFocusedSectionId(updated[Math.max(0, idx - 1)]?.id ?? null);
     showToast("🗑️ Section removed.");
   };
 
-  const handleUpdatePhraseField = (phraseId: string, value: any) => {
-    const updatedPhrases = phrases.map(p => {
-      if (p.id === phraseId) {
-        return {
-          ...p,
-          claveDirection: value,
-          claveIsVerified: true,
-          claveSource: "MANUAL"
-        };
-      }
-      return p;
-    });
-    setPhrases(updatedPhrases);
-    syncSongMapState(editorSections, updatedPhrases, songData.baseBpm, tappedHistory, tappedDownbeats);
-  };
-
   const handleAddEvent = (draft: DanceEventDraft) => {
-    const result = addDanceEvent(editorSections, latestSongDataRef.current?.events || [], draft);
+    const result = addDanceEvent(latestSongDataRef.current?.events || [], draft, duration * 1000);
     if (result.error) {
       showToast(`⚠️ ${result.error}`);
       return false;
@@ -546,34 +416,15 @@ export default function DevCalibrator({
     showToast("Event removed.");
   };
 
-  const handleLockSections = () => {
-    const updated = {
-      ...latestSongDataRef.current,
-      status: "DRAFT_EVENTS",
-      isSectionsProcessed: true,
-      isEventsProcessed: false,
-      isTappingProcessed: false
-    };
-    setCalibratedSongData(updated);
-    setSongData(updated);
-    autoSaveSongMap(updated);
-    setActiveTab(2);
-    showToast("Sections locked. Event annotation unlocked.");
-  };
-
   const handleSaveEvents = () => {
     const updated = {
       ...latestSongDataRef.current,
-      status: "DRAFT_TAPPING",
-      isSectionsProcessed: true,
-      isEventsProcessed: true,
-      isTappingProcessed: false
+      status: latestSongDataRef.current?.status === "READY" ? "READY" : "DRAFT"
     };
     setCalibratedSongData(updated);
     setSongData(updated);
     autoSaveSongMap(updated);
-    setActiveTab(3);
-    showToast("Events saved. Downbeat tapping unlocked.");
+    showToast("Events saved.");
   };
 
   const handleSaveTaps = () => {
@@ -596,10 +447,7 @@ export default function DevCalibrator({
       ...latestSongDataRef.current,
       consensusDownbeats: currentCalibratedTaps,
       downbeats: updatedHistory,
-      status: "DRAFT_LABELING",
-      isSectionsProcessed: true,
-      isEventsProcessed: true,
-      isTappingProcessed: true
+      status: latestSongDataRef.current?.status === "READY" ? "READY" : "DRAFT"
     };
     setCalibratedSongData(updated);
     setSongData(updated);
@@ -614,8 +462,7 @@ export default function DevCalibrator({
     .then(res => {
       setSaving(false);
       if (res.success) {
-        showToast("💾 Taps saved! Labeling phase unlocked.");
-        setActiveTab(4);
+        showToast("💾 Taps saved.");
       } else {
         throw new Error(res.error || "Save failed");
       }
@@ -656,17 +503,14 @@ export default function DevCalibrator({
         : Math.round((sorted[half - 1] + sorted[half]) / 2.0);
     }).sort((a, b) => a - b);
     setTappedDownbeats(consensusTaps);
-    repartitionAllPhrases(editorSections, consensusTaps);
+    updateBeatCalibration(editorSections, consensusTaps);
     showToast("Consolidated tap history using median consensus!");
   };
 
   const handlePublishSong = () => {
     const updated = {
       ...latestSongDataRef.current,
-      status: "READY",
-      isSectionsProcessed: true,
-      isEventsProcessed: true,
-      isTappingProcessed: true
+      status: "READY"
     };
     const validation = StrictSongMapSchema.safeParse(updated);
     if (!validation.success) {
@@ -697,20 +541,6 @@ export default function DevCalibrator({
       setSaving(false);
       showToast("❌ Publish failed: " + err.message);
     });
-  };
-
-  const handleUnlockSlicing = () => {
-    const updated = {
-      ...latestSongDataRef.current,
-      status: "DRAFT_CUTTING",
-      isSectionsProcessed: false,
-      isEventsProcessed: false,
-      isTappingProcessed: false
-    };
-    setCalibratedSongData(updated);
-    setSongData(updated);
-    autoSaveSongMap(updated);
-    showToast("🔓 Slicing unlocked! Work preserved.");
   };
 
   useEffect(() => {
@@ -745,7 +575,7 @@ export default function DevCalibrator({
 
       if (e.key === "m" || e.key === "M" || e.key === "Enter" || e.key === "c" || e.key === "C") {
         e.preventDefault();
-        if (activeTab === 1 && songData?.status === "DRAFT_CUTTING") {
+        if (activeTab === 1) {
           handleAddNewSection();
         }
         return;
@@ -753,20 +583,40 @@ export default function DevCalibrator({
 
       if (e.key === "t" || e.key === "T") {
         e.preventDefault();
-        if (activeTab === 3 && songData?.status === "DRAFT_TAPPING") {
+        if (activeTab === 3) {
           handleTap();
         }
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [currentTime, editorSections, tappedDownbeats, player, duration, activeTab, songData?.status]);
+  }, [currentTime, editorSections, tappedDownbeats, player, duration, activeTab]);
 
-  const handleTimelineClick = (e: React.MouseEvent<HTMLDivElement>) => {
+  const seekTimelineFromClientX = (clientX: number, immediate: boolean) => {
     if (!timelineRef.current) return;
     const rect = timelineRef.current.getBoundingClientRect();
-    const ratio = (e.clientX - rect.left) / rect.width;
-    throttledSeek(ratio * duration, true);
+    const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    throttledSeek(ratio * duration, immediate);
+  };
+
+  const handleTimelineClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    seekTimelineFromClientX(e.clientX, true);
+  };
+
+  const handlePlayheadMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    e.preventDefault();
+    seekTimelineFromClientX(e.clientX, false);
+    const handleMouseMove = (moveEvt: MouseEvent) => {
+      seekTimelineFromClientX(moveEvt.clientX, false);
+    };
+    const handleMouseUp = (upEvt: MouseEvent) => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+      seekTimelineFromClientX(upEvt.clientX, true);
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
   };
 
   const playheadPct = duration > 0 ? (currentTime / duration) * 100 : 0;
@@ -796,7 +646,7 @@ export default function DevCalibrator({
             background: "rgba(255,255,255,0.08)",
             color: "#a1a1aa"
           }}>
-            Status: {songData?.status || "DRAFT_CUTTING"}
+            Status: {songData?.status || "DRAFT"}
           </span>
           {saving && (
             <span style={{ fontSize: "0.75rem", color: "#34d399", display: "flex", alignItems: "center", gap: "4px" }}>
@@ -812,31 +662,23 @@ export default function DevCalibrator({
         paddingBottom: "8px",
         gap: "16px"
       }}>
-        {["1. Slicing", "2. Events", "3. Downbeat Tapping", "4. Labeling"].map((tabName, idx) => {
+        {["Sections", "Events", "Downbeat Tapping", "Labels"].map((tabName, idx) => {
           const tabNum = idx + 1;
-          const status = songData?.status || "DRAFT_CUTTING";
-          
-          let disabled = false;
-          if (tabNum === 2 && status === "DRAFT_CUTTING") disabled = true;
-          if (tabNum === 3 && (status === "DRAFT_CUTTING" || status === "DRAFT_EVENTS")) disabled = true;
-          if (tabNum === 4 && status !== "DRAFT_LABELING" && status !== "READY") disabled = true;
-          
           const isActive = activeTab === tabNum;
           
           return (
             <button
               key={tabNum}
-              disabled={disabled}
               onClick={() => setActiveTab(tabNum)}
               style={{
                 background: "none",
                 border: "none",
                 borderBottom: isActive ? "2px solid #ffffff" : "2px solid transparent",
-                color: disabled ? "#4b5563" : (isActive ? "#ffffff" : "#9ca3af"),
+                color: isActive ? "#ffffff" : "#9ca3af",
                 padding: "8px 12px",
                 fontSize: "0.85rem",
                 fontWeight: "bold",
-                cursor: disabled ? "not-allowed" : "pointer",
+                cursor: "pointer",
                 transition: "all 0.2s ease"
               }}
             >
@@ -853,13 +695,11 @@ export default function DevCalibrator({
             events={songData?.events || []}
             onAddEvent={handleAddEvent}
             onRemoveEvent={handleRemoveEvent}
-            disabled={songData?.status !== "DRAFT_EVENTS"}
+            disabled={false}
           />
-          {songData?.status === "DRAFT_EVENTS" && (
-            <button onClick={handleSaveEvents} disabled={saving} style={{ padding: "9px", border: "none", borderRadius: "8px", fontWeight: 800, cursor: saving ? "not-allowed" : "pointer" }}>
-              {saving ? "Saving..." : "Complete Events & Continue"}
-            </button>
-          )}
+          <button onClick={handleSaveEvents} disabled={saving} style={{ padding: "9px", border: "none", borderRadius: "8px", fontWeight: 800, cursor: saving ? "not-allowed" : "pointer" }}>
+            {saving ? "Saving..." : "Save Events"}
+          </button>
         </div>
       )}
 
@@ -882,14 +722,13 @@ export default function DevCalibrator({
 
           <button
             onClick={handleTap}
-            disabled={songData?.status !== "DRAFT_TAPPING"}
             style={{
               width: "100%",
               height: "90px",
               borderRadius: "14px",
               border: `2px solid ${tapFlash ? "#ffffff" : "#3f3f46"}`,
               background: tapFlash ? "#ffffff" : "rgba(255,255,255,0.04)",
-              cursor: songData?.status === "DRAFT_TAPPING" ? "pointer" : "not-allowed",
+              cursor: "pointer",
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
@@ -941,7 +780,7 @@ export default function DevCalibrator({
               
               <button
                 onClick={handleSaveTaps}
-                disabled={phrases.length === 0 || saving || songData?.status !== "DRAFT_TAPPING"}
+                disabled={saving}
                 style={{
                   fontSize: "0.72rem",
                   fontWeight: 700,
@@ -950,8 +789,8 @@ export default function DevCalibrator({
                   color: "#000",
                   padding: "6px 14px",
                   borderRadius: "6px",
-                  cursor: (phrases.length === 0 || saving || songData?.status !== "DRAFT_TAPPING") ? "not-allowed" : "pointer",
-                  opacity: (phrases.length === 0 || saving || songData?.status !== "DRAFT_TAPPING") ? 0.6 : 1
+                  cursor: saving ? "not-allowed" : "pointer",
+                  opacity: saving ? 0.6 : 1
                 }}
               >
                 {saving ? "Saving Taps..." : "Save Taps 💾"}
@@ -962,20 +801,18 @@ export default function DevCalibrator({
       )}
 
       <div className="dev-widescreen-top-row" style={{
-        gridTemplateColumns: activeTab === 4 ? "1.15fr 0.85fr" : "1fr"
+        gridTemplateColumns: activeTab === 1 || activeTab === 4 ? "1.15fr 0.85fr" : "1fr"
       }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: "16px", maxWidth: activeTab === 4 ? "100%" : "800px", margin: activeTab === 4 ? "0" : "0 auto", width: "100%" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "16px", maxWidth: activeTab === 1 || activeTab === 4 ? "100%" : "800px", margin: activeTab === 1 || activeTab === 4 ? "0" : "0 auto", width: "100%" }}>
           {videoElement}
         </div>
 
-        {activeTab === 4 && (
+        {(activeTab === 1 || activeTab === 4) && (
           <DevCalibrationPanel
             songData={songData}
             editorSections={editorSections}
-            phrases={phrases}
             onExit={onBackToCatalog}
             onUpdateSectionField={handleUpdateSectionField}
-            onUpdatePhraseField={handleUpdatePhraseField}
             validationErrors={validationErrors}
             saving={saving}
             onPublishSong={handlePublishSong}
@@ -1002,63 +839,26 @@ export default function DevCalibrator({
               {currentTime.toFixed(2)}s / {duration.toFixed(2)}s
             </span>
             {activeTab === 1 && (
-              songData?.status === "DRAFT_CUTTING" ? (
-                <div style={{ display: "flex", gap: "8px" }}>
-                  <button
-                    onClick={handleAddNewSection}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "5px",
-                      fontSize: "0.72rem",
-                      fontWeight: 700,
-                      background: "rgba(255,255,255,0.05)",
-                      border: "1px solid #27272a",
-                      color: "#ffffff",
-                      padding: "4px 12px",
-                      borderRadius: "6px",
-                      cursor: "pointer"
-                    }}
-                  >
-                    <Scissors size={12} /> Slice Here
-                  </button>
-                  <button
-                    onClick={handleLockSections}
-                    disabled={saving}
-                    style={{
-                      fontSize: "0.72rem",
-                      fontWeight: 700,
-                      background: "linear-gradient(135deg, #ffffff, #d1d5db)",
-                      border: "none",
-                      color: "#000",
-                      padding: "4px 12px",
-                      borderRadius: "6px",
-                      cursor: saving ? "not-allowed" : "pointer",
-                      opacity: saving ? 0.6 : 1
-                    }}
-                  >
-                    {saving ? "Locking..." : "Lock Sections & Proceed 🔒"}
-                  </button>
-                </div>
-              ) : (
+              <div style={{ display: "flex", gap: "8px" }}>
                 <button
-                  onClick={handleUnlockSlicing}
-                  disabled={saving}
+                  onClick={handleAddNewSection}
                   style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "5px",
                     fontSize: "0.72rem",
                     fontWeight: 700,
-                    background: "linear-gradient(135deg, #ffffff, #d1d5db)",
+                    background: "rgba(255,255,255,0.05)",
                     border: "1px solid #27272a",
-                    color: "#000",
-                    padding: "6px 14px",
+                    color: "#ffffff",
+                    padding: "4px 12px",
                     borderRadius: "6px",
-                    cursor: saving ? "not-allowed" : "pointer",
-                    opacity: saving ? 0.6 : 1
+                    cursor: "pointer"
                   }}
                 >
-                  {saving ? "Unlocking..." : "Unlock Slicing 🔓"}
+                  <Scissors size={12} /> Slice Here
                 </button>
-              )
+              </div>
             )}
           </div>
         </div>
@@ -1091,7 +891,8 @@ export default function DevCalibrator({
                 return (
                   <div
                     key={sec.id}
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       setFocusedSectionId(sec.id);
                     }}
                     style={{
@@ -1139,10 +940,12 @@ export default function DevCalibrator({
                 width: "2px",
                 background: "#ffffff",
                 zIndex: 10,
-                pointerEvents: "none",
+                pointerEvents: "auto",
+                cursor: "ew-resize",
                 boxShadow: "0 0 10px rgba(255,255,255,0.8)"
-              }}>
+              }} onMouseDown={handlePlayheadMouseDown}>
                 <div style={{ position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)", width: "10px", height: "10px", background: "#ffffff", borderRadius: "50%" }} />
+                <div style={{ position: "absolute", top: "-8px", bottom: "-8px", left: "50%", width: "18px", transform: "translateX(-50%)" }} />
               </div>
             </div>
 
@@ -1166,9 +969,7 @@ export default function DevCalibrator({
                     const handleMouseUp = () => {
                       window.removeEventListener("mousemove", handleMouseMove);
                       window.removeEventListener("mouseup", handleMouseUp);
-                      if (latestSongDataRef.current?.status === "DRAFT_CUTTING") {
-                        autoSaveSongMap(latestSongDataRef.current);
-                      }
+                      autoSaveSongMap(latestSongDataRef.current);
                     };
                     window.addEventListener("mousemove", handleMouseMove);
                     window.addEventListener("mouseup", handleMouseUp);

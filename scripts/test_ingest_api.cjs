@@ -3,18 +3,14 @@ const path = require('path');
 
 const PORT = process.env.PORT || 5173;
 const INGEST_API_URL = `http://localhost:${PORT}/api/ingest`;
-const CLAVE_API_URL = `http://localhost:${PORT}/api/songs/infer-clave`;
 
 async function runIngestTests() {
-  console.log('🚀 Starting Ingestion & Clave Inference API Verification Tests...');
-  console.log(`Ingest API: ${INGEST_API_URL}`);
-  console.log(`Clave API: ${CLAVE_API_URL}\n`);
+  console.log('🚀 Starting Ingestion API Verification Test...');
+  console.log(`Ingest API: ${INGEST_API_URL}\n`);
 
   const songsDir = path.resolve(__dirname, '../public/songs');
-  const tempAudioPath = path.join(__dirname, 'mock_track.mp3');
-
   const sampleRate = 22050;
-  const numSamples = sampleRate; // 1 second
+  const numSamples = sampleRate;
   const buffer = Buffer.alloc(44 + numSamples * 2);
 
   buffer.write('RIFF', 0);
@@ -22,16 +18,14 @@ async function runIngestTests() {
   buffer.write('WAVE', 8);
   buffer.write('fmt ', 12);
   buffer.writeUInt32LE(16, 16);
-  buffer.writeUInt16LE(1, 20); // PCM
-  buffer.writeUInt16LE(1, 22); // Mono
+  buffer.writeUInt16LE(1, 20);
+  buffer.writeUInt16LE(1, 22);
   buffer.writeUInt32LE(sampleRate, 24);
   buffer.writeUInt32LE(sampleRate * 2, 28);
   buffer.writeUInt16LE(2, 32);
   buffer.writeUInt16LE(16, 34);
   buffer.write('data', 36);
   buffer.writeUInt32LE(numSamples * 2, 40);
-
-  fs.writeFileSync(tempAudioPath, buffer);
 
   const payload = {
     youtubeId: 'youtube-ingest-test',
@@ -55,7 +49,7 @@ async function runIngestTests() {
 
     fs.writeFileSync(finalAudioPath, buffer);
 
-    console.log('Test Case 1: Sending Ingestion Request (Phase 1)...');
+    console.log('Test Case 1: Sending ingestion request...');
     const res = await fetch(INGEST_API_URL, {
       method: 'POST',
       headers: {
@@ -76,47 +70,13 @@ async function runIngestTests() {
       throw new Error('Response success flag is false');
     }
 
-    if (data.song.defaultClave !== 'NOT_SET') {
-      throw new Error(`Clave was guessed during Ingestion Phase: ${data.song.defaultClave} (Expected: 'NOT_SET')`);
+    if (data.song.status !== 'DRAFT' || !Array.isArray(data.song.sections) || !Array.isArray(data.song.events) || !Array.isArray(data.song.downbeats)) {
+      throw new Error(`Ingested song shape is incorrect: ${JSON.stringify(data.song)}`);
     }
-    console.log('Verified that defaultClave remains "NOT_SET" after ingestion.');
-    console.log('✅ Ingestion (Phase 1) verified successfully.\n');
+    console.log('Verified clean ingestion schema.');
+    console.log('✅ Ingestion verified successfully.\n');
 
-    console.log('Test Case 2: Sending Clave Inference Request (Phase 3)...');
-
-    if (!fs.existsSync(finalAudioPath)) {
-      throw new Error('Raw audio not found on disk after ingestion.');
-    }
-
-    const claveRes = await fetch(CLAVE_API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        youtubeId: 'youtube-ingest-test',
-        startTimeMs: 0,
-        endTimeMs: 1000
-      })
-    });
-
-    console.log(`Clave response status: ${claveRes.status}`);
-    const claveText = await claveRes.text();
-
-    if (claveRes.status !== 200) {
-      throw new Error(`Clave inference failed with status ${claveRes.status}. Response: ${claveText}`);
-    }
-
-    const claveData = JSON.parse(claveText);
-    if (!claveData.success || !claveData.claveDirection) {
-      throw new Error(`Clave inference response invalid: ${claveText}`);
-    }
-
-    console.log(`Inferred Clave direction direction: ${claveData.claveDirection}`);
-    if (claveData.claveDirection !== '2-3' && claveData.claveDirection !== '3-2') {
-      throw new Error(`Inferred clave direction is invalid: ${claveData.claveDirection}`);
-    }
-    console.log('✅ Clave Inference (Phase 3) verified successfully.\n');
-
-    console.log('🎉 All Calibration Workflow Integration Tests completed successfully!');
+    console.log('🎉 Ingestion verification completed successfully!');
 
   } catch (err) {
     console.error('❌ Ingestion API Test Failed:', err.message);
@@ -124,7 +84,6 @@ async function runIngestTests() {
   } finally {
     if (fs.existsSync(finalAudioPath)) fs.unlinkSync(finalAudioPath);
     if (fs.existsSync(finalJsonPath)) fs.unlinkSync(finalJsonPath);
-    if (fs.existsSync(tempAudioPath)) fs.unlinkSync(tempAudioPath);
     if (catalogBackup !== null) {
       fs.writeFileSync(catalogFilePath, catalogBackup, 'utf8');
     } else if (fs.existsSync(catalogFilePath)) {

@@ -6,8 +6,7 @@
     "artist": "Ronald Borjas",
     "genre": "SALSA",
     "status": "READY",
-    "baseBpm": 81.67,
-    "defaultClave": "3-2"
+    "baseBpm": 81.67
   },
   {
     "id": "song-CEsip93GxdA",
@@ -15,9 +14,8 @@
     "title": "El Amor que espere",
     "artist": "Leoni Torres",
     "genre": "SALSA",
-    "status": "DRAFT_CUTTING",
-    "baseBpm": 150,
-    "defaultClave": "NOT_SET"
+    "status": "DRAFT",
+    "baseBpm": 150
   },
   {
     "id": "song-k7Bd6xNw4Hg",
@@ -26,7 +24,6 @@
     "artist": "Avenida B",
     "genre": "SALSA",
     "status": "READY",
-    "baseBpm": 150,
-    "defaultClave": "NOT_SET"
+    "baseBpm": 150
   }
 ]
