@@ -64,13 +64,15 @@ export default function DevCalibrator({
 }: DevCalibratorProps) {
   const [editorSections, setEditorSections] = useState<any[]>([]);
   const [tappedDownbeats, setTappedDownbeats] = useState<number[]>([]);
-  const [tappedHistory, setTappedHistory] = useState<any[]>([]);
   const [focusedSectionId, setFocusedSectionId] = useState<string | null>(null);
   const [tapFlash, setTapFlash] = useState(false);
   const [validationErrors, setValidationErrors] = useState<any[] | null>(null);
   const [activeTab, setActiveTab] = useState<number>(1);
   const [saving, setSaving] = useState<boolean>(false);
   const [timelineLayers, setTimelineLayers] = useState({ sections: true, events: true, downbeats: true });
+  const [calibrationMode, setCalibrationMode] = useState<"whole" | "section" | "custom">("whole");
+  const [customRangeStartSec, setCustomRangeStartSec] = useState("0");
+  const [customRangeEndSec, setCustomRangeEndSec] = useState("");
 
   const duration = videoDuration || 300;
   const timelineRef = useRef<HTMLDivElement>(null);
@@ -96,26 +98,9 @@ export default function DevCalibrator({
       };
       setEditorSections([defaultSec]);
       setTappedDownbeats([]);
-      setTappedHistory([]);
     } else {
       setEditorSections(sortedSections);
-
-      if (songData.downbeats && Array.isArray(songData.downbeats) && songData.downbeats.length > 0) {
-        const latestSession = songData.downbeats[songData.downbeats.length - 1];
-        const sortedTaps = [...(latestSession.rawDownbeats || latestSession.calibratedDownbeats || [])].sort((a, b) => a - b);
-        setTappedDownbeats(sortedTaps);
-      } else if (songData.consensusDownbeats && Array.isArray(songData.consensusDownbeats)) {
-        const sortedTaps = [...songData.consensusDownbeats].sort((a, b) => a - b);
-        setTappedDownbeats(sortedTaps);
-      } else {
-        setTappedDownbeats([]);
-      }
-
-      if (songData.downbeats && Array.isArray(songData.downbeats)) {
-        setTappedHistory(songData.downbeats);
-      } else {
-        setTappedHistory([]);
-      }
+      setTappedDownbeats([]);
     }
   }, [songData, duration]);
 
@@ -139,101 +124,121 @@ export default function DevCalibrator({
     });
   };
 
-  const syncSongMapState = (
-    sections: any[],
-    baseBpm?: number,
-    downbeats?: any[],
-    consensusDownbeats?: number[]
-  ) => {
+  const sortedUniqueMs = (values: number[]) => Array.from(new Set(values.map(value => Math.round(value)))).sort((a, b) => a - b);
+
+  const syncSongMapState = (patch: any) => {
     const updated = {
-      ...songData,
-      sections,
-      ...(baseBpm !== undefined ? { baseBpm } : {}),
-      ...(downbeats !== undefined ? { downbeats } : {}),
-      ...(consensusDownbeats !== undefined ? { consensusDownbeats } : {})
+      ...latestSongDataRef.current,
+      ...patch
     };
     setCalibratedSongData(updated);
     setSongData(updated);
+    latestSongDataRef.current = updated;
   };
 
-  const updateBeatCalibration = (sectionsList: any[], downbeatsList: number[], triggerAutoSave = false) => {
+  const updateSectionsState = (sectionsList: any[], triggerAutoSave = false) => {
     const sortedSections = [...sectionsList].sort((a, b) => a.startTimeMs - b.startTimeMs);
-    const sortedTaps = [...downbeatsList].sort((a, b) => a - b);
-
-    if (sortedTaps.length === 0) {
-      setEditorSections(sortedSections);
-      const updated = {
-        ...songData,
-        sections: sortedSections,
-        consensusDownbeats: [],
-        downbeats: tappedHistory
-      };
-      syncSongMapState(sortedSections, songData.baseBpm || (songData.genre === "SALSA" ? 153.4 : 120.0), tappedHistory, []);
-      if (triggerAutoSave) {
-        autoSaveSongMap(updated);
-      }
-      return;
-    }
-
-    let calculatedBpm = songData.baseBpm || (songData.genre === "SALSA" ? 153.4 : 120.0);
-    if (sortedTaps.length >= 2) {
-      const referenceBpm = songData.baseBpm || (songData.genre === "SALSA" ? 153.4 : 120.0);
-      const refDownbeatGap = 8.0 * (60000.0 / referenceBpm);
-      const downbeatGaps: number[] = [];
-      for (let i = 0; i < sortedTaps.length - 1; i++) {
-        const diff = sortedTaps[i + 1] - sortedTaps[i];
-        const gapCount = Math.max(1, Math.round(diff / refDownbeatGap));
-        downbeatGaps.push(diff / gapCount);
-      }
-      if (downbeatGaps.length > 0) {
-        const sortedDurs = [...downbeatGaps].sort((a, b) => a - b);
-        const half = Math.floor(sortedDurs.length / 2);
-        const medianDownbeatGap = sortedDurs.length % 2 !== 0
-          ? sortedDurs[half]
-          : (sortedDurs[half - 1] + sortedDurs[half]) / 2.0;
-        if (medianDownbeatGap > 0) {
-          const calcBpm = 480000.0 / medianDownbeatGap;
-          calculatedBpm = Math.max(80, Math.min(240, Math.round(calcBpm * 100) / 100));
-        }
-      }
-    }
-
-    const beatIntervalMs = 60000.0 / calculatedBpm;
-    const songEndMs = sortedSections.length > 0 ? sortedSections[sortedSections.length - 1].endTimeMs : (duration * 1000 || 300000);
-
-    const firstTap = sortedTaps.find(t => t > 0);
-
-    let snappedTaps: number[] = [];
-    if (firstTap !== undefined) {
-      const uniqueSnapped = new Set<number>();
-      sortedTaps.forEach(t => {
-        if (t <= 0) return;
-        if (t >= songEndMs) return;
-        const k = Math.round((t - firstTap) / (beatIntervalMs * 4));
-        const snappedTime = Math.round(firstTap + k * (beatIntervalMs * 4));
-        if (snappedTime > 0 && snappedTime < songEndMs) {
-          uniqueSnapped.add(snappedTime);
-        }
-      });
-      snappedTaps = Array.from(uniqueSnapped).sort((a, b) => a - b);
-    }
-
-    const finalCalibratedTaps = Array.from(new Set([0, ...snappedTaps].filter(t => t >= 0 && t <= songEndMs))).sort((a, b) => a - b);
-
     setEditorSections(sortedSections);
-
     const updated = {
-      ...songData,
+      ...latestSongDataRef.current,
       sections: sortedSections,
-      baseBpm: calculatedBpm,
-      consensusDownbeats: finalCalibratedTaps,
-      downbeats: tappedHistory
+      status: latestSongDataRef.current?.status === "READY" ? "READY" : "DRAFT"
     };
-    syncSongMapState(sortedSections, calculatedBpm, tappedHistory, finalCalibratedTaps);
-
+    syncSongMapState(updated);
     if (triggerAutoSave) {
       autoSaveSongMap(updated);
     }
+  };
+
+  const getCalibrationRange = () => {
+    const songEndMs = Math.round(duration * 1000 || 300000);
+    if (calibrationMode === "section") {
+      const selected = editorSections.find(section => section.id === focusedSectionId)
+        || editorSections.find(section => currentTime * 1000 >= section.startTimeMs && currentTime * 1000 <= section.endTimeMs);
+      if (!selected) {
+        return { error: "Select a section or move the playhead inside one." };
+      }
+      return { startMs: selected.startTimeMs, endMs: selected.endTimeMs, label: selected.label || "selected section" };
+    }
+    if (calibrationMode === "custom") {
+      const startMs = Math.max(0, Math.round(Number(customRangeStartSec) * 1000));
+      const endMs = Math.min(songEndMs, Math.round(Number(customRangeEndSec) * 1000));
+      if (!Number.isFinite(startMs) || !Number.isFinite(endMs) || endMs <= startMs) {
+        return { error: "Enter a valid custom range." };
+      }
+      return { startMs, endMs, label: "custom range" };
+    }
+    return { startMs: 0, endMs: songEndMs, label: "whole song" };
+  };
+
+  const tapsInsideRange = (values: number[], startMs: number, endMs: number) => values.filter(value => value >= startMs && value <= endMs);
+
+  const replaceDownbeatsInRange = (current: number[], startMs: number, endMs: number, replacement: number[]) => {
+    return sortedUniqueMs([
+      ...current.filter(value => value < startMs || value > endMs),
+      ...replacement.filter(value => value >= startMs && value <= endMs)
+    ]);
+  };
+
+  const median = (values: number[]) => {
+    const sorted = [...values].sort((a, b) => a - b);
+    const half = Math.floor(sorted.length / 2);
+    return sorted.length % 2 !== 0 ? sorted[half] : (sorted[half - 1] + sorted[half]) / 2.0;
+  };
+
+  const updateCalibratedDownbeats = (nextDownbeats: number[], message: string) => {
+    const updated = {
+      ...latestSongDataRef.current,
+      calibratedDownbeats: sortedUniqueMs(nextDownbeats),
+      status: latestSongDataRef.current?.status === "READY" ? "READY" : "DRAFT"
+    };
+    setTappedDownbeats([]);
+    syncSongMapState(updated);
+    autoSaveSongMap(updated);
+    showToast(message);
+  };
+
+  const handleApplyOffsetCalibration = () => {
+    const range: any = getCalibrationRange();
+    if (range.error) {
+      showToast(`⚠️ ${range.error}`);
+      return;
+    }
+    const current = latestSongDataRef.current?.calibratedDownbeats || [];
+    const existing = tapsInsideRange(current, range.startMs, range.endMs);
+    const manual = tapsInsideRange(tappedDownbeats, range.startMs, range.endMs);
+    if (existing.length === 0) {
+      showToast("⚠️ No calibrated downbeats in this range to shift.");
+      return;
+    }
+    if (manual.length === 0) {
+      showToast("⚠️ Tap at least one downbeat inside this range.");
+      return;
+    }
+    const offsets = manual.map(tap => {
+      const nearest = existing.reduce((best, value) => Math.abs(value - tap) < Math.abs(best - tap) ? value : best, existing[0]);
+      return tap - nearest;
+    });
+    const offset = Math.round(median(offsets));
+    const shifted = existing.map(value => value + offset).filter(value => value >= range.startMs && value <= range.endMs);
+    const next = replaceDownbeatsInRange(current, range.startMs, range.endMs, shifted);
+    updateCalibratedDownbeats(next, `Applied ${offset}ms offset to ${range.label}.`);
+  };
+
+  const handleReplaceRangeWithTaps = () => {
+    const range: any = getCalibrationRange();
+    if (range.error) {
+      showToast(`⚠️ ${range.error}`);
+      return;
+    }
+    const manual = tapsInsideRange(tappedDownbeats, range.startMs, range.endMs);
+    if (manual.length === 0) {
+      showToast("⚠️ Tap at least one downbeat inside this range.");
+      return;
+    }
+    const current = latestSongDataRef.current?.calibratedDownbeats || [];
+    const next = replaceDownbeatsInRange(current, range.startMs, range.endMs, manual);
+    updateCalibratedDownbeats(next, `Replaced calibrated downbeats in ${range.label}.`);
   };
 
   const handleTap = () => {
@@ -244,17 +249,9 @@ export default function DevCalibrator({
     const tapTimeMs = Math.round((currentTime - (userDelaySetting / 1000)) * 1000);
     if (tapTimeMs < 0 || tapTimeMs > duration * 1000) return;
 
-    const tooCloseToBoundary = editorSections.some(
-      sec => Math.abs(sec.startTimeMs - tapTimeMs) < 200 || Math.abs(sec.endTimeMs - tapTimeMs) < 200
-    );
-    if (tooCloseToBoundary) {
-      showToast("⚠️ Tap is too close to a section boundary.");
-      return;
-    }
-
     const currentBpm = songData.baseBpm || (songData.genre === "SALSA" ? 153.4 : 120.0);
     const beatIntervalMs = 60000.0 / currentBpm;
-    const minTapGapMs = beatIntervalMs * 3.5;
+    const minTapGapMs = Math.max(250, beatIntervalMs * 1.5);
 
     const tooCloseToTap = tappedDownbeats.some(t => Math.abs(t - tapTimeMs) < minTapGapMs);
     if (tooCloseToTap) {
@@ -266,13 +263,11 @@ export default function DevCalibrator({
       .sort((a, b) => a - b);
 
     setTappedDownbeats(updatedDownbeats);
-    updateBeatCalibration(editorSections, updatedDownbeats);
   };
 
   const handleClearTaps = () => {
     setTappedDownbeats([]);
-    updateBeatCalibration(editorSections, []);
-    showToast("🔄 Taps cleared.");
+    showToast("🔄 Manual taps cleared.");
   };
 
   const handleUpdateSectionTimes = (id: string, field: "startTimeMs" | "endTimeMs", valueMs: number) => {
@@ -322,7 +317,7 @@ export default function DevCalibrator({
       endTimeMs: B[i + 1],
     }));
 
-    updateBeatCalibration(updated, tappedDownbeats);
+    updateSectionsState(updated);
     throttledSeek(clampedVal / 1000, false);
   };
 
@@ -338,7 +333,7 @@ export default function DevCalibrator({
       return s;
     });
     setEditorSections(updated);
-    syncSongMapState(updated, songData.baseBpm, tappedHistory, tappedDownbeats);
+    syncSongMapState({ sections: updated });
   };
 
   const handleAddNewSection = () => {
@@ -366,7 +361,7 @@ export default function DevCalibrator({
       updated[targetIdx] = { ...target, endTimeMs: playheadMs };
       updated.splice(targetIdx + 1, 0, newSec);
 
-      updateBeatCalibration(updated, tappedDownbeats, true);
+      updateSectionsState(updated, true);
       setFocusedSectionId(newSec.id);
       throttledSeek(newSec.startTimeMs / 1000, true);
       showToast("✂️ Sliced section at playhead.");
@@ -390,7 +385,7 @@ export default function DevCalibrator({
     }
 
     updated.splice(idx, 1);
-    updateBeatCalibration(updated, tappedDownbeats, true);
+    updateSectionsState(updated, true);
     if (focusedSectionId === id) setFocusedSectionId(updated[Math.max(0, idx - 1)]?.id ?? null);
     showToast("🗑️ Section removed.");
   };
@@ -427,26 +422,9 @@ export default function DevCalibrator({
     showToast("Events saved.");
   };
 
-  const handleSaveTaps = () => {
-    let updatedHistory = [...tappedHistory];
-    const exists = updatedHistory.some(session => 
-      session.rawDownbeats.length === tappedDownbeats.length && 
-      session.rawDownbeats.every((val: number, index: number) => val === tappedDownbeats[index])
-    );
-    const currentCalibratedTaps = latestSongDataRef.current?.consensusDownbeats || [];
-    if (!exists && tappedDownbeats.length > 0) {
-      updatedHistory.push({
-        rawDownbeats: tappedDownbeats,
-        calibratedDownbeats: currentCalibratedTaps,
-        tappedAt: new Date().toISOString()
-      });
-      setTappedHistory(updatedHistory);
-    }
-
+  const handleSaveCalibration = () => {
     const updated = {
       ...latestSongDataRef.current,
-      consensusDownbeats: currentCalibratedTaps,
-      downbeats: updatedHistory,
       status: latestSongDataRef.current?.status === "READY" ? "READY" : "DRAFT"
     };
     setCalibratedSongData(updated);
@@ -462,49 +440,15 @@ export default function DevCalibrator({
     .then(res => {
       setSaving(false);
       if (res.success) {
-        showToast("💾 Taps saved.");
+        showToast("💾 Calibration saved.");
       } else {
         throw new Error(res.error || "Save failed");
       }
     })
     .catch(err => {
       setSaving(false);
-      showToast("❌ Failed to save taps: " + err.message);
+      showToast("❌ Failed to save calibration: " + err.message);
     });
-  };
-
-  const handleConsolidateTaps = () => {
-    const allAttempts = tappedHistory.map(h => h.rawDownbeats);
-    if (tappedDownbeats.length > 0) {
-      allAttempts.push(tappedDownbeats);
-    }
-    if (allAttempts.length === 0) return;
-    const allTaps = allAttempts.flat().sort((a, b) => a - b);
-    const groups: number[][] = [];
-    allTaps.forEach(tap => {
-      let placed = false;
-      for (const group of groups) {
-        const avg = group.reduce((sum, v) => sum + v, 0) / group.length;
-        if (Math.abs(tap - avg) < 600) {
-          group.push(tap);
-          placed = true;
-          break;
-        }
-      }
-      if (!placed) {
-        groups.push([tap]);
-      }
-    });
-    const consensusTaps = groups.map(group => {
-      const sorted = [...group].sort((a, b) => a - b);
-      const half = Math.floor(sorted.length / 2);
-      return sorted.length % 2 !== 0
-        ? sorted[half]
-        : Math.round((sorted[half - 1] + sorted[half]) / 2.0);
-    }).sort((a, b) => a - b);
-    setTappedDownbeats(consensusTaps);
-    updateBeatCalibration(editorSections, consensusTaps);
-    showToast("Consolidated tap history using median consensus!");
   };
 
   const handlePublishSong = () => {
@@ -620,6 +564,12 @@ export default function DevCalibrator({
   };
 
   const playheadPct = duration > 0 ? (currentTime / duration) * 100 : 0;
+  const calibrationRangePreview: any = getCalibrationRange();
+  const manualTapsInRange = calibrationRangePreview.error
+    ? 0
+    : tapsInsideRange(tappedDownbeats, calibrationRangePreview.startMs, calibrationRangePreview.endMs).length;
+  const calibratedDownbeatCount = latestSongDataRef.current?.calibratedDownbeats?.length || 0;
+  const rawDownbeatCount = latestSongDataRef.current?.rawDownbeats?.length || 0;
 
   return (
     <div className="glass-panel dev-calibrator-workbench" style={{
@@ -744,57 +694,83 @@ export default function DevCalibrator({
             </span>
           </button>
 
-          <div style={{ display: "flex", justifyContent: "space-between", width: "100%", fontSize: "0.75rem", color: "#d1d5db", alignItems: "center" }}>
-            <span>
-              Taps logged: <strong style={{ color: "#ffffff" }}>{tappedDownbeats.length}</strong>
-              {tappedHistory.length > 0 && ` (${tappedHistory.length} attempts in history)`}
-            </span>
-            
-            <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-              {tappedHistory.length > 0 && (
-                <button
-                  onClick={handleConsolidateTaps}
-                  style={{
-                    fontSize: "0.7rem",
-                    fontWeight: 700,
-                    background: "rgba(255, 255, 255, 0.05)",
-                    border: "1px solid #27272a",
-                    color: "#ffffff",
-                    padding: "6px 12px",
-                    borderRadius: "6px",
-                    cursor: "pointer"
-                  }}
-                >
-                  Merge History 🤝
-                </button>
-              )}
-
-              {tappedDownbeats.length > 0 && (
-                <button
-                  onClick={handleClearTaps}
-                  style={{ background: "none", border: "none", color: "#a1a1aa", cursor: "pointer", fontSize: "0.7rem", display: "flex", alignItems: "center", gap: "4px" }}
-                >
-                  <RotateCcw size={11} /> Clear Taps
-                </button>
-              )}
-              
-              <button
-                onClick={handleSaveTaps}
-                disabled={saving}
-                style={{
-                  fontSize: "0.72rem",
-                  fontWeight: 700,
-                  background: "linear-gradient(135deg, #ffffff, #d1d5db)",
-                  border: "none",
-                  color: "#000",
-                  padding: "6px 14px",
-                  borderRadius: "6px",
-                  cursor: saving ? "not-allowed" : "pointer",
-                  opacity: saving ? 0.6 : 1
-                }}
+          <div style={{ display: "grid", gridTemplateColumns: "minmax(180px, 0.9fr) 1.6fr", gap: "12px", width: "100%" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              <label style={{ fontSize: "0.68rem", fontWeight: 800, color: "#a1a1aa", textTransform: "uppercase" }}>
+                Calibration scope
+              </label>
+              <select
+                value={calibrationMode}
+                onChange={event => setCalibrationMode(event.target.value as "whole" | "section" | "custom")}
+                style={{ background: "#111113", border: "1px solid #3f3f46", color: "#fff", borderRadius: "8px", padding: "8px" }}
               >
-                {saving ? "Saving Taps..." : "Save Taps 💾"}
-              </button>
+                <option value="whole">Whole song</option>
+                <option value="section">Selected section</option>
+                <option value="custom">Custom range</option>
+              </select>
+              {calibrationMode === "custom" && (
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.1"
+                    value={customRangeStartSec}
+                    onChange={event => setCustomRangeStartSec(event.target.value)}
+                    placeholder="Start sec"
+                    style={{ background: "#111113", border: "1px solid #3f3f46", color: "#fff", borderRadius: "8px", padding: "8px" }}
+                  />
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.1"
+                    value={customRangeEndSec}
+                    onChange={event => setCustomRangeEndSec(event.target.value)}
+                    placeholder="End sec"
+                    style={{ background: "#111113", border: "1px solid #3f3f46", color: "#fff", borderRadius: "8px", padding: "8px" }}
+                  />
+                </div>
+              )}
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px", fontSize: "0.75rem", color: "#d1d5db" }}>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
+                <span>Scope: <strong style={{ color: "#fff" }}>{calibrationRangePreview.error || calibrationRangePreview.label}</strong></span>
+                <span>Raw: <strong style={{ color: "#fff" }}>{rawDownbeatCount}</strong></span>
+                <span>Calibrated: <strong style={{ color: "#fff" }}>{calibratedDownbeatCount}</strong></span>
+                <span>Manual in scope: <strong style={{ color: "#fff" }}>{manualTapsInRange}</strong></span>
+              </div>
+
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", alignItems: "center" }}>
+                <button
+                  onClick={handleApplyOffsetCalibration}
+                  disabled={saving || manualTapsInRange === 0}
+                  style={{ fontSize: "0.72rem", fontWeight: 800, background: "rgba(255,255,255,0.08)", border: "1px solid #3f3f46", color: "#fff", padding: "7px 12px", borderRadius: "7px", cursor: saving || manualTapsInRange === 0 ? "not-allowed" : "pointer", opacity: saving || manualTapsInRange === 0 ? 0.55 : 1 }}
+                >
+                  Apply Offset to Range
+                </button>
+                <button
+                  onClick={handleReplaceRangeWithTaps}
+                  disabled={saving || manualTapsInRange === 0}
+                  style={{ fontSize: "0.72rem", fontWeight: 800, background: "rgba(255,255,255,0.08)", border: "1px solid #3f3f46", color: "#fff", padding: "7px 12px", borderRadius: "7px", cursor: saving || manualTapsInRange === 0 ? "not-allowed" : "pointer", opacity: saving || manualTapsInRange === 0 ? 0.55 : 1 }}
+                >
+                  Replace Range With Taps
+                </button>
+                {tappedDownbeats.length > 0 && (
+                  <button
+                    onClick={handleClearTaps}
+                    style={{ background: "none", border: "none", color: "#a1a1aa", cursor: "pointer", fontSize: "0.7rem", display: "flex", alignItems: "center", gap: "4px" }}
+                  >
+                    <RotateCcw size={11} /> Clear Manual Taps
+                  </button>
+                )}
+                <button
+                  onClick={handleSaveCalibration}
+                  disabled={saving}
+                  style={{ fontSize: "0.72rem", fontWeight: 800, background: "linear-gradient(135deg, #ffffff, #d1d5db)", border: "none", color: "#000", padding: "7px 14px", borderRadius: "7px", cursor: saving ? "not-allowed" : "pointer", opacity: saving ? 0.6 : 1 }}
+                >
+                  {saving ? "Saving..." : "Save Calibration 💾"}
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -928,8 +904,12 @@ export default function DevCalibrator({
                 );
               })}
 
-              {timelineLayers.downbeats && (activeTab === 3 ? tappedDownbeats : (songData?.consensusDownbeats || [])).map((downbeat: number, index: number) => (
+              {timelineLayers.downbeats && (songData?.calibratedDownbeats || []).map((downbeat: number, index: number) => (
                 <div key={`downbeat-${index}-${downbeat}`} style={{ position: "absolute", top: "12px", bottom: "12px", left: `${(downbeat / (duration * 1000)) * 100}%`, width: "1px", background: "#60a5fa", opacity: 0.8, zIndex: 6, pointerEvents: "none" }} />
+              ))}
+
+              {timelineLayers.downbeats && activeTab === 3 && tappedDownbeats.map((downbeat: number, index: number) => (
+                <div key={`manual-tap-${index}-${downbeat}`} style={{ position: "absolute", top: "6px", bottom: "6px", left: `${(downbeat / (duration * 1000)) * 100}%`, width: "2px", background: "#f97316", opacity: 0.95, zIndex: 8, pointerEvents: "none" }} />
               ))}
 
               <div style={{

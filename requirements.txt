@@ -1,1 +1,2 @@
-BeatNet
+librosa
+yt-dlp

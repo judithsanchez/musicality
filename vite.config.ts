@@ -4,7 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { ServerResponse } from 'http';
-import { execSync } from 'child_process';
+import { spawnSync } from 'child_process';
 import { StrictSongMapSchema } from './src/types/schemas';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -127,9 +127,23 @@ function songDbPlugin() {
               }
 
               const jsonOutputPath = path.join(songsDir, `${youtubeId}.json`);
-              execSync(
-                `python3 scripts/ingest_track.py --youtubeId "${youtubeId}" --title "${title}" --artist "${artist}" --genre "${genre}" --output "${jsonOutputPath}"`
-              );
+              const ingestResult = spawnSync('python3', [
+                'scripts/ingest_track.py',
+                '--youtubeId',
+                youtubeId,
+                '--title',
+                title,
+                '--artist',
+                artist,
+                '--genre',
+                genre,
+                '--output',
+                jsonOutputPath
+              ], { encoding: 'utf8' });
+
+              if (ingestResult.status !== 0) {
+                throw new Error(ingestResult.stderr || ingestResult.stdout || 'Ingestion script failed');
+              }
 
               if (fs.existsSync(jsonOutputPath)) {
                 const songMap = JSON.parse(fs.readFileSync(jsonOutputPath, 'utf8'));

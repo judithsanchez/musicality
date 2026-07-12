@@ -137,10 +137,10 @@ export function useSyncEngine(
         let minDiff = Infinity;
         const beatDuration = 60000.0 / (sData.baseBpm || 150.0);
 
-        const consensusDownbeats = sData.consensusDownbeats || [];
-        if (consensusDownbeats.length > 0) {
-          for (let i = 0; i < consensusDownbeats.length; i++) {
-            const downbeatTimeMs = consensusDownbeats[i];
+        const calibratedDownbeats = sData.calibratedDownbeats || [];
+        if (calibratedDownbeats.length > 0) {
+          for (let i = 0; i < calibratedDownbeats.length; i++) {
+            const downbeatTimeMs = calibratedDownbeats[i];
             const timeDiff = visualTimeMs - downbeatTimeMs;
             if (timeDiff >= -40 && timeDiff < beatDuration * 0.6) {
               const absDiff = Math.abs(timeDiff);

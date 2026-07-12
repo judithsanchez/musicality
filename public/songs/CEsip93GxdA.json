@@ -6,8 +6,6 @@
   "genre": "SALSA",
   "status": "DRAFT",
   "baseBpm": 150,
-  "consensusDownbeats": [],
-  "downbeats": [],
   "events": [],
   "schemaVersion": "2.0",
   "sections": [
@@ -26,5 +24,7 @@
       "energyState": "UNLABELED"
     }
   ],
-  "metadata": {}
+  "metadata": {},
+  "rawDownbeats": [],
+  "calibratedDownbeats": []
 }

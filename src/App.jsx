@@ -113,14 +113,14 @@ export default function App() {
         if (!adjustedData.events) {
           adjustedData.events = [];
         }
-        if (!adjustedData.downbeats) {
-          adjustedData.downbeats = [];
+        if (!adjustedData.rawDownbeats) {
+          adjustedData.rawDownbeats = [];
         }
-        if (!adjustedData.consensusDownbeats) {
-          adjustedData.consensusDownbeats = [];
+        if (!adjustedData.calibratedDownbeats) {
+          adjustedData.calibratedDownbeats = adjustedData.rawDownbeats || [];
         }
         if (!adjustedData.sections || adjustedData.sections.length === 0) {
-          const lastBeatTimeMs = adjustedData.consensusDownbeats?.at(-1) || 300000;
+          const lastBeatTimeMs = adjustedData.calibratedDownbeats?.at(-1) || 300000;
           adjustedData.sections = [
             {
               id: "sec-default",

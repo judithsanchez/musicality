@@ -77,12 +77,6 @@ export const SectionSchema = z.union([
   SalsaSectionSchema
 ]);
 
-export const TapSessionSchema = z.object({
-  rawDownbeats: z.array(z.number().int()),
-  calibratedDownbeats: z.array(z.number().int()),
-  tappedAt: z.string()
-});
-
 export const BaseSongMapSchema = z.object({
   id: z.string(),
   youtubeId: z.string(),
@@ -92,8 +86,8 @@ export const BaseSongMapSchema = z.object({
   status: z.enum(['DRAFT', 'READY']).default('DRAFT'),
   metadata: z.record(z.string(), z.unknown()).default({}),
   baseBpm: z.number().positive(),
-  consensusDownbeats: z.array(z.number().int()).default([]),
-  downbeats: z.array(TapSessionSchema).default([]),
+  rawDownbeats: z.array(z.number().int()).default([]),
+  calibratedDownbeats: z.array(z.number().int()).default([]),
   events: z.array(DanceEventSchema).default([]),
   schemaVersion: z.literal('2.0')
 });

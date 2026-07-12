@@ -2,39 +2,148 @@ import os
 import sys
 import json
 import argparse
+import tempfile
+import re
+from pathlib import Path
+
+def normalize_youtube_id(value):
+    trimmed = value.strip()
+    if re.fullmatch(r"[a-zA-Z0-9_-]{11}", trimmed):
+        return trimmed
+    patterns = [
+        r"youtube\.com/watch\?v=([a-zA-Z0-9_-]{11})",
+        r"youtube\.com/embed/([a-zA-Z0-9_-]{11})",
+        r"youtu\.be/([a-zA-Z0-9_-]{11})",
+        r"youtube\.com/v/([a-zA-Z0-9_-]{11})",
+        r"youtube\.com/shorts/([a-zA-Z0-9_-]{11})",
+        r"(?:/|v=|embed/|shorts/)([a-zA-Z0-9_-]{11})(?:[?&]|$)"
+    ]
+    for pattern in patterns:
+        match = re.search(pattern, trimmed)
+        if match:
+            return match.group(1)
+    return trimmed
+
+def analyze_audio(audio_path):
+    try:
+        import librosa
+        import numpy as np
+    except ImportError:
+        print("[WARN] librosa is not installed. Falling back to empty downbeats.")
+        return None, []
+
+    try:
+        try:
+            import soundfile as sf
+            y, sr = sf.read(audio_path, dtype="float32")
+            if getattr(y, "ndim", 1) > 1:
+                y = y.mean(axis=1)
+            if sr != 22050:
+                y = librosa.resample(y, orig_sr=sr, target_sr=22050, res_type="soxr_hq")
+                sr = 22050
+        except Exception:
+            y, sr = librosa.load(audio_path, sr=22050, mono=True, res_type="soxr_hq")
+        try:
+            tempo, beat_frames = librosa.beat.beat_track(y=y, sr=sr, units="frames")
+            beat_times = librosa.frames_to_time(beat_frames, sr=sr)
+            if hasattr(tempo, "__len__"):
+                tempo = float(tempo[0]) if len(tempo) else 0.0
+        except Exception as err:
+            print(f"[WARN] librosa beat tracking failed, using onset candidates: {err.__class__.__name__}")
+            onset_env = librosa.onset.onset_strength(y=y, sr=sr)
+            onset_frames = librosa.onset.onset_detect(onset_envelope=onset_env, sr=sr, units="frames")
+            beat_times = librosa.frames_to_time(onset_frames, sr=sr)
+            intervals = np.diff(beat_times)
+            usable_intervals = intervals[(intervals > 0.2) & (intervals < 2.0)]
+            tempo = 60.0 / float(np.median(usable_intervals)) if len(usable_intervals) else 0.0
+        raw_downbeats = [int(round(float(t) * 1000)) for t in beat_times]
+        return float(round(tempo, 2)) if tempo else None, raw_downbeats
+    except Exception as err:
+        print(f"[WARN] librosa analysis failed: {err.__class__.__name__}: {err}")
+        return None, []
+
+def download_youtube_audio(youtube_id):
+    try:
+        import yt_dlp
+    except ImportError:
+        print("[WARN] yt-dlp is not installed. Falling back to empty downbeats.")
+        return None
+
+    tmpdir = tempfile.TemporaryDirectory()
+    output_template = str(Path(tmpdir.name) / "audio.%(ext)s")
+    url = f"https://www.youtube.com/watch?v={youtube_id}"
+    opts = {
+        "format": "bestaudio/best",
+        "outtmpl": output_template,
+        "quiet": True,
+        "no_warnings": True,
+        "postprocessors": [{
+            "key": "FFmpegExtractAudio",
+            "preferredcodec": "wav"
+        }]
+    }
+    try:
+        with yt_dlp.YoutubeDL(opts) as ydl:
+            ydl.download([url])
+        wav_files = list(Path(tmpdir.name).glob("audio.wav"))
+        if not wav_files:
+            print("[WARN] yt-dlp completed but no wav file was produced.")
+            tmpdir.cleanup()
+            return None
+        return tmpdir, str(wav_files[0])
+    except Exception as err:
+        print(f"[WARN] yt-dlp download failed: {err}")
+        tmpdir.cleanup()
+        return None
 
 def main():
-    parser = argparse.ArgumentParser(description="Automated Ingestion Pipeline (Steady Fallback Grid)")
+    parser = argparse.ArgumentParser(description="Automated Ingestion Pipeline")
     parser.add_argument("--audio", required=False, help="Path to input audio file")
-    parser.add_argument("--youtubeId", required=True, help="YouTube ID of the song")
+    parser.add_argument("--youtubeId", required=True, help="YouTube ID or URL of the song")
     parser.add_argument("--title", required=True, help="Title of the song")
     parser.add_argument("--artist", required=True, help="Artist of the song")
     parser.add_argument("--genre", choices=["SALSA", "BACHATA"], required=True, help="Song genre")
     parser.add_argument("--output", required=True, help="Path where output JSON should be written")
     parser.add_argument("--bpm", type=float, help="Base BPM of the song (optional)")
+    parser.add_argument("--skipAnalysis", action="store_true", help="Skip audio analysis")
     
     args = parser.parse_args()
+    youtube_id = normalize_youtube_id(args.youtubeId)
     
     if args.audio and not os.path.exists(args.audio):
-      print(f"[ERROR] Audio file not found at: {args.audio}")
-      sys.exit(1)
+        print(f"[ERROR] Audio file not found at: {args.audio}")
+        sys.exit(1)
         
-    print(f"\n[INGEST] Starting dependency-free ingestion for: {args.title} - {args.artist} ({args.genre})")
+    print(f"\n[INGEST] Starting ingestion for: {args.title} - {args.artist} ({args.genre})")
     
-    # Set default BPM based on genre
-    bpm = args.bpm if args.bpm else (150.0 if args.genre == "SALSA" else 120.0)
-    beat_interval_ms = int(round(60000.0 / bpm))
+    analyzed_bpm = None
+    raw_downbeats = []
+    temp_download = None
+    audio_path = args.audio
+
+    if not args.skipAnalysis:
+        if not audio_path:
+            downloaded = download_youtube_audio(youtube_id)
+            if downloaded:
+                temp_download, audio_path = downloaded
+        if audio_path and os.path.exists(audio_path):
+            analyzed_bpm, raw_downbeats = analyze_audio(audio_path)
+
+    if temp_download:
+        temp_download.cleanup()
+
+    bpm = args.bpm or analyzed_bpm or (150.0 if args.genre == "SALSA" else 120.0)
     song_map = {
-        "id": f"song-{args.youtubeId}",
-        "youtubeId": args.youtubeId,
+        "id": f"song-{youtube_id}",
+        "youtubeId": youtube_id,
         "title": args.title,
         "artist": args.artist,
         "genre": args.genre,
         "status": "DRAFT",
         "metadata": {},
         "baseBpm": float(round(bpm, 2)),
-        "consensusDownbeats": [],
-        "downbeats": [],
+        "rawDownbeats": raw_downbeats,
+        "calibratedDownbeats": raw_downbeats,
         "events": [],
         "schemaVersion": "2.0",
         "sections": []
