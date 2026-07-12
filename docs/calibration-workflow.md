@@ -9,19 +9,18 @@ Each song JSON keeps only the data the app needs:
 - song identity and metadata
 - genre: `SALSA` or `BACHATA`
 - base BPM
-- raw Librosa downbeats
 - calibrated downbeats used by the player
 - sections
 - timeline events
 - status: `DRAFT` or `READY`
 
-Sections are time ranges. Events can be single timestamp marks or ranges. Downbeats are stored as millisecond timestamps. `rawDownbeats` is the automatic baseline from ingestion. `calibratedDownbeats` is the app-facing source of truth and can be corrected for the whole song, a selected section, or a custom range.
+Sections are time ranges. Events can be single timestamp marks or ranges. Downbeats are stored as millisecond timestamps. `calibratedDownbeats` is the app-facing source of truth and can be corrected for the whole song, a selected section, or a custom range.
 
 ## Ingestion
 
-The local ingestion script accepts a YouTube id/link flow from the app. It uses `yt-dlp` to extract audio and `librosa` to estimate BPM and beat candidates. Those candidates are saved as `rawDownbeats`, and new songs start with `calibratedDownbeats` copied from `rawDownbeats`.
+The local ingestion script accepts a YouTube id/link flow from the app and creates a clean song calibration record. New songs start with metadata, base BPM, empty sections, empty events, and empty calibrated downbeats.
 
-Librosa is a starting point, not salsa/bachata count-1 truth. If the grid is shifted, use offset calibration. If a local section is wrong, slice/select that range and replace only that range with manual taps.
+The workbench can generate a temporary math dance grid from BPM, beat spacing, and one anchor timestamp. This grid is a candidate automation attempt and can be compared visually against human calibrated downbeats before replacing anything.
 
 ## Workbench Behavior
 
@@ -33,7 +32,7 @@ Librosa is a starting point, not salsa/bachata count-1 truth. If the grid is shi
 - Events can be added before or after slicing.
 - Downbeat tapping does not require sections or events.
 - Manual tap calibration can affect the whole song, one selected section, or a custom time range.
-- Range calibration never changes `rawDownbeats` and does not disturb calibrated downbeats outside the selected range.
+- Range calibration does not disturb calibrated downbeats outside the selected range.
 
 ## Publishing
 

@@ -113,11 +113,8 @@ export default function App() {
         if (!adjustedData.events) {
           adjustedData.events = [];
         }
-        if (!adjustedData.rawDownbeats) {
-          adjustedData.rawDownbeats = [];
-        }
         if (!adjustedData.calibratedDownbeats) {
-          adjustedData.calibratedDownbeats = adjustedData.rawDownbeats || [];
+          adjustedData.calibratedDownbeats = [];
         }
         if (!adjustedData.sections || adjustedData.sections.length === 0) {
           const lastBeatTimeMs = adjustedData.calibratedDownbeats?.at(-1) || 300000;

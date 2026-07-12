@@ -37,14 +37,7 @@
       "ingestion": {
         "audioSource": "youtube",
         "analysisSkipped": false,
-        "analyzedBpm": 123.05,
-        "rawDownbeatsDetected": 141,
-        "usedFallbackBpm": false,
-        "downloadSucceeded": true,
-        "ytDlpClient": "android",
-        "ytDlpErrors": [
-          "default: DownloadError"
-        ]
+        "downloadSucceeded": true
       }
     },
     "baseBpm": 123.05

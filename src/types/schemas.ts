@@ -86,7 +86,6 @@ export const BaseSongMapSchema = z.object({
   status: z.enum(['DRAFT', 'READY']).default('DRAFT'),
   metadata: z.record(z.string(), z.unknown()).default({}),
   baseBpm: z.number().positive(),
-  rawDownbeats: z.array(z.number().int()).default([]),
   calibratedDownbeats: z.array(z.number().int()).default([]),
   events: z.array(DanceEventSchema).default([]),
   schemaVersion: z.literal('2.0')

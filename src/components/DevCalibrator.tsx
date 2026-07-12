@@ -47,7 +47,7 @@ const ENERGY_STATE_DEFAULTS: Record<string, { emoji: string }> = {
 };
 
 const PULSE_VISUAL_COMPENSATION_MS = 90;
-type PulseSource = "calibrated" | "librosa" | "beatNetLite" | "mixxx";
+type PulseSource = "calibrated" | "grid";
 
 export default function DevCalibrator({
   songData,
@@ -72,13 +72,16 @@ export default function DevCalibrator({
   const [validationErrors, setValidationErrors] = useState<any[] | null>(null);
   const [activeTab, setActiveTab] = useState<number>(1);
   const [saving, setSaving] = useState<boolean>(false);
-  const [timelineLayers, setTimelineLayers] = useState({ sections: true, events: true, human: true, librosa: true, beatNetLite: true, mixxx: false, manual: true });
+  const [timelineLayers, setTimelineLayers] = useState({ sections: true, events: true, calibrated: true, grid: true, manual: true });
   const [calibrationMode, setCalibrationMode] = useState<"whole" | "section" | "custom">("whole");
   const [customRangeStartSec, setCustomRangeStartSec] = useState("0");
   const [customRangeEndSec, setCustomRangeEndSec] = useState("");
+  const [gridBpm, setGridBpm] = useState("");
+  const [gridBeatsPerOne, setGridBeatsPerOne] = useState("8");
+  const [gridAnchorSec, setGridAnchorSec] = useState("0");
   const [liveTime, setLiveTime] = useState(0);
   const [liveIsPlaying, setLiveIsPlaying] = useState(false);
-  const [pulseSource, setPulseSource] = useState<PulseSource>("calibrated");
+  const [pulseSource, setPulseSource] = useState<PulseSource>("grid");
 
   const duration = videoDuration || 300;
   const timelineRef = useRef<HTMLDivElement>(null);
@@ -130,6 +133,13 @@ export default function DevCalibrator({
       setTappedDownbeats([]);
     }
   }, [songData, duration]);
+
+  useEffect(() => {
+    if (!songData) return;
+    setGridBpm(String(songData.baseBpm || (songData.genre === "SALSA" ? 153.4 : 120)));
+    setGridBeatsPerOne(songData.genre === "SALSA" ? "8" : "4");
+    setGridAnchorSec("0");
+  }, [songData?.youtubeId]);
 
   const autoSaveSongMap = (updatedData: any) => {
     setSaving(true);
@@ -218,23 +228,6 @@ export default function DevCalibrator({
     return sorted.length % 2 !== 0 ? sorted[half] : (sorted[half - 1] + sorted[half]) / 2.0;
   };
 
-  const detectorStats = (candidate: number[], human: number[]) => {
-    const intervals = candidate.slice(1).map((value, index) => value - candidate[index]);
-    const nearestDiffs = candidate.map(value => {
-      const match = nearestDownbeat(human, value);
-      return match === null ? null : value - match;
-    }).filter((value): value is number => value !== null);
-    const nearestAbsDiffs = nearestDiffs.map(value => Math.abs(value));
-    return {
-      markerCount: candidate.length,
-      medianIntervalMs: intervals.length ? median(intervals) : null,
-      medianNearestHumanDiffMs: nearestDiffs.length ? median(nearestDiffs) : null,
-      medianNearestHumanAbsDiffMs: nearestAbsDiffs.length ? median(nearestAbsDiffs) : null,
-      within100ms: nearestAbsDiffs.filter(value => value <= 100).length,
-      within250ms: nearestAbsDiffs.filter(value => value <= 250).length
-    };
-  };
-
   const updateCalibratedDownbeats = (nextDownbeats: number[], message: string) => {
     const updated = {
       ...latestSongDataRef.current,
@@ -290,30 +283,74 @@ export default function DevCalibrator({
     updateCalibratedDownbeats(next, `Replaced calibrated downbeats in ${range.label}.`);
   };
 
-  const handleUseRawAsCalibrated = () => {
-    const raw = latestSongDataRef.current?.rawDownbeats || [];
-    if (raw.length === 0) {
-      showToast("⚠️ No raw Librosa downbeats available.");
+  const generateDanceGrid = () => {
+    const bpm = Number(gridBpm);
+    const beatsPerOne = Number(gridBeatsPerOne);
+    const anchorMs = Math.round(Number(gridAnchorSec) * 1000);
+    const songEndMs = Math.round(duration * 1000 || 300000);
+    if (!Number.isFinite(bpm) || bpm <= 0 || !Number.isFinite(beatsPerOne) || beatsPerOne <= 0 || !Number.isFinite(anchorMs)) {
+      return { error: "Enter a valid BPM, beat spacing, and anchor." };
+    }
+    const beatMs = 60000 / bpm;
+    const intervalMs = beatMs * beatsPerOne;
+    const values = [];
+    let first = anchorMs;
+    while (first - intervalMs >= 0) {
+      first -= intervalMs;
+    }
+    for (let value = first; value <= songEndMs; value += intervalMs) {
+      values.push(Math.round(value));
+    }
+    return { values: sortedUniqueMs(values), beatMs, intervalMs, bpm, beatsPerOne, anchorMs };
+  };
+
+  const handleSetGridAnchorToPlayhead = () => {
+    setGridAnchorSec(liveDisplayTime.toFixed(3));
+    showToast(`Grid anchor set to ${liveDisplayTime.toFixed(3)}s.`);
+  };
+
+  const handleSetGridAnchorToFirstHuman = () => {
+    const first = latestSongDataRef.current?.calibratedDownbeats?.[0];
+    if (first === undefined) {
+      showToast("⚠️ No human calibrated 1 available.");
       return;
     }
-    updateCalibratedDownbeats(raw, "Copied raw Librosa downbeats into calibrated downbeats.");
+    setGridAnchorSec((first / 1000).toFixed(3));
+    showToast(`Grid anchor set to first human 1 at ${(first / 1000).toFixed(3)}s.`);
+  };
+
+  const handleUseHumanImpliedBpm = () => {
+    const values = latestSongDataRef.current?.calibratedDownbeats || [];
+    const intervals = values.slice(1).map((value: number, index: number) => value - values[index]);
+    if (intervals.length === 0) {
+      showToast("⚠️ No human calibrated interval available.");
+      return;
+    }
+    const implied = (60000 * Number(gridBeatsPerOne)) / median(intervals);
+    setGridBpm(implied.toFixed(2));
+    showToast(`Grid BPM set to human-implied ${implied.toFixed(2)}.`);
+  };
+
+  const handleApplyDanceGrid = () => {
+    const grid = generateDanceGrid();
+    if ("error" in grid) {
+      showToast(`⚠️ ${grid.error}`);
+      return;
+    }
+    updateCalibratedDownbeats(grid.values, `Applied ${grid.values.length} math grid 1s at ${grid.bpm} BPM / ${grid.beatsPerOne} beats.`);
   };
 
   const seekToNearestDownbeat = (direction: "prev" | "next", source: PulseSource) => {
-    const detectors = latestSongDataRef.current?.metadata?.detectors || {};
-    const valuesBySource: Record<PulseSource, number[]> = {
-      calibrated: latestSongDataRef.current?.calibratedDownbeats || [],
-      librosa: detectors.librosaCandidateDownbeats || latestSongDataRef.current?.rawDownbeats || [],
-      beatNetLite: detectors.beatNetLiteDownbeats || [],
-      mixxx: Array.isArray(detectors.mixxxBeatgrid) ? detectors.mixxxBeatgrid : detectors.mixxxBeatgrid?.downbeats || []
-    };
-    const values = valuesBySource[source];
+    const grid = generateDanceGrid();
+    const values: number[] = source === "grid"
+      ? ("error" in grid ? [] : grid.values)
+      : latestSongDataRef.current?.calibratedDownbeats || [];
     const currentMs = liveTime * 1000;
     const target = direction === "prev"
       ? [...values].reverse().find(value => value < currentMs - 80)
       : values.find(value => value > currentMs + 80);
     if (target === undefined) {
-      showToast(`⚠️ No ${source} downbeat ${direction === "prev" ? "before" : "after"} the playhead.`);
+      showToast(`⚠️ No ${source === "grid" ? "math grid" : "human calibrated"} downbeat ${direction === "prev" ? "before" : "after"} the playhead.`);
       return;
     }
     throttledSeek(target / 1000, true);
@@ -647,52 +684,35 @@ export default function DevCalibrator({
   const manualTapsInRange = calibrationRangePreview.error
     ? 0
     : tapsInsideRange(tappedDownbeats, calibrationRangePreview.startMs, calibrationRangePreview.endMs).length;
-  const detectorMetadata = latestSongDataRef.current?.metadata?.detectors || {};
-  const rawDownbeats = latestSongDataRef.current?.rawDownbeats || [];
-  const librosaDownbeats = detectorMetadata.librosaCandidateDownbeats || rawDownbeats;
-  const beatNetLiteDownbeats = detectorMetadata.beatNetLiteDownbeats || [];
-  const mixxxDownbeats = Array.isArray(detectorMetadata.mixxxBeatgrid) ? detectorMetadata.mixxxBeatgrid : detectorMetadata.mixxxBeatgrid?.downbeats || [];
   const calibratedDownbeats = latestSongDataRef.current?.calibratedDownbeats || [];
+  const gridPreview: any = generateDanceGrid();
+  const gridPreviewDownbeats = "error" in gridPreview ? [] : gridPreview.values;
   const currentMs = Math.round(liveDisplayTime * 1000 + PULSE_VISUAL_COMPENSATION_MS);
-  const nearestLibrosa = nearestDownbeat(librosaDownbeats, currentMs);
-  const nearestBeatNetLite = nearestDownbeat(beatNetLiteDownbeats, currentMs);
-  const nearestMixxx = nearestDownbeat(mixxxDownbeats, currentMs);
+  const selectedPulseDownbeats = pulseSource === "grid" ? gridPreviewDownbeats : calibratedDownbeats;
+  const selectedNearest = nearestDownbeat(selectedPulseDownbeats, currentMs);
   const nearestCalibrated = nearestDownbeat(calibratedDownbeats, currentMs);
-  const librosaDistance = nearestLibrosa === null ? null : nearestLibrosa - currentMs;
-  const beatNetLiteDistance = nearestBeatNetLite === null ? null : nearestBeatNetLite - currentMs;
-  const mixxxDistance = nearestMixxx === null ? null : nearestMixxx - currentMs;
+  const nearestGrid = nearestDownbeat(gridPreviewDownbeats, currentMs);
+  const selectedDistance = selectedNearest === null ? null : selectedNearest - currentMs;
   const calibratedDistance = nearestCalibrated === null ? null : nearestCalibrated - currentMs;
-  const pulseSources: Record<PulseSource, { label: string; shortLabel: string; values: number[]; distance: number | null; color: string }> = {
-    calibrated: { label: "Human calibrated", shortLabel: "HUMAN", values: calibratedDownbeats, distance: calibratedDistance, color: "#60a5fa" },
-    librosa: { label: "Librosa candidate", shortLabel: "LIBROSA", values: librosaDownbeats, distance: librosaDistance, color: "#c084fc" },
-    beatNetLite: { label: "BeatNetLite candidate", shortLabel: "BEATNETLITE", values: beatNetLiteDownbeats, distance: beatNetLiteDistance, color: "#34d399" },
-    mixxx: { label: "Mixxx beatgrid", shortLabel: "MIXXX", values: mixxxDownbeats, distance: mixxxDistance, color: "#fbbf24" }
-  };
-  const selectedPulse = pulseSources[pulseSource];
-  const selectedPulseDownbeats = selectedPulse.values;
-  const pulseDistance = selectedPulse.distance;
+  const gridDistance = nearestGrid === null ? null : nearestGrid - currentMs;
   const nearWindowMs = 90;
-  const isNearLibrosa = librosaDistance !== null && Math.abs(librosaDistance) <= nearWindowMs;
-  const isNearBeatNetLite = beatNetLiteDistance !== null && Math.abs(beatNetLiteDistance) <= nearWindowMs;
-  const isNearMixxx = mixxxDistance !== null && Math.abs(mixxxDistance) <= nearWindowMs;
   const isNearCalibrated = calibratedDistance !== null && Math.abs(calibratedDistance) <= nearWindowMs;
-  const isOnSelectedDownbeat = liveIsPlaying && pulseDistance !== null && Math.abs(pulseDistance) <= nearWindowMs;
-  const detectorRows = [
-    { key: "calibrated", label: "Human", color: "#60a5fa", values: calibratedDownbeats, distance: calibratedDistance, stats: detectorStats(calibratedDownbeats, calibratedDownbeats) },
-    { key: "librosa", label: "Librosa", color: "#c084fc", values: librosaDownbeats, distance: librosaDistance, stats: detectorStats(librosaDownbeats, calibratedDownbeats) },
-    { key: "beatNetLite", label: "BeatNetLite", color: "#34d399", values: beatNetLiteDownbeats, distance: beatNetLiteDistance, stats: detectorStats(beatNetLiteDownbeats, calibratedDownbeats) },
-    { key: "mixxx", label: "Mixxx", color: "#fbbf24", values: mixxxDownbeats, distance: mixxxDistance, stats: detectorStats(mixxxDownbeats, calibratedDownbeats), unavailable: detectorMetadata.mixxxBeatgrid?.reason }
-  ];
+  const isNearGrid = gridDistance !== null && Math.abs(gridDistance) <= nearWindowMs;
+  const isOnSelectedDownbeat = liveIsPlaying && selectedDistance !== null && Math.abs(selectedDistance) <= nearWindowMs;
   const calibratedDownbeatCount = calibratedDownbeats.length;
-  const rawDownbeatCount = librosaDownbeats.length;
-  const ingestionMeta = latestSongDataRef.current?.metadata?.ingestion;
-  const hasHumanCalibration = calibratedDownbeatCount > 0 && JSON.stringify(calibratedDownbeats) !== JSON.stringify(librosaDownbeats);
-  const calibratedLabel = hasHumanCalibration ? "Human/calibrated" : "Calibrated";
-  const ingestionStatus = rawDownbeatCount > 0
-    ? `Librosa baseline found ${rawDownbeatCount} markers at ${songData?.baseBpm || latestSongDataRef.current?.baseBpm || "?"} BPM.`
-    : ingestionMeta?.analysisSkipped
-      ? "Audio analysis was skipped for this song. You can still tap manually."
-      : "No Librosa markers were saved for this song. You can still tap manually, or re-run ingestion once YouTube/audio extraction works.";
+  const calibratedIntervals = calibratedDownbeats.slice(1).map((value: number, index: number) => value - calibratedDownbeats[index]);
+  const calibratedMedianInterval = calibratedIntervals.length ? median(calibratedIntervals) : null;
+  const humanImpliedBpm = calibratedMedianInterval ? (60000 * Number(gridBeatsPerOne)) / calibratedMedianInterval : null;
+  const gridToHumanDiffs = gridPreviewDownbeats.map((value: number) => {
+    const match = nearestDownbeat(calibratedDownbeats, value);
+    return match === null ? null : Math.abs(value - match);
+  }).filter((value: number | null): value is number => value !== null);
+  const gridMedianError = gridToHumanDiffs.length ? median(gridToHumanDiffs) : null;
+  const gridWithin100 = gridToHumanDiffs.filter((value: number) => value <= 100).length;
+  const gridWithin250 = gridToHumanDiffs.filter((value: number) => value <= 250).length;
+  const gridMathSummary = "error" in gridPreview
+    ? gridPreview.error
+    : `60000 / ${gridPreview.bpm} × ${gridPreview.beatsPerOne} = ${Math.round(gridPreview.intervalMs)}ms between 1s`;
   const calibratedPulseStyle = isOnSelectedDownbeat
     ? {
         background: "#ffffff",
@@ -704,8 +724,8 @@ export default function DevCalibrator({
     : {};
   const sourcePulseStyle = isOnSelectedDownbeat
     ? {
-        border: `2px solid ${selectedPulse.color}`,
-        boxShadow: `0 0 22px 5px ${selectedPulse.color}88`
+        border: `2px solid ${pulseSource === "grid" ? "#fbbf24" : "#60a5fa"}`,
+        boxShadow: pulseSource === "grid" ? "0 0 22px 5px rgba(251,191,36,0.55)" : "0 0 22px 5px rgba(96,165,250,0.55)"
       }
     : {};
 
@@ -782,37 +802,30 @@ export default function DevCalibrator({
         gap: "12px",
         padding: "14px",
         borderRadius: "14px",
-        border: `1px solid ${rawDownbeatCount > 0 ? "rgba(96,165,250,0.28)" : "rgba(245,158,11,0.35)"}`,
-        background: rawDownbeatCount > 0 ? "rgba(37,99,235,0.08)" : "rgba(245,158,11,0.08)"
+        border: "1px solid rgba(96,165,250,0.28)",
+        background: "rgba(37,99,235,0.08)"
       }}>
         <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
-            <span style={{ fontSize: "0.72rem", fontWeight: 900, color: rawDownbeatCount > 0 ? "#93c5fd" : "#fbbf24", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-              Auto downbeat diagnostics
+            <span style={{ fontSize: "0.72rem", fontWeight: 900, color: "#93c5fd", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+              Math dance grid
             </span>
             <select
               value={pulseSource}
               onChange={event => setPulseSource(event.target.value as PulseSource)}
               style={{ background: "#111113", border: "1px solid rgba(255,255,255,0.14)", color: "#fff", borderRadius: "8px", padding: "5px 8px", fontSize: "0.68rem", fontWeight: 800 }}
             >
+              <option value="grid">Pulse math grid</option>
               <option value="calibrated">Pulse human calibrated</option>
-              <option value="librosa">Pulse Librosa candidate</option>
-              <option value="beatNetLite">Pulse BeatNetLite candidate</option>
-              {mixxxDownbeats.length > 0 && <option value="mixxx">Pulse Mixxx beatgrid</option>}
             </select>
           </div>
           <span style={{ fontSize: "0.82rem", color: "#f4f4f5", lineHeight: 1.45 }}>
-            {ingestionStatus}
+            Automatic attempt: generate count-1 timestamps from BPM + beat spacing + one anchor, then compare that math grid against your human-calibrated reference.
           </span>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", fontSize: "0.74rem", color: "#d4d4d8" }}>
-            <span style={{ color: "#c084fc" }}>● Librosa raw: <strong>{rawDownbeatCount}</strong></span>
-            <span style={{ color: "#60a5fa" }}>● {calibratedLabel}: <strong>{calibratedDownbeatCount}</strong></span>
-            <span style={{ color: "#34d399" }}>● BeatNetLite: <strong>{beatNetLiteDownbeats.length}</strong></span>
-            <span style={{ color: "#fbbf24" }}>● Mixxx: <strong>{mixxxDownbeats.length}</strong>{detectorMetadata.mixxxBeatgrid?.reason ? ` (${detectorMetadata.mixxxBeatgrid.reason})` : ""}</span>
+            <span style={{ color: "#60a5fa" }}>● Calibrated 1s: <strong>{calibratedDownbeatCount}</strong></span>
+            <span style={{ color: "#fbbf24" }}>● Grid preview: <strong>{gridPreviewDownbeats.length}</strong></span>
             <span style={{ color: "#f97316" }}>● Manual taps: <strong>{tappedDownbeats.length}</strong></span>
-            {ingestionMeta && (
-              <span>source: <strong>{ingestionMeta.audioSource}</strong> · fallback BPM: <strong>{ingestionMeta.usedFallbackBpm ? "yes" : "no"}</strong></span>
-            )}
           </div>
         </div>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "6px", minWidth: "126px" }}>
@@ -841,22 +854,24 @@ export default function DevCalibrator({
             </span>
           </div>
           <span style={{ fontSize: "0.64rem", color: isOnSelectedDownbeat ? "#ffffff" : "#a1a1aa", fontWeight: 800, textAlign: "center", opacity: isOnSelectedDownbeat ? 1 : 0.7 }}>
-            {selectedPulseDownbeats.length === 0 ? "no pulse source" : liveIsPlaying ? `${selectedPulse.shortLabel} 1` : "play to preview"}
+            {selectedPulseDownbeats.length === 0 ? "no pulse source" : liveIsPlaying ? `${pulseSource === "grid" ? "MATH GRID" : "HUMAN"} 1` : "play to preview"}
           </span>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", alignItems: "stretch" }}>
-          {detectorRows.filter(row => row.key !== "mixxx" || row.values.length > 0 || row.unavailable).map(row => {
-            return (
-              <div key={row.key} style={{ padding: "9px", borderRadius: "10px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
-                <div style={{ fontSize: "0.64rem", color: row.color, fontWeight: 900, textTransform: "uppercase" }}>{row.label}</div>
-                <div style={{ fontSize: "0.58rem", color: "#a1a1aa", fontWeight: 700, lineHeight: 1.35 }}>
-                  {row.unavailable && row.values.length === 0
-                    ? row.unavailable
-                    : `${row.stats.markerCount} marks · med ${row.stats.medianIntervalMs === null ? "—" : `${Math.round(row.stats.medianIntervalMs)}ms`} · err ${row.stats.medianNearestHumanAbsDiffMs === null ? "—" : `${Math.round(row.stats.medianNearestHumanAbsDiffMs)}ms`} · 100/250 ${row.stats.within100ms}/${row.stats.within250ms}`}
-                </div>
-              </div>
-            );
-          })}
+          <div style={{ padding: "9px", borderRadius: "10px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+            <div style={{ fontSize: "0.64rem", color: "#fbbf24", fontWeight: 900, textTransform: "uppercase" }}>Grid math</div>
+            <div style={{ fontSize: "0.64rem", color: "#d4d4d8", fontWeight: 700, lineHeight: 1.35 }}>{gridMathSummary}</div>
+          </div>
+          <div style={{ padding: "9px", borderRadius: "10px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+            <div style={{ fontSize: "0.64rem", color: "#60a5fa", fontWeight: 900, textTransform: "uppercase" }}>Current calibrated</div>
+            <div style={{ fontSize: "0.64rem", color: "#d4d4d8", fontWeight: 700, lineHeight: 1.35 }}>
+              {calibratedDownbeatCount} marks · median {calibratedMedianInterval === null ? "—" : `${Math.round(calibratedMedianInterval)}ms`}
+              <br />
+              implied BPM {humanImpliedBpm === null ? "—" : humanImpliedBpm.toFixed(2)}
+              <br />
+              grid error {gridMedianError === null ? "—" : `${Math.round(gridMedianError)}ms`} · 100/250 {gridWithin100}/{gridWithin250}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -918,6 +933,66 @@ export default function DevCalibrator({
 
           <div style={{ display: "grid", gridTemplateColumns: "minmax(180px, 0.9fr) 1.6fr", gap: "12px", width: "100%" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              <label style={{ fontSize: "0.68rem", fontWeight: 800, color: "#fbbf24", textTransform: "uppercase" }}>
+                Math grid attempt
+              </label>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+                <input
+                  type="number"
+                  min="1"
+                  step="0.1"
+                  value={gridBpm}
+                  onChange={event => setGridBpm(event.target.value)}
+                  placeholder="BPM"
+                  style={{ background: "#111113", border: "1px solid #3f3f46", color: "#fff", borderRadius: "8px", padding: "8px" }}
+                />
+                <select
+                  value={gridBeatsPerOne}
+                  onChange={event => setGridBeatsPerOne(event.target.value)}
+                  style={{ background: "#111113", border: "1px solid #3f3f46", color: "#fff", borderRadius: "8px", padding: "8px" }}
+                >
+                  <option value="4">1 every 4 beats</option>
+                  <option value="8">1 every 8 beats</option>
+                </select>
+              </div>
+              <input
+                type="number"
+                min="0"
+                step="0.001"
+                value={gridAnchorSec}
+                onChange={event => setGridAnchorSec(event.target.value)}
+                placeholder="Anchor sec"
+                style={{ background: "#111113", border: "1px solid #3f3f46", color: "#fff", borderRadius: "8px", padding: "8px" }}
+              />
+              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                <button
+                  onClick={handleSetGridAnchorToPlayhead}
+                  style={{ fontSize: "0.68rem", fontWeight: 800, background: "rgba(251,191,36,0.12)", border: "1px solid rgba(251,191,36,0.45)", color: "#fde68a", padding: "6px 9px", borderRadius: "7px", cursor: "pointer" }}
+                >
+                  Anchor to playhead
+                </button>
+                <button
+                  onClick={handleSetGridAnchorToFirstHuman}
+                  disabled={calibratedDownbeatCount === 0}
+                  style={{ fontSize: "0.68rem", fontWeight: 800, background: "rgba(96,165,250,0.12)", border: "1px solid rgba(96,165,250,0.45)", color: "#bfdbfe", padding: "6px 9px", borderRadius: "7px", cursor: calibratedDownbeatCount === 0 ? "not-allowed" : "pointer", opacity: calibratedDownbeatCount === 0 ? 0.55 : 1 }}
+                >
+                  Anchor to first human
+                </button>
+                <button
+                  onClick={handleUseHumanImpliedBpm}
+                  disabled={humanImpliedBpm === null}
+                  style={{ fontSize: "0.68rem", fontWeight: 800, background: "rgba(96,165,250,0.12)", border: "1px solid rgba(96,165,250,0.45)", color: "#bfdbfe", padding: "6px 9px", borderRadius: "7px", cursor: humanImpliedBpm === null ? "not-allowed" : "pointer", opacity: humanImpliedBpm === null ? 0.55 : 1 }}
+                >
+                  Use human-implied BPM
+                </button>
+                <button
+                  onClick={handleApplyDanceGrid}
+                  disabled={saving || gridPreviewDownbeats.length === 0}
+                  style={{ fontSize: "0.68rem", fontWeight: 800, background: "rgba(251,191,36,0.18)", border: "1px solid rgba(251,191,36,0.55)", color: "#fde68a", padding: "6px 9px", borderRadius: "7px", cursor: saving || gridPreviewDownbeats.length === 0 ? "not-allowed" : "pointer", opacity: saving || gridPreviewDownbeats.length === 0 ? 0.55 : 1 }}
+                >
+                  Apply grid as calibrated
+                </button>
+              </div>
               <label style={{ fontSize: "0.68rem", fontWeight: 800, color: "#a1a1aa", textTransform: "uppercase" }}>
                 Calibration scope
               </label>
@@ -957,20 +1032,14 @@ export default function DevCalibrator({
             <div style={{ display: "flex", flexDirection: "column", gap: "10px", fontSize: "0.75rem", color: "#d1d5db" }}>
               <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
                 <span>Scope: <strong style={{ color: "#fff" }}>{calibrationRangePreview.error || calibrationRangePreview.label}</strong></span>
-                <span>Librosa: <strong style={{ color: "#fff" }}>{rawDownbeatCount}</strong></span>
-                <span>BeatNetLite: <strong style={{ color: "#fff" }}>{beatNetLiteDownbeats.length}</strong></span>
-                <span>{calibratedLabel}: <strong style={{ color: "#fff" }}>{calibratedDownbeatCount}</strong></span>
+                <span>Math grid: <strong style={{ color: "#fff" }}>{gridPreviewDownbeats.length}</strong></span>
+                <span>Human calibrated: <strong style={{ color: "#fff" }}>{calibratedDownbeatCount}</strong></span>
+                <span>Human-implied BPM: <strong style={{ color: "#fff" }}>{humanImpliedBpm === null ? "—" : humanImpliedBpm.toFixed(2)}</strong></span>
+                <span>Grid median error: <strong style={{ color: "#fff" }}>{gridMedianError === null ? "—" : `${Math.round(gridMedianError)}ms`}</strong></span>
                 <span>Manual in scope: <strong style={{ color: "#fff" }}>{manualTapsInRange}</strong></span>
               </div>
 
               <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", alignItems: "center" }}>
-                <button
-                  onClick={handleUseRawAsCalibrated}
-                  disabled={saving || rawDownbeatCount === 0}
-                  style={{ fontSize: "0.72rem", fontWeight: 800, background: "rgba(192,132,252,0.12)", border: "1px solid rgba(192,132,252,0.5)", color: "#f5d0fe", padding: "7px 12px", borderRadius: "7px", cursor: saving || rawDownbeatCount === 0 ? "not-allowed" : "pointer", opacity: saving || rawDownbeatCount === 0 ? 0.55 : 1 }}
-                >
-                  Use Raw as Calibrated
-                </button>
                 <button
                   onClick={handleApplyOffsetCalibration}
                   disabled={saving || manualTapsInRange === 0}
@@ -1004,10 +1073,8 @@ export default function DevCalibrator({
 
               <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", alignItems: "center" }}>
                 {[
-                  ["Librosa ◀", () => seekToNearestDownbeat("prev", "librosa"), rawDownbeatCount === 0],
-                  ["Librosa ▶", () => seekToNearestDownbeat("next", "librosa"), rawDownbeatCount === 0],
-                  ["BeatNetLite ◀", () => seekToNearestDownbeat("prev", "beatNetLite"), beatNetLiteDownbeats.length === 0],
-                  ["BeatNetLite ▶", () => seekToNearestDownbeat("next", "beatNetLite"), beatNetLiteDownbeats.length === 0],
+                  ["Math ◀", () => seekToNearestDownbeat("prev", "grid"), gridPreviewDownbeats.length === 0],
+                  ["Math ▶", () => seekToNearestDownbeat("next", "grid"), gridPreviewDownbeats.length === 0],
                   ["Human ◀", () => seekToNearestDownbeat("prev", "calibrated"), calibratedDownbeatCount === 0],
                   ["Human ▶", () => seekToNearestDownbeat("next", "calibrated"), calibratedDownbeatCount === 0]
                 ].map(([label, action, disabled]: any) => (
@@ -1021,7 +1088,7 @@ export default function DevCalibrator({
                   </button>
                 ))}
                 <span style={{ color: "#a1a1aa", fontSize: "0.68rem" }}>
-                  Play the song and watch the playhead cross blue markers. If it is consistently early/late, tap a few 1s and apply offset.
+                  Yellow markers are math. Blue markers are human/calibrated. Select which one pulses above.
                 </span>
               </div>
             </div>
@@ -1157,35 +1224,19 @@ export default function DevCalibrator({
                 );
               })}
 
-              {timelineLayers.librosa && librosaDownbeats.map((downbeat: number, index: number) => (
+              {timelineLayers.grid && gridPreviewDownbeats.map((downbeat: number, index: number) => (
                 <div
-                  key={`librosa-downbeat-${index}-${downbeat}`}
-                  title={`Librosa ${Math.round(downbeat / 1000)}s`}
-                  style={{ position: "absolute", top: "4px", height: "12px", left: `${(downbeat / (duration * 1000)) * 100}%`, width: "2px", background: "#c084fc", opacity: nearestLibrosa === downbeat ? 1 : 0.72, zIndex: 6, pointerEvents: "none", boxShadow: nearestLibrosa === downbeat && isNearLibrosa ? "0 0 10px #c084fc" : "none" }}
+                  key={`math-grid-downbeat-${index}-${downbeat}`}
+                  title={`Math grid ${Math.round(downbeat / 1000)}s`}
+                  style={{ position: "absolute", top: "4px", height: "18px", left: `${(downbeat / (duration * 1000)) * 100}%`, width: "2px", background: "#fbbf24", opacity: nearestGrid === downbeat ? 1 : 0.72, zIndex: 6, pointerEvents: "none", boxShadow: nearestGrid === downbeat && isNearGrid ? "0 0 10px #fbbf24" : "none" }}
                 />
               ))}
 
-              {timelineLayers.human && calibratedDownbeats.map((downbeat: number, index: number) => (
+              {timelineLayers.calibrated && calibratedDownbeats.map((downbeat: number, index: number) => (
                 <div
-                  key={`human-downbeat-${index}-${downbeat}`}
+                  key={`calibrated-downbeat-${index}-${downbeat}`}
                   title={`Human calibrated ${Math.round(downbeat / 1000)}s`}
-                  style={{ position: "absolute", top: "18px", height: "12px", left: `${(downbeat / (duration * 1000)) * 100}%`, width: "2px", background: "#60a5fa", opacity: nearestCalibrated === downbeat ? 1 : 0.82, zIndex: 6, pointerEvents: "none", boxShadow: nearestCalibrated === downbeat && isNearCalibrated ? "0 0 10px #60a5fa" : "none" }}
-                />
-              ))}
-
-              {timelineLayers.beatNetLite && beatNetLiteDownbeats.map((downbeat: number, index: number) => (
-                <div
-                  key={`beatnetlite-downbeat-${index}-${downbeat}`}
-                  title={`BeatNetLite ${Math.round(downbeat / 1000)}s`}
-                  style={{ position: "absolute", top: "32px", height: "12px", left: `${(downbeat / (duration * 1000)) * 100}%`, width: "2px", background: "#34d399", opacity: nearestBeatNetLite === downbeat ? 1 : 0.75, zIndex: 6, pointerEvents: "none", boxShadow: nearestBeatNetLite === downbeat && isNearBeatNetLite ? "0 0 10px #34d399" : "none" }}
-                />
-              ))}
-
-              {timelineLayers.mixxx && mixxxDownbeats.map((downbeat: number, index: number) => (
-                <div
-                  key={`mixxx-downbeat-${index}-${downbeat}`}
-                  title={`Mixxx ${Math.round(downbeat / 1000)}s`}
-                  style={{ position: "absolute", top: "2px", bottom: "2px", left: `${(downbeat / (duration * 1000)) * 100}%`, width: "2px", background: "#fbbf24", opacity: nearestMixxx === downbeat ? 1 : 0.75, zIndex: 6, pointerEvents: "none", boxShadow: nearestMixxx === downbeat && isNearMixxx ? "0 0 10px #fbbf24" : "none" }}
+                  style={{ position: "absolute", top: "24px", height: "18px", left: `${(downbeat / (duration * 1000)) * 100}%`, width: "2px", background: "#60a5fa", opacity: nearestCalibrated === downbeat ? 1 : 0.82, zIndex: 6, pointerEvents: "none", boxShadow: nearestCalibrated === downbeat && isNearCalibrated ? "0 0 10px #60a5fa" : "none" }}
                 />
               ))}
 
