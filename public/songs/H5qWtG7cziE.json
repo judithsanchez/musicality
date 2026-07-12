@@ -158,5 +158,6 @@
   ],
   "events": [],
   "schemaVersion": "2.0",
-  "sections": []
+  "sections": [],
+  "tapCalibrationTakes": []
 }

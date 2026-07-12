@@ -54,6 +54,13 @@ export const DanceEventSchema = z.object({
   uiHighlight: z.boolean().default(true)
 });
 
+export const TapCalibrationTakeSchema = z.object({
+  id: z.string(),
+  label: z.string(),
+  createdAt: z.string(),
+  tapsMs: z.array(z.number().int()).default([])
+});
+
 export const BaseSectionSchema = z.object({
   id: z.string(),
   startTimeMs: z.number().int(),
@@ -87,6 +94,7 @@ export const BaseSongMapSchema = z.object({
   metadata: z.record(z.string(), z.unknown()).default({}),
   baseBpm: z.number().positive(),
   calibratedDownbeats: z.array(z.number().int()).default([]),
+  tapCalibrationTakes: z.array(TapCalibrationTakeSchema).default([]),
   events: z.array(DanceEventSchema).default([]),
   schemaVersion: z.literal('2.0')
 });
@@ -109,6 +117,7 @@ export const SongMapSchema = z.discriminatedUnion('genre', [
 export type Genre = z.infer<typeof GenreSchema>;
 
 export type DanceEvent = z.infer<typeof DanceEventSchema>;
+export type TapCalibrationTake = z.infer<typeof TapCalibrationTakeSchema>;
 export type BaseSection = z.infer<typeof BaseSectionSchema>;
 export type BachataSection = z.infer<typeof BachataSectionSchema>;
 export type SalsaSection = z.infer<typeof SalsaSectionSchema>;

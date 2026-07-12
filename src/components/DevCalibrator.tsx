@@ -47,7 +47,15 @@ const ENERGY_STATE_DEFAULTS: Record<string, { emoji: string }> = {
 };
 
 const PULSE_VISUAL_COMPENSATION_MS = 90;
-type PulseSource = "calibrated" | "grid";
+const TAKE_LABELS = ["Take 1", "Take 2", "Take 3"];
+const PHRASE_BEATS = 8;
+
+const emptyTapCalibrationTakes = () => TAKE_LABELS.map((label, index) => ({
+  id: `take-${index + 1}`,
+  label,
+  createdAt: "",
+  tapsMs: []
+}));
 
 export default function DevCalibrator({
   songData,
@@ -67,21 +75,16 @@ export default function DevCalibrator({
 }: DevCalibratorProps) {
   const [editorSections, setEditorSections] = useState<any[]>([]);
   const [tappedDownbeats, setTappedDownbeats] = useState<number[]>([]);
+  const [tapCalibrationTakes, setTapCalibrationTakes] = useState<any[]>([]);
   const [focusedSectionId, setFocusedSectionId] = useState<string | null>(null);
   const [tapFlash, setTapFlash] = useState(false);
   const [validationErrors, setValidationErrors] = useState<any[] | null>(null);
   const [activeTab, setActiveTab] = useState<number>(1);
   const [saving, setSaving] = useState<boolean>(false);
-  const [timelineLayers, setTimelineLayers] = useState({ sections: true, events: true, calibrated: true, grid: true, manual: true });
-  const [calibrationMode, setCalibrationMode] = useState<"whole" | "section" | "custom">("whole");
-  const [customRangeStartSec, setCustomRangeStartSec] = useState("0");
-  const [customRangeEndSec, setCustomRangeEndSec] = useState("");
-  const [gridBpm, setGridBpm] = useState("");
-  const [gridBeatsPerOne, setGridBeatsPerOne] = useState("8");
-  const [gridAnchorSec, setGridAnchorSec] = useState("0");
+  const [timelineLayers, setTimelineLayers] = useState({ sections: true, events: true, calibrated: true, proposal: true, take1: true, take2: true, take3: true });
+  const [activeTakeIndex, setActiveTakeIndex] = useState(0);
   const [liveTime, setLiveTime] = useState(0);
   const [liveIsPlaying, setLiveIsPlaying] = useState(false);
-  const [pulseSource, setPulseSource] = useState<PulseSource>("grid");
 
   const duration = videoDuration || 300;
   const timelineRef = useRef<HTMLDivElement>(null);
@@ -132,14 +135,20 @@ export default function DevCalibrator({
       setEditorSections(sortedSections);
       setTappedDownbeats([]);
     }
-  }, [songData, duration]);
+    const savedTakes = Array.isArray(songData.tapCalibrationTakes) ? songData.tapCalibrationTakes : [];
+    const normalizedTakes = emptyTapCalibrationTakes().map((fallback, index) => ({
+      ...fallback,
+      ...(savedTakes[index] || {}),
+      label: savedTakes[index]?.label || fallback.label,
+      tapsMs: sortedUniqueMs(savedTakes[index]?.tapsMs || [])
+    }));
+    setTapCalibrationTakes(normalizedTakes);
+    setActiveTakeIndex(0);
+  }, [songData?.youtubeId]);
 
   useEffect(() => {
-    if (!songData) return;
-    setGridBpm(String(songData.baseBpm || (songData.genre === "SALSA" ? 153.4 : 120)));
-    setGridBeatsPerOne(songData.genre === "SALSA" ? "8" : "4");
-    setGridAnchorSec("0");
-  }, [songData?.youtubeId]);
+    setTappedDownbeats(tapCalibrationTakes[activeTakeIndex]?.tapsMs || []);
+  }, [activeTakeIndex, tapCalibrationTakes]);
 
   const autoSaveSongMap = (updatedData: any) => {
     setSaving(true);
@@ -187,36 +196,6 @@ export default function DevCalibrator({
     }
   };
 
-  const getCalibrationRange = () => {
-    const songEndMs = Math.round(duration * 1000 || 300000);
-    if (calibrationMode === "section") {
-      const selected = editorSections.find(section => section.id === focusedSectionId)
-        || editorSections.find(section => currentTime * 1000 >= section.startTimeMs && currentTime * 1000 <= section.endTimeMs);
-      if (!selected) {
-        return { error: "Select a section or move the playhead inside one." };
-      }
-      return { startMs: selected.startTimeMs, endMs: selected.endTimeMs, label: selected.label || "selected section" };
-    }
-    if (calibrationMode === "custom") {
-      const startMs = Math.max(0, Math.round(Number(customRangeStartSec) * 1000));
-      const endMs = Math.min(songEndMs, Math.round(Number(customRangeEndSec) * 1000));
-      if (!Number.isFinite(startMs) || !Number.isFinite(endMs) || endMs <= startMs) {
-        return { error: "Enter a valid custom range." };
-      }
-      return { startMs, endMs, label: "custom range" };
-    }
-    return { startMs: 0, endMs: songEndMs, label: "whole song" };
-  };
-
-  const tapsInsideRange = (values: number[], startMs: number, endMs: number) => values.filter(value => value >= startMs && value <= endMs);
-
-  const replaceDownbeatsInRange = (current: number[], startMs: number, endMs: number, replacement: number[]) => {
-    return sortedUniqueMs([
-      ...current.filter(value => value < startMs || value > endMs),
-      ...replacement.filter(value => value >= startMs && value <= endMs)
-    ]);
-  };
-
   const nearestDownbeat = (values: number[], targetMs: number) => {
     if (values.length === 0) return null;
     return values.reduce((best, value) => Math.abs(value - targetMs) < Math.abs(best - targetMs) ? value : best, values[0]);
@@ -240,117 +219,140 @@ export default function DevCalibrator({
     showToast(message);
   };
 
-  const handleApplyOffsetCalibration = () => {
-    const range: any = getCalibrationRange();
-    if (range.error) {
-      showToast(`⚠️ ${range.error}`);
-      return;
+  const updateTapCalibrationTakes = (nextTakes: any[], message?: string) => {
+    const normalizedTakes = nextTakes.map((take, index) => ({
+      id: take.id || `take-${index + 1}`,
+      label: take.label || TAKE_LABELS[index] || `Take ${index + 1}`,
+      createdAt: take.createdAt || new Date().toISOString(),
+      tapsMs: sortedUniqueMs(take.tapsMs || [])
+    }));
+    const updated = {
+      ...latestSongDataRef.current,
+      tapCalibrationTakes: normalizedTakes,
+      status: latestSongDataRef.current?.status === "READY" ? "READY" : "DRAFT"
+    };
+    setTapCalibrationTakes(normalizedTakes);
+    setTappedDownbeats(normalizedTakes[activeTakeIndex]?.tapsMs || []);
+    syncSongMapState(updated);
+    autoSaveSongMap(updated);
+    if (message) {
+      showToast(message);
     }
-    const current = latestSongDataRef.current?.calibratedDownbeats || [];
-    const existing = tapsInsideRange(current, range.startMs, range.endMs);
-    const manual = tapsInsideRange(tappedDownbeats, range.startMs, range.endMs);
-    if (existing.length === 0) {
-      showToast("⚠️ No calibrated downbeats in this range to shift.");
-      return;
-    }
-    if (manual.length === 0) {
-      showToast("⚠️ Tap at least one downbeat inside this range.");
-      return;
-    }
-    const offsets = manual.map(tap => {
-      const nearest = existing.reduce((best, value) => Math.abs(value - tap) < Math.abs(best - tap) ? value : best, existing[0]);
-      return tap - nearest;
+  };
+
+  const estimatePhraseInterval = (takes: any[]) => {
+    const expectedIntervalMs = (60000 / (songData?.baseBpm || 150)) * PHRASE_BEATS;
+    const estimates: number[] = [];
+    takes.forEach(take => {
+      const taps = sortedUniqueMs(take.tapsMs || []);
+      for (let index = 1; index < taps.length; index++) {
+        const gap = taps[index] - taps[index - 1];
+        if (gap <= 0) continue;
+        const phraseCount = Math.max(1, Math.round(gap / expectedIntervalMs));
+        const normalized = gap / phraseCount;
+        if (normalized >= expectedIntervalMs * 0.65 && normalized <= expectedIntervalMs * 1.35) {
+          estimates.push(normalized);
+        }
+      }
     });
-    const offset = Math.round(median(offsets));
-    const shifted = existing.map(value => value + offset).filter(value => value >= range.startMs && value <= range.endMs);
-    const next = replaceDownbeatsInRange(current, range.startMs, range.endMs, shifted);
-    updateCalibratedDownbeats(next, `Applied ${offset}ms offset to ${range.label}.`);
+    return estimates.length ? median(estimates) : expectedIntervalMs;
   };
 
-  const handleReplaceRangeWithTaps = () => {
-    const range: any = getCalibrationRange();
-    if (range.error) {
-      showToast(`⚠️ ${range.error}`);
-      return;
+  const buildTapProposal = (takes: any[]) => {
+    const estimatedIntervalMs = estimatePhraseInterval(takes);
+    const clusterToleranceMs = Math.max(180, Math.min(450, estimatedIntervalMs * 0.16));
+    const warnings: string[] = [];
+    const allTaps: any[] = [];
+    takes.forEach((take, takeIndex) => {
+      const taps = sortedUniqueMs(take.tapsMs || []);
+      for (let index = 1; index < taps.length; index++) {
+        const gap = taps[index] - taps[index - 1];
+        if (gap < estimatedIntervalMs * 0.55) {
+          warnings.push(`${take.label || `Take ${takeIndex + 1}`}: taps at ${(taps[index - 1] / 1000).toFixed(2)}s and ${(taps[index] / 1000).toFixed(2)}s are too close.`);
+        }
+      }
+      taps.forEach((tap: number) => allTaps.push({ timestampMs: tap, takeIndex }));
+    });
+    const sortedTaps = allTaps.sort((a, b) => a.timestampMs - b.timestampMs);
+    const clusters: any[] = [];
+    sortedTaps.forEach(tap => {
+      const last = clusters[clusters.length - 1];
+      if (!last || Math.abs(tap.timestampMs - median(last.values)) > clusterToleranceMs) {
+        clusters.push({ values: [tap.timestampMs], takeIndexes: new Set([tap.takeIndex]) });
+      } else {
+        last.values.push(tap.timestampMs);
+        last.takeIndexes.add(tap.takeIndex);
+      }
+    });
+    const clusterSummaries = clusters.map(cluster => ({
+      timestampMs: Math.round(median(cluster.values)),
+      spreadMs: Math.max(...cluster.values) - Math.min(...cluster.values),
+      takeCount: cluster.takeIndexes.size
+    }));
+    clusterSummaries.forEach(cluster => {
+      if (cluster.spreadMs > clusterToleranceMs) {
+        warnings.push(`Disagreement near ${(cluster.timestampMs / 1000).toFixed(2)}s is ${Math.round(cluster.spreadMs)}ms.`);
+      }
+    });
+    if (takes.filter(take => (take.tapsMs || []).length > 0).length < 3) {
+      warnings.push("Record all 3 takes for a stronger proposal.");
     }
-    const manual = tapsInsideRange(tappedDownbeats, range.startMs, range.endMs);
-    if (manual.length === 0) {
-      showToast("⚠️ Tap at least one downbeat inside this range.");
-      return;
+    if (allTaps.length < 3) {
+      warnings.push("Add at least 3 clear anchors before trusting the proposal.");
     }
-    const current = latestSongDataRef.current?.calibratedDownbeats || [];
-    const next = replaceDownbeatsInRange(current, range.startMs, range.endMs, manual);
-    updateCalibratedDownbeats(next, `Replaced calibrated downbeats in ${range.label}.`);
-  };
-
-  const generateDanceGrid = () => {
-    const bpm = Number(gridBpm);
-    const beatsPerOne = Number(gridBeatsPerOne);
-    const anchorMs = Math.round(Number(gridAnchorSec) * 1000);
+    if (clusterSummaries.length === 0) {
+      return {
+        proposedDownbeats: [],
+        estimatedIntervalMs,
+        impliedBpm: (60000 * PHRASE_BEATS) / estimatedIntervalMs,
+        confidenceCounts: { high: 0, medium: 0, low: 0 },
+        warnings
+      };
+    }
+    clusterSummaries.sort((a, b) => a.timestampMs - b.timestampMs);
+    for (let index = 1; index < clusterSummaries.length; index++) {
+      const gap = clusterSummaries[index].timestampMs - clusterSummaries[index - 1].timestampMs;
+      if (gap > estimatedIntervalMs * 3.25) {
+        warnings.push(`Sparse region between ${(clusterSummaries[index - 1].timestampMs / 1000).toFixed(1)}s and ${(clusterSummaries[index].timestampMs / 1000).toFixed(1)}s.`);
+      }
+    }
+    let anchorMs = clusterSummaries[0].timestampMs;
+    while (anchorMs - estimatedIntervalMs >= 0) {
+      anchorMs -= estimatedIntervalMs;
+    }
     const songEndMs = Math.round(duration * 1000 || 300000);
-    if (!Number.isFinite(bpm) || bpm <= 0 || !Number.isFinite(beatsPerOne) || beatsPerOne <= 0 || !Number.isFinite(anchorMs)) {
-      return { error: "Enter a valid BPM, beat spacing, and anchor." };
+    const proposed: number[] = [];
+    const confidenceCounts = { high: 0, medium: 0, low: 0 };
+    for (let value = anchorMs; value <= songEndMs; value += estimatedIntervalMs) {
+      const nearestCluster = clusterSummaries.reduce((best, cluster) => Math.abs(cluster.timestampMs - value) < Math.abs(best.timestampMs - value) ? cluster : best, clusterSummaries[0]);
+      if (Math.abs(nearestCluster.timestampMs - value) <= clusterToleranceMs) {
+        proposed.push(nearestCluster.timestampMs);
+        if (nearestCluster.takeCount >= 2) {
+          confidenceCounts.high += 1;
+        } else {
+          confidenceCounts.medium += 1;
+        }
+      } else {
+        proposed.push(Math.round(value));
+        confidenceCounts.low += 1;
+      }
     }
-    const beatMs = 60000 / bpm;
-    const intervalMs = beatMs * beatsPerOne;
-    const values = [];
-    let first = anchorMs;
-    while (first - intervalMs >= 0) {
-      first -= intervalMs;
-    }
-    for (let value = first; value <= songEndMs; value += intervalMs) {
-      values.push(Math.round(value));
-    }
-    return { values: sortedUniqueMs(values), beatMs, intervalMs, bpm, beatsPerOne, anchorMs };
+    return {
+      proposedDownbeats: sortedUniqueMs(proposed),
+      estimatedIntervalMs,
+      impliedBpm: (60000 * PHRASE_BEATS) / estimatedIntervalMs,
+      confidenceCounts,
+      warnings
+    };
   };
 
-  const handleSetGridAnchorToPlayhead = () => {
-    setGridAnchorSec(liveDisplayTime.toFixed(3));
-    showToast(`Grid anchor set to ${liveDisplayTime.toFixed(3)}s.`);
-  };
-
-  const handleSetGridAnchorToFirstHuman = () => {
-    const first = latestSongDataRef.current?.calibratedDownbeats?.[0];
-    if (first === undefined) {
-      showToast("⚠️ No human calibrated 1 available.");
-      return;
-    }
-    setGridAnchorSec((first / 1000).toFixed(3));
-    showToast(`Grid anchor set to first human 1 at ${(first / 1000).toFixed(3)}s.`);
-  };
-
-  const handleUseHumanImpliedBpm = () => {
-    const values = latestSongDataRef.current?.calibratedDownbeats || [];
-    const intervals = values.slice(1).map((value: number, index: number) => value - values[index]);
-    if (intervals.length === 0) {
-      showToast("⚠️ No human calibrated interval available.");
-      return;
-    }
-    const implied = (60000 * Number(gridBeatsPerOne)) / median(intervals);
-    setGridBpm(implied.toFixed(2));
-    showToast(`Grid BPM set to human-implied ${implied.toFixed(2)}.`);
-  };
-
-  const handleApplyDanceGrid = () => {
-    const grid = generateDanceGrid();
-    if ("error" in grid) {
-      showToast(`⚠️ ${grid.error}`);
-      return;
-    }
-    updateCalibratedDownbeats(grid.values, `Applied ${grid.values.length} math grid 1s at ${grid.bpm} BPM / ${grid.beatsPerOne} beats.`);
-  };
-
-  const seekToNearestDownbeat = (direction: "prev" | "next", source: PulseSource) => {
-    const grid = generateDanceGrid();
-    const values: number[] = source === "grid"
-      ? ("error" in grid ? [] : grid.values)
-      : latestSongDataRef.current?.calibratedDownbeats || [];
+  const seekToNearestDownbeat = (direction: "prev" | "next", values: number[], label: string) => {
     const currentMs = liveTime * 1000;
     const target = direction === "prev"
       ? [...values].reverse().find(value => value < currentMs - 80)
       : values.find(value => value > currentMs + 80);
     if (target === undefined) {
-      showToast(`⚠️ No ${source === "grid" ? "math grid" : "human calibrated"} downbeat ${direction === "prev" ? "before" : "after"} the playhead.`);
+      showToast(`⚠️ No ${label} downbeat ${direction === "prev" ? "before" : "after"} the playhead.`);
       return;
     }
     throttledSeek(target / 1000, true);
@@ -367,22 +369,42 @@ export default function DevCalibrator({
     const currentBpm = songData.baseBpm || (songData.genre === "SALSA" ? 153.4 : 120.0);
     const beatIntervalMs = 60000.0 / currentBpm;
     const minTapGapMs = Math.max(250, beatIntervalMs * 1.5);
+    const activeTake = tapCalibrationTakes[activeTakeIndex] || emptyTapCalibrationTakes()[activeTakeIndex];
+    const activeTaps = activeTake?.tapsMs || [];
 
-    const tooCloseToTap = tappedDownbeats.some(t => Math.abs(t - tapTimeMs) < minTapGapMs);
+    const tooCloseToTap = activeTaps.some((t: number) => Math.abs(t - tapTimeMs) < minTapGapMs);
     if (tooCloseToTap) {
       showToast("⚠️ Tap is too close to an existing tap.");
       return;
     }
 
-    const updatedDownbeats = [...tappedDownbeats, tapTimeMs]
-      .sort((a, b) => a - b);
-
-    setTappedDownbeats(updatedDownbeats);
+    const nextTakes = [...tapCalibrationTakes];
+    nextTakes[activeTakeIndex] = {
+      ...activeTake,
+      createdAt: activeTake.createdAt || new Date().toISOString(),
+      tapsMs: sortedUniqueMs([...activeTaps, tapTimeMs])
+    };
+    updateTapCalibrationTakes(nextTakes);
   };
 
   const handleClearTaps = () => {
-    setTappedDownbeats([]);
-    showToast("🔄 Manual taps cleared.");
+    const nextTakes = [...tapCalibrationTakes];
+    const activeTake = nextTakes[activeTakeIndex] || emptyTapCalibrationTakes()[activeTakeIndex];
+    nextTakes[activeTakeIndex] = { ...activeTake, tapsMs: [], createdAt: "" };
+    updateTapCalibrationTakes(nextTakes, `${activeTake.label || "Take"} cleared.`);
+  };
+
+  const handleClearAllTakes = () => {
+    updateTapCalibrationTakes(emptyTapCalibrationTakes(), "All calibration takes cleared.");
+  };
+
+  const handleApproveProposal = () => {
+    const proposal = buildTapProposal(tapCalibrationTakes);
+    if (proposal.proposedDownbeats.length === 0) {
+      showToast("⚠️ Record anchors before approving a proposal.");
+      return;
+    }
+    updateCalibratedDownbeats(proposal.proposedDownbeats, `Approved ${proposal.proposedDownbeats.length} calibrated 1s from human anchors.`);
   };
 
   const handleUpdateSectionTimes = (id: string, field: "startTimeMs" | "endTimeMs", valueMs: number) => {
@@ -680,39 +702,24 @@ export default function DevCalibrator({
 
   const liveDisplayTime = player ? liveTime : currentTime;
   const playheadPct = duration > 0 ? (liveDisplayTime / duration) * 100 : 0;
-  const calibrationRangePreview: any = getCalibrationRange();
-  const manualTapsInRange = calibrationRangePreview.error
-    ? 0
-    : tapsInsideRange(tappedDownbeats, calibrationRangePreview.startMs, calibrationRangePreview.endMs).length;
   const calibratedDownbeats = latestSongDataRef.current?.calibratedDownbeats || [];
-  const gridPreview: any = generateDanceGrid();
-  const gridPreviewDownbeats = "error" in gridPreview ? [] : gridPreview.values;
+  const proposal = buildTapProposal(tapCalibrationTakes);
+  const proposedDownbeats = proposal.proposedDownbeats;
   const currentMs = Math.round(liveDisplayTime * 1000 + PULSE_VISUAL_COMPENSATION_MS);
-  const selectedPulseDownbeats = pulseSource === "grid" ? gridPreviewDownbeats : calibratedDownbeats;
-  const selectedNearest = nearestDownbeat(selectedPulseDownbeats, currentMs);
   const nearestCalibrated = nearestDownbeat(calibratedDownbeats, currentMs);
-  const nearestGrid = nearestDownbeat(gridPreviewDownbeats, currentMs);
-  const selectedDistance = selectedNearest === null ? null : selectedNearest - currentMs;
+  const nearestProposal = nearestDownbeat(proposedDownbeats, currentMs);
   const calibratedDistance = nearestCalibrated === null ? null : nearestCalibrated - currentMs;
-  const gridDistance = nearestGrid === null ? null : nearestGrid - currentMs;
+  const proposalDistance = nearestProposal === null ? null : nearestProposal - currentMs;
   const nearWindowMs = 90;
   const isNearCalibrated = calibratedDistance !== null && Math.abs(calibratedDistance) <= nearWindowMs;
-  const isNearGrid = gridDistance !== null && Math.abs(gridDistance) <= nearWindowMs;
-  const isOnSelectedDownbeat = liveIsPlaying && selectedDistance !== null && Math.abs(selectedDistance) <= nearWindowMs;
+  const isNearProposal = proposalDistance !== null && Math.abs(proposalDistance) <= nearWindowMs;
+  const isOnSelectedDownbeat = liveIsPlaying && isNearCalibrated;
   const calibratedDownbeatCount = calibratedDownbeats.length;
   const calibratedIntervals = calibratedDownbeats.slice(1).map((value: number, index: number) => value - calibratedDownbeats[index]);
   const calibratedMedianInterval = calibratedIntervals.length ? median(calibratedIntervals) : null;
-  const humanImpliedBpm = calibratedMedianInterval ? (60000 * Number(gridBeatsPerOne)) / calibratedMedianInterval : null;
-  const gridToHumanDiffs = gridPreviewDownbeats.map((value: number) => {
-    const match = nearestDownbeat(calibratedDownbeats, value);
-    return match === null ? null : Math.abs(value - match);
-  }).filter((value: number | null): value is number => value !== null);
-  const gridMedianError = gridToHumanDiffs.length ? median(gridToHumanDiffs) : null;
-  const gridWithin100 = gridToHumanDiffs.filter((value: number) => value <= 100).length;
-  const gridWithin250 = gridToHumanDiffs.filter((value: number) => value <= 250).length;
-  const gridMathSummary = "error" in gridPreview
-    ? gridPreview.error
-    : `60000 / ${gridPreview.bpm} × ${gridPreview.beatsPerOne} = ${Math.round(gridPreview.intervalMs)}ms between 1s`;
+  const currentTakeTaps = tapCalibrationTakes[activeTakeIndex]?.tapsMs || [];
+  const takeTapCount = tapCalibrationTakes.reduce((sum, take) => sum + (take.tapsMs || []).length, 0);
+  const proposalSummary = `${proposedDownbeats.length} proposed · interval ${Math.round(proposal.estimatedIntervalMs)}ms · implied BPM ${proposal.impliedBpm.toFixed(2)}`;
   const calibratedPulseStyle = isOnSelectedDownbeat
     ? {
         background: "#ffffff",
@@ -724,8 +731,8 @@ export default function DevCalibrator({
     : {};
   const sourcePulseStyle = isOnSelectedDownbeat
     ? {
-        border: `2px solid ${pulseSource === "grid" ? "#fbbf24" : "#60a5fa"}`,
-        boxShadow: pulseSource === "grid" ? "0 0 22px 5px rgba(251,191,36,0.55)" : "0 0 22px 5px rgba(96,165,250,0.55)"
+        border: "2px solid #60a5fa",
+        boxShadow: "0 0 22px 5px rgba(96,165,250,0.55)"
       }
     : {};
 
@@ -808,24 +815,16 @@ export default function DevCalibrator({
         <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
             <span style={{ fontSize: "0.72rem", fontWeight: 900, color: "#93c5fd", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-              Math dance grid
+              Human anchor calibration
             </span>
-            <select
-              value={pulseSource}
-              onChange={event => setPulseSource(event.target.value as PulseSource)}
-              style={{ background: "#111113", border: "1px solid rgba(255,255,255,0.14)", color: "#fff", borderRadius: "8px", padding: "5px 8px", fontSize: "0.68rem", fontWeight: 800 }}
-            >
-              <option value="grid">Pulse math grid</option>
-              <option value="calibrated">Pulse human calibrated</option>
-            </select>
           </div>
           <span style={{ fontSize: "0.82rem", color: "#f4f4f5", lineHeight: 1.45 }}>
-            Automatic attempt: generate count-1 timestamps from BPM + beat spacing + one anchor, then compare that math grid against your human-calibrated reference.
+            Record 3 sparse passes of clear count-1 anchors. Skip uncertain moments. The app fills a review proposal from human anchors only.
           </span>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", fontSize: "0.74rem", color: "#d4d4d8" }}>
             <span style={{ color: "#60a5fa" }}>● Calibrated 1s: <strong>{calibratedDownbeatCount}</strong></span>
-            <span style={{ color: "#fbbf24" }}>● Grid preview: <strong>{gridPreviewDownbeats.length}</strong></span>
-            <span style={{ color: "#f97316" }}>● Manual taps: <strong>{tappedDownbeats.length}</strong></span>
+            <span style={{ color: "#fbbf24" }}>● Proposed 1s: <strong>{proposedDownbeats.length}</strong></span>
+            <span style={{ color: "#f97316" }}>● Raw anchors: <strong>{takeTapCount}</strong></span>
           </div>
         </div>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "6px", minWidth: "126px" }}>
@@ -854,22 +853,20 @@ export default function DevCalibrator({
             </span>
           </div>
           <span style={{ fontSize: "0.64rem", color: isOnSelectedDownbeat ? "#ffffff" : "#a1a1aa", fontWeight: 800, textAlign: "center", opacity: isOnSelectedDownbeat ? 1 : 0.7 }}>
-            {selectedPulseDownbeats.length === 0 ? "no pulse source" : liveIsPlaying ? `${pulseSource === "grid" ? "MATH GRID" : "HUMAN"} 1` : "play to preview"}
+            {calibratedDownbeats.length === 0 ? "no approved 1s" : liveIsPlaying ? "APPROVED 1" : "play to preview"}
           </span>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", alignItems: "stretch" }}>
           <div style={{ padding: "9px", borderRadius: "10px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
-            <div style={{ fontSize: "0.64rem", color: "#fbbf24", fontWeight: 900, textTransform: "uppercase" }}>Grid math</div>
-            <div style={{ fontSize: "0.64rem", color: "#d4d4d8", fontWeight: 700, lineHeight: 1.35 }}>{gridMathSummary}</div>
+            <div style={{ fontSize: "0.64rem", color: "#fbbf24", fontWeight: 900, textTransform: "uppercase" }}>Proposal</div>
+            <div style={{ fontSize: "0.64rem", color: "#d4d4d8", fontWeight: 700, lineHeight: 1.35 }}>{proposalSummary}</div>
           </div>
           <div style={{ padding: "9px", borderRadius: "10px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
-            <div style={{ fontSize: "0.64rem", color: "#60a5fa", fontWeight: 900, textTransform: "uppercase" }}>Current calibrated</div>
+            <div style={{ fontSize: "0.64rem", color: "#60a5fa", fontWeight: 900, textTransform: "uppercase" }}>Confidence</div>
             <div style={{ fontSize: "0.64rem", color: "#d4d4d8", fontWeight: 700, lineHeight: 1.35 }}>
-              {calibratedDownbeatCount} marks · median {calibratedMedianInterval === null ? "—" : `${Math.round(calibratedMedianInterval)}ms`}
+              high {proposal.confidenceCounts.high} · medium {proposal.confidenceCounts.medium} · low {proposal.confidenceCounts.low}
               <br />
-              implied BPM {humanImpliedBpm === null ? "—" : humanImpliedBpm.toFixed(2)}
-              <br />
-              grid error {gridMedianError === null ? "—" : `${Math.round(gridMedianError)}ms`} · 100/250 {gridWithin100}/{gridWithin250}
+              approved median {calibratedMedianInterval === null ? "—" : `${Math.round(calibratedMedianInterval)}ms`}
             </div>
           </div>
         </div>
@@ -904,7 +901,31 @@ export default function DevCalibrator({
           transition: "all 0.08s ease"
         }}>
           <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "#a1a1aa", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-            🎧 Downbeat Tap Deck
+            🎧 Human Anchor Tap Deck
+          </div>
+          <div style={{ fontSize: "0.82rem", color: "#d4d4d8", textAlign: "center", lineHeight: 1.4 }}>
+            Tap only clear count-1 anchors. Skip uncertain moments. Do not try to tap continuously.
+          </div>
+
+          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", justifyContent: "center" }}>
+            {tapCalibrationTakes.map((take, index) => (
+              <button
+                key={take.id}
+                onClick={() => setActiveTakeIndex(index)}
+                style={{
+                  fontSize: "0.72rem",
+                  fontWeight: 900,
+                  padding: "7px 12px",
+                  borderRadius: "999px",
+                  border: `1px solid ${activeTakeIndex === index ? "#ffffff" : "rgba(255,255,255,0.12)"}`,
+                  background: activeTakeIndex === index ? "#ffffff" : "rgba(255,255,255,0.04)",
+                  color: activeTakeIndex === index ? "#000" : "#d4d4d8",
+                  cursor: "pointer"
+                }}
+              >
+                {take.label}: {(take.tapsMs || []).length}
+              </button>
+            ))}
           </div>
 
           <button
@@ -924,159 +945,64 @@ export default function DevCalibrator({
             }}
           >
             <span style={{ fontSize: "1.35rem", fontWeight: 900, color: tapFlash ? "#000" : "#fff", textTransform: "uppercase", letterSpacing: "1px" }}>
-              TAP ON "1"
+              TAP CLEAR "1"
             </span>
             <span style={{ fontSize: "0.68rem", color: tapFlash ? "rgba(0,0,0,0.6)" : "#71717a" }}>
-              Click or press <kbd style={{ background: "rgba(255,255,255,0.12)", borderRadius: "3px", padding: "0 3px" }}>T</kbd>
+              Recording {tapCalibrationTakes[activeTakeIndex]?.label || "Take"} · click or press <kbd style={{ background: "rgba(255,255,255,0.12)", borderRadius: "3px", padding: "0 3px" }}>T</kbd>
             </span>
           </button>
 
-          <div style={{ display: "grid", gridTemplateColumns: "minmax(180px, 0.9fr) 1.6fr", gap: "12px", width: "100%" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "minmax(220px, 0.95fr) 1.5fr", gap: "12px", width: "100%" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              <label style={{ fontSize: "0.68rem", fontWeight: 800, color: "#fbbf24", textTransform: "uppercase" }}>
-                Math grid attempt
-              </label>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
-                <input
-                  type="number"
-                  min="1"
-                  step="0.1"
-                  value={gridBpm}
-                  onChange={event => setGridBpm(event.target.value)}
-                  placeholder="BPM"
-                  style={{ background: "#111113", border: "1px solid #3f3f46", color: "#fff", borderRadius: "8px", padding: "8px" }}
-                />
-                <select
-                  value={gridBeatsPerOne}
-                  onChange={event => setGridBeatsPerOne(event.target.value)}
-                  style={{ background: "#111113", border: "1px solid #3f3f46", color: "#fff", borderRadius: "8px", padding: "8px" }}
-                >
-                  <option value="4">1 every 4 beats</option>
-                  <option value="8">1 every 8 beats</option>
-                </select>
+              <div style={{ padding: "10px", borderRadius: "10px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "#d4d4d8", fontSize: "0.72rem", lineHeight: 1.45 }}>
+                <strong style={{ color: "#fff" }}>{tapCalibrationTakes[activeTakeIndex]?.label || "Take"}</strong> has <strong style={{ color: "#fff" }}>{currentTakeTaps.length}</strong> anchors.
+                <br />
+                Proposal: <strong style={{ color: "#fff" }}>{proposedDownbeats.length}</strong> final 1s · interval <strong style={{ color: "#fff" }}>{Math.round(proposal.estimatedIntervalMs)}ms</strong>.
               </div>
-              <input
-                type="number"
-                min="0"
-                step="0.001"
-                value={gridAnchorSec}
-                onChange={event => setGridAnchorSec(event.target.value)}
-                placeholder="Anchor sec"
-                style={{ background: "#111113", border: "1px solid #3f3f46", color: "#fff", borderRadius: "8px", padding: "8px" }}
-              />
-              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-                <button
-                  onClick={handleSetGridAnchorToPlayhead}
-                  style={{ fontSize: "0.68rem", fontWeight: 800, background: "rgba(251,191,36,0.12)", border: "1px solid rgba(251,191,36,0.45)", color: "#fde68a", padding: "6px 9px", borderRadius: "7px", cursor: "pointer" }}
-                >
-                  Anchor to playhead
-                </button>
-                <button
-                  onClick={handleSetGridAnchorToFirstHuman}
-                  disabled={calibratedDownbeatCount === 0}
-                  style={{ fontSize: "0.68rem", fontWeight: 800, background: "rgba(96,165,250,0.12)", border: "1px solid rgba(96,165,250,0.45)", color: "#bfdbfe", padding: "6px 9px", borderRadius: "7px", cursor: calibratedDownbeatCount === 0 ? "not-allowed" : "pointer", opacity: calibratedDownbeatCount === 0 ? 0.55 : 1 }}
-                >
-                  Anchor to first human
-                </button>
-                <button
-                  onClick={handleUseHumanImpliedBpm}
-                  disabled={humanImpliedBpm === null}
-                  style={{ fontSize: "0.68rem", fontWeight: 800, background: "rgba(96,165,250,0.12)", border: "1px solid rgba(96,165,250,0.45)", color: "#bfdbfe", padding: "6px 9px", borderRadius: "7px", cursor: humanImpliedBpm === null ? "not-allowed" : "pointer", opacity: humanImpliedBpm === null ? 0.55 : 1 }}
-                >
-                  Use human-implied BPM
-                </button>
-                <button
-                  onClick={handleApplyDanceGrid}
-                  disabled={saving || gridPreviewDownbeats.length === 0}
-                  style={{ fontSize: "0.68rem", fontWeight: 800, background: "rgba(251,191,36,0.18)", border: "1px solid rgba(251,191,36,0.55)", color: "#fde68a", padding: "6px 9px", borderRadius: "7px", cursor: saving || gridPreviewDownbeats.length === 0 ? "not-allowed" : "pointer", opacity: saving || gridPreviewDownbeats.length === 0 ? 0.55 : 1 }}
-                >
-                  Apply grid as calibrated
-                </button>
-              </div>
-              <label style={{ fontSize: "0.68rem", fontWeight: 800, color: "#a1a1aa", textTransform: "uppercase" }}>
-                Calibration scope
-              </label>
-              <select
-                value={calibrationMode}
-                onChange={event => setCalibrationMode(event.target.value as "whole" | "section" | "custom")}
-                style={{ background: "#111113", border: "1px solid #3f3f46", color: "#fff", borderRadius: "8px", padding: "8px" }}
+              <button
+                onClick={handleClearTaps}
+                disabled={currentTakeTaps.length === 0}
+                style={{ fontSize: "0.72rem", fontWeight: 800, background: "rgba(255,255,255,0.08)", border: "1px solid #3f3f46", color: "#fff", padding: "7px 12px", borderRadius: "7px", cursor: currentTakeTaps.length === 0 ? "not-allowed" : "pointer", opacity: currentTakeTaps.length === 0 ? 0.55 : 1 }}
               >
-                <option value="whole">Whole song</option>
-                <option value="section">Selected section</option>
-                <option value="custom">Custom range</option>
-              </select>
-              {calibrationMode === "custom" && (
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
-                  <input
-                    type="number"
-                    min="0"
-                    step="0.1"
-                    value={customRangeStartSec}
-                    onChange={event => setCustomRangeStartSec(event.target.value)}
-                    placeholder="Start sec"
-                    style={{ background: "#111113", border: "1px solid #3f3f46", color: "#fff", borderRadius: "8px", padding: "8px" }}
-                  />
-                  <input
-                    type="number"
-                    min="0"
-                    step="0.1"
-                    value={customRangeEndSec}
-                    onChange={event => setCustomRangeEndSec(event.target.value)}
-                    placeholder="End sec"
-                    style={{ background: "#111113", border: "1px solid #3f3f46", color: "#fff", borderRadius: "8px", padding: "8px" }}
-                  />
-                </div>
-              )}
+                Re-record current take
+              </button>
+              <button
+                onClick={handleClearAllTakes}
+                disabled={takeTapCount === 0}
+                style={{ fontSize: "0.72rem", fontWeight: 800, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.12)", color: "#d4d4d8", padding: "7px 12px", borderRadius: "7px", cursor: takeTapCount === 0 ? "not-allowed" : "pointer", opacity: takeTapCount === 0 ? 0.55 : 1 }}
+              >
+                Clear all takes
+              </button>
+              <button
+                onClick={handleApproveProposal}
+                disabled={saving || proposedDownbeats.length === 0}
+                style={{ fontSize: "0.72rem", fontWeight: 900, background: "linear-gradient(135deg, #ffffff, #d1d5db)", border: "none", color: "#000", padding: "8px 14px", borderRadius: "7px", cursor: saving || proposedDownbeats.length === 0 ? "not-allowed" : "pointer", opacity: saving || proposedDownbeats.length === 0 ? 0.55 : 1 }}
+              >
+                Approve proposal as calibrated
+              </button>
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "10px", fontSize: "0.75rem", color: "#d1d5db" }}>
               <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
-                <span>Scope: <strong style={{ color: "#fff" }}>{calibrationRangePreview.error || calibrationRangePreview.label}</strong></span>
-                <span>Math grid: <strong style={{ color: "#fff" }}>{gridPreviewDownbeats.length}</strong></span>
-                <span>Human calibrated: <strong style={{ color: "#fff" }}>{calibratedDownbeatCount}</strong></span>
-                <span>Human-implied BPM: <strong style={{ color: "#fff" }}>{humanImpliedBpm === null ? "—" : humanImpliedBpm.toFixed(2)}</strong></span>
-                <span>Grid median error: <strong style={{ color: "#fff" }}>{gridMedianError === null ? "—" : `${Math.round(gridMedianError)}ms`}</strong></span>
-                <span>Manual in scope: <strong style={{ color: "#fff" }}>{manualTapsInRange}</strong></span>
+                <span>Take 1: <strong style={{ color: "#fff" }}>{tapCalibrationTakes[0]?.tapsMs?.length || 0}</strong></span>
+                <span>Take 2: <strong style={{ color: "#fff" }}>{tapCalibrationTakes[1]?.tapsMs?.length || 0}</strong></span>
+                <span>Take 3: <strong style={{ color: "#fff" }}>{tapCalibrationTakes[2]?.tapsMs?.length || 0}</strong></span>
+                <span>Implied BPM: <strong style={{ color: "#fff" }}>{proposal.impliedBpm.toFixed(2)}</strong></span>
+                <span>Confidence: <strong style={{ color: "#fff" }}>{proposal.confidenceCounts.high}/{proposal.confidenceCounts.medium}/{proposal.confidenceCounts.low}</strong></span>
               </div>
-
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", alignItems: "center" }}>
-                <button
-                  onClick={handleApplyOffsetCalibration}
-                  disabled={saving || manualTapsInRange === 0}
-                  style={{ fontSize: "0.72rem", fontWeight: 800, background: "rgba(255,255,255,0.08)", border: "1px solid #3f3f46", color: "#fff", padding: "7px 12px", borderRadius: "7px", cursor: saving || manualTapsInRange === 0 ? "not-allowed" : "pointer", opacity: saving || manualTapsInRange === 0 ? 0.55 : 1 }}
-                >
-                  Apply Offset to Range
-                </button>
-                <button
-                  onClick={handleReplaceRangeWithTaps}
-                  disabled={saving || manualTapsInRange === 0}
-                  style={{ fontSize: "0.72rem", fontWeight: 800, background: "rgba(255,255,255,0.08)", border: "1px solid #3f3f46", color: "#fff", padding: "7px 12px", borderRadius: "7px", cursor: saving || manualTapsInRange === 0 ? "not-allowed" : "pointer", opacity: saving || manualTapsInRange === 0 ? 0.55 : 1 }}
-                >
-                  Replace Range With Taps
-                </button>
-                {tappedDownbeats.length > 0 && (
-                  <button
-                    onClick={handleClearTaps}
-                    style={{ background: "none", border: "none", color: "#a1a1aa", cursor: "pointer", fontSize: "0.7rem", display: "flex", alignItems: "center", gap: "4px" }}
-                  >
-                    <RotateCcw size={11} /> Clear Manual Taps
-                  </button>
-                )}
-                <button
-                  onClick={handleSaveCalibration}
-                  disabled={saving}
-                  style={{ fontSize: "0.72rem", fontWeight: 800, background: "linear-gradient(135deg, #ffffff, #d1d5db)", border: "none", color: "#000", padding: "7px 14px", borderRadius: "7px", cursor: saving ? "not-allowed" : "pointer", opacity: saving ? 0.6 : 1 }}
-                >
-                  {saving ? "Saving..." : "Save Calibration 💾"}
-                </button>
+              <div style={{ maxHeight: "92px", overflow: "auto", padding: "10px", borderRadius: "10px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                {proposal.warnings.length === 0 ? (
+                  <span style={{ color: "#86efac" }}>No proposal warnings.</span>
+                ) : proposal.warnings.map((warning: string, index: number) => (
+                  <div key={`warning-${index}`} style={{ color: "#fbbf24", marginBottom: "4px" }}>⚠️ {warning}</div>
+                ))}
               </div>
-
               <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", alignItems: "center" }}>
                 {[
-                  ["Math ◀", () => seekToNearestDownbeat("prev", "grid"), gridPreviewDownbeats.length === 0],
-                  ["Math ▶", () => seekToNearestDownbeat("next", "grid"), gridPreviewDownbeats.length === 0],
-                  ["Human ◀", () => seekToNearestDownbeat("prev", "calibrated"), calibratedDownbeatCount === 0],
-                  ["Human ▶", () => seekToNearestDownbeat("next", "calibrated"), calibratedDownbeatCount === 0]
+                  ["Proposal ◀", () => seekToNearestDownbeat("prev", proposedDownbeats, "proposal"), proposedDownbeats.length === 0],
+                  ["Proposal ▶", () => seekToNearestDownbeat("next", proposedDownbeats, "proposal"), proposedDownbeats.length === 0],
+                  ["Approved ◀", () => seekToNearestDownbeat("prev", calibratedDownbeats, "approved"), calibratedDownbeatCount === 0],
+                  ["Approved ▶", () => seekToNearestDownbeat("next", calibratedDownbeats, "approved"), calibratedDownbeatCount === 0]
                 ].map(([label, action, disabled]: any) => (
                   <button
                     key={label}
@@ -1088,7 +1014,7 @@ export default function DevCalibrator({
                   </button>
                 ))}
                 <span style={{ color: "#a1a1aa", fontSize: "0.68rem" }}>
-                  Yellow markers are math. Blue markers are human/calibrated. Select which one pulses above.
+                  Orange/rose/green are raw takes. Yellow is proposal. Blue is approved.
                 </span>
               </div>
             </div>
@@ -1224,11 +1150,11 @@ export default function DevCalibrator({
                 );
               })}
 
-              {timelineLayers.grid && gridPreviewDownbeats.map((downbeat: number, index: number) => (
+              {timelineLayers.proposal && proposedDownbeats.map((downbeat: number, index: number) => (
                 <div
-                  key={`math-grid-downbeat-${index}-${downbeat}`}
-                  title={`Math grid ${Math.round(downbeat / 1000)}s`}
-                  style={{ position: "absolute", top: "4px", height: "18px", left: `${(downbeat / (duration * 1000)) * 100}%`, width: "2px", background: "#fbbf24", opacity: nearestGrid === downbeat ? 1 : 0.72, zIndex: 6, pointerEvents: "none", boxShadow: nearestGrid === downbeat && isNearGrid ? "0 0 10px #fbbf24" : "none" }}
+                  key={`proposal-downbeat-${index}-${downbeat}`}
+                  title={`Proposed ${Math.round(downbeat / 1000)}s`}
+                  style={{ position: "absolute", top: "3px", height: "14px", left: `${(downbeat / (duration * 1000)) * 100}%`, width: "2px", background: "#fbbf24", opacity: nearestProposal === downbeat ? 1 : 0.72, zIndex: 6, pointerEvents: "none", boxShadow: nearestProposal === downbeat && isNearProposal ? "0 0 10px #fbbf24" : "none" }}
                 />
               ))}
 
@@ -1240,9 +1166,14 @@ export default function DevCalibrator({
                 />
               ))}
 
-              {timelineLayers.manual && tappedDownbeats.map((downbeat: number, index: number) => (
-                <div key={`manual-tap-${index}-${downbeat}`} title={`Manual tap ${Math.round(downbeat / 1000)}s`} style={{ position: "absolute", top: "3px", bottom: "3px", left: `${(downbeat / (duration * 1000)) * 100}%`, width: "3px", background: "#f97316", opacity: 0.95, zIndex: 8, pointerEvents: "none", boxShadow: "0 0 9px rgba(249,115,22,0.8)" }} />
-              ))}
+              {tapCalibrationTakes.map((take, takeIndex) => {
+                const layerKey = `take${takeIndex + 1}`;
+                const colors = ["#f97316", "#fb7185", "#34d399"];
+                if (!timelineLayers[layerKey as keyof typeof timelineLayers]) return null;
+                return (take.tapsMs || []).map((downbeat: number, index: number) => (
+                  <div key={`${take.id}-${index}-${downbeat}`} title={`${take.label} ${(downbeat / 1000).toFixed(2)}s`} style={{ position: "absolute", top: `${4 + takeIndex * 10}px`, height: "8px", left: `${(downbeat / (duration * 1000)) * 100}%`, width: "3px", background: colors[takeIndex], opacity: 0.95, zIndex: 8, pointerEvents: "none", boxShadow: `0 0 9px ${colors[takeIndex]}aa` }} />
+                ));
+              })}
 
               <div style={{
                 position: "absolute",

@@ -116,6 +116,9 @@ export default function App() {
         if (!adjustedData.calibratedDownbeats) {
           adjustedData.calibratedDownbeats = [];
         }
+        if (!adjustedData.tapCalibrationTakes) {
+          adjustedData.tapCalibrationTakes = [];
+        }
         if (!adjustedData.sections || adjustedData.sections.length === 0) {
           const lastBeatTimeMs = adjustedData.calibratedDownbeats?.at(-1) || 300000;
           adjustedData.sections = [

@@ -10,17 +10,18 @@ Each song JSON keeps only the data the app needs:
 - genre: `SALSA` or `BACHATA`
 - base BPM
 - calibrated downbeats used by the player
+- raw human tap calibration takes
 - sections
 - timeline events
 - status: `DRAFT` or `READY`
 
-Sections are time ranges. Events can be single timestamp marks or ranges. Downbeats are stored as millisecond timestamps. `calibratedDownbeats` is the app-facing source of truth and can be corrected for the whole song, a selected section, or a custom range.
+Sections are time ranges. Events can be single timestamp marks or ranges. Downbeats are stored as millisecond timestamps. `tapCalibrationTakes` stores three sparse human anchor passes. `calibratedDownbeats` is the app-facing source of truth used by the player.
 
 ## Ingestion
 
 The local ingestion script accepts a YouTube id/link flow from the app and creates a clean song calibration record. New songs start with metadata, base BPM, empty sections, empty events, and empty calibrated downbeats.
 
-The workbench can generate a temporary math dance grid from BPM, beat spacing, and one anchor timestamp. This grid is a candidate automation attempt and can be compared visually against human calibrated downbeats before replacing anything.
+The workbench reconciles three sparse human tap takes into a proposed full count-1 list. The proposal must be reviewed and approved before it replaces `calibratedDownbeats`.
 
 ## Workbench Behavior
 
@@ -31,8 +32,8 @@ The workbench can generate a temporary math dance grid from BPM, beat spacing, a
 - Labels can be edited while slicing.
 - Events can be added before or after slicing.
 - Downbeat tapping does not require sections or events.
-- Manual tap calibration can affect the whole song, one selected section, or a custom time range.
-- Range calibration does not disturb calibrated downbeats outside the selected range.
+- Downbeat tapping records sparse anchors into Take 1, Take 2, or Take 3.
+- The reconciliation proposal estimates the phrase interval, flags suspicious taps, fills skipped phrases, and shows confidence before approval.
 
 ## Publishing
 
