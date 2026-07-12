@@ -11,7 +11,7 @@ export const DANCE_EVENT_TYPES: DanceEvent["type"][] = [
 
 export type DanceEventDraft = Omit<DanceEvent, "timestampMs" | "durationMs"> & {
   startTimeMs: number;
-  endTimeMs?: number;
+  endTimeMs: number;
 };
 
 export type EventMutationResult = {
@@ -21,22 +21,25 @@ export type EventMutationResult = {
 
 export function addDanceEvent(events: DanceEvent[], draft: DanceEventDraft, songEndTimeMs?: number): EventMutationResult {
   const timestampMs = Math.round(draft.startTimeMs);
-  const endTimeMs = draft.endTimeMs === undefined ? undefined : Math.round(draft.endTimeMs);
+  const endTimeMs = Math.round(draft.endTimeMs);
 
-  if (timestampMs < 0 || (songEndTimeMs !== undefined && timestampMs > songEndTimeMs)) {
+  if (!Number.isFinite(timestampMs) || timestampMs < 0 || (songEndTimeMs !== undefined && timestampMs > songEndTimeMs)) {
     return { events, error: "Move the playhead inside the song timeline." };
   }
 
-  if (endTimeMs !== undefined && endTimeMs <= timestampMs) {
+  if (!Number.isFinite(endTimeMs)) {
+    return { events, error: "Add an event range end time." };
+  }
+  if (endTimeMs <= timestampMs) {
     return { events, error: "The range end must be after its start." };
   }
-  if (endTimeMs !== undefined && songEndTimeMs !== undefined && endTimeMs > songEndTimeMs) {
+  if (songEndTimeMs !== undefined && endTimeMs > songEndTimeMs) {
     return { events, error: "Event ranges must end inside the song timeline." };
   }
 
   const event: DanceEvent = {
     timestampMs,
-    ...(endTimeMs === undefined ? {} : { durationMs: endTimeMs - timestampMs }),
+    durationMs: endTimeMs - timestampMs,
     type: draft.type,
     description: draft.description.trim(),
     uiHighlight: draft.uiHighlight

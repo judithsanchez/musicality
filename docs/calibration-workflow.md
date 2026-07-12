@@ -1,6 +1,6 @@
 # Calibration Workflow
 
-The calibration workbench is a single flexible editor for a song timeline. Slicing, event marking, downbeat tapping, and labeling are independent tools that can be used in any order.
+The calibration workbench is a single flexible editor for a song timeline. Section slicing, section labeling, event ranges, and downbeat tapping are independent tools that can be used in any order.
 
 ## Song Map Shape
 
@@ -15,7 +15,7 @@ Each song JSON keeps only the data the app needs:
 - timeline events
 - status: `DRAFT` or `READY`
 
-Sections are time ranges. Events can be single timestamp marks or ranges. Downbeats are stored as millisecond timestamps. `tapCalibrationTakes` stores three sparse human anchor passes. `calibratedDownbeats` is the app-facing source of truth used by the player.
+Sections and events are time ranges. Downbeats are stored as millisecond timestamps. `tapCalibrationTakes` stores three sparse human anchor passes. `calibratedDownbeats` is the app-facing source of truth used by the player.
 
 ## Ingestion
 
@@ -29,8 +29,8 @@ The workbench reconciles three sparse human tap takes into a proposed full count
 - The playhead can be dragged all the way back to `0:00`.
 - Section handles resize adjacent section ranges.
 - Clicking a section selects it without moving the playhead.
-- Labels can be edited while slicing.
-- Events can be added before or after slicing.
+- Section labels can be edited in the same place where slices are created.
+- Events use the same start/end range model as sections and can be added before or after slicing.
 - Downbeat tapping does not require sections or events.
 - Downbeat tapping records sparse anchors into Take 1, Take 2, or Take 3.
 - The reconciliation proposal estimates the phrase interval, flags suspicious taps, fills skipped phrases, and shows confidence before approval.

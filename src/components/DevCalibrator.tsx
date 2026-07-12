@@ -777,7 +777,7 @@ export default function DevCalibrator({
         paddingBottom: "8px",
         gap: "16px"
       }}>
-        {["Sections", "Events", "Downbeat Tapping", "Labels"].map((tabName, idx) => {
+        {["Sections & Labels", "Events", "Downbeat Tapping"].map((tabName, idx) => {
           const tabNum = idx + 1;
           const isActive = activeTab === tabNum;
           
@@ -871,21 +871,6 @@ export default function DevCalibrator({
           </div>
         </div>
       </div>
-
-      {activeTab === 2 && (
-        <div style={{ display: "flex", flexDirection: "column", gap: "12px", maxWidth: "800px", width: "100%", margin: "0 auto" }}>
-          <EventAnnotationPanel
-            currentTime={currentTime}
-            events={songData?.events || []}
-            onAddEvent={handleAddEvent}
-            onRemoveEvent={handleRemoveEvent}
-            disabled={false}
-          />
-          <button onClick={handleSaveEvents} disabled={saving} style={{ padding: "9px", border: "none", borderRadius: "8px", fontWeight: 800, cursor: saving ? "not-allowed" : "pointer" }}>
-            {saving ? "Saving..." : "Save Events"}
-          </button>
-        </div>
-      )}
 
       {activeTab === 3 && (
         <div className={tapFlash ? "active-flash" : ""} style={{
@@ -1023,13 +1008,13 @@ export default function DevCalibrator({
       )}
 
       <div className="dev-widescreen-top-row" style={{
-        gridTemplateColumns: activeTab === 1 || activeTab === 4 ? "1.15fr 0.85fr" : "1fr"
+        gridTemplateColumns: activeTab === 1 || activeTab === 2 ? "1.15fr 0.85fr" : "1fr"
       }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: "16px", maxWidth: activeTab === 1 || activeTab === 4 ? "100%" : "800px", margin: activeTab === 1 || activeTab === 4 ? "0" : "0 auto", width: "100%" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "16px", maxWidth: activeTab === 1 || activeTab === 2 ? "100%" : "800px", margin: activeTab === 1 || activeTab === 2 ? "0" : "0 auto", width: "100%" }}>
           {videoElement}
         </div>
 
-        {(activeTab === 1 || activeTab === 4) && (
+        {activeTab === 1 && (
           <DevCalibrationPanel
             songData={songData}
             editorSections={editorSections}
@@ -1039,6 +1024,31 @@ export default function DevCalibrator({
             saving={saving}
             onPublishSong={handlePublishSong}
           />
+        )}
+        {activeTab === 2 && (
+          <div className="glass-panel dev-panel right-workspace-column" style={{ display: "flex", flexDirection: "column", gap: "16px", maxHeight: "85vh", overflowY: "auto" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(255,255,255,0.08)", paddingBottom: "8px" }}>
+              <span style={{ fontSize: "0.9rem", fontWeight: 800, color: "#ffffff", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                🎭 Event Ranges
+              </span>
+              <button
+                onClick={onBackToCatalog}
+                style={{ background: "rgba(255, 255, 255, 0.04)", border: "1px solid #27272a", color: "#ffffff", padding: "2px 8px", borderRadius: "6px", fontSize: "0.7rem", fontWeight: 700, cursor: "pointer" }}
+              >
+                Exit
+              </button>
+            </div>
+            <EventAnnotationPanel
+              currentTime={currentTime}
+              events={songData?.events || []}
+              onAddEvent={handleAddEvent}
+              onRemoveEvent={handleRemoveEvent}
+              disabled={false}
+            />
+            <button onClick={handleSaveEvents} disabled={saving} style={{ padding: "9px", border: "none", borderRadius: "8px", fontWeight: 800, cursor: saving ? "not-allowed" : "pointer" }}>
+              {saving ? "Saving..." : "Save Events"}
+            </button>
+          </div>
         )}
       </div>
 
@@ -1107,8 +1117,7 @@ export default function DevCalibrator({
                 const leftPct = (startSec / duration) * 100;
                 const color = SECTION_PALETTE[idx % SECTION_PALETTE.length];
                 const isActive = sec.id === focusedSectionId;
-                const showSimpleLabel = activeTab !== 4;
-                const labelText = showSimpleLabel || !sec.label ? `Section ${idx + 1}` : `${sec.emoji || ""} ${sec.label}`;
+                const labelText = sec.label ? `${sec.emoji || ""} ${sec.label}` : `Section ${idx + 1}`;
 
                 return (
                   <div
@@ -1144,9 +1153,9 @@ export default function DevCalibrator({
 
               {timelineLayers.events && (songData?.events || []).map((event: any, index: number) => {
                 const leftPct = (event.timestampMs / (duration * 1000)) * 100;
-                const widthPct = event.durationMs ? (event.durationMs / (duration * 1000)) * 100 : 0;
+                const widthPct = (event.durationMs / (duration * 1000)) * 100;
                 return (
-                  <div key={`event-${index}-${event.timestampMs}`} title={`${event.type}: ${event.description}`} style={{ position: "absolute", top: "6px", bottom: "6px", left: `${leftPct}%`, width: event.durationMs ? `${Math.max(widthPct, 0.3)}%` : "3px", borderRadius: "3px", background: event.uiHighlight ? "#f59e0b" : "#a1a1aa", zIndex: 7, pointerEvents: "none" }} />
+                  <div key={`event-${index}-${event.timestampMs}`} title={`${event.type}: ${event.description}`} style={{ position: "absolute", top: "6px", bottom: "6px", left: `${leftPct}%`, width: `${Math.max(widthPct, 0.3)}%`, borderRadius: "3px", background: event.uiHighlight ? "#f59e0b" : "#a1a1aa", zIndex: 7, pointerEvents: "none" }} />
                 );
               })}
 
@@ -1246,8 +1255,7 @@ export default function DevCalibrator({
             {editorSections.map((sec, idx) => {
                const color = SECTION_PALETTE[idx % SECTION_PALETTE.length];
                const isActive = sec.id === focusedSectionId;
-               const showSimpleLabel = activeTab !== 4;
-               const labelText = showSimpleLabel || !sec.label ? `Section ${idx + 1}` : `${sec.emoji || ""} ${sec.label}`;
+               const labelText = sec.label ? `${sec.emoji || ""} ${sec.label}` : `Section ${idx + 1}`;
                return (
                  <button
                    key={sec.id}

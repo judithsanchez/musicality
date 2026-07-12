@@ -48,7 +48,7 @@ export const BachataInstrumentSchema = z.enum([
 
 export const DanceEventSchema = z.object({
   timestampMs: z.number().int().nonnegative(),
-  durationMs: z.number().int().positive().optional(),
+  durationMs: z.number().int().positive(),
   type: z.enum(['ACCENT', 'FILL', 'VOCAL_CUE', 'INSTRUMENT_ENTRY', 'BUILD_UP', 'ENERGY_DROP']),
   description: z.string().default(''),
   uiHighlight: z.boolean().default(true)
