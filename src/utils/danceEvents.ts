@@ -45,10 +45,6 @@ export function addDanceEvent(events: DanceEvent[], draft: DanceEventDraft, song
     uiHighlight: draft.uiHighlight
   };
 
-  if (!event.description) {
-    return { events, error: "Add a short event description." };
-  }
-
   return { events: [...events, event].sort((a, b) => a.timestampMs - b.timestampMs) };
 }
 

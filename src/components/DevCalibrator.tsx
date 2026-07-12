@@ -77,6 +77,7 @@ export default function DevCalibrator({
   const [tappedDownbeats, setTappedDownbeats] = useState<number[]>([]);
   const [tapCalibrationTakes, setTapCalibrationTakes] = useState<any[]>([]);
   const [focusedSectionId, setFocusedSectionId] = useState<string | null>(null);
+  const [focusedEventIndex, setFocusedEventIndex] = useState<number | null>(null);
   const [tapFlash, setTapFlash] = useState(false);
   const [validationErrors, setValidationErrors] = useState<any[] | null>(null);
   const [activeTab, setActiveTab] = useState<number>(1);
@@ -84,7 +85,6 @@ export default function DevCalibrator({
   const [timelineLayers, setTimelineLayers] = useState({ sections: true, events: true, calibrated: true, proposal: true, take1: true, take2: true, take3: true });
   const [activeTakeIndex, setActiveTakeIndex] = useState(0);
   const [liveTime, setLiveTime] = useState(0);
-  const [liveIsPlaying, setLiveIsPlaying] = useState(false);
 
   const duration = videoDuration || 300;
   const timelineRef = useRef<HTMLDivElement>(null);
@@ -101,12 +101,9 @@ export default function DevCalibrator({
       try {
         if (player && typeof player.getCurrentTime === "function") {
           nextTime = player.getCurrentTime() || currentTime;
-          setLiveIsPlaying(typeof player.getPlayerState === "function" ? player.getPlayerState() === 1 : false);
-        } else {
-          setLiveIsPlaying(false);
         }
-      } catch {
-        setLiveIsPlaying(false);
+      } catch (err) {
+        console.warn(err);
       }
       setLiveTime(nextTime);
       frameId = requestAnimationFrame(updateLiveTime);
@@ -144,6 +141,7 @@ export default function DevCalibrator({
     }));
     setTapCalibrationTakes(normalizedTakes);
     setActiveTakeIndex(0);
+    setFocusedEventIndex(null);
   }, [songData?.youtubeId]);
 
   useEffect(() => {
@@ -196,6 +194,19 @@ export default function DevCalibrator({
     }
   };
 
+  const updateEventsState = (eventsList: any[], triggerAutoSave = false) => {
+    const sortedEvents = [...eventsList].sort((a, b) => a.timestampMs - b.timestampMs);
+    const updated = {
+      ...latestSongDataRef.current,
+      events: sortedEvents,
+      status: latestSongDataRef.current?.status === "READY" ? "READY" : "DRAFT"
+    };
+    syncSongMapState(updated);
+    if (triggerAutoSave) {
+      autoSaveSongMap(updated);
+    }
+  };
+
   const nearestDownbeat = (values: number[], targetMs: number) => {
     if (values.length === 0) return null;
     return values.reduce((best, value) => Math.abs(value - targetMs) < Math.abs(best - targetMs) ? value : best, values[0]);
@@ -205,18 +216,6 @@ export default function DevCalibrator({
     const sorted = [...values].sort((a, b) => a - b);
     const half = Math.floor(sorted.length / 2);
     return sorted.length % 2 !== 0 ? sorted[half] : (sorted[half - 1] + sorted[half]) / 2.0;
-  };
-
-  const updateCalibratedDownbeats = (nextDownbeats: number[], message: string) => {
-    const updated = {
-      ...latestSongDataRef.current,
-      calibratedDownbeats: sortedUniqueMs(nextDownbeats),
-      status: latestSongDataRef.current?.status === "READY" ? "READY" : "DRAFT"
-    };
-    setTappedDownbeats([]);
-    syncSongMapState(updated);
-    autoSaveSongMap(updated);
-    showToast(message);
   };
 
   const updateTapCalibrationTakes = (nextTakes: any[], message?: string) => {
@@ -346,18 +345,6 @@ export default function DevCalibrator({
     };
   };
 
-  const seekToNearestDownbeat = (direction: "prev" | "next", values: number[], label: string) => {
-    const currentMs = liveTime * 1000;
-    const target = direction === "prev"
-      ? [...values].reverse().find(value => value < currentMs - 80)
-      : values.find(value => value > currentMs + 80);
-    if (target === undefined) {
-      showToast(`⚠️ No ${label} downbeat ${direction === "prev" ? "before" : "after"} the playhead.`);
-      return;
-    }
-    throttledSeek(target / 1000, true);
-  };
-
   const handleTap = () => {
     if (!player) return;
     setTapFlash(true);
@@ -385,26 +372,6 @@ export default function DevCalibrator({
       tapsMs: sortedUniqueMs([...activeTaps, tapTimeMs])
     };
     updateTapCalibrationTakes(nextTakes);
-  };
-
-  const handleClearTaps = () => {
-    const nextTakes = [...tapCalibrationTakes];
-    const activeTake = nextTakes[activeTakeIndex] || emptyTapCalibrationTakes()[activeTakeIndex];
-    nextTakes[activeTakeIndex] = { ...activeTake, tapsMs: [], createdAt: "" };
-    updateTapCalibrationTakes(nextTakes, `${activeTake.label || "Take"} cleared.`);
-  };
-
-  const handleClearAllTakes = () => {
-    updateTapCalibrationTakes(emptyTapCalibrationTakes(), "All calibration takes cleared.");
-  };
-
-  const handleApproveProposal = () => {
-    const proposal = buildTapProposal(tapCalibrationTakes);
-    if (proposal.proposedDownbeats.length === 0) {
-      showToast("⚠️ Record anchors before approving a proposal.");
-      return;
-    }
-    updateCalibratedDownbeats(proposal.proposedDownbeats, `Approved ${proposal.proposedDownbeats.length} calibrated 1s from human anchors.`);
   };
 
   const handleUpdateSectionTimes = (id: string, field: "startTimeMs" | "endTimeMs", valueMs: number) => {
@@ -533,18 +500,63 @@ export default function DevCalibrator({
       showToast(`⚠️ ${result.error}`);
       return false;
     }
-    const updated = { ...latestSongDataRef.current, events: result.events };
-    setCalibratedSongData(updated);
-    setSongData(updated);
+    updateEventsState(result.events, true);
+    const newIndex = result.events.findIndex(event => event.timestampMs === draft.startTimeMs && event.durationMs === draft.endTimeMs - draft.startTimeMs);
+    setFocusedEventIndex(newIndex === -1 ? result.events.length - 1 : newIndex);
     showToast("Event added.");
     return true;
   };
 
+  const handleAddEventRangeAtPlayhead = () => {
+    const startTimeMs = Math.round(currentTime * 1000);
+    const defaultDurationMs = Math.min(8000, Math.max(1000, Math.round(duration * 1000) - startTimeMs));
+    handleAddEvent({
+      startTimeMs,
+      endTimeMs: startTimeMs + defaultDurationMs,
+      type: "ACCENT",
+      description: "",
+      uiHighlight: true
+    });
+  };
+
+  const handleUpdateEventField = (eventIndex: number, field: string, value: any) => {
+    const events = [...(latestSongDataRef.current?.events || [])];
+    if (!events[eventIndex]) return;
+    events[eventIndex] = { ...events[eventIndex], [field]: value };
+    updateEventsState(events);
+  };
+
+  const handleUpdateEventTimes = (eventIndex: number, field: "timestampMs" | "endTimeMs", valueMs: number) => {
+    const events = [...(latestSongDataRef.current?.events || [])];
+    const event = events[eventIndex];
+    if (!event) return;
+
+    const maxDurationMs = Math.round(duration * 1000);
+    const minDurMs = 100;
+    const currentStartMs = event.timestampMs;
+    const currentEndMs = event.timestampMs + event.durationMs;
+    let nextStartMs = currentStartMs;
+    let nextEndMs = currentEndMs;
+
+    if (field === "timestampMs") {
+      nextStartMs = Math.max(0, Math.min(Math.round(valueMs), currentEndMs - minDurMs));
+    } else {
+      nextEndMs = Math.min(maxDurationMs, Math.max(Math.round(valueMs), currentStartMs + minDurMs));
+    }
+
+    events[eventIndex] = {
+      ...event,
+      timestampMs: nextStartMs,
+      durationMs: nextEndMs - nextStartMs
+    };
+    updateEventsState(events);
+    throttledSeek((field === "timestampMs" ? nextStartMs : nextEndMs) / 1000, false);
+  };
+
   const handleRemoveEvent = (eventIndex: number) => {
     const events = removeDanceEvent(latestSongDataRef.current?.events || [], eventIndex);
-    const updated = { ...latestSongDataRef.current, events };
-    setCalibratedSongData(updated);
-    setSongData(updated);
+    updateEventsState(events, true);
+    setFocusedEventIndex(null);
     showToast("Event removed.");
   };
 
@@ -658,6 +670,8 @@ export default function DevCalibrator({
         e.preventDefault();
         if (activeTab === 1) {
           handleAddNewSection();
+        } else if (activeTab === 2) {
+          handleAddEventRangeAtPlayhead();
         }
         return;
       }
@@ -713,28 +727,8 @@ export default function DevCalibrator({
   const nearWindowMs = 90;
   const isNearCalibrated = calibratedDistance !== null && Math.abs(calibratedDistance) <= nearWindowMs;
   const isNearProposal = proposalDistance !== null && Math.abs(proposalDistance) <= nearWindowMs;
-  const isOnSelectedDownbeat = liveIsPlaying && isNearCalibrated;
-  const calibratedDownbeatCount = calibratedDownbeats.length;
-  const calibratedIntervals = calibratedDownbeats.slice(1).map((value: number, index: number) => value - calibratedDownbeats[index]);
-  const calibratedMedianInterval = calibratedIntervals.length ? median(calibratedIntervals) : null;
-  const currentTakeTaps = tapCalibrationTakes[activeTakeIndex]?.tapsMs || [];
-  const takeTapCount = tapCalibrationTakes.reduce((sum, take) => sum + (take.tapsMs || []).length, 0);
-  const proposalSummary = `${proposedDownbeats.length} proposed · interval ${Math.round(proposal.estimatedIntervalMs)}ms · implied BPM ${proposal.impliedBpm.toFixed(2)}`;
-  const calibratedPulseStyle = isOnSelectedDownbeat
-    ? {
-        background: "#ffffff",
-        color: "#000000",
-        border: "2px solid #ffffff",
-        boxShadow: "0 0 30px 8px rgba(255,255,255,0.9), inset 0 0 8px rgba(255,255,255,0.5)",
-        transform: "scale(1.12)"
-      }
-    : {};
-  const sourcePulseStyle = isOnSelectedDownbeat
-    ? {
-        border: "2px solid #60a5fa",
-        boxShadow: "0 0 22px 5px rgba(96,165,250,0.55)"
-      }
-    : {};
+  const sortedEvents = songData?.events || [];
+  const focusedEvent = focusedEventIndex === null ? null : sortedEvents[focusedEventIndex] || null;
 
   return (
     <div className="glass-panel dev-calibrator-workbench" style={{
@@ -803,75 +797,6 @@ export default function DevCalibrator({
         })}
       </div>
 
-      <div style={{
-        display: "grid",
-        gridTemplateColumns: "1.2fr auto 1fr",
-        gap: "12px",
-        padding: "14px",
-        borderRadius: "14px",
-        border: "1px solid rgba(96,165,250,0.28)",
-        background: "rgba(37,99,235,0.08)"
-      }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
-            <span style={{ fontSize: "0.72rem", fontWeight: 900, color: "#93c5fd", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-              Human anchor calibration
-            </span>
-          </div>
-          <span style={{ fontSize: "0.82rem", color: "#f4f4f5", lineHeight: 1.45 }}>
-            Record 3 sparse passes of clear count-1 anchors. Skip uncertain moments. The app fills a review proposal from human anchors only.
-          </span>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", fontSize: "0.74rem", color: "#d4d4d8" }}>
-            <span style={{ color: "#60a5fa" }}>● Calibrated 1s: <strong>{calibratedDownbeatCount}</strong></span>
-            <span style={{ color: "#fbbf24" }}>● Proposed 1s: <strong>{proposedDownbeats.length}</strong></span>
-            <span style={{ color: "#f97316" }}>● Raw anchors: <strong>{takeTapCount}</strong></span>
-          </div>
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "6px", minWidth: "126px" }}>
-          <div
-            style={{
-              width: "84px",
-              height: "84px",
-              borderRadius: "50%",
-              border: "2px solid rgba(255,255,255,0.14)",
-              background: "rgba(255,255,255,0.03)",
-              color: "rgba(255,255,255,0.48)",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: "2rem",
-              fontWeight: 900,
-              transition: "background 0.14s ease-out, color 0.14s ease-out, border 0.14s ease-out, box-shadow 0.14s ease-out, transform 0.14s ease-out",
-              ...sourcePulseStyle,
-              ...calibratedPulseStyle
-            }}
-          >
-            <span>1</span>
-            <span style={{ fontSize: "0.54rem", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.5px", marginTop: "2px", opacity: isOnSelectedDownbeat ? 0.82 : 0.42 }}>
-              Downbeat
-            </span>
-          </div>
-          <span style={{ fontSize: "0.64rem", color: isOnSelectedDownbeat ? "#ffffff" : "#a1a1aa", fontWeight: 800, textAlign: "center", opacity: isOnSelectedDownbeat ? 1 : 0.7 }}>
-            {calibratedDownbeats.length === 0 ? "no approved 1s" : liveIsPlaying ? "APPROVED 1" : "play to preview"}
-          </span>
-        </div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", alignItems: "stretch" }}>
-          <div style={{ padding: "9px", borderRadius: "10px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
-            <div style={{ fontSize: "0.64rem", color: "#fbbf24", fontWeight: 900, textTransform: "uppercase" }}>Proposal</div>
-            <div style={{ fontSize: "0.64rem", color: "#d4d4d8", fontWeight: 700, lineHeight: 1.35 }}>{proposalSummary}</div>
-          </div>
-          <div style={{ padding: "9px", borderRadius: "10px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
-            <div style={{ fontSize: "0.64rem", color: "#60a5fa", fontWeight: 900, textTransform: "uppercase" }}>Confidence</div>
-            <div style={{ fontSize: "0.64rem", color: "#d4d4d8", fontWeight: 700, lineHeight: 1.35 }}>
-              high {proposal.confidenceCounts.high} · medium {proposal.confidenceCounts.medium} · low {proposal.confidenceCounts.low}
-              <br />
-              approved median {calibratedMedianInterval === null ? "—" : `${Math.round(calibratedMedianInterval)}ms`}
-            </div>
-          </div>
-        </div>
-      </div>
-
       {activeTab === 3 && (
         <div className={tapFlash ? "active-flash" : ""} style={{
           padding: "20px 16px",
@@ -885,13 +810,6 @@ export default function DevCalibrator({
           boxShadow: tapFlash ? "0 0 36px rgba(255,255,255,0.35)" : "none",
           transition: "all 0.08s ease"
         }}>
-          <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "#a1a1aa", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-            🎧 Human Anchor Tap Deck
-          </div>
-          <div style={{ fontSize: "0.82rem", color: "#d4d4d8", textAlign: "center", lineHeight: 1.4 }}>
-            Tap only clear count-1 anchors. Skip uncertain moments. Do not try to tap continuously.
-          </div>
-
           <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", justifyContent: "center" }}>
             {tapCalibrationTakes.map((take, index) => (
               <button
@@ -936,74 +854,6 @@ export default function DevCalibrator({
               Recording {tapCalibrationTakes[activeTakeIndex]?.label || "Take"} · click or press <kbd style={{ background: "rgba(255,255,255,0.12)", borderRadius: "3px", padding: "0 3px" }}>T</kbd>
             </span>
           </button>
-
-          <div style={{ display: "grid", gridTemplateColumns: "minmax(220px, 0.95fr) 1.5fr", gap: "12px", width: "100%" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              <div style={{ padding: "10px", borderRadius: "10px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "#d4d4d8", fontSize: "0.72rem", lineHeight: 1.45 }}>
-                <strong style={{ color: "#fff" }}>{tapCalibrationTakes[activeTakeIndex]?.label || "Take"}</strong> has <strong style={{ color: "#fff" }}>{currentTakeTaps.length}</strong> anchors.
-                <br />
-                Proposal: <strong style={{ color: "#fff" }}>{proposedDownbeats.length}</strong> final 1s · interval <strong style={{ color: "#fff" }}>{Math.round(proposal.estimatedIntervalMs)}ms</strong>.
-              </div>
-              <button
-                onClick={handleClearTaps}
-                disabled={currentTakeTaps.length === 0}
-                style={{ fontSize: "0.72rem", fontWeight: 800, background: "rgba(255,255,255,0.08)", border: "1px solid #3f3f46", color: "#fff", padding: "7px 12px", borderRadius: "7px", cursor: currentTakeTaps.length === 0 ? "not-allowed" : "pointer", opacity: currentTakeTaps.length === 0 ? 0.55 : 1 }}
-              >
-                Re-record current take
-              </button>
-              <button
-                onClick={handleClearAllTakes}
-                disabled={takeTapCount === 0}
-                style={{ fontSize: "0.72rem", fontWeight: 800, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.12)", color: "#d4d4d8", padding: "7px 12px", borderRadius: "7px", cursor: takeTapCount === 0 ? "not-allowed" : "pointer", opacity: takeTapCount === 0 ? 0.55 : 1 }}
-              >
-                Clear all takes
-              </button>
-              <button
-                onClick={handleApproveProposal}
-                disabled={saving || proposedDownbeats.length === 0}
-                style={{ fontSize: "0.72rem", fontWeight: 900, background: "linear-gradient(135deg, #ffffff, #d1d5db)", border: "none", color: "#000", padding: "8px 14px", borderRadius: "7px", cursor: saving || proposedDownbeats.length === 0 ? "not-allowed" : "pointer", opacity: saving || proposedDownbeats.length === 0 ? 0.55 : 1 }}
-              >
-                Approve proposal as calibrated
-              </button>
-            </div>
-
-            <div style={{ display: "flex", flexDirection: "column", gap: "10px", fontSize: "0.75rem", color: "#d1d5db" }}>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
-                <span>Take 1: <strong style={{ color: "#fff" }}>{tapCalibrationTakes[0]?.tapsMs?.length || 0}</strong></span>
-                <span>Take 2: <strong style={{ color: "#fff" }}>{tapCalibrationTakes[1]?.tapsMs?.length || 0}</strong></span>
-                <span>Take 3: <strong style={{ color: "#fff" }}>{tapCalibrationTakes[2]?.tapsMs?.length || 0}</strong></span>
-                <span>Implied BPM: <strong style={{ color: "#fff" }}>{proposal.impliedBpm.toFixed(2)}</strong></span>
-                <span>Confidence: <strong style={{ color: "#fff" }}>{proposal.confidenceCounts.high}/{proposal.confidenceCounts.medium}/{proposal.confidenceCounts.low}</strong></span>
-              </div>
-              <div style={{ maxHeight: "92px", overflow: "auto", padding: "10px", borderRadius: "10px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
-                {proposal.warnings.length === 0 ? (
-                  <span style={{ color: "#86efac" }}>No proposal warnings.</span>
-                ) : proposal.warnings.map((warning: string, index: number) => (
-                  <div key={`warning-${index}`} style={{ color: "#fbbf24", marginBottom: "4px" }}>⚠️ {warning}</div>
-                ))}
-              </div>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", alignItems: "center" }}>
-                {[
-                  ["Proposal ◀", () => seekToNearestDownbeat("prev", proposedDownbeats, "proposal"), proposedDownbeats.length === 0],
-                  ["Proposal ▶", () => seekToNearestDownbeat("next", proposedDownbeats, "proposal"), proposedDownbeats.length === 0],
-                  ["Approved ◀", () => seekToNearestDownbeat("prev", calibratedDownbeats, "approved"), calibratedDownbeatCount === 0],
-                  ["Approved ▶", () => seekToNearestDownbeat("next", calibratedDownbeats, "approved"), calibratedDownbeatCount === 0]
-                ].map(([label, action, disabled]: any) => (
-                  <button
-                    key={label}
-                    onClick={action}
-                    disabled={disabled}
-                    style={{ fontSize: "0.68rem", fontWeight: 800, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", color: "#d4d4d8", padding: "5px 9px", borderRadius: "7px", cursor: disabled ? "not-allowed" : "pointer", opacity: disabled ? 0.45 : 1 }}
-                  >
-                    {label}
-                  </button>
-                ))}
-                <span style={{ color: "#a1a1aa", fontSize: "0.68rem" }}>
-                  Orange/rose/green are raw takes. Yellow is proposal. Blue is approved.
-                </span>
-              </div>
-            </div>
-          </div>
         </div>
       )}
 
@@ -1039,9 +889,9 @@ export default function DevCalibrator({
               </button>
             </div>
             <EventAnnotationPanel
-              currentTime={currentTime}
-              events={songData?.events || []}
-              onAddEvent={handleAddEvent}
+              selectedEvent={focusedEvent}
+              selectedEventIndex={focusedEventIndex}
+              onUpdateEvent={handleUpdateEventField}
               onRemoveEvent={handleRemoveEvent}
               disabled={false}
             />
@@ -1089,6 +939,28 @@ export default function DevCalibrator({
                   }}
                 >
                   <Scissors size={12} /> Slice Here
+                </button>
+              </div>
+            )}
+            {activeTab === 2 && (
+              <div style={{ display: "flex", gap: "8px" }}>
+                <button
+                  onClick={handleAddEventRangeAtPlayhead}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "5px",
+                    fontSize: "0.72rem",
+                    fontWeight: 700,
+                    background: "rgba(245,158,11,0.12)",
+                    border: "1px solid rgba(245,158,11,0.35)",
+                    color: "#fbbf24",
+                    padding: "4px 12px",
+                    borderRadius: "6px",
+                    cursor: "pointer"
+                  }}
+                >
+                  <Scissors size={12} /> Event Here
                 </button>
               </div>
             )}
@@ -1154,8 +1026,41 @@ export default function DevCalibrator({
               {timelineLayers.events && (songData?.events || []).map((event: any, index: number) => {
                 const leftPct = (event.timestampMs / (duration * 1000)) * 100;
                 const widthPct = (event.durationMs / (duration * 1000)) * 100;
+                const isActive = index === focusedEventIndex;
+                const labelText = event.description || event.type.replaceAll("_", " ");
                 return (
-                  <div key={`event-${index}-${event.timestampMs}`} title={`${event.type}: ${event.description}`} style={{ position: "absolute", top: "6px", bottom: "6px", left: `${leftPct}%`, width: `${Math.max(widthPct, 0.3)}%`, borderRadius: "3px", background: event.uiHighlight ? "#f59e0b" : "#a1a1aa", zIndex: 7, pointerEvents: "none" }} />
+                  <div
+                    key={`event-${index}-${event.timestampMs}`}
+                    title={`${event.type}: ${event.description}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setFocusedEventIndex(index);
+                    }}
+                    style={{
+                      position: "absolute",
+                      top: "6px",
+                      bottom: "6px",
+                      left: `${leftPct}%`,
+                      width: `${Math.max(widthPct, 0.3)}%`,
+                      borderRadius: "3px",
+                      background: event.uiHighlight ? "rgba(245,158,11,0.78)" : "rgba(161,161,170,0.78)",
+                      outline: isActive ? "2px solid #ffffff" : "none",
+                      outlineOffset: "-1px",
+                      zIndex: isActive ? 12 : 7,
+                      pointerEvents: activeTab === 2 ? "auto" : "none",
+                      cursor: activeTab === 2 ? "pointer" : "default",
+                      display: "flex",
+                      alignItems: "center",
+                      padding: "0 7px",
+                      overflow: "hidden"
+                    }}
+                  >
+                    {activeTab === 2 && (
+                      <span style={{ color: "#111827", fontSize: "0.64rem", fontWeight: 900, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                        {labelText}
+                      </span>
+                    )}
+                  </div>
                 );
               })}
 
@@ -1201,7 +1106,7 @@ export default function DevCalibrator({
               </div>
             </div>
 
-            {editorSections.map((sec, idx) => {
+            {activeTab === 1 && editorSections.map((sec, idx) => {
               if (idx === editorSections.length - 1) return null;
               const leftPct = ((sec.endTimeMs / 1000) / duration) * 100;
 
@@ -1247,10 +1152,67 @@ export default function DevCalibrator({
                 </div>
               );
             })}
+
+            {activeTab === 2 && (songData?.events || []).flatMap((event: any, index: number) => {
+              const startPct = (event.timestampMs / (duration * 1000)) * 100;
+              const endPct = ((event.timestampMs + event.durationMs) / (duration * 1000)) * 100;
+              return [
+                <div
+                  key={`event-start-handle-${index}-${event.timestampMs}`}
+                  onMouseDown={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    setFocusedEventIndex(index);
+                    const handleMouseMove = (moveEvt: MouseEvent) => {
+                      if (!timelineRef.current) return;
+                      const rect = timelineRef.current.getBoundingClientRect();
+                      const ratio = Math.max(0, Math.min(1, (moveEvt.clientX - rect.left) / rect.width));
+                      handleUpdateEventTimes(index, "timestampMs", ratio * duration * 1000);
+                    };
+                    const handleMouseUp = () => {
+                      window.removeEventListener("mousemove", handleMouseMove);
+                      window.removeEventListener("mouseup", handleMouseUp);
+                      autoSaveSongMap(latestSongDataRef.current);
+                    };
+                    window.addEventListener("mousemove", handleMouseMove);
+                    window.addEventListener("mouseup", handleMouseUp);
+                  }}
+                  style={{ position: "absolute", left: `${startPct}%`, top: "-4px", width: "12px", height: "56px", transform: "translateX(-50%)", cursor: "col-resize", zIndex: 22, display: "flex", alignItems: "center", justifyContent: "center" }}
+                >
+                  <div style={{ width: "3px", height: "100%", borderRadius: "1.5px", background: "#fbbf24" }} />
+                  <div style={{ position: "absolute", width: "8px", height: "8px", borderRadius: "50%", background: "#fbbf24", border: "1.5px solid #27272a" }} />
+                </div>,
+                <div
+                  key={`event-end-handle-${index}-${event.timestampMs}`}
+                  onMouseDown={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    setFocusedEventIndex(index);
+                    const handleMouseMove = (moveEvt: MouseEvent) => {
+                      if (!timelineRef.current) return;
+                      const rect = timelineRef.current.getBoundingClientRect();
+                      const ratio = Math.max(0, Math.min(1, (moveEvt.clientX - rect.left) / rect.width));
+                      handleUpdateEventTimes(index, "endTimeMs", ratio * duration * 1000);
+                    };
+                    const handleMouseUp = () => {
+                      window.removeEventListener("mousemove", handleMouseMove);
+                      window.removeEventListener("mouseup", handleMouseUp);
+                      autoSaveSongMap(latestSongDataRef.current);
+                    };
+                    window.addEventListener("mousemove", handleMouseMove);
+                    window.addEventListener("mouseup", handleMouseUp);
+                  }}
+                  style={{ position: "absolute", left: `${endPct}%`, top: "-4px", width: "12px", height: "56px", transform: "translateX(-50%)", cursor: "col-resize", zIndex: 22, display: "flex", alignItems: "center", justifyContent: "center" }}
+                >
+                  <div style={{ width: "3px", height: "100%", borderRadius: "1.5px", background: "#fbbf24" }} />
+                  <div style={{ position: "absolute", width: "8px", height: "8px", borderRadius: "50%", background: "#fbbf24", border: "1.5px solid #27272a" }} />
+                </div>
+              ];
+            })}
           </div>
         </div>
 
-        {editorSections.length > 0 && (
+        {activeTab === 1 && editorSections.length > 0 && (
           <div style={{ display: "flex", gap: "6px", marginTop: "2px", flexWrap: "wrap" }}>
             {editorSections.map((sec, idx) => {
                const color = SECTION_PALETTE[idx % SECTION_PALETTE.length];
@@ -1271,6 +1233,36 @@ export default function DevCalibrator({
                      background: isActive ? "#ffffff" : "rgba(255,255,255,0.04)",
                      border: `1px solid ${isActive ? "#ffffff" : "rgba(255,255,255,0.08)"}`,
                      color: isActive ? "#000000" : "#9ca3af",
+                     cursor: "pointer"
+                   }}
+                 >
+                   {labelText}
+                 </button>
+             );
+            })}
+          </div>
+        )}
+
+        {activeTab === 2 && sortedEvents.length > 0 && (
+          <div style={{ display: "flex", gap: "6px", marginTop: "2px", flexWrap: "wrap" }}>
+            {sortedEvents.map((event: any, idx: number) => {
+               const isActive = idx === focusedEventIndex;
+               const labelText = event.description || event.type.replaceAll("_", " ");
+               return (
+                 <button
+                   key={`event-chip-${idx}-${event.timestampMs}`}
+                   onClick={() => {
+                     setFocusedEventIndex(isActive ? null : idx);
+                     if (!isActive) throttledSeek(event.timestampMs / 1000, true);
+                   }}
+                   style={{
+                     fontSize: "0.68rem",
+                     fontWeight: 700,
+                     padding: "3px 10px",
+                     borderRadius: "20px",
+                     background: isActive ? "#fbbf24" : "rgba(245,158,11,0.08)",
+                     border: `1px solid ${isActive ? "#fbbf24" : "rgba(245,158,11,0.22)"}`,
+                     color: isActive ? "#000000" : "#fbbf24",
                      cursor: "pointer"
                    }}
                  >
@@ -1298,7 +1290,7 @@ export default function DevCalibrator({
           <span><kbd style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "4px", padding: "1px 4px", color: "#fff", marginRight: "4px" }}>Space</kbd> Play/Pause</span>
           <span><kbd style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "4px", padding: "1px 4px", color: "#fff", marginRight: "4px" }}>← / →</kbd> Nudge 100ms</span>
           <span><kbd style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "4px", padding: "1px 4px", color: "#fff", marginRight: "4px" }}>Shift + ← / →</kbd> Nudge 1.0s</span>
-          <span><kbd style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "4px", padding: "1px 4px", color: "#fff", marginRight: "4px" }}>C</kbd> Slice Section</span>
+          <span><kbd style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "4px", padding: "1px 4px", color: "#fff", marginRight: "4px" }}>C</kbd> Slice Section / Event</span>
           <span><kbd style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "4px", padding: "1px 4px", color: "#fff", marginRight: "4px" }}>T</kbd> Tap Downbeat</span>
         </div>
       </div>
