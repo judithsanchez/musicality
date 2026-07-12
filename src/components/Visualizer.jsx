@@ -9,8 +9,10 @@ export default function Visualizer({
   activeBreak: _activeBreak = null,
   isPlaying = false
 }) {
+  const isQuietSection = ["INTRO", "OUTRO"].includes(_activeSection?.energyState);
   const isActive = 
     isPlaying &&
+    !isQuietSection &&
     currentTime >= introEnd && 
     currentBeat && 
     currentBeat.count === 1;

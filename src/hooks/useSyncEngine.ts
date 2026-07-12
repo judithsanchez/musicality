@@ -133,6 +133,12 @@ export function useSyncEngine(
         }
         setActiveSection(matchedSection);
 
+        if (matchedSection && ['INTRO', 'OUTRO'].includes(matchedSection.energyState)) {
+          setCurrentBeat(null);
+          frameIdRef.current = requestAnimationFrame(updateLoop);
+          return;
+        }
+
         let closestBeat: any = null;
         let minDiff = Infinity;
         const beatDuration = 60000.0 / (sData.baseBpm || 150.0);

@@ -225,9 +225,25 @@ export default function DevCalibrator({
       createdAt: take.createdAt || new Date().toISOString(),
       tapsMs: sortedUniqueMs(take.tapsMs || [])
     }));
+    const proposal = buildTapProposal(normalizedTakes);
+    const hasThreeTakeAnchors = normalizedTakes.slice(0, 3).every(take => (take.tapsMs || []).length > 0);
+    const tapCalibration = {
+      lastUpdatedAt: new Date().toISOString(),
+      takeCount: normalizedTakes.length,
+      tapsPerTake: normalizedTakes.map(take => (take.tapsMs || []).length),
+      estimatedPhraseIntervalMs: Math.round(proposal.estimatedIntervalMs),
+      impliedBpm: Number(proposal.impliedBpm.toFixed(2)),
+      confidenceCounts: proposal.confidenceCounts,
+      warnings: proposal.warnings
+    };
     const updated = {
       ...latestSongDataRef.current,
+      metadata: {
+        ...(latestSongDataRef.current?.metadata || {}),
+        tapCalibration
+      },
       tapCalibrationTakes: normalizedTakes,
+      ...(hasThreeTakeAnchors && proposal.proposedDownbeats.length > 0 ? { calibratedDownbeats: proposal.proposedDownbeats } : {}),
       status: latestSongDataRef.current?.status === "READY" ? "READY" : "DRAFT"
     };
     setTapCalibrationTakes(normalizedTakes);
@@ -267,7 +283,12 @@ export default function DevCalibrator({
       for (let index = 1; index < taps.length; index++) {
         const gap = taps[index] - taps[index - 1];
         if (gap < estimatedIntervalMs * 0.55) {
-          warnings.push(`${take.label || `Take ${takeIndex + 1}`}: taps at ${(taps[index - 1] / 1000).toFixed(2)}s and ${(taps[index] / 1000).toFixed(2)}s are too close.`);
+          const label = take.label || `Take ${takeIndex + 1}`;
+          if (gap >= estimatedIntervalMs * 0.42) {
+            warnings.push(`${label}: taps at ${(taps[index - 1] / 1000).toFixed(2)}s and ${(taps[index] / 1000).toFixed(2)}s look like possible 1-and-5 anchors.`);
+          } else {
+            warnings.push(`${label}: taps at ${(taps[index - 1] / 1000).toFixed(2)}s and ${(taps[index] / 1000).toFixed(2)}s are too close.`);
+          }
         }
       }
       taps.forEach((tap: number) => allTaps.push({ timestampMs: tap, takeIndex }));
