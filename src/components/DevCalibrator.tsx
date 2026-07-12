@@ -846,11 +846,9 @@ export default function DevCalibrator({
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", alignItems: "stretch" }}>
           {detectorRows.filter(row => row.key !== "mixxx" || row.values.length > 0 || row.unavailable).map(row => {
-            const isNear = row.distance !== null && Math.abs(row.distance) <= nearWindowMs;
             return (
-              <div key={row.key} style={{ padding: "9px", borderRadius: "10px", background: isNear ? `${row.color}24` : "rgba(255,255,255,0.04)", border: `1px solid ${isNear ? row.color : "rgba(255,255,255,0.08)"}` }}>
+              <div key={row.key} style={{ padding: "9px", borderRadius: "10px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
                 <div style={{ fontSize: "0.64rem", color: row.color, fontWeight: 900, textTransform: "uppercase" }}>{row.label}</div>
-                <div style={{ fontSize: "0.88rem", color: "#fff", fontWeight: 900 }}>{row.distance === null ? "—" : `${row.distance > 0 ? "+" : ""}${row.distance}ms`}</div>
                 <div style={{ fontSize: "0.58rem", color: "#a1a1aa", fontWeight: 700, lineHeight: 1.35 }}>
                   {row.unavailable && row.values.length === 0
                     ? row.unavailable
