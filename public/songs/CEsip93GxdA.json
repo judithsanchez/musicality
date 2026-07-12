@@ -8,22 +8,7 @@
   "baseBpm": 150,
   "events": [],
   "schemaVersion": "2.0",
-  "sections": [
-    {
-      "id": "sec-default",
-      "startTimeMs": 0,
-      "endTimeMs": 22260,
-      "label": "",
-      "energyState": "UNLABELED"
-    },
-    {
-      "id": "0b9a60ec-d432-47da-9dd3-09d635af6509",
-      "startTimeMs": 22260,
-      "endTimeMs": 300000,
-      "label": "",
-      "energyState": "UNLABELED"
-    }
-  ],
+  "sections": [],
   "metadata": {},
   "calibratedDownbeats": [],
   "tapCalibrationTakes": []
