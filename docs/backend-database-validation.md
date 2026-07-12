@@ -6,7 +6,7 @@ The local app stores song maps as JSON files in `public/songs`, with `catalog.js
 
 - Keep the schema small and readable.
 - Support only Salsa and Bachata.
-- Store metadata, base BPM, raw downbeats, calibrated downbeats, sections, and events.
+- Store metadata, base BPM, human tap calibration takes, calibrated downbeats, sections, and events.
 - Allow partial drafts without workflow completion flags.
 - Block obvious invalid data, such as section ranges whose end is before their start or overlapping section ranges.
 
