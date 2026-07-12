@@ -4,9 +4,6 @@ const path = require('path');
 const PORT = process.env.PORT || 5173;
 const API_URL = `http://localhost:${PORT}/api/songs`;
 
-const UUID_1 = '11111111-1111-4111-8111-111111111111';
-const UUID_2 = '22222222-2222-4222-8222-222222222222';
-
 const validSalsaMap = {
   id: 'song-salsa-test-id',
   youtubeId: 'salsa-yt-test',
@@ -14,13 +11,11 @@ const validSalsaMap = {
   artist: 'API Test Artist',
   genre: 'SALSA',
   baseBpm: 120,
-  isSectionsProcessed: true,
-  isEventsProcessed: true,
-  isTappingProcessed: true,
+  status: 'DRAFT',
+  metadata: {},
   events: [],
   consensusDownbeats: [0, 1000],
   schemaVersion: '2.0',
-  defaultClave: '2-3',
   downbeats: [
     {
       rawDownbeats: [0, 1000],
@@ -45,34 +40,6 @@ const validSalsaMap = {
       energyState: 'VERSE',
       emoji: '🎤'
     }
-  ],
-  phrases: [
-    {
-      id: UUID_1,
-      index: 1,
-      startTimeMs: 0,
-      endTimeMs: 1000,
-      type: 'STANDARD_8_COUNT',
-      genre: 'SALSA',
-      claveDirection: '2-3',
-      claveIsVerified: true,
-      beats: [
-        { timestampMs: 0, type: 'DOWNBEAT', count: 1 }
-      ],
-    },
-    {
-      id: UUID_2,
-      index: 2,
-      startTimeMs: 1000,
-      endTimeMs: 2000,
-      type: 'STANDARD_8_COUNT',
-      genre: 'SALSA',
-      claveDirection: '2-3',
-      claveIsVerified: true,
-      beats: [
-        { timestampMs: 1000, type: 'DOWNBEAT', count: 1 }
-      ],
-    }
   ]
 };
 
@@ -82,7 +49,7 @@ const invalidSalsaMap = {
     {
       id: 'sec-1',
       startTimeMs: 0,
-      endTimeMs: 900,
+      endTimeMs: 1200,
       label: 'Intro',
       energyState: 'INTRO',
       emoji: '🎵'
@@ -94,34 +61,6 @@ const invalidSalsaMap = {
       label: 'Verse',
       energyState: 'VERSE',
       emoji: '🎤'
-    }
-  ],
-  phrases: [
-    {
-      id: UUID_1,
-      index: 1,
-      startTimeMs: 0,
-      endTimeMs: 900,
-      type: 'STANDARD_8_COUNT',
-      genre: 'SALSA',
-      claveDirection: '2-3',
-      claveIsVerified: true,
-      beats: [
-        { timestampMs: 0, type: 'DOWNBEAT', count: 1 }
-      ],
-    },
-    {
-      id: UUID_2,
-      index: 2,
-      startTimeMs: 1000,
-      endTimeMs: 2000,
-      type: 'STANDARD_8_COUNT',
-      genre: 'SALSA',
-      claveDirection: '2-3',
-      claveIsVerified: true,
-      beats: [
-        { timestampMs: 1000, type: 'DOWNBEAT', count: 1 }
-      ],
     }
   ]
 };
@@ -140,7 +79,7 @@ async function runTests() {
   }
 
   try {
-    console.log('Test Case 1: Sending invalid payload (with section gap)...');
+    console.log('Test Case 1: Sending invalid payload (with section overlap)...');
     const res1 = await fetch(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -198,7 +137,7 @@ async function runTests() {
       throw new Error('Catalog does not contain entry for salsa-yt-test');
     }
 
-    if (entry.title !== 'Salsa API Test' || entry.genre !== 'SALSA' || entry.defaultClave !== '2-3') {
+    if (entry.title !== 'Salsa API Test' || entry.genre !== 'SALSA' || entry.baseBpm !== 120) {
       throw new Error(`Catalog entry metadata is incorrect: ${JSON.stringify(entry)}`);
     }
     console.log('Verified that catalog.json was successfully updated with correct metadata.');

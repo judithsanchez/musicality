@@ -380,7 +380,7 @@ export default function DevDashboard({ onBack, onIngestSuccess }) {
                       border: song.status === "READY" ? "1px solid rgba(52, 211, 153, 0.3)" : "1px solid rgba(239, 68, 68, 0.3)"
                     }}
                   >
-                    {song.status ? song.status.replace("DRAFT_", "") : "READY"}
+                    {song.status || "READY"}
                   </span>
                   <button
                     onClick={() => onIngestSuccess(song)}

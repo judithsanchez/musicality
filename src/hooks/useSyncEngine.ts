@@ -4,7 +4,6 @@ interface SyncEngineResult {
   currentTime: number;
   currentBeat: any;
   activeSection: any;
-  activePhrase: any;
   synchronizeAnchors: () => void;
 }
 
@@ -19,7 +18,6 @@ export function useSyncEngine(
   const [currentTime, setCurrentTime] = useState<number>(0);
   const [currentBeat, setCurrentBeat] = useState<any>(null);
   const [activeSection, setActiveSection] = useState<any>(null);
-  const [activePhrase, setActivePhrase] = useState<any>(null);
 
   const playerRef = useRef<any>(player);
   const songDataRef = useRef<any>(songData);
@@ -135,18 +133,6 @@ export function useSyncEngine(
         }
         setActiveSection(matchedSection);
 
-        let matchedPhrase = null;
-        if (sData.phrases && sData.phrases.length > 0) {
-          for (let i = 0; i < sData.phrases.length; i++) {
-            const ph = sData.phrases[i];
-            if (visualTimeMs >= ph.startTimeMs && visualTimeMs < ph.endTimeMs) {
-              matchedPhrase = ph;
-              break;
-            }
-          }
-        }
-        setActivePhrase(matchedPhrase);
-
         let closestBeat: any = null;
         let minDiff = Infinity;
         const beatDuration = 60000.0 / (sData.baseBpm || 150.0);
@@ -226,7 +212,6 @@ export function useSyncEngine(
     currentTime,
     currentBeat,
     activeSection,
-    activePhrase,
     synchronizeAnchors
   };
 }

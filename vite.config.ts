@@ -70,12 +70,9 @@ function songDbPlugin() {
                 artist: songMap.artist,
                 genre: songMap.genre,
                 status: songMap.status,
+                metadata: songMap.metadata || {},
                 baseBpm: songMap.baseBpm,
               };
-
-              if (songMap.genre === 'SALSA') {
-                metadata.defaultClave = (songMap as any).defaultClave;
-              }
 
               const index = catalog.findIndex((item) => item.youtubeId === youtubeId);
               if (index >= 0) {
@@ -153,13 +150,10 @@ function songDbPlugin() {
                   title: songMap.title,
                   artist: songMap.artist,
                   genre: songMap.genre,
-                  status: songMap.status || 'DRAFT_CUTTING',
+                  status: songMap.status || 'DRAFT',
+                  metadata: songMap.metadata || {},
                   baseBpm: songMap.baseBpm
                 };
-                if (genre === 'SALSA') {
-                  metadata.defaultClave = songMap.defaultClave;
-                }
-
                 const index = catalog.findIndex(item => item.youtubeId === youtubeId);
                 if (index >= 0) {
                   catalog[index] = metadata;
@@ -184,62 +178,6 @@ function songDbPlugin() {
               res.statusCode = 500;
               res.setHeader('Content-Type', 'application/json');
               res.end(JSON.stringify({ error: 'Ingestion process failed', message: err.message }));
-            }
-          });
-        }
-        
-        else if (req.method === 'POST' && urlPath === '/api/songs/infer-clave') {
-          let body = '';
-          req.on('data', (chunk) => {
-            body += chunk.toString();
-          });
-          req.on('end', () => {
-            try {
-              const payload = JSON.parse(body);
-              const { youtubeId, startTimeMs, endTimeMs } = payload;
-              
-              if (!youtubeId || startTimeMs === undefined || endTimeMs === undefined) {
-                res.statusCode = 400;
-                res.setHeader('Content-Type', 'application/json');
-                res.end(JSON.stringify({ error: 'Missing required parameters (youtubeId, startTimeMs, endTimeMs)' }));
-                return;
-              }
-              
-              const songsDir = path.resolve(__dirname, './public/songs');
-              const audioFilePathMp3 = path.join(songsDir, `${youtubeId}.mp3`);
-              const audioFilePathMp4 = path.join(songsDir, `${youtubeId}.mp4`);
-              let audioFilePath = '';
-              if (fs.existsSync(audioFilePathMp3)) {
-                audioFilePath = audioFilePathMp3;
-              } else if (fs.existsSync(audioFilePathMp4)) {
-                audioFilePath = audioFilePathMp4;
-              }
-              
-              if (!audioFilePath) {
-                res.statusCode = 404;
-                res.setHeader('Content-Type', 'application/json');
-                res.end(JSON.stringify({ error: `Audio file not found for YouTube ID: ${youtubeId}` }));
-                return;
-              }
-              
-              console.log(`[Vite Ingest] Running Clave Inference on phrase for ${youtubeId} between ${startTimeMs}ms and ${endTimeMs}ms`);
-              const stdout = execSync(
-                `python3 scripts/infer_clave.py --audio "${audioFilePath}" --startTimeMs ${startTimeMs} --endTimeMs ${endTimeMs}`
-              );
-              
-              const inferredClave = stdout.toString().trim();
-              
-              res.statusCode = 200;
-              res.setHeader('Content-Type', 'application/json');
-              res.end(JSON.stringify({
-                success: true,
-                claveDirection: inferredClave
-              }));
-              
-            } catch (err: any) {
-              res.statusCode = 500;
-              res.setHeader('Content-Type', 'application/json');
-              res.end(JSON.stringify({ error: 'Clave inference failed', message: err.message }));
             }
           });
         }
