@@ -25,5 +25,28 @@
     "genre": "SALSA",
     "status": "READY",
     "baseBpm": 150
+  },
+  {
+    "id": "song-H5qWtG7cziE",
+    "youtubeId": "H5qWtG7cziE",
+    "title": "Un monton de estrellas",
+    "artist": "Gilberto Santa Rosa",
+    "genre": "SALSA",
+    "status": "DRAFT",
+    "metadata": {
+      "ingestion": {
+        "audioSource": "youtube",
+        "analysisSkipped": false,
+        "analyzedBpm": 123.05,
+        "rawDownbeatsDetected": 141,
+        "usedFallbackBpm": false,
+        "downloadSucceeded": true,
+        "ytDlpClient": "android",
+        "ytDlpErrors": [
+          "default: DownloadError"
+        ]
+      }
+    },
+    "baseBpm": 123.05
   }
 ]

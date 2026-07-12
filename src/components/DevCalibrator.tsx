@@ -69,10 +69,12 @@ export default function DevCalibrator({
   const [validationErrors, setValidationErrors] = useState<any[] | null>(null);
   const [activeTab, setActiveTab] = useState<number>(1);
   const [saving, setSaving] = useState<boolean>(false);
-  const [timelineLayers, setTimelineLayers] = useState({ sections: true, events: true, downbeats: true });
+  const [timelineLayers, setTimelineLayers] = useState({ sections: true, events: true, raw: true, calibrated: true, manual: true });
   const [calibrationMode, setCalibrationMode] = useState<"whole" | "section" | "custom">("whole");
   const [customRangeStartSec, setCustomRangeStartSec] = useState("0");
   const [customRangeEndSec, setCustomRangeEndSec] = useState("");
+  const [liveTime, setLiveTime] = useState(0);
+  const [pulseSource, setPulseSource] = useState<"raw" | "calibrated">("raw");
 
   const duration = videoDuration || 300;
   const timelineRef = useRef<HTMLDivElement>(null);
@@ -81,6 +83,23 @@ export default function DevCalibrator({
   useEffect(() => {
     latestSongDataRef.current = calibratedSongData || songData;
   }, [calibratedSongData, songData]);
+
+  useEffect(() => {
+    let frameId: number;
+    const updateLiveTime = () => {
+      let nextTime = currentTime;
+      try {
+        if (player && typeof player.getCurrentTime === "function") {
+          nextTime = player.getCurrentTime() || currentTime;
+        }
+      } catch {
+      }
+      setLiveTime(nextTime);
+      frameId = requestAnimationFrame(updateLiveTime);
+    };
+    frameId = requestAnimationFrame(updateLiveTime);
+    return () => cancelAnimationFrame(frameId);
+  }, [player, currentTime]);
 
   useEffect(() => {
     if (!songData || duration <= 0) return;
@@ -180,6 +199,11 @@ export default function DevCalibrator({
     ]);
   };
 
+  const nearestDownbeat = (values: number[], targetMs: number) => {
+    if (values.length === 0) return null;
+    return values.reduce((best, value) => Math.abs(value - targetMs) < Math.abs(best - targetMs) ? value : best, values[0]);
+  };
+
   const median = (values: number[]) => {
     const sorted = [...values].sort((a, b) => a - b);
     const half = Math.floor(sorted.length / 2);
@@ -239,6 +263,30 @@ export default function DevCalibrator({
     const current = latestSongDataRef.current?.calibratedDownbeats || [];
     const next = replaceDownbeatsInRange(current, range.startMs, range.endMs, manual);
     updateCalibratedDownbeats(next, `Replaced calibrated downbeats in ${range.label}.`);
+  };
+
+  const handleUseRawAsCalibrated = () => {
+    const raw = latestSongDataRef.current?.rawDownbeats || [];
+    if (raw.length === 0) {
+      showToast("⚠️ No raw Librosa downbeats available.");
+      return;
+    }
+    updateCalibratedDownbeats(raw, "Copied raw Librosa downbeats into calibrated downbeats.");
+  };
+
+  const seekToNearestDownbeat = (direction: "prev" | "next", source: "raw" | "calibrated") => {
+    const values: number[] = source === "raw"
+      ? latestSongDataRef.current?.rawDownbeats || []
+      : latestSongDataRef.current?.calibratedDownbeats || [];
+    const currentMs = liveTime * 1000;
+    const target = direction === "prev"
+      ? [...values].reverse().find(value => value < currentMs - 80)
+      : values.find(value => value > currentMs + 80);
+    if (target === undefined) {
+      showToast(`⚠️ No ${source} downbeat ${direction === "prev" ? "before" : "after"} the playhead.`);
+      return;
+    }
+    throttledSeek(target / 1000, true);
   };
 
   const handleTap = () => {
@@ -563,13 +611,48 @@ export default function DevCalibrator({
     window.addEventListener("mouseup", handleMouseUp);
   };
 
-  const playheadPct = duration > 0 ? (currentTime / duration) * 100 : 0;
+  const liveDisplayTime = player ? liveTime : currentTime;
+  const playheadPct = duration > 0 ? (liveDisplayTime / duration) * 100 : 0;
   const calibrationRangePreview: any = getCalibrationRange();
   const manualTapsInRange = calibrationRangePreview.error
     ? 0
     : tapsInsideRange(tappedDownbeats, calibrationRangePreview.startMs, calibrationRangePreview.endMs).length;
-  const calibratedDownbeatCount = latestSongDataRef.current?.calibratedDownbeats?.length || 0;
-  const rawDownbeatCount = latestSongDataRef.current?.rawDownbeats?.length || 0;
+  const rawDownbeats = latestSongDataRef.current?.rawDownbeats || [];
+  const calibratedDownbeats = latestSongDataRef.current?.calibratedDownbeats || [];
+  const currentMs = Math.round(liveDisplayTime * 1000);
+  const nearestRaw = nearestDownbeat(rawDownbeats, currentMs);
+  const nearestCalibrated = nearestDownbeat(calibratedDownbeats, currentMs);
+  const rawDistance = nearestRaw === null ? null : nearestRaw - currentMs;
+  const calibratedDistance = nearestCalibrated === null ? null : nearestCalibrated - currentMs;
+  const pulseDistance = pulseSource === "raw" ? rawDistance : calibratedDistance;
+  const pulseWindowMs = 80;
+  const pulseStrength = pulseDistance === null ? 0 : Math.max(0, 1 - Math.abs(pulseDistance) / pulseWindowMs);
+  const isNearRaw = rawDistance !== null && Math.abs(rawDistance) <= pulseWindowMs;
+  const isNearCalibrated = calibratedDistance !== null && Math.abs(calibratedDistance) <= pulseWindowMs;
+  const isPulsing = pulseStrength > 0;
+  const calibratedDownbeatCount = calibratedDownbeats.length;
+  const rawDownbeatCount = rawDownbeats.length;
+  const ingestionMeta = latestSongDataRef.current?.metadata?.ingestion;
+  const ingestionStatus = rawDownbeatCount > 0
+    ? `Librosa baseline found ${rawDownbeatCount} markers at ${songData?.baseBpm || latestSongDataRef.current?.baseBpm || "?"} BPM.`
+    : ingestionMeta?.analysisSkipped
+      ? "Audio analysis was skipped for this song. You can still tap manually."
+      : "No Librosa markers were saved for this song. You can still tap manually, or re-run ingestion once YouTube/audio extraction works.";
+  const calibratedPulseStyle = isPulsing
+      ? {
+        background: "#ffffff",
+        color: "#000000",
+        border: "2px solid #ffffff",
+        boxShadow: `0 0 ${16 + pulseStrength * 20}px ${3 + pulseStrength * 9}px rgba(255,255,255,${0.55 + pulseStrength * 0.45}), inset 0 0 8px rgba(255,255,255,0.5)`,
+        transform: `scale(${1 + pulseStrength * 0.18})`
+      }
+    : {};
+  const rawPulseStyle = isNearRaw
+    ? {
+        border: "2px solid #c084fc",
+        boxShadow: "0 0 20px 5px rgba(192,132,252,0.7)"
+      }
+    : {};
 
   return (
     <div className="glass-panel dev-calibrator-workbench" style={{
@@ -636,6 +719,82 @@ export default function DevCalibrator({
             </button>
           );
         })}
+      </div>
+
+      <div style={{
+        display: "grid",
+        gridTemplateColumns: "1.2fr auto 1fr",
+        gap: "12px",
+        padding: "14px",
+        borderRadius: "14px",
+        border: `1px solid ${rawDownbeatCount > 0 ? "rgba(96,165,250,0.28)" : "rgba(245,158,11,0.35)"}`,
+        background: rawDownbeatCount > 0 ? "rgba(37,99,235,0.08)" : "rgba(245,158,11,0.08)"
+      }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
+            <span style={{ fontSize: "0.72rem", fontWeight: 900, color: rawDownbeatCount > 0 ? "#93c5fd" : "#fbbf24", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+              Auto downbeat diagnostics
+            </span>
+            <select
+              value={pulseSource}
+              onChange={event => setPulseSource(event.target.value as "raw" | "calibrated")}
+              style={{ background: "#111113", border: "1px solid rgba(255,255,255,0.14)", color: "#fff", borderRadius: "8px", padding: "5px 8px", fontSize: "0.68rem", fontWeight: 800 }}
+            >
+              <option value="raw">Pulse raw Librosa</option>
+              <option value="calibrated">Pulse calibrated</option>
+            </select>
+          </div>
+          <span style={{ fontSize: "0.82rem", color: "#f4f4f5", lineHeight: 1.45 }}>
+            {ingestionStatus}
+          </span>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", fontSize: "0.74rem", color: "#d4d4d8" }}>
+            <span style={{ color: "#c084fc" }}>● Raw Librosa: <strong>{rawDownbeatCount}</strong></span>
+            <span style={{ color: "#60a5fa" }}>● Calibrated/player: <strong>{calibratedDownbeatCount}</strong></span>
+            <span style={{ color: "#f97316" }}>● Manual taps: <strong>{tappedDownbeats.length}</strong></span>
+            {ingestionMeta && (
+              <span>source: <strong>{ingestionMeta.audioSource}</strong> · fallback BPM: <strong>{ingestionMeta.usedFallbackBpm ? "yes" : "no"}</strong></span>
+            )}
+          </div>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "6px", minWidth: "126px" }}>
+          <div
+            style={{
+              width: "84px",
+              height: "84px",
+              borderRadius: "50%",
+              border: "2px solid rgba(255,255,255,0.14)",
+              background: "rgba(255,255,255,0.03)",
+              color: "rgba(255,255,255,0.48)",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "2rem",
+              fontWeight: 900,
+              transition: "all 0.1s ease",
+              ...rawPulseStyle,
+              ...calibratedPulseStyle
+            }}
+          >
+            <span>1</span>
+            <span style={{ fontSize: "0.54rem", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.5px", marginTop: "2px", opacity: isNearCalibrated ? 0.82 : 0.42 }}>
+              Downbeat
+            </span>
+          </div>
+          <span style={{ fontSize: "0.64rem", color: isNearCalibrated ? "#ffffff" : "#a1a1aa", fontWeight: 800, textAlign: "center" }}>
+            {isPulsing ? `${pulseSource.toUpperCase()} 1` : "waiting for 1"}
+          </span>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", alignItems: "stretch" }}>
+          <div style={{ padding: "10px", borderRadius: "10px", background: isNearRaw ? "rgba(192,132,252,0.22)" : "rgba(255,255,255,0.04)", border: `1px solid ${isNearRaw ? "#c084fc" : "rgba(255,255,255,0.08)"}` }}>
+            <div style={{ fontSize: "0.66rem", color: "#c084fc", fontWeight: 900, textTransform: "uppercase" }}>Raw proximity</div>
+            <div style={{ fontSize: "0.95rem", color: "#fff", fontWeight: 900 }}>{rawDistance === null ? "—" : `${rawDistance > 0 ? "+" : ""}${rawDistance}ms`}</div>
+          </div>
+          <div style={{ padding: "10px", borderRadius: "10px", background: isNearCalibrated ? "rgba(96,165,250,0.22)" : "rgba(255,255,255,0.04)", border: `1px solid ${isNearCalibrated ? "#60a5fa" : "rgba(255,255,255,0.08)"}` }}>
+            <div style={{ fontSize: "0.66rem", color: "#60a5fa", fontWeight: 900, textTransform: "uppercase" }}>Calibrated proximity</div>
+            <div style={{ fontSize: "0.95rem", color: "#fff", fontWeight: 900 }}>{calibratedDistance === null ? "—" : `${calibratedDistance > 0 ? "+" : ""}${calibratedDistance}ms`}</div>
+          </div>
+        </div>
       </div>
 
       {activeTab === 2 && (
@@ -742,6 +901,13 @@ export default function DevCalibrator({
 
               <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", alignItems: "center" }}>
                 <button
+                  onClick={handleUseRawAsCalibrated}
+                  disabled={saving || rawDownbeatCount === 0}
+                  style={{ fontSize: "0.72rem", fontWeight: 800, background: "rgba(192,132,252,0.12)", border: "1px solid rgba(192,132,252,0.5)", color: "#f5d0fe", padding: "7px 12px", borderRadius: "7px", cursor: saving || rawDownbeatCount === 0 ? "not-allowed" : "pointer", opacity: saving || rawDownbeatCount === 0 ? 0.55 : 1 }}
+                >
+                  Use Raw as Calibrated
+                </button>
+                <button
                   onClick={handleApplyOffsetCalibration}
                   disabled={saving || manualTapsInRange === 0}
                   style={{ fontSize: "0.72rem", fontWeight: 800, background: "rgba(255,255,255,0.08)", border: "1px solid #3f3f46", color: "#fff", padding: "7px 12px", borderRadius: "7px", cursor: saving || manualTapsInRange === 0 ? "not-allowed" : "pointer", opacity: saving || manualTapsInRange === 0 ? 0.55 : 1 }}
@@ -770,6 +936,27 @@ export default function DevCalibrator({
                 >
                   {saving ? "Saving..." : "Save Calibration 💾"}
                 </button>
+              </div>
+
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", alignItems: "center" }}>
+                {[
+                  ["Raw ◀", () => seekToNearestDownbeat("prev", "raw"), rawDownbeatCount === 0],
+                  ["Raw ▶", () => seekToNearestDownbeat("next", "raw"), rawDownbeatCount === 0],
+                  ["Calibrated ◀", () => seekToNearestDownbeat("prev", "calibrated"), calibratedDownbeatCount === 0],
+                  ["Calibrated ▶", () => seekToNearestDownbeat("next", "calibrated"), calibratedDownbeatCount === 0]
+                ].map(([label, action, disabled]: any) => (
+                  <button
+                    key={label}
+                    onClick={action}
+                    disabled={disabled}
+                    style={{ fontSize: "0.68rem", fontWeight: 800, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", color: "#d4d4d8", padding: "5px 9px", borderRadius: "7px", cursor: disabled ? "not-allowed" : "pointer", opacity: disabled ? 0.45 : 1 }}
+                  >
+                    {label}
+                  </button>
+                ))}
+                <span style={{ color: "#a1a1aa", fontSize: "0.68rem" }}>
+                  Play the song and watch the playhead cross blue markers. If it is consistently early/late, tap a few 1s and apply offset.
+                </span>
               </div>
             </div>
           </div>
@@ -812,7 +999,7 @@ export default function DevCalibrator({
               </button>
             ))}
             <span style={{ fontFamily: "monospace", fontSize: "0.78rem", color: "#ffffff", fontWeight: 600 }}>
-              {currentTime.toFixed(2)}s / {duration.toFixed(2)}s
+              {liveDisplayTime.toFixed(2)}s / {duration.toFixed(2)}s
             </span>
             {activeTab === 1 && (
               <div style={{ display: "flex", gap: "8px" }}>
@@ -904,12 +1091,24 @@ export default function DevCalibrator({
                 );
               })}
 
-              {timelineLayers.downbeats && (songData?.calibratedDownbeats || []).map((downbeat: number, index: number) => (
-                <div key={`downbeat-${index}-${downbeat}`} style={{ position: "absolute", top: "12px", bottom: "12px", left: `${(downbeat / (duration * 1000)) * 100}%`, width: "1px", background: "#60a5fa", opacity: 0.8, zIndex: 6, pointerEvents: "none" }} />
+              {timelineLayers.raw && rawDownbeats.map((downbeat: number, index: number) => (
+                <div
+                  key={`raw-downbeat-${index}-${downbeat}`}
+                  title={`Raw Librosa ${Math.round(downbeat / 1000)}s`}
+                  style={{ position: "absolute", top: "5px", height: "14px", left: `${(downbeat / (duration * 1000)) * 100}%`, width: "2px", background: "#c084fc", opacity: nearestRaw === downbeat ? 1 : 0.72, zIndex: 6, pointerEvents: "none", boxShadow: nearestRaw === downbeat && isNearRaw ? "0 0 10px #c084fc" : "none" }}
+                />
               ))}
 
-              {timelineLayers.downbeats && activeTab === 3 && tappedDownbeats.map((downbeat: number, index: number) => (
-                <div key={`manual-tap-${index}-${downbeat}`} style={{ position: "absolute", top: "6px", bottom: "6px", left: `${(downbeat / (duration * 1000)) * 100}%`, width: "2px", background: "#f97316", opacity: 0.95, zIndex: 8, pointerEvents: "none" }} />
+              {timelineLayers.calibrated && calibratedDownbeats.map((downbeat: number, index: number) => (
+                <div
+                  key={`calibrated-downbeat-${index}-${downbeat}`}
+                  title={`Calibrated ${Math.round(downbeat / 1000)}s`}
+                  style={{ position: "absolute", top: "20px", bottom: "6px", left: `${(downbeat / (duration * 1000)) * 100}%`, width: "2px", background: "#60a5fa", opacity: nearestCalibrated === downbeat ? 1 : 0.82, zIndex: 6, pointerEvents: "none", boxShadow: nearestCalibrated === downbeat && isNearCalibrated ? "0 0 10px #60a5fa" : "none" }}
+                />
+              ))}
+
+              {timelineLayers.manual && tappedDownbeats.map((downbeat: number, index: number) => (
+                <div key={`manual-tap-${index}-${downbeat}`} title={`Manual tap ${Math.round(downbeat / 1000)}s`} style={{ position: "absolute", top: "3px", bottom: "3px", left: `${(downbeat / (duration * 1000)) * 100}%`, width: "3px", background: "#f97316", opacity: 0.95, zIndex: 8, pointerEvents: "none", boxShadow: "0 0 9px rgba(249,115,22,0.8)" }} />
               ))}
 
               <div style={{

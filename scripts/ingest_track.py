@@ -48,14 +48,20 @@ def analyze_audio(audio_path):
             beat_times = librosa.frames_to_time(beat_frames, sr=sr)
             if hasattr(tempo, "__len__"):
                 tempo = float(tempo[0]) if len(tempo) else 0.0
+            beat_times = beat_times[::4]
         except Exception as err:
             print(f"[WARN] librosa beat tracking failed, using onset candidates: {err.__class__.__name__}")
             onset_env = librosa.onset.onset_strength(y=y, sr=sr)
             onset_frames = librosa.onset.onset_detect(onset_envelope=onset_env, sr=sr, units="frames")
-            beat_times = librosa.frames_to_time(onset_frames, sr=sr)
-            intervals = np.diff(beat_times)
-            usable_intervals = intervals[(intervals > 0.2) & (intervals < 2.0)]
-            tempo = 60.0 / float(np.median(usable_intervals)) if len(usable_intervals) else 0.0
+            onset_times = librosa.frames_to_time(onset_frames, sr=sr)
+            tempo_values = librosa.feature.tempo(onset_envelope=onset_env, sr=sr)
+            tempo = float(tempo_values[0]) if len(tempo_values) else 0.0
+            if tempo:
+                downbeat_interval = 4.0 * 60.0 / tempo
+                anchor = float(onset_times[0]) if len(onset_times) else 0.0
+                beat_times = np.arange(anchor, len(y) / sr, downbeat_interval)
+            else:
+                beat_times = []
         raw_downbeats = [int(round(float(t) * 1000)) for t in beat_times]
         return float(round(tempo, 2)) if tempo else None, raw_downbeats
     except Exception as err:
@@ -67,34 +73,41 @@ def download_youtube_audio(youtube_id):
         import yt_dlp
     except ImportError:
         print("[WARN] yt-dlp is not installed. Falling back to empty downbeats.")
-        return None
+        return {"tempdir": None, "audio_path": None, "client": None, "errors": ["yt-dlp not installed"]}
 
-    tmpdir = tempfile.TemporaryDirectory()
-    output_template = str(Path(tmpdir.name) / "audio.%(ext)s")
     url = f"https://www.youtube.com/watch?v={youtube_id}"
-    opts = {
-        "format": "bestaudio/best",
-        "outtmpl": output_template,
-        "quiet": True,
-        "no_warnings": True,
-        "postprocessors": [{
-            "key": "FFmpegExtractAudio",
-            "preferredcodec": "wav"
-        }]
-    }
-    try:
-        with yt_dlp.YoutubeDL(opts) as ydl:
-            ydl.download([url])
-        wav_files = list(Path(tmpdir.name).glob("audio.wav"))
-        if not wav_files:
-            print("[WARN] yt-dlp completed but no wav file was produced.")
+    errors = []
+    for client in ["default", "android", "web", "mweb", "ios"]:
+        tmpdir = tempfile.TemporaryDirectory()
+        output_template = str(Path(tmpdir.name) / "audio.%(ext)s")
+        opts = {
+            "format": "bestaudio/best",
+            "outtmpl": output_template,
+            "quiet": True,
+            "no_warnings": True,
+            "noplaylist": True,
+            "noprogress": True,
+            "postprocessors": [{
+                "key": "FFmpegExtractAudio",
+                "preferredcodec": "wav"
+            }]
+        }
+        if client != "default":
+            opts["extractor_args"] = {"youtube": {"player_client": [client]}}
+        try:
+            with yt_dlp.YoutubeDL(opts) as ydl:
+                ydl.download([url])
+            wav_files = list(Path(tmpdir.name).glob("audio.wav"))
+            if not wav_files:
+                errors.append(f"{client}: no wav output")
+                tmpdir.cleanup()
+                continue
+            return {"tempdir": tmpdir, "audio_path": str(wav_files[0]), "client": client, "errors": errors}
+        except Exception as err:
+            errors.append(f"{client}: {err.__class__.__name__}")
             tmpdir.cleanup()
-            return None
-        return tmpdir, str(wav_files[0])
-    except Exception as err:
-        print(f"[WARN] yt-dlp download failed: {err}")
-        tmpdir.cleanup()
-        return None
+    print(f"[WARN] yt-dlp download failed for all clients: {'; '.join(errors)}")
+    return {"tempdir": None, "audio_path": None, "client": None, "errors": errors}
 
 def main():
     parser = argparse.ArgumentParser(description="Automated Ingestion Pipeline")
@@ -120,12 +133,19 @@ def main():
     raw_downbeats = []
     temp_download = None
     audio_path = args.audio
+    download_client = None
+    download_errors = []
+    download_succeeded = bool(args.audio)
 
     if not args.skipAnalysis:
         if not audio_path:
             downloaded = download_youtube_audio(youtube_id)
-            if downloaded:
-                temp_download, audio_path = downloaded
+            download_client = downloaded["client"]
+            download_errors = downloaded["errors"]
+            if downloaded["audio_path"]:
+                temp_download = downloaded["tempdir"]
+                audio_path = downloaded["audio_path"]
+                download_succeeded = True
         if audio_path and os.path.exists(audio_path):
             analyzed_bpm, raw_downbeats = analyze_audio(audio_path)
 
@@ -140,7 +160,18 @@ def main():
         "artist": args.artist,
         "genre": args.genre,
         "status": "DRAFT",
-        "metadata": {},
+        "metadata": {
+            "ingestion": {
+                "audioSource": "local-audio" if args.audio else "youtube",
+                "analysisSkipped": bool(args.skipAnalysis),
+                "analyzedBpm": analyzed_bpm,
+                "rawDownbeatsDetected": len(raw_downbeats),
+                "usedFallbackBpm": analyzed_bpm is None and args.bpm is None,
+                "downloadSucceeded": download_succeeded,
+                "ytDlpClient": download_client,
+                "ytDlpErrors": download_errors
+            }
+        },
         "baseBpm": float(round(bpm, 2)),
         "rawDownbeats": raw_downbeats,
         "calibratedDownbeats": raw_downbeats,
