@@ -81,6 +81,7 @@ export default function DevCalibrator({
   const [saving, setSaving] = useState<boolean>(false);
   const [timelineLayers, setTimelineLayers] = useState({ sections: true, events: true, rawTaps: true, reviewed: true });
   const [timelineView, setTimelineView] = useState<"sections" | "events" | "taps" | "all">("sections");
+  const [eventTimelineScope, setEventTimelineScope] = useState<"song" | "section">("song");
   const [timelineZoom, setTimelineZoom] = useState<{ startTimeMs: number; endTimeMs: number } | null>(null);
   const [followPlayhead, setFollowPlayhead] = useState(false);
   const [liveTime, setLiveTime] = useState(0);
@@ -272,8 +273,10 @@ export default function DevCalibrator({
   const timelineWidthPct = (startTimeMs: number, endTimeMs: number) => ((endTimeMs - startTimeMs) / visibleDurationMs) * 100;
   const timelineRangeVisible = (startTimeMs: number, endTimeMs: number) => endTimeMs >= visibleTimeline.startTimeMs && startTimeMs <= visibleTimeline.endTimeMs;
   const clampVisibleTime = (timeMs: number) => Math.max(visibleTimeline.startTimeMs, Math.min(visibleTimeline.endTimeMs, timeMs));
-  const timelineModeShowsSections = timelineView === "sections" || timelineView === "events" || timelineView === "taps" || (timelineView === "all" && (timelineLayers.sections || activeTab === 2 || activeTab === 3));
-  const timelineModeShowsEvents = timelineView === "events" || (timelineView === "all" && timelineLayers.events);
+  const timelineModeShowsSections = activeTab === 2
+    ? eventTimelineScope === "section"
+    : timelineView === "sections" || timelineView === "events" || timelineView === "taps" || (timelineView === "all" && (timelineLayers.sections || activeTab === 3));
+  const timelineModeShowsEvents = activeTab === 2 || timelineView === "events" || (timelineView === "all" && timelineLayers.events);
   const timelineModeShowsRawTaps = timelineView === "taps" || (timelineView === "all" && timelineLayers.rawTaps);
   const timelineModeShowsReviewed = timelineView === "taps" || (timelineView === "all" && timelineLayers.reviewed);
 
@@ -316,7 +319,11 @@ export default function DevCalibrator({
 
   useEffect(() => {
     if (activeTab === 1) setTimelineView("sections");
-    if (activeTab === 2) setTimelineView("events");
+    if (activeTab === 2) {
+      setTimelineView("events");
+      setEventTimelineScope("song");
+      setTimelineZoom(null);
+    }
     if (activeTab === 3) setTimelineView("taps");
   }, [activeTab]);
 
@@ -1105,7 +1112,13 @@ export default function DevCalibrator({
 
   const handleAddEventRangeAtPlayhead = () => {
     const startTimeMs = Math.round(getEditorCurrentTime() * 1000);
-    const defaultDurationMs = Math.min(8000, Math.max(1000, Math.round(duration * 1000) - startTimeMs));
+    const scopedSection = eventTimelineScope === "section"
+      ? editorSections.find(section => section.id === focusedSectionId)
+      : null;
+    const rangeEndMs = scopedSection && startTimeMs >= scopedSection.startTimeMs && startTimeMs < scopedSection.endTimeMs
+      ? scopedSection.endTimeMs
+      : Math.round(duration * 1000);
+    const defaultDurationMs = Math.min(8000, Math.max(1000, rangeEndMs - startTimeMs));
     handleAddEvent({
       startTimeMs,
       endTimeMs: startTimeMs + defaultDurationMs,
@@ -1314,6 +1327,19 @@ export default function DevCalibrator({
     const paddedStart = Math.max(0, startTimeMs - paddingMs);
     const paddedEnd = Math.min(songEndMs, endTimeMs + paddingMs);
     setTimelineZoom({ startTimeMs: paddedStart, endTimeMs: Math.max(paddedStart + 1000, paddedEnd) });
+  };
+
+  const showWholeEventTimeline = () => {
+    setEventTimelineScope("song");
+    setFocusedSectionId(null);
+    setTimelineZoom(null);
+  };
+
+  const showSectionEventTimeline = (section = editorSections.find(sec => sec.id === focusedSectionId) || editorSections.find(sec => liveDisplayTime * 1000 >= sec.startTimeMs && liveDisplayTime * 1000 <= sec.endTimeMs) || editorSections[0]) => {
+    if (!section) return;
+    setEventTimelineScope("section");
+    setFocusedSectionId(section.id);
+    zoomTimelineToRange(section.startTimeMs, section.endTimeMs, 1000);
   };
 
   const zoomTimelineBy = (factor: number) => {
@@ -1659,25 +1685,34 @@ export default function DevCalibrator({
             Song Timeline Editing Console
           </span>
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            {(["sections", "events", "taps", "all"] as const).map(view => (
-              <button
-                key={view}
-                onClick={() => setTimelineView(view)}
-                style={{ fontSize: "0.65rem", padding: "3px 8px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.12)", background: timelineView === view ? "#fff" : "transparent", color: timelineView === view ? "#000" : "#71717a", cursor: "pointer", textTransform: "capitalize", fontWeight: 800 }}
-              >
-                {view}
-              </button>
-            ))}
-            {timelineView === "all" && Object.entries(timelineLayers).map(([layer, visible]) => (
-              <button
-                key={layer}
-                onClick={() => setTimelineLayers(current => ({ ...current, [layer]: !visible }))}
-                style={{ fontSize: "0.65rem", padding: "3px 7px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.12)", background: visible ? "rgba(255,255,255,0.9)" : "transparent", color: visible ? "#000" : "#71717a", cursor: "pointer", textTransform: "capitalize" }}
-              >
-                {layer}
-              </button>
-            ))}
-            <button onClick={() => setTimelineZoom(null)} style={{ fontSize: "0.65rem", padding: "3px 8px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.12)", background: timelineZoom ? "transparent" : "rgba(255,255,255,0.9)", color: timelineZoom ? "#a1a1aa" : "#000", cursor: "pointer", fontWeight: 800 }}>Fit Song</button>
+            {activeTab === 2 ? (
+              <>
+                <button onClick={showWholeEventTimeline} style={{ fontSize: "0.65rem", padding: "3px 8px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.12)", background: eventTimelineScope === "song" ? "#fff" : "transparent", color: eventTimelineScope === "song" ? "#000" : "#71717a", cursor: "pointer", fontWeight: 800 }}>Whole Song</button>
+                <button onClick={() => showSectionEventTimeline()} style={{ fontSize: "0.65rem", padding: "3px 8px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.12)", background: eventTimelineScope === "section" ? "#fff" : "transparent", color: eventTimelineScope === "section" ? "#000" : "#71717a", cursor: "pointer", fontWeight: 800 }}>Current Section</button>
+              </>
+            ) : (
+              <>
+                {(["sections", "events", "taps", "all"] as const).map(view => (
+                  <button
+                    key={view}
+                    onClick={() => setTimelineView(view)}
+                    style={{ fontSize: "0.65rem", padding: "3px 8px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.12)", background: timelineView === view ? "#fff" : "transparent", color: timelineView === view ? "#000" : "#71717a", cursor: "pointer", textTransform: "capitalize", fontWeight: 800 }}
+                  >
+                    {view}
+                  </button>
+                ))}
+                {timelineView === "all" && Object.entries(timelineLayers).map(([layer, visible]) => (
+                  <button
+                    key={layer}
+                    onClick={() => setTimelineLayers(current => ({ ...current, [layer]: !visible }))}
+                    style={{ fontSize: "0.65rem", padding: "3px 7px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.12)", background: visible ? "rgba(255,255,255,0.9)" : "transparent", color: visible ? "#000" : "#71717a", cursor: "pointer", textTransform: "capitalize" }}
+                  >
+                    {layer}
+                  </button>
+                ))}
+              </>
+            )}
+            <button onClick={() => activeTab === 2 ? showWholeEventTimeline() : setTimelineZoom(null)} style={{ fontSize: "0.65rem", padding: "3px 8px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.12)", background: timelineZoom ? "transparent" : "rgba(255,255,255,0.9)", color: timelineZoom ? "#a1a1aa" : "#000", cursor: "pointer", fontWeight: 800 }}>Fit Song</button>
             <button onClick={() => zoomTimelineBy(0.55)} style={{ fontSize: "0.65rem", padding: "3px 8px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.12)", background: "transparent", color: "#a1a1aa", cursor: "pointer", fontWeight: 800 }}>Zoom In</button>
             <button onClick={() => zoomTimelineBy(1.8)} style={{ fontSize: "0.65rem", padding: "3px 8px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.12)", background: "transparent", color: "#a1a1aa", cursor: "pointer", fontWeight: 800 }}>Zoom Out</button>
             <button onClick={() => setFollowPlayhead(current => !current)} style={{ fontSize: "0.65rem", padding: "3px 8px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.12)", background: followPlayhead ? "#fff" : "transparent", color: followPlayhead ? "#000" : "#71717a", cursor: "pointer", fontWeight: 800 }}>Follow</button>
@@ -1802,6 +1837,9 @@ export default function DevCalibrator({
                     onClick={(e) => {
                       e.stopPropagation();
                       setFocusedSectionId(sec.id);
+                      if (activeTab === 2) {
+                        showSectionEventTimeline(sec);
+                      }
                     }}
                     style={{
                       position: "absolute",
@@ -2049,8 +2087,40 @@ export default function DevCalibrator({
           </div>
         )}
 
+        {activeTab === 2 && editorSections.length > 0 && (
+          <div style={{ display: "flex", gap: "6px", marginTop: "2px", flexWrap: "wrap", alignItems: "center" }}>
+            <span style={{ color: "#71717a", fontSize: "0.66rem", fontWeight: 900, textTransform: "uppercase" }}>Sections</span>
+            {editorSections.map((sec, idx) => {
+               const isActive = eventTimelineScope === "section" && sec.id === focusedSectionId;
+               const labelText = sec.category ? getCategoryLabel(sec.category) : `Section ${idx + 1}`;
+               return (
+                 <button
+                   key={`event-section-chip-${sec.id}`}
+                   onClick={() => {
+                     throttledSeek(sec.startTimeMs / 1000, true);
+                     showSectionEventTimeline(sec);
+                   }}
+                   style={{
+                     fontSize: "0.68rem",
+                     fontWeight: 700,
+                     padding: "3px 10px",
+                     borderRadius: "20px",
+                     background: isActive ? "#ffffff" : "rgba(255,255,255,0.04)",
+                     border: `1px solid ${isActive ? "#ffffff" : "rgba(255,255,255,0.08)"}`,
+                     color: isActive ? "#000000" : "#9ca3af",
+                     cursor: "pointer"
+                   }}
+                 >
+                   {labelText}
+                 </button>
+               );
+            })}
+          </div>
+        )}
+
         {activeTab === 2 && sortedEvents.length > 0 && (
           <div style={{ display: "flex", gap: "6px", marginTop: "2px", flexWrap: "wrap" }}>
+            <span style={{ color: "#71717a", fontSize: "0.66rem", fontWeight: 900, textTransform: "uppercase" }}>Events</span>
             {sortedEvents.map((event: any, idx: number) => {
                const isActive = idx === focusedEventIndex;
                const labelText = event.category ? getCategoryLabel(event.category) : `Event ${idx + 1}`;
