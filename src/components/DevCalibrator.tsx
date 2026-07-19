@@ -43,6 +43,14 @@ const REVIEWED_ANCHOR_COLORS: Record<number, string> = {
   8: "#fbbf24"
 };
 
+const formatTimelineTime = (timeMs: number) => {
+  const safeMs = Math.max(0, Math.round(timeMs || 0));
+  const minutes = Math.floor(safeMs / 60000);
+  const seconds = Math.floor((safeMs % 60000) / 1000);
+  const milliseconds = safeMs % 1000;
+  return `${minutes}:${String(seconds).padStart(2, "0")}.${String(milliseconds).padStart(3, "0")}`;
+};
+
 export default function DevCalibrator({
   songData,
   originalSongData,
@@ -1424,8 +1432,8 @@ export default function DevCalibrator({
   );
   const defaultEventDraftEndMs = Math.min(eventDraftRangeEndMs, defaultEventDraftStartMs + 3000);
   const timelineStatusText = activeEventSection
-    ? `${getCategoryLabel(activeEventSection.category)} · ${(activeEventSectionTimeMs / 1000).toFixed(2)}s / ${(activeEventSectionDurationMs / 1000).toFixed(2)}s · section 0.0-${(activeEventSectionDurationMs / 1000).toFixed(1)}s`
-    : `${liveDisplayTime.toFixed(2)}s / ${duration.toFixed(2)}s · ${(visibleTimeline.startTimeMs / 1000).toFixed(1)}-${(visibleTimeline.endTimeMs / 1000).toFixed(1)}s`;
+    ? `Song ${formatTimelineTime(liveDisplayTime * 1000)} / ${formatTimelineTime(duration * 1000)} · ${getCategoryLabel(activeEventSection.category)} ${formatTimelineTime(activeEventSectionTimeMs)} / ${formatTimelineTime(activeEventSectionDurationMs)} · section ${formatTimelineTime(activeEventSection.startTimeMs)}-${formatTimelineTime(activeEventSection.endTimeMs)}`
+    : `Song ${formatTimelineTime(liveDisplayTime * 1000)} / ${formatTimelineTime(duration * 1000)} · view ${formatTimelineTime(visibleTimeline.startTimeMs)}-${formatTimelineTime(visibleTimeline.endTimeMs)}`;
   const zoomedPlayheadPct = timelinePct(liveDisplayTime * 1000);
   const sectionLane = timelineView === "sections" ? { top: 0, height: 104 } : { top: 0, height: 36 };
   const eventLane = { top: 38, height: 22 };
