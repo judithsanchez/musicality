@@ -15,10 +15,10 @@ export default function DevCalibrationPanel({
   onAddTag,
   validationErrors
 }) {
-  const [collapsedSections, setCollapsedSections] = useState({});
+  const [expandedSections, setExpandedSections] = useState({});
 
   const toggleCollapse = (id) => {
-    setCollapsedSections(prev => ({ ...prev, [id]: !prev[id] }));
+    setExpandedSections(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
   return (
@@ -26,8 +26,8 @@ export default function DevCalibrationPanel({
       display: "flex",
       flexDirection: "column",
       gap: "16px",
-      maxHeight: "85vh",
-      overflowY: "auto"
+      maxHeight: "520px",
+      overflow: "hidden"
     }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(255,255,255,0.08)", paddingBottom: "8px" }}>
         <span style={{ fontSize: "0.9rem", fontWeight: "800", color: "#ffffff", textTransform: "uppercase", letterSpacing: "0.5px" }}>
@@ -59,9 +59,10 @@ export default function DevCalibrationPanel({
           </div>
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "10px", maxHeight: "360px", overflowY: "auto", paddingRight: "3px" }}>
           {editorSections.map((section, sectionIndex) => {
             const selectedTags = section.tags || [];
+            const isExpanded = !!expandedSections[section.id];
             return (
               <div key={section.id} style={{
                 display: "flex",
@@ -78,7 +79,7 @@ export default function DevCalibrationPanel({
                     onClick={() => toggleCollapse(section.id)}
                     style={{ background: "none", border: "none", color: "#a1a1aa", cursor: "pointer", display: "flex", alignItems: "center", padding: 0 }}
                   >
-                    {collapsedSections[section.id] ? <ChevronRight size={16} /> : <ChevronDown size={16} />}
+                    {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
                   </button>
                   <span style={{ width: "24px", color: "#71717a", fontSize: "0.72rem", fontWeight: 800 }}>{sectionIndex + 1}</span>
                   <select
@@ -101,7 +102,7 @@ export default function DevCalibrationPanel({
                   </button>
                 </div>
 
-                {!collapsedSections[section.id] && (
+                {isExpanded && (
                   <>
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", fontSize: "0.7rem", color: "#a1a1aa" }}>
                       <label style={{ display: "flex", flexDirection: "column", gap: "3px", fontWeight: 800 }}>
