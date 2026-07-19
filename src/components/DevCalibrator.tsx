@@ -81,6 +81,8 @@ export default function DevCalibrator({
   const [verificationGroupId, setVerificationGroupId] = useState<string | null>(null);
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
   const [activeTapSectionId, setActiveTapSectionId] = useState<string | null>(null);
+  const [showTapMetronome, setShowTapMetronome] = useState(false);
+  const [showTapAdvancedReview, setShowTapAdvancedReview] = useState(false);
   const [categories, setCategories] = useState<any[]>([]);
   const [tags, setTags] = useState<any[]>([]);
   const [focusedSectionId, setFocusedSectionId] = useState<string | null>(null);
@@ -331,6 +333,8 @@ export default function DevCalibrator({
       };
     });
   }, [activeReviewedAnchors, calibrationEvents, editorSections, tapCalibrationPasses, tapSectionDecisions]);
+  const activeTapSectionCard = tapSectionCards.find((card: any) => card.section.id === activeTapSectionId) || tapSectionCards[0] || null;
+  const activeTapPass = activeRetapRegion?.passId ? passById.get(activeRetapRegion.passId) as any : activePassId ? passById.get(activePassId) as any : null;
 
   const visibleTimeline = useMemo(() => {
     const songEndMs = Math.round(duration * 1000);
@@ -397,7 +401,15 @@ export default function DevCalibrator({
       setEventTimelineScope("song");
       setTimelineZoom(null);
     }
-    if (activeTab === 3) setTimelineView("taps");
+    if (activeTab === 3) {
+      setTimelineView("taps");
+      const section = editorSections.find(sec => sec.id === activeTapSectionId) || editorSections.find(sec => liveDisplayTime * 1000 >= sec.startTimeMs && liveDisplayTime * 1000 <= sec.endTimeMs) || editorSections[0];
+      if (section) {
+        setActiveTapSectionId(section.id);
+        setFocusedSectionId(section.id);
+        zoomTimelineToRange(section.startTimeMs, section.endTimeMs, 500);
+      }
+    }
   }, [activeTab]);
 
   useEffect(() => {
@@ -982,8 +994,17 @@ export default function DevCalibrator({
 
   const handleVerifySection = (section: any) => {
     setActiveTapSectionId(section.id);
+    setFocusedSectionId(section.id);
     setVerificationGroupId(`section:${section.id}`);
+    zoomTimelineToRange(section.startTimeMs, section.endTimeMs, 500);
     handleLoopRegion(section.startTimeMs, section.endTimeMs, 0);
+  };
+
+  const handleSelectTapSection = (section: any) => {
+    setActiveTapSectionId(section.id);
+    setFocusedSectionId(section.id);
+    throttledSeek(section.startTimeMs / 1000, true);
+    zoomTimelineToRange(section.startTimeMs, section.endTimeMs, 500);
   };
 
   const handleExcludePass = (passId: string, excluded: boolean) => {
@@ -1567,25 +1588,26 @@ export default function DevCalibrator({
     ? `Song ${formatTimelineTime(liveDisplayTime * 1000)} / ${formatTimelineTime(duration * 1000)} · ${getCategoryLabel(activeEventSection.category)} ${formatTimelineTime(activeEventSectionTimeMs)} / ${formatTimelineTime(activeEventSectionDurationMs)} · section ${formatTimelineTime(activeEventSection.startTimeMs)}-${formatTimelineTime(activeEventSection.endTimeMs)}`
     : `Song ${formatTimelineTime(liveDisplayTime * 1000)} / ${formatTimelineTime(duration * 1000)} · view ${formatTimelineTime(visibleTimeline.startTimeMs)}-${formatTimelineTime(visibleTimeline.endTimeMs)}`;
   const zoomedPlayheadPct = timelinePct(liveDisplayTime * 1000);
-  const sectionLane = timelineView === "sections" ? { top: 0, height: 104 } : { top: 0, height: 36 };
-  const eventLane = { top: 38, height: 22 };
-  const rawTapLane = { top: 64, height: 16 };
-  const reviewedLane = { top: 83, height: 17 };
+  const isTapCockpit = activeTab === 3;
+  const sectionLane = isTapCockpit ? { top: 0, height: 24 } : timelineView === "sections" ? { top: 0, height: 104 } : { top: 0, height: 36 };
+  const eventLane = isTapCockpit ? { top: 27, height: 14 } : { top: 38, height: 22 };
+  const rawTapLane = isTapCockpit ? { top: 45, height: 10 } : { top: 64, height: 16 };
+  const reviewedLane = isTapCockpit ? { top: 58, height: 12 } : { top: 83, height: 17 };
 
   return (
     <>
     <div className="glass-panel dev-calibrator-workbench" style={{
       display: "flex",
       flexDirection: "column",
-      gap: "24px",
-      padding: "24px",
+      gap: isTapCockpit ? "6px" : "24px",
+      padding: isTapCockpit ? "12px 16px" : "24px",
       width: "100%",
       border: "1px solid #27272a",
       background: "rgba(9,9,11,0.85)",
       backdropFilter: "blur(12px)",
       borderRadius: "20px"
     }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: isTapCockpit ? "0" : "8px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           <span style={{ fontSize: "1.1rem", fontWeight: 900, color: "#fff" }}>
             Song Calibration Workbench
@@ -1611,7 +1633,7 @@ export default function DevCalibrator({
       <div style={{
         display: "flex",
         borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
-        paddingBottom: "8px",
+        paddingBottom: isTapCockpit ? "4px" : "8px",
         gap: "16px"
       }}>
         {["Sections", "Events", "Taps"].map((tabName, idx) => {
@@ -1655,7 +1677,7 @@ export default function DevCalibrator({
         </div>
       )}
 
-      {activeTab === 3 && (
+      {activeTab === 3 && false && (
         <div className={tapFlash ? "active-flash" : ""} style={{
           padding: "20px 16px",
           background: "rgba(255,255,255,0.02)",
@@ -1843,9 +1865,10 @@ export default function DevCalibrator({
       )}
 
       <div className="dev-widescreen-top-row" style={{
-        gridTemplateColumns: activeTab === 1 || activeTab === 2 ? "1.15fr 0.85fr" : "1fr"
+        gridTemplateColumns: activeTab === 3 ? "minmax(360px, 420px) minmax(320px, 1fr)" : activeTab === 1 || activeTab === 2 ? "1.15fr 0.85fr" : "1fr",
+        gap: activeTab === 3 ? "12px" : "24px"
       }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: "16px", maxWidth: activeTab === 1 || activeTab === 2 ? "100%" : "800px", margin: activeTab === 1 || activeTab === 2 ? "0" : "0 auto", width: "100%" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: activeTab === 3 ? "8px" : "16px", maxWidth: activeTab === 3 ? "420px" : activeTab === 1 || activeTab === 2 ? "100%" : "800px", margin: activeTab === 1 || activeTab === 2 || activeTab === 3 ? "0" : "0 auto", width: "100%" }}>
           <div style={{ position: "relative" }}>
             {videoElement}
             {activeTab === 3 && verificationGroup && (
@@ -1884,6 +1907,94 @@ export default function DevCalibrator({
             )}
           </div>
         </div>
+
+        {activeTab === 3 && (
+          <div className={tapFlash ? "active-flash" : ""} style={{ display: "flex", flexDirection: "column", gap: "6px", padding: "8px", borderRadius: "12px", border: `2px solid ${tapFlash ? "#ffffff" : "rgba(255,255,255,0.08)"}`, background: "rgba(0,0,0,0.22)", minHeight: "236px", boxShadow: tapFlash ? "0 0 30px rgba(255,255,255,0.32)" : "none", transition: "all 0.08s ease" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", gap: "10px", alignItems: "flex-start" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "3px", minWidth: 0 }}>
+                <span style={{ color: "#fff", fontSize: "0.78rem", fontWeight: 900, textTransform: "uppercase" }}>Tap Cockpit</span>
+                <span style={{ color: "#a1a1aa", fontSize: "0.68rem", fontFamily: "monospace" }}>
+                  {activeTapSectionCard ? `${formatTimelineTime(activeTapSectionCard.section.startTimeMs)}-${formatTimelineTime(activeTapSectionCard.section.endTimeMs)}` : "No section selected"}
+                </span>
+              </div>
+              <button onClick={() => setShowTapMetronome(current => !current)} style={{ padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", background: !deviceCalibration ? "rgba(251,191,36,0.12)" : "transparent", color: !deviceCalibration ? "#fbbf24" : "#d4d4d8", fontSize: "0.66rem", fontWeight: 900, cursor: "pointer" }}>
+                {deviceCalibration ? "Offset" : "Set Offset"}
+              </button>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: "6px" }}>
+              <div style={{ padding: "7px", borderRadius: "8px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
+                <span style={{ display: "block", color: "#71717a", fontSize: "0.58rem", fontWeight: 900, textTransform: "uppercase" }}>Latency</span>
+                <strong style={{ color: "#fff", fontSize: "0.68rem" }}>{deviceCalibration ? `${deviceCalibration.inputLatencyMs}ms` : "none"}</strong>
+              </div>
+              <div style={{ padding: "7px", borderRadius: "8px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
+                <span style={{ display: "block", color: "#71717a", fontSize: "0.58rem", fontWeight: 900, textTransform: "uppercase" }}>Raw</span>
+                <strong style={{ color: "#fff", fontSize: "0.68rem" }}>{taps.length}</strong>
+              </div>
+              <div style={{ padding: "7px", borderRadius: "8px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
+                <span style={{ display: "block", color: "#71717a", fontSize: "0.58rem", fontWeight: 900, textTransform: "uppercase" }}>Reviewed</span>
+                <strong style={{ color: "#fff", fontSize: "0.68rem" }}>{activeReviewedAnchors.filter(anchor => anchor.reviewed).length}</strong>
+              </div>
+              <div style={{ padding: "7px", borderRadius: "8px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
+                <span style={{ display: "block", color: "#71717a", fontSize: "0.58rem", fontWeight: 900, textTransform: "uppercase" }}>Rounds</span>
+                <strong style={{ color: "#fff", fontSize: "0.68rem" }}>{tapCalibrationPasses.filter((pass: any) => !pass.excluded).length}</strong>
+              </div>
+            </div>
+
+            {activeTapSectionCard && (
+              <div style={{ display: "flex", flexDirection: "column", gap: "4px", padding: "7px", borderRadius: "8px", border: "1px solid rgba(96,165,250,0.22)", background: "rgba(96,165,250,0.07)" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: "8px", alignItems: "center" }}>
+                  <span style={{ color: "#fff", fontSize: "0.88rem", fontWeight: 900 }}>{activeTapSectionCard.section.category ? getCategoryLabel(activeTapSectionCard.section.category) : `Section ${activeTapSectionCard.index + 1}`}</span>
+                  <span style={{ color: activeTapSectionCard.status === "Calibrated" ? "#34d399" : activeTapSectionCard.status === "Review" ? "#fbbf24" : activeTapSectionCard.status === "Marked Not Needed" ? "#a1a1aa" : "#93c5fd", fontSize: "0.65rem", fontWeight: 900, textTransform: "uppercase" }}>{activeTapSectionCard.status}</span>
+                </div>
+                <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", color: "#a1a1aa", fontSize: "0.62rem", fontWeight: 800 }}>
+                  <span>{activeTapSectionCard.sectionAnchors.length} anchors</span>
+                  <span>{activeTapSectionCard.sectionPasses.filter((pass: any) => !pass.excluded).length} rounds</span>
+                  {activeTapSectionCard.sectionHidden && <span>downbeats hidden</span>}
+                  {activeTapSectionCard.hiddenEvents.length > 0 && <span>{activeTapSectionCard.hiddenEvents.length} hidden break{activeTapSectionCard.hiddenEvents.length === 1 ? "" : "s"}</span>}
+                </div>
+              </div>
+            )}
+
+            {(showTapMetronome || !deviceCalibration || metronomeActive) && (
+              <div style={{ display: "grid", gridTemplateColumns: "auto 1fr auto", gap: "7px", alignItems: "center", padding: "6px", borderRadius: "8px", border: "1px solid rgba(251,191,36,0.18)", background: "rgba(251,191,36,0.06)" }}>
+                <div style={{ width: "24px", height: "24px", borderRadius: "50%", background: metronomeActive && metronomeBeat % 2 === 1 ? "#ffffff" : "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.16)", boxShadow: metronomeActive && metronomeBeat % 2 === 1 ? "0 0 18px rgba(255,255,255,0.65)" : "none" }} />
+                <span style={{ color: "#d4d4d8", fontSize: "0.62rem", fontWeight: 800 }}>Consistency {deviceCalibration ? `${deviceCalibration.consistencyMs}ms` : "none"} · Samples {metronomeSamples.length}</span>
+                <button onClick={metronomeActive ? stopMetronomeCalibration : startMetronomeCalibration} style={{ padding: "5px 8px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", background: metronomeActive ? "#ffffff" : "rgba(255,255,255,0.05)", color: metronomeActive ? "#000" : "#fff", fontSize: "0.66rem", fontWeight: 900, cursor: "pointer" }}>
+                  {metronomeActive ? "Save" : "Start"}
+                </button>
+                {metronomeActive && (
+                  <button onClick={handleTap} style={{ padding: "5px 8px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.05)", color: "#fff", fontSize: "0.66rem", fontWeight: 900, cursor: "pointer" }}>
+                    Sample
+                  </button>
+                )}
+              </div>
+            )}
+
+            <button onClick={handleTap} disabled={metronomeActive} style={{ width: "100%", height: "46px", borderRadius: "8px", border: `2px solid ${tapFlash ? "#ffffff" : "#3f3f46"}`, background: tapFlash ? "#ffffff" : "rgba(255,255,255,0.04)", color: tapFlash ? "#000" : "#fff", cursor: metronomeActive ? "not-allowed" : "pointer", fontSize: "0.95rem", fontWeight: 1000, textTransform: "uppercase", letterSpacing: "0.5px", opacity: metronomeActive ? 0.5 : 1 }}>
+              Tap Anchor
+            </button>
+
+            <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+              {activeTapSectionCard && (
+                <>
+                  <button onClick={() => activeRetapRegion?.sectionId === activeTapSectionCard.section.id ? handleStopRetapRegion() : handleStartSectionTapRound(activeTapSectionCard.section)} style={{ flex: "1 1 120px", padding: "6px 8px", borderRadius: "6px", border: "1px solid rgba(96,165,250,0.35)", background: activeRetapRegion?.sectionId === activeTapSectionCard.section.id ? "#ffffff" : "rgba(96,165,250,0.08)", color: activeRetapRegion?.sectionId === activeTapSectionCard.section.id ? "#000" : "#93c5fd", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>
+                    {activeRetapRegion?.sectionId === activeTapSectionCard.section.id ? "Stop Round" : "Start Round"}
+                  </button>
+                  <button onClick={() => handleVerifySection(activeTapSectionCard.section)} style={{ flex: "1 1 90px", padding: "6px 8px", borderRadius: "6px", border: "1px solid rgba(244,114,182,0.35)", background: verificationGroupId === `section:${activeTapSectionCard.section.id}` ? "rgba(244,114,182,0.22)" : "rgba(244,114,182,0.08)", color: "#f9a8d4", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>Verify</button>
+                  <button onClick={() => updateTapSectionDecision(activeTapSectionCard.section.id, !activeTapSectionCard.markedNotNeeded)} style={{ flex: "1 1 120px", padding: "6px 8px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", background: activeTapSectionCard.markedNotNeeded ? "#ffffff" : "transparent", color: activeTapSectionCard.markedNotNeeded ? "#000" : "#d4d4d8", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>
+                    {activeTapSectionCard.markedNotNeeded ? "Needs Tapping" : "Not Needed"}
+                  </button>
+                </>
+              )}
+              {activeTapPass && (
+                <button onClick={() => handleExcludePass(activeTapPass.id, !activeTapPass.excluded)} style={{ flex: "1 1 150px", padding: "6px 8px", borderRadius: "6px", border: "1px solid rgba(248,113,113,0.35)", background: activeTapPass.excluded ? "#ffffff" : "rgba(248,113,113,0.08)", color: activeTapPass.excluded ? "#000" : "#fca5a5", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>
+                  {activeTapPass.excluded ? "Restore Round" : "Exclude Current Round"}
+                </button>
+              )}
+            </div>
+          </div>
+        )}
 
         {activeTab === 1 && (
           <DevCalibrationPanel
@@ -1930,7 +2041,7 @@ export default function DevCalibrator({
         )}
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "10px", background: "rgba(255,255,255,0.015)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: "16px", padding: "16px 20px" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: activeTab === 3 ? "6px" : "10px", background: "rgba(255,255,255,0.015)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: "16px", padding: activeTab === 3 ? "10px 14px" : "16px 20px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.5px" }}>
             Song Timeline Editing Console
@@ -1941,7 +2052,7 @@ export default function DevCalibrator({
                 <button onClick={showWholeEventTimeline} style={{ fontSize: "0.65rem", padding: "3px 8px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.12)", background: eventTimelineScope === "song" ? "#fff" : "transparent", color: eventTimelineScope === "song" ? "#000" : "#71717a", cursor: "pointer", fontWeight: 800 }}>Whole Song</button>
                 <button onClick={() => showSectionEventTimeline()} style={{ fontSize: "0.65rem", padding: "3px 8px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.12)", background: eventTimelineScope === "section" ? "#fff" : "transparent", color: eventTimelineScope === "section" ? "#000" : "#71717a", cursor: "pointer", fontWeight: 800 }}>Loop Section</button>
               </>
-            ) : (
+            ) : activeTab === 3 ? null : (
               <>
                 {(["sections", "events", "taps", "all"] as const).map(view => (
                   <button
@@ -1963,7 +2074,7 @@ export default function DevCalibrator({
                 ))}
               </>
             )}
-            {activeTab === 3 && (
+            {activeTab === 3 && false && (
               <>
                 <button onClick={() => setTimelineZoom(null)} style={{ fontSize: "0.65rem", padding: "3px 8px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.12)", background: timelineZoom ? "transparent" : "rgba(255,255,255,0.9)", color: timelineZoom ? "#a1a1aa" : "#000", cursor: "pointer", fontWeight: 800 }}>Fit Song</button>
                 <button onClick={() => zoomTimelineBy(0.55)} style={{ fontSize: "0.65rem", padding: "3px 8px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.12)", background: "transparent", color: "#a1a1aa", cursor: "pointer", fontWeight: 800 }}>Zoom In</button>
@@ -2051,13 +2162,13 @@ export default function DevCalibrator({
           </div>
         )}
 
-        <div style={{ position: "relative", padding: "8px 0" }}>
+        <div style={{ position: "relative", padding: activeTab === 3 ? "4px 0" : "8px 0" }}>
           <div
             ref={timelineRef}
             onClick={handleTimelineClick}
             style={{
               position: "relative",
-              height: "104px",
+              height: activeTab === 3 ? "72px" : "104px",
               borderRadius: "10px",
               background: "#0c0c0e",
               cursor: "crosshair",
@@ -2094,6 +2205,9 @@ export default function DevCalibrator({
                       setFocusedSectionId(sec.id);
                       if (activeTab === 2) {
                         showSectionEventTimeline(sec);
+                      }
+                      if (activeTab === 3) {
+                        handleSelectTapSection(sec);
                       }
                     }}
                     style={{
@@ -2404,6 +2518,107 @@ export default function DevCalibrator({
                  </button>
                );
             })}
+          </div>
+        )}
+
+        {activeTab === 3 && tapSectionCards.length > 0 && (
+          <div style={{ display: "flex", gap: "6px", marginTop: "2px", flexWrap: "wrap", alignItems: "center" }}>
+            <span style={{ color: "#71717a", fontSize: "0.66rem", fontWeight: 900, textTransform: "uppercase" }}>Sections</span>
+            {tapSectionCards.map((card: any) => {
+              const section = card.section;
+              const isActive = section.id === activeTapSectionId;
+              const labelText = section.category ? getCategoryLabel(section.category) : `Section ${card.index + 1}`;
+              const statusColor = card.status === "Calibrated" ? "#34d399" : card.status === "Review" ? "#fbbf24" : card.status === "Marked Not Needed" ? "#a1a1aa" : "#93c5fd";
+              return (
+                <button
+                  key={`tap-section-chip-${section.id}`}
+                  onClick={() => handleSelectTapSection(section)}
+                  title={`${labelText} · ${card.status}`}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    fontSize: "0.68rem",
+                    fontWeight: 800,
+                    padding: "4px 9px",
+                    borderRadius: "20px",
+                    background: isActive ? "#ffffff" : "rgba(255,255,255,0.04)",
+                    border: `1px solid ${isActive ? "#ffffff" : "rgba(255,255,255,0.08)"}`,
+                    color: isActive ? "#000000" : "#d4d4d8",
+                    cursor: "pointer"
+                  }}
+                >
+                  <span>{labelText}</span>
+                  <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: statusColor }} />
+                  {(card.sectionHidden || card.hiddenEvents.length > 0) && (
+                    <span style={{ color: isActive ? "#52525b" : "#fbbf24", fontSize: "0.6rem", fontWeight: 900 }}>hidden</span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {activeTab === 3 && (
+          <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginTop: "4px" }}>
+            <button onClick={() => setShowTapAdvancedReview(current => !current)} style={{ alignSelf: "flex-start", padding: "5px 9px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", background: showTapAdvancedReview ? "#ffffff" : "rgba(255,255,255,0.04)", color: showTapAdvancedReview ? "#000" : "#d4d4d8", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>
+              {showTapAdvancedReview ? "Hide Advanced Review" : "Advanced Review"}
+            </button>
+            {showTapAdvancedReview && (
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px", maxHeight: "360px", overflowY: "auto", paddingRight: "3px" }}>
+                {tapGroups.map((group: any) => {
+                  const expanded = expandedGroups[group.id];
+                  const confidenceColor = group.confidence === "high" ? "#34d399" : group.confidence === "medium" ? "#fbbf24" : "#fca5a5";
+                  return (
+                    <div key={`advanced-${group.id}`} style={{ display: "flex", flexDirection: "column", gap: "8px", padding: "10px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.08)", background: group.confidence === "low" ? "rgba(248,113,113,0.08)" : group.confidence === "medium" ? "rgba(251,191,36,0.08)" : "rgba(52,211,153,0.06)" }}>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: "8px", alignItems: "center" }}>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
+                          <span style={{ color: "#fff", fontSize: "0.76rem", fontWeight: 900 }}>Group {group.index + 1}: {formatTimelineTime(group.startTimeMs)}-{formatTimelineTime(group.endTimeMs)}</span>
+                          <span style={{ color: "#a1a1aa", fontSize: "0.68rem" }}>{group.anchors.length} anchors · {group.pattern} · {group.reasons.join(", ")}</span>
+                        </div>
+                        <span style={{ color: confidenceColor, fontSize: "0.72rem", fontWeight: 900, textTransform: "uppercase" }}>{group.confidence}</span>
+                      </div>
+                      <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+                        <button onClick={() => handleAcceptGroup(group)} style={{ padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(52,211,153,0.35)", background: "rgba(52,211,153,0.08)", color: "#34d399", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>Accept Group</button>
+                        <button onClick={() => handleMarkGroupUncertain(group)} style={{ padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(251,191,36,0.35)", background: "rgba(251,191,36,0.08)", color: "#fbbf24", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>Mark Uncertain</button>
+                        <button onClick={() => handleStartRetapRegion(group)} style={{ padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(96,165,250,0.35)", background: "rgba(96,165,250,0.08)", color: "#93c5fd", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>Retap Region</button>
+                        <button onClick={() => handleVerifyGroup(group)} style={{ padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(244,114,182,0.35)", background: verificationGroup?.id === group.id ? "rgba(244,114,182,0.22)" : "rgba(244,114,182,0.08)", color: "#f9a8d4", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>Verify Loop</button>
+                        <button onClick={() => setExpandedGroups(current => ({ ...current, [group.id]: !expanded }))} style={{ padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", background: "transparent", color: "#fff", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>{expanded ? "Hide Details" : "Review Details"}</button>
+                      </div>
+                      {expanded && group.anchors.map((anchor: any) => {
+                        const rawTap = taps.find((tap: any) => tap.id === anchor.tapId);
+                        const sampleCount = anchorSampleCount(anchor);
+                        return (
+                          <div key={`advanced-anchor-${anchor.id}`} style={{ display: "grid", gridTemplateColumns: "70px 1fr auto", alignItems: "center", gap: "8px", padding: "8px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.07)", background: anchor.reviewed ? "rgba(255,255,255,0.04)" : "rgba(251,191,36,0.08)" }}>
+                            <span style={{ color: "#fff", fontFamily: "monospace", fontSize: "0.72rem", fontWeight: 800 }}>{formatTimelineTime(anchor.timeMs)}</span>
+                            <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", alignItems: "center" }}>
+                              {sampleCount > 1 && (
+                                <span style={{ padding: "3px 7px", borderRadius: "6px", border: "1px solid rgba(96,165,250,0.25)", background: "rgba(96,165,250,0.08)", color: "#93c5fd", fontSize: "0.66rem", fontWeight: 900 }}>{sampleCount} samples</span>
+                              )}
+                              {reviewedAnchorOptions.map(option => (
+                                <button key={option.count} onClick={() => handleUpdateReviewedAnchor(anchor.id, { count: option.count, reviewed: true, confidence: "confirmed" }, true)} style={{ padding: "3px 9px", borderRadius: "999px", border: `1px solid ${anchor.count === option.count ? "#ffffff" : "rgba(255,255,255,0.12)"}`, background: anchor.count === option.count ? "#ffffff" : "transparent", color: anchor.count === option.count ? "#000" : "#a1a1aa", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>
+                                  {option.label}
+                                </button>
+                              ))}
+                              <button onClick={() => handleNudgeReviewedAnchor(anchor.id, -50)} style={{ padding: "3px 7px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", background: "transparent", color: "#fff", cursor: "pointer" }}>-50</button>
+                              <button onClick={() => handleNudgeReviewedAnchor(anchor.id, 50)} style={{ padding: "3px 7px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", background: "transparent", color: "#fff", cursor: "pointer" }}>+50</button>
+                              <button onClick={() => handleUpdateReviewedAnchor(anchor.id, { confidence: "uncertain", reviewed: true }, true)} style={{ padding: "3px 7px", borderRadius: "6px", border: "1px solid rgba(251,191,36,0.35)", background: "rgba(251,191,36,0.08)", color: "#fbbf24", cursor: "pointer" }}>Uncertain</button>
+                            </div>
+                            <div style={{ display: "flex", gap: "6px" }}>
+                              <button onClick={() => handleLoopReviewedAnchor(anchor.timeMs)} style={{ padding: "3px 7px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.04)", color: "#fff", cursor: "pointer" }}>Loop</button>
+                              <button onClick={() => rawTap && handleDeleteRawTap(rawTap.id)} style={{ padding: "3px 7px", borderRadius: "6px", border: "1px solid rgba(248,113,113,0.35)", background: "rgba(248,113,113,0.08)", color: "#fca5a5", cursor: "pointer" }}>Delete</button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })}
+                {tapGroups.length === 0 && (
+                  <div style={{ padding: "12px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.07)", color: "#71717a", fontSize: "0.76rem", textAlign: "center" }}>No anchor taps yet.</div>
+                )}
+              </div>
+            )}
           </div>
         )}
 
