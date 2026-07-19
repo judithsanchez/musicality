@@ -7,12 +7,13 @@ export default function DevCalibrationPanel({
   tags,
   onExit,
   onUpdateSectionField,
+  onUpdateSectionTime,
   onToggleSectionTag,
+  onAddSection,
+  onRemoveSection,
   onAddCategory,
   onAddTag,
-  validationErrors,
-  saving,
-  onPublishSong
+  validationErrors
 }) {
   const [collapsedSections, setCollapsedSections] = useState({});
 
@@ -46,6 +47,9 @@ export default function DevCalibrationPanel({
             Sections
           </span>
           <div style={{ display: "flex", gap: "6px" }}>
+            <button onClick={onAddSection} style={{ padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(96,165,250,0.35)", background: "rgba(96,165,250,0.08)", color: "#93c5fd", fontSize: "0.68rem", fontWeight: 800, cursor: "pointer" }}>
+              Section
+            </button>
             <button onClick={onAddCategory} style={{ padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.05)", color: "#fff", fontSize: "0.68rem", fontWeight: 800, cursor: "pointer" }}>
               Category
             </button>
@@ -87,13 +91,46 @@ export default function DevCalibrationPanel({
                       <option key={category.id} value={category.id}>{category.label}</option>
                     ))}
                   </select>
+                  <button
+                    type="button"
+                    disabled={editorSections.length <= 1}
+                    onClick={() => onRemoveSection(section.id)}
+                    style={{ padding: "5px 8px", borderRadius: "6px", border: "1px solid rgba(248,113,113,0.35)", background: "rgba(248,113,113,0.08)", color: "#fca5a5", fontSize: "0.68rem", fontWeight: 800, cursor: editorSections.length <= 1 ? "not-allowed" : "pointer", opacity: editorSections.length <= 1 ? 0.45 : 1 }}
+                  >
+                    Remove
+                  </button>
                 </div>
 
                 {!collapsedSections[section.id] && (
                   <>
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", fontSize: "0.7rem", color: "#a1a1aa" }}>
-                      <div>Start: <strong style={{ color: "#fff" }}>{(section.startTimeMs / 1000).toFixed(2)}s</strong></div>
-                      <div>End: <strong style={{ color: "#fff" }}>{(section.endTimeMs / 1000).toFixed(2)}s</strong></div>
+                      <label style={{ display: "flex", flexDirection: "column", gap: "3px", fontWeight: 800 }}>
+                        Start
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          disabled={sectionIndex === 0}
+                          value={(section.startTimeMs / 1000).toFixed(2)}
+                          onChange={(event) => onUpdateSectionTime(section.id, "startTimeMs", Number(event.target.value) * 1000)}
+                          style={{ padding: "5px 7px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.28)", color: "#fff", fontWeight: 900, opacity: sectionIndex === 0 ? 0.5 : 1 }}
+                        />
+                      </label>
+                      <label style={{ display: "flex", flexDirection: "column", gap: "3px", fontWeight: 800 }}>
+                        End
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          disabled={sectionIndex === editorSections.length - 1}
+                          value={(section.endTimeMs / 1000).toFixed(2)}
+                          onChange={(event) => onUpdateSectionTime(section.id, "endTimeMs", Number(event.target.value) * 1000)}
+                          style={{ padding: "5px 7px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.28)", color: "#fff", fontWeight: 900, opacity: sectionIndex === editorSections.length - 1 ? 0.5 : 1 }}
+                        />
+                      </label>
+                    </div>
+                    <div style={{ color: "#71717a", fontSize: "0.64rem", lineHeight: 1.35 }}>
+                      Boundary edits keep neighboring sections aligned.
                     </div>
                     <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
                       {tags.map(tag => {
@@ -112,26 +149,6 @@ export default function DevCalibrationPanel({
           })}
         </div>
       </div>
-
-      <button
-        onClick={onPublishSong}
-        disabled={saving}
-        style={{
-          width: "100%",
-          padding: "10px",
-          borderRadius: "8px",
-          background: "linear-gradient(135deg, #10b981, #059669)",
-          border: "none",
-          color: "#fff",
-          fontWeight: "900",
-          fontSize: "0.8rem",
-          cursor: saving ? "not-allowed" : "pointer",
-          opacity: saving ? 0.6 : 1,
-          marginTop: "auto"
-        }}
-      >
-        {saving ? "Publishing..." : "Publish Song"}
-      </button>
 
       {validationErrors && (
         <div style={{

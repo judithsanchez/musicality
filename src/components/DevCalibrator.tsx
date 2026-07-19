@@ -1547,12 +1547,13 @@ export default function DevCalibrator({
             tags={tags}
             onExit={onBackToCatalog}
             onUpdateSectionField={handleUpdateSectionField}
+            onUpdateSectionTime={handleUpdateSectionTimes}
             onToggleSectionTag={handleToggleSectionTag}
+            onAddSection={handleAddNewSection}
+            onRemoveSection={handleDeleteSection}
             onAddCategory={handleAddCategory}
             onAddTag={handleAddTag}
             validationErrors={validationErrors}
-            saving={saving}
-            onPublishSong={handlePublishSong}
           />
         )}
         {activeTab === 2 && (
