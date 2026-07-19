@@ -83,6 +83,8 @@ export default function DevCalibrator({
   const [activeTapSectionId, setActiveTapSectionId] = useState<string | null>(null);
   const [showTapMetronome, setShowTapMetronome] = useState(false);
   const [showTapAdvancedReview, setShowTapAdvancedReview] = useState(false);
+  const [tapCountdown, setTapCountdown] = useState<number | null>(null);
+  const [pendingTapRoundSection, setPendingTapRoundSection] = useState<any>(null);
   const [categories, setCategories] = useState<any[]>([]);
   const [tags, setTags] = useState<any[]>([]);
   const [focusedSectionId, setFocusedSectionId] = useState<string | null>(null);
@@ -110,6 +112,8 @@ export default function DevCalibrator({
   const metronomeBeatTimeRef = useRef<number | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const anchorLoopTimerRef = useRef<number | null>(null);
+  const tapCountdownTimerRef = useRef<number | null>(null);
+  const tapRoundEndTimerRef = useRef<number | null>(null);
   const reviewedAnchorOptions = songData?.genre === "BACHATA"
     ? [
       { count: 1, label: "1" },
@@ -335,6 +339,7 @@ export default function DevCalibrator({
   }, [activeReviewedAnchors, calibrationEvents, editorSections, tapCalibrationPasses, tapSectionDecisions]);
   const activeTapSectionCard = tapSectionCards.find((card: any) => card.section.id === activeTapSectionId) || tapSectionCards[0] || null;
   const activeTapPass = activeRetapRegion?.passId ? passById.get(activeRetapRegion.passId) as any : activePassId ? passById.get(activePassId) as any : null;
+  const activeTapRoundSectionId = activeRetapRegion?.sectionId || pendingTapRoundSection?.id || null;
 
   const visibleTimeline = useMemo(() => {
     const songEndMs = Math.round(duration * 1000);
@@ -720,6 +725,12 @@ export default function DevCalibrator({
       if (anchorLoopTimerRef.current) {
         window.clearInterval(anchorLoopTimerRef.current);
       }
+      if (tapCountdownTimerRef.current) {
+        window.clearInterval(tapCountdownTimerRef.current);
+      }
+      if (tapRoundEndTimerRef.current) {
+        window.clearInterval(tapRoundEndTimerRef.current);
+      }
     };
   }, []);
 
@@ -852,6 +863,10 @@ export default function DevCalibrator({
     }
 
     if (!player) return;
+    if (tapCountdown !== null || pendingTapRoundSection) {
+      showToast("Wait for the countdown.");
+      return;
+    }
     if (!activeRetapRegion) {
       showToast("Choose Calibrate Section or Retap Region first.");
       return;
@@ -969,10 +984,71 @@ export default function DevCalibrator({
     showToast(skipped ? "Section marked not needed." : "Section reopened for tap calibration.");
   };
 
+  const clearTapRoundTimers = () => {
+    if (tapCountdownTimerRef.current) {
+      window.clearInterval(tapCountdownTimerRef.current);
+      tapCountdownTimerRef.current = null;
+    }
+    if (tapRoundEndTimerRef.current) {
+      window.clearInterval(tapRoundEndTimerRef.current);
+      tapRoundEndTimerRef.current = null;
+    }
+  };
+
+  const handleStopRetapRegion = () => {
+    clearTapRoundTimers();
+    setTapCountdown(null);
+    setPendingTapRoundSection(null);
+    setActiveRetapRegion(null);
+    setActivePassId(null);
+    showToast("Tap round stopped.");
+  };
+
+  const armTapRoundPlayback = (region: any, passState: any) => {
+    const startSec = region.startTimeMs / 1000;
+    const endSec = region.endTimeMs / 1000;
+    setActiveRetapRegion({
+      id: region.id || `round:${passState.passId}`,
+      sectionId: region.sectionId,
+      passId: passState.passId,
+      startTimeMs: region.startTimeMs,
+      endTimeMs: region.endTimeMs
+    });
+    setPendingTapRoundSection(null);
+    setTapCountdown(null);
+    throttledSeek(startSec, true);
+    try {
+      player?.playVideo?.();
+    } catch (err) {
+      console.warn(err);
+    }
+    tapRoundEndTimerRef.current = window.setInterval(() => {
+      try {
+        if (player?.getCurrentTime?.() >= endSec) {
+          player?.pauseVideo?.();
+          if (tapRoundEndTimerRef.current) {
+            window.clearInterval(tapRoundEndTimerRef.current);
+            tapRoundEndTimerRef.current = null;
+          }
+          setActiveRetapRegion(null);
+          setActivePassId(null);
+          showToast("Tap round complete.");
+        }
+      } catch (err) {
+        console.warn(err);
+      }
+    }, 120);
+  };
+
   const handleStartSectionTapRound = (section: any) => {
     if (!deviceCalibration) {
       showToast("Calibrate device offset first.");
       return;
+    }
+    clearTapRoundTimers();
+    if (anchorLoopTimerRef.current) {
+      window.clearInterval(anchorLoopTimerRef.current);
+      anchorLoopTimerRef.current = null;
     }
     const decisions = latestSongDataRef.current?.tapCalibration?.sectionDecisions || [];
     if (decisions.some((decision: any) => decision.sectionId === section.id && decision.status === "not_needed")) {
@@ -980,16 +1056,38 @@ export default function DevCalibrator({
     }
     const passState = createTapPass(section.id);
     setActiveTapSectionId(section.id);
-    setActiveRetapRegion({
-      id: `section:${section.id}:${passState.passId}`,
-      sectionId: section.id,
-      passId: passState.passId,
-      startTimeMs: section.startTimeMs,
-      endTimeMs: section.endTimeMs
-    });
+    setFocusedSectionId(section.id);
+    setPendingTapRoundSection(section);
+    setActiveRetapRegion(null);
     setVerificationGroupId(`section:${section.id}`);
-    handleLoopRegion(section.startTimeMs, section.endTimeMs, 0);
-    showToast("Section tap round armed.");
+    zoomTimelineToRange(section.startTimeMs, section.endTimeMs, 500);
+    throttledSeek(section.startTimeMs / 1000, true);
+    try {
+      player?.pauseVideo?.();
+    } catch (err) {
+      console.warn(err);
+    }
+    setTapCountdown(3);
+    tapCountdownTimerRef.current = window.setInterval(() => {
+      setTapCountdown(current => {
+        if (current === null) return current;
+        if (current <= 1) {
+          if (tapCountdownTimerRef.current) {
+            window.clearInterval(tapCountdownTimerRef.current);
+            tapCountdownTimerRef.current = null;
+          }
+          armTapRoundPlayback({
+            id: `section:${section.id}:${passState.passId}`,
+            sectionId: section.id,
+            startTimeMs: section.startTimeMs,
+            endTimeMs: section.endTimeMs
+          }, passState);
+          return null;
+        }
+        return current - 1;
+      });
+    }, 1000);
+    showToast("Get ready to tap this section.");
   };
 
   const handleVerifySection = (section: any) => {
@@ -1104,31 +1202,52 @@ export default function DevCalibrator({
   };
 
   const handleStartRetapRegion = (group: any) => {
-    const section = editorSections.find(sec => group.startTimeMs >= sec.startTimeMs && group.startTimeMs < sec.endTimeMs);
-    const passState = createTapPass(section?.id);
-    const startTimeMs = Math.max(0, group.startTimeMs - 2000);
-    const endTimeMs = Math.min(Math.round(duration * 1000), group.endTimeMs + 2000);
-    setActiveRetapRegion({
-      id: group.id,
-      sectionId: section?.id,
-      passId: passState.passId,
-      startTimeMs,
-      endTimeMs
-    });
-    setVerificationGroupId(group.id);
-    handleLoopRegion(group.startTimeMs, group.endTimeMs);
-    showToast("Retap region armed.");
-  };
-
-  const handleStopRetapRegion = () => {
-    setActiveRetapRegion(null);
-    setActivePassId(null);
-    setVerificationGroupId(null);
+    if (!deviceCalibration) {
+      showToast("Calibrate device offset first.");
+      return;
+    }
+    clearTapRoundTimers();
     if (anchorLoopTimerRef.current) {
       window.clearInterval(anchorLoopTimerRef.current);
       anchorLoopTimerRef.current = null;
     }
-    showToast("Retap region stopped.");
+    const section = editorSections.find(sec => group.startTimeMs >= sec.startTimeMs && group.startTimeMs < sec.endTimeMs);
+    const passState = createTapPass(section?.id);
+    const startTimeMs = Math.max(0, group.startTimeMs - 2000);
+    const endTimeMs = Math.min(Math.round(duration * 1000), group.endTimeMs + 2000);
+    setActiveTapSectionId(section?.id || activeTapSectionId);
+    setFocusedSectionId(section?.id || focusedSectionId);
+    setPendingTapRoundSection(section || { id: group.id, category: "Retap Region", startTimeMs, endTimeMs });
+    setActiveRetapRegion(null);
+    setVerificationGroupId(group.id);
+    zoomTimelineToRange(startTimeMs, endTimeMs, 500);
+    throttledSeek(startTimeMs / 1000, true);
+    try {
+      player?.pauseVideo?.();
+    } catch (err) {
+      console.warn(err);
+    }
+    setTapCountdown(3);
+    tapCountdownTimerRef.current = window.setInterval(() => {
+      setTapCountdown(current => {
+        if (current === null) return current;
+        if (current <= 1) {
+          if (tapCountdownTimerRef.current) {
+            window.clearInterval(tapCountdownTimerRef.current);
+            tapCountdownTimerRef.current = null;
+          }
+          armTapRoundPlayback({
+            id: group.id,
+            sectionId: section?.id,
+            startTimeMs,
+            endTimeMs
+          }, passState);
+          return null;
+        }
+        return current - 1;
+      });
+    }, 1000);
+    showToast("Get ready to retap this region.");
   };
 
   const handleUpdateSectionTimes = (id: string, field: "startTimeMs" | "endTimeMs", valueMs: number) => {
@@ -1871,6 +1990,14 @@ export default function DevCalibrator({
         <div style={{ display: "flex", flexDirection: "column", gap: activeTab === 3 ? "8px" : "16px", maxWidth: activeTab === 3 ? "420px" : activeTab === 1 || activeTab === 2 ? "100%" : "800px", margin: activeTab === 1 || activeTab === 2 || activeTab === 3 ? "0" : "0 auto", width: "100%" }}>
           <div style={{ position: "relative" }}>
             {videoElement}
+            {activeTab === 3 && tapCountdown !== null && (
+              <div style={{ position: "absolute", inset: 0, pointerEvents: "none", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "12px", background: "rgba(0,0,0,0.46)", zIndex: 40 }}>
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px" }}>
+                  <span style={{ color: "#ffffff", fontSize: "5.5rem", lineHeight: 1, fontWeight: 1000, textShadow: "0 8px 32px rgba(0,0,0,0.75)" }}>{tapCountdown}</span>
+                  <span style={{ color: "#d4d4d8", fontSize: "0.82rem", fontWeight: 900, textTransform: "uppercase" }}>Get ready to tap</span>
+                </div>
+              </div>
+            )}
             {activeTab === 3 && verificationGroup && (
               <div style={{ position: "absolute", inset: 0, pointerEvents: "none", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", borderRadius: "12px" }}>
                 <div style={{ position: "absolute", top: "12px", left: "12px", right: "12px", display: "flex", justifyContent: "space-between", gap: "10px", alignItems: "flex-start" }}>
@@ -1978,8 +2105,8 @@ export default function DevCalibrator({
             <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
               {activeTapSectionCard && (
                 <>
-                  <button onClick={() => activeRetapRegion?.sectionId === activeTapSectionCard.section.id ? handleStopRetapRegion() : handleStartSectionTapRound(activeTapSectionCard.section)} style={{ flex: "1 1 120px", padding: "6px 8px", borderRadius: "6px", border: "1px solid rgba(96,165,250,0.35)", background: activeRetapRegion?.sectionId === activeTapSectionCard.section.id ? "#ffffff" : "rgba(96,165,250,0.08)", color: activeRetapRegion?.sectionId === activeTapSectionCard.section.id ? "#000" : "#93c5fd", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>
-                    {activeRetapRegion?.sectionId === activeTapSectionCard.section.id ? "Stop Round" : "Start Round"}
+                  <button onClick={() => activeTapRoundSectionId === activeTapSectionCard.section.id ? handleStopRetapRegion() : handleStartSectionTapRound(activeTapSectionCard.section)} style={{ flex: "1 1 120px", padding: "6px 8px", borderRadius: "6px", border: "1px solid rgba(96,165,250,0.35)", background: activeTapRoundSectionId === activeTapSectionCard.section.id ? "#ffffff" : "rgba(96,165,250,0.08)", color: activeTapRoundSectionId === activeTapSectionCard.section.id ? "#000" : "#93c5fd", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>
+                    {tapCountdown !== null && activeTapRoundSectionId === activeTapSectionCard.section.id ? "Starting..." : activeTapRoundSectionId === activeTapSectionCard.section.id ? "Stop Round" : "Start Round"}
                   </button>
                   <button onClick={() => handleVerifySection(activeTapSectionCard.section)} style={{ flex: "1 1 90px", padding: "6px 8px", borderRadius: "6px", border: "1px solid rgba(244,114,182,0.35)", background: verificationGroupId === `section:${activeTapSectionCard.section.id}` ? "rgba(244,114,182,0.22)" : "rgba(244,114,182,0.08)", color: "#f9a8d4", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>Verify</button>
                   <button onClick={() => updateTapSectionDecision(activeTapSectionCard.section.id, !activeTapSectionCard.markedNotNeeded)} style={{ flex: "1 1 120px", padding: "6px 8px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", background: activeTapSectionCard.markedNotNeeded ? "#ffffff" : "transparent", color: activeTapSectionCard.markedNotNeeded ? "#000" : "#d4d4d8", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>
