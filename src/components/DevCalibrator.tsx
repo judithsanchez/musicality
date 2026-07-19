@@ -1770,10 +1770,14 @@ export default function DevCalibrator({
                 ))}
               </>
             )}
-            <button onClick={() => activeTab === 2 ? showWholeEventTimeline() : setTimelineZoom(null)} style={{ fontSize: "0.65rem", padding: "3px 8px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.12)", background: timelineZoom ? "transparent" : "rgba(255,255,255,0.9)", color: timelineZoom ? "#a1a1aa" : "#000", cursor: "pointer", fontWeight: 800 }}>Fit Song</button>
-            <button onClick={() => zoomTimelineBy(0.55)} style={{ fontSize: "0.65rem", padding: "3px 8px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.12)", background: "transparent", color: "#a1a1aa", cursor: "pointer", fontWeight: 800 }}>Zoom In</button>
-            <button onClick={() => zoomTimelineBy(1.8)} style={{ fontSize: "0.65rem", padding: "3px 8px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.12)", background: "transparent", color: "#a1a1aa", cursor: "pointer", fontWeight: 800 }}>Zoom Out</button>
-            <button onClick={() => setFollowPlayhead(current => !current)} style={{ fontSize: "0.65rem", padding: "3px 8px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.12)", background: followPlayhead ? "#fff" : "transparent", color: followPlayhead ? "#000" : "#71717a", cursor: "pointer", fontWeight: 800 }}>Follow</button>
+            {activeTab === 3 && (
+              <>
+                <button onClick={() => setTimelineZoom(null)} style={{ fontSize: "0.65rem", padding: "3px 8px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.12)", background: timelineZoom ? "transparent" : "rgba(255,255,255,0.9)", color: timelineZoom ? "#a1a1aa" : "#000", cursor: "pointer", fontWeight: 800 }}>Fit Song</button>
+                <button onClick={() => zoomTimelineBy(0.55)} style={{ fontSize: "0.65rem", padding: "3px 8px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.12)", background: "transparent", color: "#a1a1aa", cursor: "pointer", fontWeight: 800 }}>Zoom In</button>
+                <button onClick={() => zoomTimelineBy(1.8)} style={{ fontSize: "0.65rem", padding: "3px 8px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.12)", background: "transparent", color: "#a1a1aa", cursor: "pointer", fontWeight: 800 }}>Zoom Out</button>
+                <button onClick={() => setFollowPlayhead(current => !current)} style={{ fontSize: "0.65rem", padding: "3px 8px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.12)", background: followPlayhead ? "#fff" : "transparent", color: followPlayhead ? "#000" : "#71717a", cursor: "pointer", fontWeight: 800 }}>Follow</button>
+              </>
+            )}
             <span style={{ fontFamily: "monospace", fontSize: "0.78rem", color: "#ffffff", fontWeight: 600 }}>
               {timelineStatusText}
             </span>
