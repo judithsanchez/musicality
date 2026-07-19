@@ -582,11 +582,23 @@ export default function DevCalibrator({
       }
     });
 
-    const clusterAnchors = clusters
+    const sortedClusters = clusters
       .filter(cluster => cluster.taps.length > 0)
-      .map(cluster => {
+      .map(cluster => ({
+        ...cluster,
+        timeMs: Math.round(median(cluster.taps.map((tap: any) => tap.correctedTimeMs)))
+      }))
+      .sort((a, b) => a.timeMs - b.timeMs);
+    const previousAnchor = preservedAnchors
+      .filter(anchor => anchor.timeMs < region.startTimeMs)
+      .sort((a, b) => b.timeMs - a.timeMs)[0];
+    const firstCount = previousAnchor ? expectedNextCount(previousAnchor.count) : countCycle[0];
+    const firstCountIndex = Math.max(0, countCycle.indexOf(firstCount));
+
+    const clusterAnchors = sortedClusters
+      .map((cluster, index) => {
         const sampleTimes = cluster.taps.map((tap: any) => tap.correctedTimeMs);
-        const clusterTimeMs = Math.round(median(sampleTimes));
+        const clusterTimeMs = cluster.timeMs;
         const representativeTap = cluster.taps.reduce((best: any, tap: any) => {
           if (!best || Math.abs(tap.correctedTimeMs - clusterTimeMs) < Math.abs(best.correctedTimeMs - clusterTimeMs)) return tap;
           return best;
@@ -595,7 +607,7 @@ export default function DevCalibrator({
           id: crypto.randomUUID(),
           tapId: representativeTap.id,
           timeMs: clusterTimeMs,
-          count: cluster.seedCount || suggestedCountForTap(clusterTimeMs, passId, preservedAnchors, nextTaps),
+          count: countCycle[(firstCountIndex + index) % countCycle.length],
           confidence: "suggested",
           reviewed: false
         };
