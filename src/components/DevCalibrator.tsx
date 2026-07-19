@@ -160,6 +160,15 @@ export default function DevCalibrator({
     const pass = tap ? passById.get(tap.passId) as any : null;
     return !pass?.excluded;
   }), [passById, reviewedAnchors, tapById]);
+  const displayReviewedAnchors = useMemo(() => reviewedAnchors.filter((anchor: any) => {
+    const tap = tapById.get(anchor.tapId) as any;
+    const pass = tap ? passById.get(tap.passId) as any : null;
+    return !pass?.excluded || pass?.id === activePassId;
+  }), [activePassId, passById, reviewedAnchors, tapById]);
+  const displayTaps = useMemo(() => taps.filter((tap: any) => {
+    const pass = passById.get(tap.passId) as any;
+    return !pass?.excluded || pass?.id === activePassId;
+  }), [activePassId, passById, taps]);
 
   const tapGroups = useMemo(() => {
     const anchors = [...activeReviewedAnchors].sort((a, b) => a.timeMs - b.timeMs);
@@ -201,7 +210,10 @@ export default function DevCalibrator({
       const hasSuggested = group.some(anchor => !anchor.reviewed || anchor.confidence === "suggested");
       const hasLargeInternalGap = groupGaps.some(gap => gap > splitThresholdMs);
       const groupTapIds = new Set(group.map(anchor => anchor.tapId));
-      const groupTaps = taps.filter((tap: any) => groupTapIds.has(tap.id) || (tap.correctedTimeMs >= group[0].timeMs - 250 && tap.correctedTimeMs <= group.at(-1).timeMs + 250));
+      const groupTaps = taps.filter((tap: any) => {
+        const pass = passById.get(tap.passId) as any;
+        return !pass?.excluded && (groupTapIds.has(tap.id) || (tap.correctedTimeMs >= group[0].timeMs - 250 && tap.correctedTimeMs <= group.at(-1).timeMs + 250));
+      });
       const passIds = Array.from(new Set(groupTaps.map((tap: any) => tap.passId)));
       let passDisagreement = false;
       if (passIds.length > 1) {
@@ -246,23 +258,33 @@ export default function DevCalibrator({
         reasons: reasons.length ? reasons : ["stable"]
       };
     });
-  }, [activeReviewedAnchors, taps, countCycle]);
+  }, [activeReviewedAnchors, taps, passById, countCycle]);
 
   const verificationGroup = useMemo(() => {
     if (verificationGroupId) {
       const matchedGroup = tapGroups.find((group: any) => group.id === verificationGroupId);
-      if (matchedGroup) return matchedGroup;
+      if (matchedGroup) {
+        const anchors = displayReviewedAnchors
+          .filter((anchor: any) => anchor.timeMs >= matchedGroup.startTimeMs && anchor.timeMs <= matchedGroup.endTimeMs)
+          .sort((a: any, b: any) => a.timeMs - b.timeMs);
+        return {
+          ...matchedGroup,
+          anchors,
+          passIds: Array.from(new Set(anchors.map((anchor: any) => (tapById.get(anchor.tapId) as any)?.passId).filter(Boolean)))
+        };
+      }
       if (verificationGroupId.startsWith("section:")) {
         const sectionId = verificationGroupId.replace("section:", "");
         const section = editorSections.find(item => item.id === sectionId);
         if (!section) return null;
-        const anchors = activeReviewedAnchors
+        const anchors = displayReviewedAnchors
           .filter((anchor: any) => anchor.timeMs >= section.startTimeMs && anchor.timeMs <= section.endTimeMs)
           .sort((a: any, b: any) => a.timeMs - b.timeMs);
         return {
           id: verificationGroupId,
           index: editorSections.findIndex(item => item.id === sectionId),
           anchors,
+          passIds: Array.from(new Set(anchors.map((anchor: any) => (tapById.get(anchor.tapId) as any)?.passId).filter(Boolean))),
           startTimeMs: section.startTimeMs,
           endTimeMs: section.endTimeMs,
           confidence: anchors.length >= 3 ? "medium" : "low",
@@ -271,7 +293,7 @@ export default function DevCalibrator({
       }
     }
     return null;
-  }, [activeReviewedAnchors, editorSections, tapGroups, verificationGroupId]);
+  }, [displayReviewedAnchors, editorSections, tapById, tapGroups, verificationGroupId]);
 
   const verificationAnchors = useMemo(() => {
     if (!verificationGroup) return [];
@@ -740,13 +762,13 @@ export default function DevCalibrator({
     return createTapPass(activeTapSectionId || undefined);
   };
 
-  const createTapPass = (sectionId?: string) => {
+  const createTapPass = (sectionId?: string, excluded = false) => {
     const pass = {
       id: crypto.randomUUID(),
       startedAt: new Date().toISOString(),
       inputLatencyMs: deviceCalibration?.inputLatencyMs || 0,
       sectionId,
-      excluded: false
+      excluded
     };
     const nextPasses = [...tapCalibrationPasses, pass];
     setTapCalibrationPasses(nextPasses);
@@ -778,7 +800,8 @@ export default function DevCalibrator({
     const seedAnchors = anchorSource
       .filter(anchor => {
         const tap = tapLookup.get(anchor.tapId) as any;
-        return tap?.passId !== passId && anchor.timeMs >= region.startTimeMs - 900 && anchor.timeMs <= region.endTimeMs + 900;
+        const pass = tap ? passById.get(tap.passId) as any : null;
+        return tap?.passId !== passId && !pass?.excluded && anchor.timeMs >= region.startTimeMs - 900 && anchor.timeMs <= region.endTimeMs + 900;
       })
       .sort((a, b) => a.timeMs - b.timeMs);
     const preservedAnchors = anchorSource.filter(anchor => {
@@ -843,13 +866,7 @@ export default function DevCalibrator({
         };
       });
 
-    const recalibratedAnchors = preservedAnchors.filter(anchor => {
-      const tap = tapLookup.get(anchor.tapId) as any;
-      const isReplacedCandidate = tap?.passId !== passId && !anchor.reviewed && anchor.timeMs >= region.startTimeMs && anchor.timeMs <= region.endTimeMs && clusterAnchors.some(clusterAnchor => Math.abs(clusterAnchor.timeMs - anchor.timeMs) <= 900);
-      return !isReplacedCandidate;
-    });
-
-    return [...recalibratedAnchors, ...clusterAnchors];
+    return [...preservedAnchors, ...clusterAnchors];
   };
 
   const handleTap = () => {
@@ -950,6 +967,24 @@ export default function DevCalibrator({
     updateTapCalibrationState(tapCalibrationPasses, taps, nextAnchors, true);
   };
 
+  const activateSectionPass = (passId: string) => {
+    const acceptedPass = passById.get(passId) as any;
+    if (!acceptedPass?.sectionId) return false;
+    const nextPasses = tapCalibrationPasses.map((pass: any) => {
+      if (pass.id === passId) return { ...pass, excluded: false };
+      if (pass.sectionId === acceptedPass.sectionId) return { ...pass, excluded: true };
+      return pass;
+    });
+    const nextAnchors = reviewedAnchors.map(anchor => {
+      const tap = tapById.get(anchor.tapId) as any;
+      return tap?.passId === passId
+        ? { ...anchor, reviewed: true, confidence: "confirmed" }
+        : anchor;
+    });
+    updateTapCalibrationState(nextPasses, taps, nextAnchors, true);
+    return true;
+  };
+
   const handleNudgeReviewedAnchor = (anchorId: string, deltaMs: number) => {
     const anchor = reviewedAnchors.find(item => item.id === anchorId);
     if (!anchor) return;
@@ -1031,7 +1066,6 @@ export default function DevCalibrator({
             tapRoundEndTimerRef.current = null;
           }
           setActiveRetapRegion(null);
-          setActivePassId(null);
           showToast("Tap round complete.");
         }
       } catch (err) {
@@ -1054,7 +1088,7 @@ export default function DevCalibrator({
     if (decisions.some((decision: any) => decision.sectionId === section.id && decision.status === "not_needed")) {
       updateTapSectionDecision(section.id, false);
     }
-    const passState = createTapPass(section.id);
+    const passState = createTapPass(section.id, true);
     setActiveTapSectionId(section.id);
     setFocusedSectionId(section.id);
     setPendingTapRoundSection(section);
@@ -1106,6 +1140,11 @@ export default function DevCalibrator({
   };
 
   const handleExcludePass = (passId: string, excluded: boolean) => {
+    if (!excluded && activateSectionPass(passId)) {
+      setActivePassId(passId);
+      showToast("Round restored as active section calibration.");
+      return;
+    }
     const nextPasses = tapCalibrationPasses.map((pass: any) => pass.id === passId ? { ...pass, excluded } : pass);
     updateTapCalibrationState(nextPasses, taps, reviewedAnchors, true);
     if (activePassId === passId && excluded) setActivePassId(null);
@@ -1180,13 +1219,20 @@ export default function DevCalibrator({
 
   const handleVerifyLooksRight = () => {
     if (!verificationGroup) return;
-    handleAcceptGroup(verificationGroup);
+    const candidatePass = activePassId ? passById.get(activePassId) as any : null;
+    const verifiedPassIds = new Set(verificationGroup.passIds || []);
+    const activated = activePassId && candidatePass?.sectionId && verifiedPassIds.has(activePassId)
+      ? activateSectionPass(activePassId)
+      : false;
+    if (!activated) {
+      handleAcceptGroup(verificationGroup);
+    }
     setVerificationGroupId(null);
     if (anchorLoopTimerRef.current) {
       window.clearInterval(anchorLoopTimerRef.current);
       anchorLoopTimerRef.current = null;
     }
-    showToast("Group accepted.");
+    showToast(activated ? "Section round accepted." : "Group accepted.");
   };
 
   const handleVerifyFeelsOff = () => {
@@ -1212,7 +1258,7 @@ export default function DevCalibrator({
       anchorLoopTimerRef.current = null;
     }
     const section = editorSections.find(sec => group.startTimeMs >= sec.startTimeMs && group.startTimeMs < sec.endTimeMs);
-    const passState = createTapPass(section?.id);
+    const passState = createTapPass(section?.id, true);
     const startTimeMs = Math.max(0, group.startTimeMs - 2000);
     const endTimeMs = Math.min(Math.round(duration * 1000), group.endTimeMs + 2000);
     setActiveTapSectionId(section?.id || activeTapSectionId);
@@ -2400,7 +2446,7 @@ export default function DevCalibrator({
                 );
               })}
 
-              {timelineModeShowsRawTaps && taps.filter((tap: any) => tap.correctedTimeMs >= visibleTimeline.startTimeMs && tap.correctedTimeMs <= visibleTimeline.endTimeMs).map((tap: any) => (
+              {timelineModeShowsRawTaps && displayTaps.filter((tap: any) => tap.correctedTimeMs >= visibleTimeline.startTimeMs && tap.correctedTimeMs <= visibleTimeline.endTimeMs).map((tap: any) => (
                 <div key={tap.id} title={`Raw anchor ${(tap.correctedTimeMs / 1000).toFixed(2)}s`} style={{ position: "absolute", top: `${rawTapLane.top}px`, height: `${rawTapLane.height}px`, left: `${timelinePct(tap.correctedTimeMs)}%`, width: "2px", background: "#a1a1aa", opacity: 0.72, zIndex: 8, pointerEvents: "none" }} />
               ))}
 
