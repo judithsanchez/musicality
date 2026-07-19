@@ -92,6 +92,8 @@ export default function DevCalibrator({
   const liveDisplayTime = player ? liveTime : currentTime;
   const timelineRef = useRef<HTMLDivElement>(null);
   const latestSongDataRef = useRef<any>(null);
+  const saveInFlightRef = useRef(false);
+  const pendingSaveRef = useRef<any>(null);
   const metronomeTimerRef = useRef<number | null>(null);
   const metronomeBeatTimeRef = useRef<number | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -398,22 +400,33 @@ export default function DevCalibrator({
   }, [songData?.youtubeId]);
 
   const autoSaveSongMap = (updatedData: any) => {
+    pendingSaveRef.current = updatedData;
+    if (saveInFlightRef.current) return;
+    const dataToSave = pendingSaveRef.current;
+    pendingSaveRef.current = null;
+    saveInFlightRef.current = true;
     setSaving(true);
     fetch("/api/songs", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(updatedData)
+      body: JSON.stringify(dataToSave)
     })
     .then(r => r.json())
     .then(res => {
-      setSaving(false);
       if (!res.success) {
         showToast("❌ Auto-save failed");
       }
     })
     .catch(err => {
-      setSaving(false);
       showToast("❌ Auto-save failed");
+    })
+    .finally(() => {
+      saveInFlightRef.current = false;
+      if (pendingSaveRef.current) {
+        autoSaveSongMap(pendingSaveRef.current);
+        return;
+      }
+      setSaving(false);
     });
   };
 
@@ -1395,7 +1408,7 @@ export default function DevCalibrator({
     window.addEventListener("mouseup", handleMouseUp);
   };
 
-  const sortedEvents = songData?.events || [];
+  const sortedEvents = latestSongDataRef.current?.events || calibratedSongData?.events || songData?.events || [];
   const activeEventSection = activeTab === 2 && eventTimelineScope === "section"
     ? editorSections.find(section => section.id === focusedSectionId)
     : null;
@@ -1907,7 +1920,7 @@ export default function DevCalibrator({
                 );
               })}
 
-              {timelineModeShowsEvents && (songData?.events || []).map((event: any, index: number) => {
+              {timelineModeShowsEvents && sortedEvents.map((event: any, index: number) => {
                 if (!timelineRangeVisible(event.startTimeMs, event.endTimeMs)) return null;
                 const leftPct = timelinePct(clampVisibleTime(event.startTimeMs));
                 const widthPct = timelineWidthPct(clampVisibleTime(event.startTimeMs), clampVisibleTime(event.endTimeMs));
@@ -2044,7 +2057,7 @@ export default function DevCalibrator({
               );
             })}
 
-            {activeTab === 2 && (songData?.events || []).flatMap((event: any, index: number) => {
+            {activeTab === 2 && sortedEvents.flatMap((event: any, index: number) => {
               if (!timelineRangeVisible(event.startTimeMs, event.endTimeMs)) return [];
               const startPct = timelinePct(clampVisibleTime(event.startTimeMs));
               const endPct = timelinePct(clampVisibleTime(event.endTimeMs));
