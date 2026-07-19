@@ -6,7 +6,6 @@ export default function DevCalibrationPanel({
   lockedSectionTimes,
   categories,
   tags,
-  onExit,
   onUpdateSectionField,
   onUpdateSectionTime,
   onToggleSectionTag,
@@ -67,12 +66,6 @@ export default function DevCalibrationPanel({
         <span style={{ fontSize: "0.9rem", fontWeight: "800", color: "#ffffff", textTransform: "uppercase", letterSpacing: "0.5px" }}>
           Calibration Desk
         </span>
-        <button
-          onClick={onExit}
-          style={{ background: "rgba(255, 255, 255, 0.04)", border: "1px solid #27272a", color: "#ffffff", padding: "2px 8px", borderRadius: "6px", fontSize: "0.7rem", fontWeight: "700", cursor: "pointer" }}
-        >
-          Exit
-        </button>
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>

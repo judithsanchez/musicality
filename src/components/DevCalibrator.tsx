@@ -1574,7 +1574,6 @@ export default function DevCalibrator({
             lockedSectionTimes={lockedSectionTimes}
             categories={categories}
             tags={tags}
-            onExit={onBackToCatalog}
             onUpdateSectionField={handleUpdateSectionField}
             onUpdateSectionTime={handleUpdateSectionTimes}
             onToggleSectionTag={handleToggleSectionTag}
@@ -1592,12 +1591,6 @@ export default function DevCalibrator({
               <span style={{ fontSize: "0.9rem", fontWeight: 800, color: "#ffffff", textTransform: "uppercase", letterSpacing: "0.5px" }}>
                 🎭 Event Ranges
               </span>
-              <button
-                onClick={onBackToCatalog}
-                style={{ background: "rgba(255, 255, 255, 0.04)", border: "1px solid #27272a", color: "#ffffff", padding: "2px 8px", borderRadius: "6px", fontSize: "0.7rem", fontWeight: 700, cursor: "pointer" }}
-              >
-                Exit
-              </button>
             </div>
             <EventAnnotationPanel
               selectedEvent={focusedEvent}
