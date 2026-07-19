@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef, useCallback, RefObject } from "react";
 
+const HIDE_DOWNBEATS_TAG = "hide-downbeats";
+
 interface SyncEngineResult {
   currentTime: number;
   currentBeat: any;
@@ -133,7 +135,11 @@ export function useSyncEngine(
         }
         setActiveSection(matchedSection);
 
-        if (matchedSection && ['intro', 'outro'].includes(matchedSection.category)) {
+        const matchedEvent = (sData.events || []).find((event: any) => visualTimeMs >= event.startTimeMs && visualTimeMs < event.endTimeMs);
+        const sectionHidesDownbeats = matchedSection && (['intro', 'outro'].includes(matchedSection.category) || (matchedSection.tags || []).includes(HIDE_DOWNBEATS_TAG));
+        const eventHidesDownbeats = matchedEvent && (matchedEvent.tags || []).includes(HIDE_DOWNBEATS_TAG);
+
+        if (sectionHidesDownbeats || eventHidesDownbeats) {
           setCurrentBeat(null);
           frameIdRef.current = requestAnimationFrame(updateLoop);
           return;
