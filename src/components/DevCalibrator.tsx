@@ -1729,7 +1729,6 @@ export default function DevCalibrator({
                 const leftPct = timelinePct(clampVisibleTime(sec.startTimeMs));
                 const color = SECTION_PALETTE[idx % SECTION_PALETTE.length];
                 const isActive = sec.id === focusedSectionId;
-                const labelText = sec.category ? getCategoryLabel(sec.category) : `Section ${idx + 1}`;
 
                 return (
                   <div
@@ -1755,11 +1754,7 @@ export default function DevCalibrator({
                       overflow: "hidden",
                       cursor: "pointer"
                     }}
-                  >
-                    <span style={{ fontSize: "0.7rem", fontWeight: 800, color: color.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                      {labelText}
-                    </span>
-                  </div>
+                  />
                 );
               })}
 
