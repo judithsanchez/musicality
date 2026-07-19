@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Scissors } from "lucide-react";
 import DevCalibrationPanel from "./DevCalibrationPanel";
 import EventAnnotationPanel from "./EventAnnotationPanel";
@@ -68,6 +68,8 @@ export default function DevCalibrator({
   const [metronomeActive, setMetronomeActive] = useState(false);
   const [metronomeBeat, setMetronomeBeat] = useState(0);
   const [metronomeSamples, setMetronomeSamples] = useState<number[]>([]);
+  const [activeRetapRegion, setActiveRetapRegion] = useState<any>(null);
+  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
   const [categories, setCategories] = useState<any[]>([]);
   const [tags, setTags] = useState<any[]>([]);
   const [focusedSectionId, setFocusedSectionId] = useState<string | null>(null);
@@ -97,6 +99,106 @@ export default function DevCalibrator({
       { count: 1, label: "1" },
       { count: 5, label: "5" }
     ];
+  const countCycle = reviewedAnchorOptions.map(option => option.count);
+
+  const median = (values: number[]) => {
+    if (values.length === 0) return 0;
+    const sorted = [...values].sort((a, b) => a - b);
+    const middle = Math.floor(sorted.length / 2);
+    return sorted.length % 2 === 0 ? (sorted[middle - 1] + sorted[middle]) / 2 : sorted[middle];
+  };
+
+  const expectedNextCount = (count: number) => {
+    const index = countCycle.indexOf(count);
+    return countCycle[(index + 1) % countCycle.length];
+  };
+
+  const tapGroups = useMemo(() => {
+    const anchors = [...reviewedAnchors].sort((a, b) => a.timeMs - b.timeMs);
+    if (anchors.length === 0) return [];
+
+    const gaps = anchors.slice(1).map((anchor, index) => anchor.timeMs - anchors[index].timeMs);
+    const localMedianGap = median(gaps.filter(gap => gap <= 6000)) || median(gaps) || 0;
+    const splitThresholdMs = localMedianGap > 0 ? Math.min(3200, localMedianGap * 1.45) : 3200;
+    const rawGroups: any[][] = [];
+    let currentGroup: any[] = [];
+
+    anchors.forEach((anchor, index) => {
+      if (index > 0 && anchor.timeMs - anchors[index - 1].timeMs > splitThresholdMs) {
+        rawGroups.push(currentGroup);
+        currentGroup = [];
+      }
+      currentGroup.push(anchor);
+    });
+    if (currentGroup.length > 0) {
+      rawGroups.push(currentGroup);
+    }
+
+    return rawGroups.map((group, index) => {
+      const groupGaps = group.slice(1).map((anchor, anchorIndex) => anchor.timeMs - group[anchorIndex].timeMs);
+      const previousGroupAnchor = rawGroups[index - 1]?.at(-1);
+      const nextGroupAnchor = rawGroups[index + 1]?.[0];
+      const gapBefore = previousGroupAnchor ? group[0].timeMs - previousGroupAnchor.timeMs : 0;
+      const gapAfter = nextGroupAnchor ? nextGroupAnchor.timeMs - group.at(-1).timeMs : 0;
+      const cycleAnchors = group.reduce((values: any[], anchor: any) => {
+        const last = values.at(-1);
+        if (!last || Math.abs(anchor.timeMs - last.timeMs) > 800) {
+          values.push(anchor);
+        }
+        return values;
+      }, []);
+      const cycleGaps = cycleAnchors.slice(1).map((anchor: any, anchorIndex: number) => anchor.timeMs - cycleAnchors[anchorIndex].timeMs);
+      const invalidCycle = cycleAnchors.slice(1).some((anchor: any, anchorIndex: number) => anchor.count !== expectedNextCount(cycleAnchors[anchorIndex].count));
+      const hasUncertain = group.some(anchor => anchor.confidence === "uncertain");
+      const hasSuggested = group.some(anchor => !anchor.reviewed || anchor.confidence === "suggested");
+      const hasLargeInternalGap = groupGaps.some(gap => gap > splitThresholdMs);
+      const groupTapIds = new Set(group.map(anchor => anchor.tapId));
+      const groupTaps = taps.filter((tap: any) => groupTapIds.has(tap.id) || (tap.correctedTimeMs >= group[0].timeMs - 250 && tap.correctedTimeMs <= group.at(-1).timeMs + 250));
+      const passIds = Array.from(new Set(groupTaps.map((tap: any) => tap.passId)));
+      let passDisagreement = false;
+      if (passIds.length > 1) {
+        const basePassId = passIds[0];
+        const baseTaps = groupTaps.filter((tap: any) => tap.passId === basePassId);
+        const repairTaps = groupTaps.filter((tap: any) => tap.passId !== basePassId);
+        passDisagreement = repairTaps.some((tap: any) => {
+          const closest = baseTaps.reduce((best: number, baseTap: any) => Math.min(best, Math.abs(baseTap.correctedTimeMs - tap.correctedTimeMs)), Infinity);
+          return closest > 150;
+        });
+      }
+      const reasons: string[] = [];
+      if (index === 0 && group[0].timeMs < 20000) reasons.push("intro");
+      if (cycleAnchors.length < 3) reasons.push("sparse");
+      if (invalidCycle) reasons.push("pattern");
+      if (hasLargeInternalGap) reasons.push("large gap");
+      if (gapBefore > splitThresholdMs) reasons.push("gap before");
+      if (gapAfter > splitThresholdMs) reasons.push("gap after");
+      if (hasUncertain) reasons.push("uncertain");
+      if (passDisagreement) reasons.push("pass disagreement");
+      if (hasSuggested) reasons.push("needs review");
+      if (passIds.length > 1 && !passDisagreement) reasons.push("passes agree");
+
+      let confidence = "high";
+      if (cycleAnchors.length < 3 || invalidCycle || hasLargeInternalGap || hasUncertain || passDisagreement || (index === 0 && group[0].timeMs < 20000) || ((gapBefore > splitThresholdMs || gapAfter > splitThresholdMs) && cycleAnchors.length <= 5)) {
+        confidence = "low";
+      } else if (cycleAnchors.length < 4 || hasSuggested) {
+        confidence = "medium";
+      }
+
+      return {
+        id: `tap-group-${index}`,
+        index,
+        anchors: group,
+        startTimeMs: group[0].timeMs,
+        endTimeMs: group.at(-1).timeMs,
+        pattern: cycleAnchors.map((anchor: any) => anchor.count).join(" "),
+        medianGapMs: median(cycleGaps),
+        maxGapMs: cycleGaps.length ? Math.max(...cycleGaps) : 0,
+        passIds,
+        confidence,
+        reasons: reasons.length ? reasons : ["stable"]
+      };
+    });
+  }, [reviewedAnchors, taps, countCycle]);
 
   useEffect(() => {
     latestSongDataRef.current = calibratedSongData || songData;
@@ -378,6 +480,10 @@ export default function DevCalibrator({
 
   const ensureActivePass = () => {
     if (activePassId) return { passId: activePassId, passes: tapCalibrationPasses };
+    return createTapPass();
+  };
+
+  const createTapPass = () => {
     const pass = {
       id: crypto.randomUUID(),
       startedAt: new Date().toISOString(),
@@ -389,12 +495,20 @@ export default function DevCalibrator({
     return { passId: pass.id, passes: nextPasses };
   };
 
-  const suggestedCountForNextTap = () => {
-    const lastAnchor = [...reviewedAnchors].sort((a, b) => a.timeMs - b.timeMs).at(-1);
-    const cycle = reviewedAnchorOptions.map(option => option.count);
-    if (!lastAnchor) return cycle[0];
-    const index = cycle.indexOf(lastAnchor.count);
-    return cycle[(index + 1) % cycle.length] || cycle[0];
+  const suggestedCountForTap = (timeMs: number, passId: string) => {
+    const existingAnchors = [...reviewedAnchors]
+      .filter(anchor => taps.find((tap: any) => tap.id === anchor.tapId)?.passId !== passId)
+      .sort((a, b) => a.timeMs - b.timeMs);
+    const nearest = existingAnchors.reduce((best: any, anchor: any) => {
+      if (!best || Math.abs(anchor.timeMs - timeMs) < Math.abs(best.timeMs - timeMs)) return anchor;
+      return best;
+    }, null);
+    if (nearest && Math.abs(nearest.timeMs - timeMs) <= 800) return nearest.count;
+
+    const previous = existingAnchors.filter(anchor => anchor.timeMs < timeMs).at(-1);
+    if (!previous) return countCycle[0];
+    const index = countCycle.indexOf(previous.count);
+    return countCycle[(index + 1) % countCycle.length] || countCycle[0];
   };
 
   const handleTap = () => {
@@ -415,14 +529,18 @@ export default function DevCalibrator({
     const rawTimeMs = Math.round(currentTime * 1000);
     const correctedTimeMs = Math.max(0, rawTimeMs - inputLatencyMs);
     if (correctedTimeMs > duration * 1000) return;
+    if (activeRetapRegion && (correctedTimeMs < activeRetapRegion.startTimeMs || correctedTimeMs > activeRetapRegion.endTimeMs)) {
+      showToast("Tap inside the active retap region.");
+      return;
+    }
 
-    const tooCloseToTap = taps.some((tap: any) => Math.abs(tap.correctedTimeMs - correctedTimeMs) < 120);
+    const passState = ensureActivePass();
+    const tooCloseToTap = taps.some((tap: any) => tap.passId === passState.passId && Math.abs(tap.correctedTimeMs - correctedTimeMs) < 120);
     if (tooCloseToTap) {
       showToast("Tap is too close to an existing mark.");
       return;
     }
 
-    const passState = ensureActivePass();
     const tap = {
       id: crypto.randomUUID(),
       timeMs: rawTimeMs,
@@ -434,7 +552,7 @@ export default function DevCalibrator({
       id: crypto.randomUUID(),
       tapId: tap.id,
       timeMs: correctedTimeMs,
-      count: suggestedCountForNextTap(),
+      count: suggestedCountForTap(correctedTimeMs, passState.passId),
       confidence: "suggested",
       reviewed: false
     };
@@ -452,6 +570,24 @@ export default function DevCalibrator({
       };
     });
     updateTapCalibrationState(tapCalibrationPasses, taps, nextAnchors, triggerAutoSave);
+  };
+
+  const handleAcceptGroup = (group: any) => {
+    const groupAnchorIds = new Set(group.anchors.map((anchor: any) => anchor.id));
+    const nextAnchors = reviewedAnchors.map(anchor => groupAnchorIds.has(anchor.id)
+      ? { ...anchor, reviewed: true, confidence: "confirmed" }
+      : anchor
+    );
+    updateTapCalibrationState(tapCalibrationPasses, taps, nextAnchors, true);
+  };
+
+  const handleMarkGroupUncertain = (group: any) => {
+    const groupAnchorIds = new Set(group.anchors.map((anchor: any) => anchor.id));
+    const nextAnchors = reviewedAnchors.map(anchor => groupAnchorIds.has(anchor.id)
+      ? { ...anchor, reviewed: true, confidence: "uncertain" }
+      : anchor
+    );
+    updateTapCalibrationState(tapCalibrationPasses, taps, nextAnchors, true);
   };
 
   const handleNudgeReviewedAnchor = (anchorId: string, deltaMs: number) => {
@@ -493,6 +629,53 @@ export default function DevCalibrator({
         anchorLoopTimerRef.current = null;
       }
     }, 12000);
+  };
+
+  const handleLoopRegion = (startTimeMs: number, endTimeMs: number) => {
+    const startSec = Math.max(0, (startTimeMs - 2000) / 1000);
+    const endSec = Math.min(duration, (endTimeMs + 2000) / 1000);
+    if (anchorLoopTimerRef.current) {
+      window.clearInterval(anchorLoopTimerRef.current);
+    }
+    throttledSeek(startSec, true);
+    try {
+      player?.playVideo?.();
+    } catch (err) {
+      console.warn(err);
+    }
+    anchorLoopTimerRef.current = window.setInterval(() => {
+      try {
+        if (player?.getCurrentTime?.() >= endSec) {
+          throttledSeek(startSec, true);
+        }
+      } catch (err) {
+        console.warn(err);
+      }
+    }, 150);
+  };
+
+  const handleStartRetapRegion = (group: any) => {
+    const passState = createTapPass();
+    const startTimeMs = Math.max(0, group.startTimeMs - 2000);
+    const endTimeMs = Math.min(Math.round(duration * 1000), group.endTimeMs + 2000);
+    setActiveRetapRegion({
+      id: group.id,
+      passId: passState.passId,
+      startTimeMs,
+      endTimeMs
+    });
+    handleLoopRegion(group.startTimeMs, group.endTimeMs);
+    showToast("Retap region armed.");
+  };
+
+  const handleStopRetapRegion = () => {
+    setActiveRetapRegion(null);
+    setActivePassId(null);
+    if (anchorLoopTimerRef.current) {
+      window.clearInterval(anchorLoopTimerRef.current);
+      anchorLoopTimerRef.current = null;
+    }
+    showToast("Retap region stopped.");
   };
 
   const handleUpdateSectionTimes = (id: string, field: "startTimeMs" | "endTimeMs", valueMs: number) => {
@@ -965,7 +1148,14 @@ export default function DevCalibrator({
                 <span>Raw taps: <strong style={{ color: "#fff" }}>{taps.length}</strong></span>
                 <span>Reviewed: <strong style={{ color: "#fff" }}>{reviewedAnchors.filter(anchor => anchor.reviewed).length}</strong></span>
                 <span>Passes: <strong style={{ color: "#fff" }}>{tapCalibrationPasses.length}</strong></span>
+                <span>Groups: <strong style={{ color: "#fff" }}>{tapGroups.length}</strong></span>
               </div>
+              {activeRetapRegion && (
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", color: "#fbbf24", fontSize: "0.7rem", fontWeight: 800 }}>
+                  <span>{(activeRetapRegion.startTimeMs / 1000).toFixed(1)}s-{(activeRetapRegion.endTimeMs / 1000).toFixed(1)}s</span>
+                  <button onClick={handleStopRetapRegion} style={{ padding: "2px 7px", borderRadius: "6px", border: "1px solid rgba(251,191,36,0.35)", background: "rgba(251,191,36,0.08)", color: "#fbbf24", cursor: "pointer", fontWeight: 900 }}>Stop</button>
+                </div>
+              )}
               <button
                 onClick={handleTap}
                 disabled={metronomeActive}
@@ -995,29 +1185,51 @@ export default function DevCalibrator({
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: "8px", maxHeight: "220px", overflowY: "auto" }}>
-            {reviewedAnchors.map((anchor: any) => {
-              const rawTap = taps.find((tap: any) => tap.id === anchor.tapId);
+            {tapGroups.map((group: any) => {
+              const expanded = expandedGroups[group.id];
+              const confidenceColor = group.confidence === "high" ? "#34d399" : group.confidence === "medium" ? "#fbbf24" : "#fca5a5";
               return (
-                <div key={anchor.id} style={{ display: "grid", gridTemplateColumns: "70px 1fr auto", alignItems: "center", gap: "8px", padding: "8px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.07)", background: anchor.reviewed ? "rgba(255,255,255,0.04)" : "rgba(251,191,36,0.08)" }}>
-                  <span style={{ color: "#fff", fontFamily: "monospace", fontSize: "0.72rem", fontWeight: 800 }}>{(anchor.timeMs / 1000).toFixed(2)}s</span>
-                  <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", alignItems: "center" }}>
-                    {reviewedAnchorOptions.map(option => (
-                      <button key={option.count} onClick={() => handleUpdateReviewedAnchor(anchor.id, { count: option.count, reviewed: true, confidence: "confirmed" }, true)} style={{ padding: "3px 9px", borderRadius: "999px", border: `1px solid ${anchor.count === option.count ? "#ffffff" : "rgba(255,255,255,0.12)"}`, background: anchor.count === option.count ? "#ffffff" : "transparent", color: anchor.count === option.count ? "#000" : "#a1a1aa", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>
-                        {option.label}
-                      </button>
-                    ))}
-                    <button onClick={() => handleNudgeReviewedAnchor(anchor.id, -50)} style={{ padding: "3px 7px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", background: "transparent", color: "#fff", cursor: "pointer" }}>-50</button>
-                    <button onClick={() => handleNudgeReviewedAnchor(anchor.id, 50)} style={{ padding: "3px 7px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", background: "transparent", color: "#fff", cursor: "pointer" }}>+50</button>
-                    <button onClick={() => handleUpdateReviewedAnchor(anchor.id, { confidence: "uncertain", reviewed: true }, true)} style={{ padding: "3px 7px", borderRadius: "6px", border: "1px solid rgba(251,191,36,0.35)", background: "rgba(251,191,36,0.08)", color: "#fbbf24", cursor: "pointer" }}>Uncertain</button>
+                <div key={group.id} style={{ display: "flex", flexDirection: "column", gap: "8px", padding: "10px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.08)", background: group.confidence === "low" ? "rgba(248,113,113,0.08)" : group.confidence === "medium" ? "rgba(251,191,36,0.08)" : "rgba(52,211,153,0.06)" }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: "8px", alignItems: "center" }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
+                      <span style={{ color: "#fff", fontSize: "0.76rem", fontWeight: 900 }}>Group {group.index + 1}: {(group.startTimeMs / 1000).toFixed(2)}s-{(group.endTimeMs / 1000).toFixed(2)}s</span>
+                      <span style={{ color: "#a1a1aa", fontSize: "0.68rem" }}>{group.anchors.length} anchors · {group.pattern} · median gap {(group.medianGapMs / 1000 || 0).toFixed(2)}s · {group.reasons.join(", ")}</span>
+                    </div>
+                    <span style={{ color: confidenceColor, fontSize: "0.72rem", fontWeight: 900, textTransform: "uppercase" }}>{group.confidence}</span>
                   </div>
                   <div style={{ display: "flex", gap: "6px" }}>
-                    <button onClick={() => handleLoopReviewedAnchor(anchor.timeMs)} style={{ padding: "3px 7px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.04)", color: "#fff", cursor: "pointer" }}>Loop</button>
-                    <button onClick={() => rawTap && handleDeleteRawTap(rawTap.id)} style={{ padding: "3px 7px", borderRadius: "6px", border: "1px solid rgba(248,113,113,0.35)", background: "rgba(248,113,113,0.08)", color: "#fca5a5", cursor: "pointer" }}>Delete</button>
+                    <button onClick={() => handleAcceptGroup(group)} style={{ padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(52,211,153,0.35)", background: "rgba(52,211,153,0.08)", color: "#34d399", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>Accept Group</button>
+                    <button onClick={() => handleMarkGroupUncertain(group)} style={{ padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(251,191,36,0.35)", background: "rgba(251,191,36,0.08)", color: "#fbbf24", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>Mark Uncertain</button>
+                    <button onClick={() => handleStartRetapRegion(group)} style={{ padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(96,165,250,0.35)", background: "rgba(96,165,250,0.08)", color: "#93c5fd", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>Retap Region</button>
+                    <button onClick={() => handleLoopRegion(group.startTimeMs, group.endTimeMs)} style={{ padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.04)", color: "#fff", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>Loop Region</button>
+                    <button onClick={() => setExpandedGroups(current => ({ ...current, [group.id]: !expanded }))} style={{ padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", background: "transparent", color: "#fff", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>{expanded ? "Hide Details" : "Review Details"}</button>
                   </div>
+                  {expanded && group.anchors.map((anchor: any) => {
+                    const rawTap = taps.find((tap: any) => tap.id === anchor.tapId);
+                    return (
+                      <div key={anchor.id} style={{ display: "grid", gridTemplateColumns: "70px 1fr auto", alignItems: "center", gap: "8px", padding: "8px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.07)", background: anchor.reviewed ? "rgba(255,255,255,0.04)" : "rgba(251,191,36,0.08)" }}>
+                        <span style={{ color: "#fff", fontFamily: "monospace", fontSize: "0.72rem", fontWeight: 800 }}>{(anchor.timeMs / 1000).toFixed(2)}s</span>
+                        <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", alignItems: "center" }}>
+                          {reviewedAnchorOptions.map(option => (
+                            <button key={option.count} onClick={() => handleUpdateReviewedAnchor(anchor.id, { count: option.count, reviewed: true, confidence: "confirmed" }, true)} style={{ padding: "3px 9px", borderRadius: "999px", border: `1px solid ${anchor.count === option.count ? "#ffffff" : "rgba(255,255,255,0.12)"}`, background: anchor.count === option.count ? "#ffffff" : "transparent", color: anchor.count === option.count ? "#000" : "#a1a1aa", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>
+                              {option.label}
+                            </button>
+                          ))}
+                          <button onClick={() => handleNudgeReviewedAnchor(anchor.id, -50)} style={{ padding: "3px 7px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", background: "transparent", color: "#fff", cursor: "pointer" }}>-50</button>
+                          <button onClick={() => handleNudgeReviewedAnchor(anchor.id, 50)} style={{ padding: "3px 7px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", background: "transparent", color: "#fff", cursor: "pointer" }}>+50</button>
+                          <button onClick={() => handleUpdateReviewedAnchor(anchor.id, { confidence: "uncertain", reviewed: true }, true)} style={{ padding: "3px 7px", borderRadius: "6px", border: "1px solid rgba(251,191,36,0.35)", background: "rgba(251,191,36,0.08)", color: "#fbbf24", cursor: "pointer" }}>Uncertain</button>
+                        </div>
+                        <div style={{ display: "flex", gap: "6px" }}>
+                          <button onClick={() => handleLoopReviewedAnchor(anchor.timeMs)} style={{ padding: "3px 7px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.04)", color: "#fff", cursor: "pointer" }}>Loop</button>
+                          <button onClick={() => rawTap && handleDeleteRawTap(rawTap.id)} style={{ padding: "3px 7px", borderRadius: "6px", border: "1px solid rgba(248,113,113,0.35)", background: "rgba(248,113,113,0.08)", color: "#fca5a5", cursor: "pointer" }}>Delete</button>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               );
             })}
-            {reviewedAnchors.length === 0 && (
+            {tapGroups.length === 0 && (
               <div style={{ padding: "12px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.07)", color: "#71717a", fontSize: "0.76rem", textAlign: "center" }}>No anchor taps yet.</div>
             )}
           </div>

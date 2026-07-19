@@ -30,6 +30,8 @@ The local ingestion script accepts a YouTube id/link flow from the app and creat
 - A local metronome calibration stores user/device input latency outside song JSON.
 - Song tapping records one-key manual anchors, corrected by the saved local latency.
 - Review labels anchors with genre-aware count options, nudges timing, deletes bad taps, and marks uncertainty.
+- Review starts at the group level: stable groups can be accepted in bulk, while low-confidence groups can be looped or retapped as a targeted repair pass.
+- Targeted retap passes add new raw taps and suggested reviewed anchors without overwriting earlier passes.
 - No library or automatic process generates trusted taps or downbeats.
 
 ## Publishing
