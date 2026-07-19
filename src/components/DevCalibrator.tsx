@@ -83,6 +83,7 @@ export default function DevCalibrator({
   const [timelineView, setTimelineView] = useState<"sections" | "events" | "taps" | "all">("sections");
   const [timelineZoom, setTimelineZoom] = useState<{ startTimeMs: number; endTimeMs: number } | null>(null);
   const [followPlayhead, setFollowPlayhead] = useState(false);
+  const [lockedSectionTimes, setLockedSectionTimes] = useState<Record<string, boolean>>({});
   const [liveTime, setLiveTime] = useState(0);
 
   const duration = videoDuration || 300;
@@ -908,6 +909,12 @@ export default function DevCalibrator({
 
     const boundaryIdx = field === "startTimeMs" ? secIdx : secIdx + 1;
     if (boundaryIdx === 0) return;
+    const leftSection = editorSections[boundaryIdx - 1];
+    const rightSection = editorSections[boundaryIdx];
+    if (lockedSectionTimes[leftSection?.id] || lockedSectionTimes[rightSection?.id]) {
+      showToast("🔒 Boundary touches a locked section.");
+      return;
+    }
 
     const minDurMs = 100;
     const maxDurationMs = Math.round(duration * 1000);
@@ -972,6 +979,10 @@ export default function DevCalibrator({
 
     if (targetIdx !== -1) {
       const target = editorSections[targetIdx];
+      if (lockedSectionTimes[target.id]) {
+        showToast("🔒 Unlock this section before slicing it.");
+        return;
+      }
       if (playheadMs - target.startTimeMs < 100 || target.endTimeMs - playheadMs < 100) {
         showToast("⚠️ Slice is too close to an existing boundary.");
         return;
@@ -1004,6 +1015,19 @@ export default function DevCalibrator({
       return;
     }
     const idx = editorSections.findIndex(s => s.id === id);
+    if (idx === -1) return;
+    if (lockedSectionTimes[id]) {
+      showToast("🔒 Unlock this section before removing it.");
+      return;
+    }
+    if (idx > 0 && lockedSectionTimes[editorSections[idx - 1]?.id]) {
+      showToast("🔒 Unlock the previous section before merging into it.");
+      return;
+    }
+    if (idx === 0 && lockedSectionTimes[editorSections[1]?.id]) {
+      showToast("🔒 Unlock the next section before merging into it.");
+      return;
+    }
     const updated = [...editorSections];
 
     if (idx > 0) {
@@ -1016,6 +1040,10 @@ export default function DevCalibrator({
     updateSectionsState(updated, true);
     if (focusedSectionId === id) setFocusedSectionId(updated[Math.max(0, idx - 1)]?.id ?? null);
     showToast("🗑️ Section removed.");
+  };
+
+  const handleToggleSectionTimeLock = (id: string) => {
+    setLockedSectionTimes(current => ({ ...current, [id]: !current[id] }));
   };
 
   const handleAddEvent = (draft: DanceEventDraft) => {
@@ -1543,6 +1571,7 @@ export default function DevCalibrator({
         {activeTab === 1 && (
           <DevCalibrationPanel
             editorSections={editorSections}
+            lockedSectionTimes={lockedSectionTimes}
             categories={categories}
             tags={tags}
             onExit={onBackToCatalog}
@@ -1551,6 +1580,7 @@ export default function DevCalibrator({
             onToggleSectionTag={handleToggleSectionTag}
             onAddSection={handleAddNewSection}
             onRemoveSection={handleDeleteSection}
+            onToggleSectionTimeLock={handleToggleSectionTimeLock}
             onAddCategory={handleAddCategory}
             onAddTag={handleAddTag}
             validationErrors={validationErrors}

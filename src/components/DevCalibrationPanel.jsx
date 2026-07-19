@@ -3,6 +3,7 @@ import { useState } from "react";
 
 export default function DevCalibrationPanel({
   editorSections,
+  lockedSectionTimes,
   categories,
   tags,
   onExit,
@@ -11,15 +12,42 @@ export default function DevCalibrationPanel({
   onToggleSectionTag,
   onAddSection,
   onRemoveSection,
+  onToggleSectionTimeLock,
   onAddCategory,
   onAddTag,
   validationErrors
 }) {
   const [expandedSections, setExpandedSections] = useState({});
   const [sectionPendingDelete, setSectionPendingDelete] = useState(null);
+  const [draftTimes, setDraftTimes] = useState({});
 
   const toggleCollapse = (id) => {
     setExpandedSections(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const draftKey = (id, field) => `${id}:${field}`;
+
+  const timeValue = (section, field) => {
+    const key = draftKey(section.id, field);
+    return draftTimes[key] ?? (section[field] / 1000).toFixed(2);
+  };
+
+  const updateDraftTime = (section, field, value) => {
+    setDraftTimes(current => ({ ...current, [draftKey(section.id, field)]: value }));
+  };
+
+  const commitDraftTime = (section, field) => {
+    const key = draftKey(section.id, field);
+    const value = draftTimes[key];
+    if (value === undefined || value === "") return;
+    const parsed = Number(value);
+    if (!Number.isFinite(parsed)) return;
+    onUpdateSectionTime(section.id, field, parsed * 1000);
+    setDraftTimes(current => {
+      const next = { ...current };
+      delete next[key];
+      return next;
+    });
   };
 
   const pendingDeleteIndex = sectionPendingDelete ? editorSections.findIndex(section => section.id === sectionPendingDelete.id) : -1;
@@ -69,6 +97,7 @@ export default function DevCalibrationPanel({
           {editorSections.map((section, sectionIndex) => {
             const selectedTags = section.tags || [];
             const isExpanded = !!expandedSections[section.id];
+            const isLocked = !!lockedSectionTimes[section.id];
             return (
               <div key={section.id} style={{
                 display: "flex",
@@ -98,18 +127,27 @@ export default function DevCalibrationPanel({
                       <option key={category.id} value={category.id}>{category.label}</option>
                     ))}
                   </select>
-                  <button
-                    type="button"
-                    disabled={editorSections.length <= 1}
-                    onClick={() => setSectionPendingDelete(section)}
-                    style={{ padding: "5px 8px", borderRadius: "6px", border: "1px solid rgba(248,113,113,0.35)", background: "rgba(248,113,113,0.08)", color: "#fca5a5", fontSize: "0.68rem", fontWeight: 800, cursor: editorSections.length <= 1 ? "not-allowed" : "pointer", opacity: editorSections.length <= 1 ? 0.45 : 1 }}
-                  >
-                    Remove
-                  </button>
                 </div>
 
                 {isExpanded && (
                   <>
+                    <div style={{ display: "flex", gap: "8px", justifyContent: "space-between", alignItems: "center" }}>
+                      <button
+                        type="button"
+                        onClick={() => onToggleSectionTimeLock(section.id)}
+                        style={{ padding: "5px 9px", borderRadius: "6px", border: `1px solid ${isLocked ? "rgba(96,165,250,0.45)" : "rgba(255,255,255,0.12)"}`, background: isLocked ? "rgba(96,165,250,0.14)" : "rgba(255,255,255,0.04)", color: isLocked ? "#93c5fd" : "#d4d4d8", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}
+                      >
+                        {isLocked ? "Times Locked" : "Lock Times"}
+                      </button>
+                      <button
+                        type="button"
+                        disabled={editorSections.length <= 1 || isLocked}
+                        onClick={() => setSectionPendingDelete(section)}
+                        style={{ padding: "5px 8px", borderRadius: "6px", border: "1px solid rgba(248,113,113,0.35)", background: "rgba(248,113,113,0.08)", color: "#fca5a5", fontSize: "0.68rem", fontWeight: 800, cursor: editorSections.length <= 1 || isLocked ? "not-allowed" : "pointer", opacity: editorSections.length <= 1 || isLocked ? 0.45 : 1 }}
+                      >
+                        Remove
+                      </button>
+                    </div>
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", fontSize: "0.7rem", color: "#a1a1aa" }}>
                       <label style={{ display: "flex", flexDirection: "column", gap: "3px", fontWeight: 800 }}>
                         Start
@@ -117,10 +155,13 @@ export default function DevCalibrationPanel({
                           type="number"
                           min="0"
                           step="0.01"
-                          disabled={sectionIndex === 0}
-                          value={(section.startTimeMs / 1000).toFixed(2)}
-                          onChange={(event) => onUpdateSectionTime(section.id, "startTimeMs", Number(event.target.value) * 1000)}
-                          style={{ padding: "5px 7px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.28)", color: "#fff", fontWeight: 900, opacity: sectionIndex === 0 ? 0.5 : 1 }}
+                          disabled={sectionIndex === 0 || isLocked}
+                          value={timeValue(section, "startTimeMs")}
+                          onChange={(event) => updateDraftTime(section, "startTimeMs", event.target.value)}
+                          onKeyDown={(event) => {
+                            if (event.key === "Enter") commitDraftTime(section, "startTimeMs");
+                          }}
+                          style={{ padding: "5px 7px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.28)", color: "#fff", fontWeight: 900, opacity: sectionIndex === 0 || isLocked ? 0.5 : 1 }}
                         />
                       </label>
                       <label style={{ display: "flex", flexDirection: "column", gap: "3px", fontWeight: 800 }}>
@@ -129,15 +170,18 @@ export default function DevCalibrationPanel({
                           type="number"
                           min="0"
                           step="0.01"
-                          disabled={sectionIndex === editorSections.length - 1}
-                          value={(section.endTimeMs / 1000).toFixed(2)}
-                          onChange={(event) => onUpdateSectionTime(section.id, "endTimeMs", Number(event.target.value) * 1000)}
-                          style={{ padding: "5px 7px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.28)", color: "#fff", fontWeight: 900, opacity: sectionIndex === editorSections.length - 1 ? 0.5 : 1 }}
+                          disabled={sectionIndex === editorSections.length - 1 || isLocked}
+                          value={timeValue(section, "endTimeMs")}
+                          onChange={(event) => updateDraftTime(section, "endTimeMs", event.target.value)}
+                          onKeyDown={(event) => {
+                            if (event.key === "Enter") commitDraftTime(section, "endTimeMs");
+                          }}
+                          style={{ padding: "5px 7px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.28)", color: "#fff", fontWeight: 900, opacity: sectionIndex === editorSections.length - 1 || isLocked ? 0.5 : 1 }}
                         />
                       </label>
                     </div>
                     <div style={{ color: "#71717a", fontSize: "0.64rem", lineHeight: 1.35 }}>
-                      Boundary edits keep neighboring sections aligned.
+                      Type freely, then press Enter to apply. Boundary edits keep neighboring sections aligned unless a section is locked.
                     </div>
                     <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
                       {tags.map(tag => {
