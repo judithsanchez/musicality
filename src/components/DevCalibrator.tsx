@@ -113,6 +113,8 @@ export default function DevCalibrator({
     return countCycle[(index + 1) % countCycle.length];
   };
 
+  const tapById = useMemo(() => new Map(taps.map((tap: any) => [tap.id, tap])), [taps]);
+
   const tapGroups = useMemo(() => {
     const anchors = [...reviewedAnchors].sort((a, b) => a.timeMs - b.timeMs);
     if (anchors.length === 0) return [];
@@ -495,9 +497,9 @@ export default function DevCalibrator({
     return { passId: pass.id, passes: nextPasses };
   };
 
-  const suggestedCountForTap = (timeMs: number, passId: string) => {
-    const existingAnchors = [...reviewedAnchors]
-      .filter(anchor => taps.find((tap: any) => tap.id === anchor.tapId)?.passId !== passId)
+  const suggestedCountForTap = (timeMs: number, passId: string, anchorSource = reviewedAnchors, tapSource = taps) => {
+    const existingAnchors = [...anchorSource]
+      .filter(anchor => tapSource.find((tap: any) => tap.id === anchor.tapId)?.passId !== passId)
       .sort((a, b) => a.timeMs - b.timeMs);
     const nearest = existingAnchors.reduce((best: any, anchor: any) => {
       if (!best || Math.abs(anchor.timeMs - timeMs) < Math.abs(best.timeMs - timeMs)) return anchor;
@@ -509,6 +511,76 @@ export default function DevCalibrator({
     if (!previous) return countCycle[0];
     const index = countCycle.indexOf(previous.count);
     return countCycle[(index + 1) % countCycle.length] || countCycle[0];
+  };
+
+  const buildRetapReviewedAnchors = (passId: string, region: any, nextTaps: any[], anchorSource: any[]) => {
+    const tapLookup = new Map(nextTaps.map((tap: any) => [tap.id, tap]));
+    const regionTaps = nextTaps
+      .filter((tap: any) => tap.passId === passId && tap.correctedTimeMs >= region.startTimeMs && tap.correctedTimeMs <= region.endTimeMs)
+      .sort((a: any, b: any) => a.correctedTimeMs - b.correctedTimeMs);
+    const seedAnchors = anchorSource
+      .filter(anchor => {
+        const tap = tapLookup.get(anchor.tapId) as any;
+        return tap?.passId !== passId && anchor.timeMs >= region.startTimeMs - 900 && anchor.timeMs <= region.endTimeMs + 900;
+      })
+      .sort((a, b) => a.timeMs - b.timeMs);
+    const preservedAnchors = anchorSource.filter(anchor => {
+      const tap = tapLookup.get(anchor.tapId) as any;
+      const isRetapCandidate = tap?.passId === passId && !anchor.reviewed && anchor.timeMs >= region.startTimeMs && anchor.timeMs <= region.endTimeMs;
+      return !isRetapCandidate;
+    });
+    if (regionTaps.length === 0) return preservedAnchors;
+
+    const clusters = seedAnchors.map(anchor => ({
+      seedTimeMs: anchor.timeMs,
+      seedCount: anchor.count,
+      taps: [] as any[]
+    }));
+
+    regionTaps.forEach((tap: any) => {
+      const nearestCluster = clusters.reduce((best: any, cluster: any) => {
+        const clusterTime = cluster.taps.length ? median(cluster.taps.map((sample: any) => sample.correctedTimeMs)) : cluster.seedTimeMs;
+        const distance = Math.abs(clusterTime - tap.correctedTimeMs);
+        if (!best || distance < best.distance) return { cluster, distance };
+        return best;
+      }, null);
+      if (nearestCluster && nearestCluster.distance <= 900) {
+        nearestCluster.cluster.taps.push(tap);
+      } else {
+        clusters.push({
+          seedTimeMs: tap.correctedTimeMs,
+          seedCount: null,
+          taps: [tap]
+        });
+      }
+    });
+
+    const clusterAnchors = clusters
+      .filter(cluster => cluster.taps.length > 0)
+      .map(cluster => {
+        const sampleTimes = cluster.taps.map((tap: any) => tap.correctedTimeMs);
+        const clusterTimeMs = Math.round(median(sampleTimes));
+        const representativeTap = cluster.taps.reduce((best: any, tap: any) => {
+          if (!best || Math.abs(tap.correctedTimeMs - clusterTimeMs) < Math.abs(best.correctedTimeMs - clusterTimeMs)) return tap;
+          return best;
+        }, null);
+        return {
+          id: crypto.randomUUID(),
+          tapId: representativeTap.id,
+          timeMs: clusterTimeMs,
+          count: cluster.seedCount || suggestedCountForTap(clusterTimeMs, passId, preservedAnchors, nextTaps),
+          confidence: "suggested",
+          reviewed: false
+        };
+      });
+
+    const recalibratedAnchors = preservedAnchors.filter(anchor => {
+      const tap = tapLookup.get(anchor.tapId) as any;
+      const isReplacedCandidate = tap?.passId !== passId && !anchor.reviewed && anchor.timeMs >= region.startTimeMs && anchor.timeMs <= region.endTimeMs && clusterAnchors.some(clusterAnchor => Math.abs(clusterAnchor.timeMs - anchor.timeMs) <= 900);
+      return !isReplacedCandidate;
+    });
+
+    return [...recalibratedAnchors, ...clusterAnchors];
   };
 
   const handleTap = () => {
@@ -556,7 +628,11 @@ export default function DevCalibrator({
       confidence: "suggested",
       reviewed: false
     };
-    updateTapCalibrationState(passState.passes, [...taps, tap], [...reviewedAnchors, anchor], true);
+    const nextTaps = [...taps, tap];
+    const nextAnchors = activeRetapRegion
+      ? buildRetapReviewedAnchors(passState.passId, activeRetapRegion, nextTaps, [...reviewedAnchors, anchor])
+      : [...reviewedAnchors, anchor];
+    updateTapCalibrationState(passState.passes, nextTaps, nextAnchors, true);
   };
 
   const handleUpdateReviewedAnchor = (anchorId: string, patch: any, triggerAutoSave = false) => {
@@ -570,6 +646,12 @@ export default function DevCalibrator({
       };
     });
     updateTapCalibrationState(tapCalibrationPasses, taps, nextAnchors, triggerAutoSave);
+  };
+
+  const anchorSampleCount = (anchor: any) => {
+    const tap = tapById.get(anchor.tapId) as any;
+    if (!tap) return 0;
+    return taps.filter((sample: any) => sample.passId === tap.passId && Math.abs(sample.correctedTimeMs - anchor.timeMs) <= 900).length;
   };
 
   const handleAcceptGroup = (group: any) => {
@@ -1206,10 +1288,14 @@ export default function DevCalibrator({
                   </div>
                   {expanded && group.anchors.map((anchor: any) => {
                     const rawTap = taps.find((tap: any) => tap.id === anchor.tapId);
+                    const sampleCount = anchorSampleCount(anchor);
                     return (
                       <div key={anchor.id} style={{ display: "grid", gridTemplateColumns: "70px 1fr auto", alignItems: "center", gap: "8px", padding: "8px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.07)", background: anchor.reviewed ? "rgba(255,255,255,0.04)" : "rgba(251,191,36,0.08)" }}>
                         <span style={{ color: "#fff", fontFamily: "monospace", fontSize: "0.72rem", fontWeight: 800 }}>{(anchor.timeMs / 1000).toFixed(2)}s</span>
                         <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", alignItems: "center" }}>
+                          {sampleCount > 1 && (
+                            <span style={{ padding: "3px 7px", borderRadius: "6px", border: "1px solid rgba(96,165,250,0.25)", background: "rgba(96,165,250,0.08)", color: "#93c5fd", fontSize: "0.66rem", fontWeight: 900 }}>{sampleCount} samples</span>
+                          )}
                           {reviewedAnchorOptions.map(option => (
                             <button key={option.count} onClick={() => handleUpdateReviewedAnchor(anchor.id, { count: option.count, reviewed: true, confidence: "confirmed" }, true)} style={{ padding: "3px 9px", borderRadius: "999px", border: `1px solid ${anchor.count === option.count ? "#ffffff" : "rgba(255,255,255,0.12)"}`, background: anchor.count === option.count ? "#ffffff" : "transparent", color: anchor.count === option.count ? "#000" : "#a1a1aa", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>
                               {option.label}
