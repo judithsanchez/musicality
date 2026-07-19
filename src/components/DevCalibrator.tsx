@@ -1393,6 +1393,16 @@ export default function DevCalibrator({
   };
 
   const sortedEvents = songData?.events || [];
+  const activeEventSection = activeTab === 2 && eventTimelineScope === "section"
+    ? editorSections.find(section => section.id === focusedSectionId)
+    : null;
+  const activeEventSectionDurationMs = activeEventSection ? activeEventSection.endTimeMs - activeEventSection.startTimeMs : 0;
+  const activeEventSectionTimeMs = activeEventSection
+    ? Math.max(0, Math.min(activeEventSectionDurationMs, liveDisplayTime * 1000 - activeEventSection.startTimeMs))
+    : 0;
+  const timelineStatusText = activeEventSection
+    ? `${getCategoryLabel(activeEventSection.category)} · ${(activeEventSectionTimeMs / 1000).toFixed(2)}s / ${(activeEventSectionDurationMs / 1000).toFixed(2)}s · section 0.0-${(activeEventSectionDurationMs / 1000).toFixed(1)}s`
+    : `${liveDisplayTime.toFixed(2)}s / ${duration.toFixed(2)}s · ${(visibleTimeline.startTimeMs / 1000).toFixed(1)}-${(visibleTimeline.endTimeMs / 1000).toFixed(1)}s`;
   const zoomedPlayheadPct = timelinePct(liveDisplayTime * 1000);
   const sectionLane = timelineView === "sections" ? { top: 0, height: 104 } : { top: 0, height: 36 };
   const eventLane = { top: 38, height: 22 };
@@ -1739,7 +1749,7 @@ export default function DevCalibrator({
             <button onClick={() => zoomTimelineBy(1.8)} style={{ fontSize: "0.65rem", padding: "3px 8px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.12)", background: "transparent", color: "#a1a1aa", cursor: "pointer", fontWeight: 800 }}>Zoom Out</button>
             <button onClick={() => setFollowPlayhead(current => !current)} style={{ fontSize: "0.65rem", padding: "3px 8px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.12)", background: followPlayhead ? "#fff" : "transparent", color: followPlayhead ? "#000" : "#71717a", cursor: "pointer", fontWeight: 800 }}>Follow</button>
             <span style={{ fontFamily: "monospace", fontSize: "0.78rem", color: "#ffffff", fontWeight: 600 }}>
-              {liveDisplayTime.toFixed(2)}s / {duration.toFixed(2)}s · {(visibleTimeline.startTimeMs / 1000).toFixed(1)}-{(visibleTimeline.endTimeMs / 1000).toFixed(1)}s
+              {timelineStatusText}
             </span>
             {activeTab === 1 && (
               <div style={{ display: "flex", gap: "8px" }}>
