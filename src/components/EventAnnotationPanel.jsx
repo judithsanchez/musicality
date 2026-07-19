@@ -31,8 +31,8 @@ export default function EventAnnotationPanel({
           <option value="">Uncategorized</option>
           {categories.map(category => <option key={category.id} value={category.id}>{category.label}</option>)}
         </select>
-        <button disabled={disabled} onClick={onAddCategory} style={{ padding: "6px 10px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.05)", color: "#fff", fontWeight: 800, cursor: disabled ? "not-allowed" : "pointer" }}>
-          +
+        <button disabled={disabled} onClick={onAddCategory} style={{ padding: "6px 10px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.05)", color: "#fff", fontSize: "0.68rem", fontWeight: 800, cursor: disabled ? "not-allowed" : "pointer" }}>
+          New Category
         </button>
       </div>
 
@@ -45,7 +45,7 @@ export default function EventAnnotationPanel({
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <span style={{ fontSize: "0.68rem", color: "#a1a1aa", textTransform: "uppercase", fontWeight: 800 }}>Tags</span>
           <button disabled={disabled} onClick={onAddTag} style={{ padding: "2px 8px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.05)", color: "#fff", fontSize: "0.68rem", fontWeight: 800, cursor: disabled ? "not-allowed" : "pointer" }}>
-            Add
+            New Tag
           </button>
         </div>
         <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>

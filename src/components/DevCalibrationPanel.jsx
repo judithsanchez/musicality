@@ -75,13 +75,13 @@ export default function DevCalibrationPanel({
           </span>
           <div style={{ display: "flex", gap: "6px" }}>
             <button onClick={onAddSection} style={{ padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(96,165,250,0.35)", background: "rgba(96,165,250,0.08)", color: "#93c5fd", fontSize: "0.68rem", fontWeight: 800, cursor: "pointer" }}>
-              Section
+              Split at Playhead
             </button>
             <button onClick={onAddCategory} style={{ padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.05)", color: "#fff", fontSize: "0.68rem", fontWeight: 800, cursor: "pointer" }}>
-              Category
+              New Category
             </button>
             <button onClick={onAddTag} style={{ padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.05)", color: "#fff", fontSize: "0.68rem", fontWeight: 800, cursor: "pointer" }}>
-              Tag
+              New Tag
             </button>
           </div>
         </div>

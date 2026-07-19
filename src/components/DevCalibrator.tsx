@@ -85,6 +85,8 @@ export default function DevCalibrator({
   const [followPlayhead, setFollowPlayhead] = useState(false);
   const [lockedSectionTimes, setLockedSectionTimes] = useState<Record<string, boolean>>({});
   const [liveTime, setLiveTime] = useState(0);
+  const [vocabularyModal, setVocabularyModal] = useState<"category" | "tag" | null>(null);
+  const [vocabularyDraft, setVocabularyDraft] = useState("");
 
   const duration = videoDuration || 300;
   const liveDisplayTime = player ? liveTime : currentTime;
@@ -106,6 +108,19 @@ export default function DevCalibrator({
       { count: 5, label: "5" }
     ];
   const countCycle = reviewedAnchorOptions.map(option => option.count);
+  const vocabularyModalTitle = vocabularyModal === "category" ? "New Category" : "New Tag";
+
+  const getEditorCurrentTime = () => {
+    try {
+      if (player && typeof player.getCurrentTime === "function") {
+        const playerTime = player.getCurrentTime();
+        if (Number.isFinite(playerTime)) return playerTime;
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+    return liveDisplayTime || currentTime;
+  };
 
   const median = (values: number[]) => {
     if (values.length === 0) return 0;
@@ -475,24 +490,56 @@ export default function DevCalibrator({
       .catch(() => showToast("Added locally. Static hosting is read-only."));
   };
 
-  const handleAddCategory = () => {
-    const label = window.prompt("Category name");
-    if (!label) return;
+  const createCategory = (label: string) => {
     const id = slugify(label);
-    if (!id || categories.some(category => category.id === id)) return;
+    if (!id) {
+      showToast("Category needs a name.");
+      return false;
+    }
+    if (categories.some(category => category.id === id)) {
+      showToast("Category already exists.");
+      return false;
+    }
     const nextCategories = [...categories, { id, label: label.trim() }].sort((a, b) => a.label.localeCompare(b.label));
     setCategories(nextCategories);
     saveVocabulary("/api/categories", { schemaVersion: "1.0", categories: nextCategories }, "Category saved.");
+    return true;
   };
 
-  const handleAddTag = () => {
-    const label = window.prompt("Tag name");
-    if (!label) return;
+  const createTag = (label: string) => {
     const id = slugify(label);
-    if (!id || tags.some(tag => tag.id === id)) return;
+    if (!id) {
+      showToast("Tag needs a name.");
+      return false;
+    }
+    if (tags.some(tag => tag.id === id)) {
+      showToast("Tag already exists.");
+      return false;
+    }
     const nextTags = [...tags, { id, label: label.trim() }].sort((a, b) => a.label.localeCompare(b.label));
     setTags(nextTags);
     saveVocabulary("/api/tags", { schemaVersion: "1.0", tags: nextTags }, "Tag saved.");
+    return true;
+  };
+
+  const handleAddCategory = () => {
+    setVocabularyDraft("");
+    setVocabularyModal("category");
+  };
+
+  const handleAddTag = () => {
+    setVocabularyDraft("");
+    setVocabularyModal("tag");
+  };
+
+  const handleSaveVocabularyDraft = () => {
+    if (!vocabularyModal) return;
+    const didSave = vocabularyModal === "category"
+      ? createCategory(vocabularyDraft)
+      : createTag(vocabularyDraft);
+    if (!didSave) return;
+    setVocabularyModal(null);
+    setVocabularyDraft("");
   };
 
   const playMetronomeClick = () => {
@@ -972,7 +1019,7 @@ export default function DevCalibrator({
   };
 
   const handleAddNewSection = () => {
-    const playheadMs = Math.round(currentTime * 1000);
+    const playheadMs = Math.round(getEditorCurrentTime() * 1000);
     const targetIdx = editorSections.findIndex(
       s => playheadMs > s.startTimeMs && playheadMs < s.endTimeMs
     );
@@ -1060,7 +1107,7 @@ export default function DevCalibrator({
   };
 
   const handleAddEventRangeAtPlayhead = () => {
-    const startTimeMs = Math.round(currentTime * 1000);
+    const startTimeMs = Math.round(getEditorCurrentTime() * 1000);
     const defaultDurationMs = Math.min(8000, Math.max(1000, Math.round(duration * 1000) - startTimeMs));
     handleAddEvent({
       startTimeMs,
@@ -1310,6 +1357,7 @@ export default function DevCalibrator({
   const reviewedLane = { top: 83, height: 17 };
 
   return (
+    <>
     <div className="glass-panel dev-calibrator-workbench" style={{
       display: "flex",
       flexDirection: "column",
@@ -2062,5 +2110,69 @@ export default function DevCalibrator({
         </div>
       </div>
     </div>
+    {vocabularyModal && (
+      <div style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 80,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "rgba(0,0,0,0.62)",
+        padding: "20px"
+      }}>
+        <div style={{
+          width: "min(420px, 100%)",
+          borderRadius: "12px",
+          border: "1px solid rgba(255,255,255,0.12)",
+          background: "#09090b",
+          padding: "18px",
+          boxShadow: "0 18px 48px rgba(0,0,0,0.45)",
+          display: "flex",
+          flexDirection: "column",
+          gap: "14px"
+        }}>
+          <span style={{ color: "#fff", fontSize: "1rem", fontWeight: 900 }}>{vocabularyModalTitle}</span>
+          <input
+            autoFocus
+            value={vocabularyDraft}
+            onChange={(event) => setVocabularyDraft(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") handleSaveVocabularyDraft();
+              if (event.key === "Escape") setVocabularyModal(null);
+            }}
+            placeholder={vocabularyModal === "category" ? "Example: chorus" : "Example: hide downbeats"}
+            style={{
+              width: "100%",
+              padding: "10px 12px",
+              borderRadius: "8px",
+              border: "1px solid rgba(255,255,255,0.12)",
+              background: "rgba(255,255,255,0.04)",
+              color: "#fff",
+              fontSize: "0.9rem",
+              fontWeight: 800
+            }}
+          />
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}>
+            <button
+              onClick={() => {
+                setVocabularyModal(null);
+                setVocabularyDraft("");
+              }}
+              style={{ padding: "7px 12px", borderRadius: "7px", border: "1px solid rgba(255,255,255,0.12)", background: "transparent", color: "#d4d4d8", fontWeight: 800, cursor: "pointer" }}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSaveVocabularyDraft}
+              style={{ padding: "7px 12px", borderRadius: "7px", border: "1px solid rgba(96,165,250,0.45)", background: "rgba(96,165,250,0.16)", color: "#93c5fd", fontWeight: 900, cursor: "pointer" }}
+            >
+              Save
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   );
 }
