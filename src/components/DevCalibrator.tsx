@@ -944,55 +944,44 @@ export default function DevCalibrator({
   const handleUpdateSectionTimes = (id: string, field: "startTimeMs" | "endTimeMs", valueMs: number) => {
     const numericVal = Math.round(valueMs);
     const secIdx = editorSections.findIndex(s => s.id === id);
-    if (secIdx === -1) return;
-
-    const N = editorSections.length;
-    if (N === 0) return;
-
-    const B: number[] = [0];
-    for (let i = 0; i < N; i++) {
-      B.push(editorSections[i].endTimeMs);
+    if (secIdx === -1) return false;
+    if (!Number.isFinite(numericVal) || numericVal < 0) {
+      showToast("Enter a valid time.");
+      return false;
     }
 
+    const N = editorSections.length;
+    if (N === 0) return false;
+
+    const maxDurationMs = Math.round(duration * 1000);
     const boundaryIdx = field === "startTimeMs" ? secIdx : secIdx + 1;
-    if (boundaryIdx === 0) return;
+    if (boundaryIdx === 0 || boundaryIdx >= N) {
+      showToast("That song edge is fixed.");
+      return false;
+    }
     const leftSection = editorSections[boundaryIdx - 1];
     const rightSection = editorSections[boundaryIdx];
     if (lockedSectionTimes[leftSection?.id] || lockedSectionTimes[rightSection?.id]) {
       showToast("🔒 Boundary touches a locked section.");
-      return;
+      return false;
     }
 
     const minDurMs = 100;
-    const maxDurationMs = Math.round(duration * 1000);
-    const minLimit = boundaryIdx * minDurMs;
-    const maxLimit = maxDurationMs - (N - boundaryIdx) * minDurMs;
-    const clampedVal = Math.max(minLimit, Math.min(maxLimit, numericVal));
-
-    B[boundaryIdx] = clampedVal;
-
-    for (let k = boundaryIdx + 1; k < N; k++) {
-      if (B[k] < B[k - 1] + minDurMs) {
-        B[k] = B[k - 1] + minDurMs;
-      }
+    if (numericVal <= leftSection.startTimeMs + minDurMs || numericVal >= rightSection.endTimeMs - minDurMs || numericVal > maxDurationMs) {
+      showToast("Time would make a section too short.");
+      return false;
     }
 
-    B[N] = maxDurationMs;
+    const updated = editorSections.map((sec, i) => {
+      if (i === boundaryIdx - 1) return { ...sec, endTimeMs: numericVal };
+      if (i === boundaryIdx) return { ...sec, startTimeMs: numericVal };
+      return sec;
+    });
 
-    for (let k = boundaryIdx - 1; k >= 1; k--) {
-      if (B[k] > B[k + 1] - minDurMs) {
-        B[k] = B[k + 1] - minDurMs;
-      }
-    }
-
-    const updated = editorSections.map((sec, i) => ({
-      ...sec,
-      startTimeMs: B[i],
-      endTimeMs: B[i + 1],
-    }));
-
-    updateSectionsState(updated);
-    throttledSeek(clampedVal / 1000, false);
+    updateSectionsState(updated, true);
+    throttledSeek(numericVal / 1000, false);
+    showToast("Section time saved.");
+    return true;
   };
 
   const handleUpdateSectionField = (id: string, field: string, value: any) => {
@@ -1002,8 +991,7 @@ export default function DevCalibrator({
       }
       return s;
     });
-    setEditorSections(updated);
-    syncSongMapState({ sections: updated });
+    updateSectionsState(updated, true);
   };
 
   const handleToggleSectionTag = (id: string, tagId: string) => {
@@ -1015,7 +1003,80 @@ export default function DevCalibrator({
         : [...currentTags, tagId];
       return { ...section, tags: nextTags };
     });
-    updateSectionsState(updated);
+    updateSectionsState(updated, true);
+  };
+
+  const handleAddManualSection = (draft: any) => {
+    const startTimeMs = Math.round(draft.startTimeMs);
+    const endTimeMs = Math.round(draft.endTimeMs);
+    const songEndMs = Math.round(duration * 1000);
+    const minDurMs = 100;
+    if (!Number.isFinite(startTimeMs) || !Number.isFinite(endTimeMs)) {
+      showToast("Enter valid start and end times.");
+      return false;
+    }
+    if (startTimeMs < 0 || endTimeMs > songEndMs || endTimeMs - startTimeMs < minDurMs) {
+      showToast("Section range is outside the song or too short.");
+      return false;
+    }
+
+    const sortedSections = [...editorSections].sort((a, b) => a.startTimeMs - b.startTimeMs);
+    const overlappingSections = sortedSections.filter(section => section.startTimeMs < endTimeMs && section.endTimeMs > startTimeMs);
+    if (overlappingSections.length === 0) {
+      showToast("New section must overlap the current structure.");
+      return false;
+    }
+    if (overlappingSections.some(section => lockedSectionTimes[section.id])) {
+      showToast("🔒 New section overlaps a locked section.");
+      return false;
+    }
+
+    const nextSections: any[] = [];
+    for (const section of sortedSections) {
+      if (section.endTimeMs <= startTimeMs || section.startTimeMs >= endTimeMs) {
+        nextSections.push(section);
+        continue;
+      }
+
+      const leftDurationMs = startTimeMs - section.startTimeMs;
+      const rightDurationMs = section.endTimeMs - endTimeMs;
+      if (leftDurationMs > 0 && leftDurationMs < minDurMs) {
+        showToast("Start time is too close to an existing boundary.");
+        return false;
+      }
+      if (rightDurationMs > 0 && rightDurationMs < minDurMs) {
+        showToast("End time is too close to an existing boundary.");
+        return false;
+      }
+      if (leftDurationMs >= minDurMs) {
+        nextSections.push({ ...section, endTimeMs: startTimeMs });
+      }
+      if (rightDurationMs >= minDurMs) {
+        nextSections.push({ ...section, id: crypto.randomUUID(), startTimeMs: endTimeMs });
+      }
+    }
+
+    const newSection = {
+      id: crypto.randomUUID(),
+      category: draft.category || "",
+      tags: draft.tags || [],
+      startTimeMs,
+      endTimeMs
+    };
+    const updated = [...nextSections, newSection].sort((a, b) => a.startTimeMs - b.startTimeMs);
+    const isContinuous = updated[0]?.startTimeMs === 0
+      && updated.at(-1)?.endTimeMs === songEndMs
+      && updated.every((section, index) => index === 0 || section.startTimeMs === updated[index - 1].endTimeMs);
+    if (!isContinuous) {
+      showToast("Section range would create a gap or overlap.");
+      return false;
+    }
+
+    updateSectionsState(updated, true);
+    setFocusedSectionId(newSection.id);
+    throttledSeek(startTimeMs / 1000, true);
+    showToast("Section added.");
+    return true;
   };
 
   const handleAddNewSection = () => {
@@ -1625,7 +1686,7 @@ export default function DevCalibrator({
             onUpdateSectionField={handleUpdateSectionField}
             onUpdateSectionTime={handleUpdateSectionTimes}
             onToggleSectionTag={handleToggleSectionTag}
-            onAddSection={handleAddNewSection}
+            onAddSection={handleAddManualSection}
             onRemoveSection={handleDeleteSection}
             onToggleSectionTimeLock={handleToggleSectionTimeLock}
             onAddCategory={handleAddCategory}

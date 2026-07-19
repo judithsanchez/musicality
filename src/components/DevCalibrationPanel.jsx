@@ -19,6 +19,7 @@ export default function DevCalibrationPanel({
   const [expandedSections, setExpandedSections] = useState({});
   const [sectionPendingDelete, setSectionPendingDelete] = useState(null);
   const [draftTimes, setDraftTimes] = useState({});
+  const [newSectionDraft, setNewSectionDraft] = useState(null);
 
   const toggleCollapse = (id) => {
     setExpandedSections(prev => ({ ...prev, [id]: !prev[id] }));
@@ -38,15 +39,59 @@ export default function DevCalibrationPanel({
   const commitDraftTime = (section, field) => {
     const key = draftKey(section.id, field);
     const value = draftTimes[key];
-    if (value === undefined || value === "") return;
+    if (value === undefined) return;
+    if (value === "") {
+      onUpdateSectionTime(section.id, field, Number.NaN);
+      return;
+    }
     const parsed = Number(value);
-    if (!Number.isFinite(parsed)) return;
-    onUpdateSectionTime(section.id, field, parsed * 1000);
+    if (!Number.isFinite(parsed)) {
+      onUpdateSectionTime(section.id, field, Number.NaN);
+      return;
+    }
+    const didCommit = onUpdateSectionTime(section.id, field, parsed * 1000);
+    if (!didCommit) return;
     setDraftTimes(current => {
       const next = { ...current };
       delete next[key];
       return next;
     });
+  };
+
+  const openNewSectionDraft = () => {
+    setNewSectionDraft({
+      startTimeSec: "",
+      endTimeSec: "",
+      category: "",
+      tags: []
+    });
+  };
+
+  const updateNewSectionDraft = (patch) => {
+    setNewSectionDraft(current => ({ ...current, ...patch }));
+  };
+
+  const toggleNewSectionTag = (tagId) => {
+    setNewSectionDraft(current => {
+      const currentTags = current?.tags || [];
+      return {
+        ...current,
+        tags: currentTags.includes(tagId)
+          ? currentTags.filter(value => value !== tagId)
+          : [...currentTags, tagId]
+      };
+    });
+  };
+
+  const submitNewSectionDraft = () => {
+    if (!newSectionDraft) return;
+    const didAdd = onAddSection({
+      startTimeMs: newSectionDraft.startTimeSec === "" ? Number.NaN : Number(newSectionDraft.startTimeSec) * 1000,
+      endTimeMs: newSectionDraft.endTimeSec === "" ? Number.NaN : Number(newSectionDraft.endTimeSec) * 1000,
+      category: newSectionDraft.category,
+      tags: newSectionDraft.tags || []
+    });
+    if (didAdd) setNewSectionDraft(null);
   };
 
   const pendingDeleteIndex = sectionPendingDelete ? editorSections.findIndex(section => section.id === sectionPendingDelete.id) : -1;
@@ -74,8 +119,8 @@ export default function DevCalibrationPanel({
             Sections
           </span>
           <div style={{ display: "flex", gap: "6px" }}>
-            <button onClick={onAddSection} style={{ padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(96,165,250,0.35)", background: "rgba(96,165,250,0.08)", color: "#93c5fd", fontSize: "0.68rem", fontWeight: 800, cursor: "pointer" }}>
-              Split at Playhead
+            <button onClick={openNewSectionDraft} style={{ padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(96,165,250,0.35)", background: "rgba(96,165,250,0.08)", color: "#93c5fd", fontSize: "0.68rem", fontWeight: 800, cursor: "pointer" }}>
+              New Section
             </button>
             <button onClick={onAddCategory} style={{ padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.05)", color: "#fff", fontSize: "0.68rem", fontWeight: 800, cursor: "pointer" }}>
               New Category
@@ -87,6 +132,77 @@ export default function DevCalibrationPanel({
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: "10px", maxHeight: "360px", overflowY: "auto", paddingRight: "3px" }}>
+          {newSectionDraft && (
+            <div style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "9px",
+              padding: "10px",
+              borderRadius: "8px",
+              border: "1px solid rgba(96,165,250,0.28)",
+              background: "rgba(96,165,250,0.08)"
+            }}>
+              <span style={{ color: "#fff", fontSize: "0.76rem", fontWeight: 900 }}>New Section</span>
+              <select
+                value={newSectionDraft.category}
+                onChange={(event) => updateNewSectionDraft({ category: event.target.value })}
+                style={{ width: "100%", padding: "5px 8px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#fff", fontWeight: "bold", fontSize: "0.8rem" }}
+              >
+                <option value="">Uncategorized</option>
+                {categories.map(category => (
+                  <option key={category.id} value={category.id}>{category.label}</option>
+                ))}
+              </select>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", fontSize: "0.7rem", color: "#a1a1aa" }}>
+                <label style={{ display: "flex", flexDirection: "column", gap: "3px", fontWeight: 800 }}>
+                  Start
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={newSectionDraft.startTimeSec}
+                    onChange={(event) => updateNewSectionDraft({ startTimeSec: event.target.value })}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter") submitNewSectionDraft();
+                    }}
+                    style={{ padding: "5px 7px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.28)", color: "#fff", fontWeight: 900 }}
+                  />
+                </label>
+                <label style={{ display: "flex", flexDirection: "column", gap: "3px", fontWeight: 800 }}>
+                  End
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={newSectionDraft.endTimeSec}
+                    onChange={(event) => updateNewSectionDraft({ endTimeSec: event.target.value })}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter") submitNewSectionDraft();
+                    }}
+                    style={{ padding: "5px 7px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.28)", color: "#fff", fontWeight: 900 }}
+                  />
+                </label>
+              </div>
+              <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+                {tags.map(tag => {
+                  const active = (newSectionDraft.tags || []).includes(tag.id);
+                  return (
+                    <button key={tag.id} onClick={() => toggleNewSectionTag(tag.id)} title={tag.label} style={{ fontSize: "0.68rem", padding: "3px 8px", borderRadius: "999px", border: `1px solid ${active ? "#ffffff" : "rgba(255,255,255,0.12)"}`, background: active ? "#ffffff" : "transparent", color: active ? "#000" : "#a1a1aa", cursor: "pointer" }}>
+                      {tag.label}
+                    </button>
+                  );
+                })}
+              </div>
+              <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end" }}>
+                <button onClick={() => setNewSectionDraft(null)} style={{ padding: "5px 9px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", background: "transparent", color: "#d4d4d8", fontSize: "0.68rem", fontWeight: 800, cursor: "pointer" }}>
+                  Cancel
+                </button>
+                <button onClick={submitNewSectionDraft} style={{ padding: "5px 9px", borderRadius: "6px", border: "1px solid rgba(96,165,250,0.45)", background: "rgba(96,165,250,0.16)", color: "#93c5fd", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>
+                  Add Section
+                </button>
+              </div>
+            </div>
+          )}
           {editorSections.map((section, sectionIndex) => {
             const selectedTags = section.tags || [];
             const isExpanded = !!expandedSections[section.id];
