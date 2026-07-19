@@ -2,68 +2,72 @@
   "schemaVersion": "1.0",
   "categories": [
     {
-      "id": "intro",
-      "label": "Intro"
-    },
-    {
-      "id": "verse",
-      "label": "Verse"
-    },
-    {
-      "id": "chorus",
-      "label": "Chorus"
-    },
-    {
-      "id": "montuno",
-      "label": "Montuno"
-    },
-    {
-      "id": "mambo",
-      "label": "Mambo"
-    },
-    {
-      "id": "descarga",
-      "label": "Descarga"
+      "id": "accent",
+      "label": "Accent"
     },
     {
       "id": "break",
       "label": "Break"
     },
     {
-      "id": "outro",
-      "label": "Outro"
+      "id": "build-up",
+      "label": "Build Up"
+    },
+    {
+      "id": "chorus",
+      "label": "Chorus"
+    },
+    {
+      "id": "cuerpo",
+      "label": "Cuerpo"
     },
     {
       "id": "derecho",
       "label": "Derecho"
     },
     {
-      "id": "majao",
-      "label": "Majao"
+      "id": "descarga",
+      "label": "Descarga"
     },
     {
-      "id": "accent",
-      "label": "Accent"
+      "id": "energy-drop",
+      "label": "Energy Drop"
     },
     {
       "id": "fill",
       "label": "Fill"
     },
     {
-      "id": "vocal-cue",
-      "label": "Vocal Cue"
-    },
-    {
       "id": "instrument-entry",
       "label": "Instrument Entry"
     },
     {
-      "id": "build-up",
-      "label": "Build Up"
+      "id": "intro",
+      "label": "Intro"
     },
     {
-      "id": "energy-drop",
-      "label": "Energy Drop"
+      "id": "majao",
+      "label": "Majao"
+    },
+    {
+      "id": "mambo",
+      "label": "Mambo"
+    },
+    {
+      "id": "montuno",
+      "label": "Montuno"
+    },
+    {
+      "id": "outro",
+      "label": "Outro"
+    },
+    {
+      "id": "verse",
+      "label": "Verse"
+    },
+    {
+      "id": "vocal-cue",
+      "label": "Vocal Cue"
     }
   ]
 }

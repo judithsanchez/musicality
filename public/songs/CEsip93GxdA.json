@@ -9,9 +9,76 @@
     {
       "id": "sec-default",
       "startTimeMs": 0,
-      "endTimeMs": 300000,
-      "category": "",
+      "endTimeMs": 20000,
+      "category": "intro",
+      "tags": [
+        "hide-downbeats"
+      ]
+    },
+    {
+      "id": "8745ab27-e3cb-4a0f-a444-f6fc92ada756",
+      "startTimeMs": 20000,
+      "endTimeMs": 39000,
+      "category": "verse",
       "tags": []
+    },
+    {
+      "id": "9445f972-7b1d-47e4-8421-6847d9ea062e",
+      "startTimeMs": 39000,
+      "endTimeMs": 44000,
+      "category": "chorus",
+      "tags": []
+    },
+    {
+      "id": "f59d519a-4397-4661-aeb3-7c2456d3981a",
+      "startTimeMs": 44000,
+      "endTimeMs": 60000,
+      "category": "verse",
+      "tags": []
+    },
+    {
+      "id": "31586db1-c142-4c06-9679-0441ed7eb7f3",
+      "startTimeMs": 60000,
+      "endTimeMs": 89000,
+      "category": "chorus",
+      "tags": []
+    },
+    {
+      "id": "cc84854e-f8ad-4384-a604-c00c9f7035a5",
+      "startTimeMs": 89000,
+      "endTimeMs": 108000,
+      "category": "descarga",
+      "tags": []
+    },
+    {
+      "id": "f80a879d-e8f1-4d0d-8965-10bd7996cab2",
+      "startTimeMs": 108000,
+      "endTimeMs": 119000,
+      "category": "verse",
+      "tags": []
+    },
+    {
+      "id": "de367001-c70a-4372-bc88-3bb77d6a8f8c",
+      "startTimeMs": 119000,
+      "endTimeMs": 137000,
+      "category": "chorus",
+      "tags": []
+    },
+    {
+      "id": "c673cbf9-d650-4d10-a1ef-ff2428bed751",
+      "startTimeMs": 137000,
+      "endTimeMs": 164000,
+      "category": "montuno",
+      "tags": []
+    },
+    {
+      "id": "50a66e78-9f8d-4a73-9cf4-a51e9caff4f1",
+      "startTimeMs": 164000,
+      "endTimeMs": 189000,
+      "category": "outro",
+      "tags": [
+        "hide-downbeats"
+      ]
     }
   ],
   "events": [],
