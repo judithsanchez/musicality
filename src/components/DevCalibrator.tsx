@@ -34,6 +34,8 @@ const SECTION_PALETTE = [
 ];
 
 const slugify = (value: string) => value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+const DEVICE_CALIBRATION_KEY = "musicality.deviceCalibration";
+const METRONOME_INTERVAL_MS = 600;
 
 export default function DevCalibrator({
   songData,
@@ -53,6 +55,13 @@ export default function DevCalibrator({
 }: DevCalibratorProps) {
   const [editorSections, setEditorSections] = useState<any[]>([]);
   const [taps, setTaps] = useState<any[]>([]);
+  const [tapCalibrationPasses, setTapCalibrationPasses] = useState<any[]>([]);
+  const [reviewedAnchors, setReviewedAnchors] = useState<any[]>([]);
+  const [activePassId, setActivePassId] = useState<string | null>(null);
+  const [deviceCalibration, setDeviceCalibration] = useState<any>(null);
+  const [metronomeActive, setMetronomeActive] = useState(false);
+  const [metronomeBeat, setMetronomeBeat] = useState(0);
+  const [metronomeSamples, setMetronomeSamples] = useState<number[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [tags, setTags] = useState<any[]>([]);
   const [focusedSectionId, setFocusedSectionId] = useState<string | null>(null);
@@ -61,17 +70,31 @@ export default function DevCalibrator({
   const [validationErrors, setValidationErrors] = useState<any[] | null>(null);
   const [activeTab, setActiveTab] = useState<number>(1);
   const [saving, setSaving] = useState<boolean>(false);
-  const [timelineLayers, setTimelineLayers] = useState({ sections: true, events: true, count1: true, count5: true });
-  const [activeTapCount, setActiveTapCount] = useState<1 | 5>(1);
+  const [timelineLayers, setTimelineLayers] = useState({ sections: true, events: true, rawTaps: true, reviewed1: true, reviewed5: true });
   const [liveTime, setLiveTime] = useState(0);
 
   const duration = videoDuration || 300;
   const timelineRef = useRef<HTMLDivElement>(null);
   const latestSongDataRef = useRef<any>(null);
+  const metronomeTimerRef = useRef<number | null>(null);
+  const metronomeBeatTimeRef = useRef<number | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const anchorLoopTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     latestSongDataRef.current = calibratedSongData || songData;
   }, [calibratedSongData, songData]);
+
+  useEffect(() => {
+    try {
+      const stored = window.localStorage.getItem(DEVICE_CALIBRATION_KEY);
+      if (stored) {
+        setDeviceCalibration(JSON.parse(stored));
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  }, []);
 
   useEffect(() => {
     fetch(`${import.meta.env.BASE_URL}data/categories.json`)
@@ -131,8 +154,11 @@ export default function DevCalibrator({
     } else {
       setEditorSections(sortedSections);
     }
-    setTaps(Array.isArray(songData.taps) ? songData.taps.sort((a: any, b: any) => a.timeMs - b.timeMs) : []);
-    setActiveTapCount(1);
+    const nextPasses = Array.isArray(songData.tapCalibrationPasses) ? songData.tapCalibrationPasses : [];
+    setTapCalibrationPasses(nextPasses);
+    setTaps(Array.isArray(songData.taps) ? songData.taps.sort((a: any, b: any) => a.correctedTimeMs - b.correctedTimeMs) : []);
+    setReviewedAnchors(Array.isArray(songData.reviewedAnchors) ? songData.reviewedAnchors.sort((a: any, b: any) => a.timeMs - b.timeMs) : []);
+    setActivePassId(nextPasses.at(-1)?.id || null);
     setFocusedEventIndex(null);
   }, [songData?.youtubeId]);
 
@@ -194,13 +220,32 @@ export default function DevCalibrator({
   };
 
   const updateTapsState = (nextTaps: any[], triggerAutoSave = false) => {
-    const sortedTaps = [...nextTaps].sort((a, b) => a.timeMs - b.timeMs);
+    const sortedTaps = [...nextTaps].sort((a, b) => a.correctedTimeMs - b.correctedTimeMs);
     const updated = {
       ...latestSongDataRef.current,
       taps: sortedTaps,
       status: latestSongDataRef.current?.status === "READY" ? "READY" : "DRAFT"
     };
     setTaps(sortedTaps);
+    syncSongMapState(updated);
+    if (triggerAutoSave) {
+      autoSaveSongMap(updated);
+    }
+  };
+
+  const updateTapCalibrationState = (nextPasses: any[], nextTaps: any[], nextAnchors: any[], triggerAutoSave = false) => {
+    const sortedTaps = [...nextTaps].sort((a, b) => a.correctedTimeMs - b.correctedTimeMs);
+    const sortedAnchors = [...nextAnchors].sort((a, b) => a.timeMs - b.timeMs);
+    const updated = {
+      ...latestSongDataRef.current,
+      tapCalibrationPasses: nextPasses,
+      taps: sortedTaps,
+      reviewedAnchors: sortedAnchors,
+      status: latestSongDataRef.current?.status === "READY" ? "READY" : "DRAFT"
+    };
+    setTapCalibrationPasses(nextPasses);
+    setTaps(sortedTaps);
+    setReviewedAnchors(sortedAnchors);
     syncSongMapState(updated);
     if (triggerAutoSave) {
       autoSaveSongMap(updated);
@@ -246,21 +291,188 @@ export default function DevCalibrator({
     saveVocabulary("/api/tags", { schemaVersion: "1.0", tags: nextTags }, "Tag saved.");
   };
 
+  const playMetronomeClick = () => {
+    try {
+      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      if (!audioContextRef.current) {
+        audioContextRef.current = new AudioContextClass();
+      }
+      const audioContext = audioContextRef.current;
+      const oscillator = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      oscillator.frequency.value = 880;
+      gain.gain.setValueAtTime(0.0001, audioContext.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.18, audioContext.currentTime + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + 0.08);
+      oscillator.connect(gain);
+      gain.connect(audioContext.destination);
+      oscillator.start();
+      oscillator.stop(audioContext.currentTime + 0.09);
+    } catch (err) {
+      console.warn(err);
+    }
+  };
+
+  const startMetronomeCalibration = () => {
+    if (metronomeTimerRef.current) {
+      window.clearInterval(metronomeTimerRef.current);
+    }
+    setMetronomeSamples([]);
+    setMetronomeBeat(0);
+    setMetronomeActive(true);
+    const tick = () => {
+      metronomeBeatTimeRef.current = performance.now();
+      setMetronomeBeat(value => value + 1);
+      playMetronomeClick();
+    };
+    tick();
+    metronomeTimerRef.current = window.setInterval(tick, METRONOME_INTERVAL_MS);
+  };
+
+  const stopMetronomeCalibration = () => {
+    if (metronomeTimerRef.current) {
+      window.clearInterval(metronomeTimerRef.current);
+      metronomeTimerRef.current = null;
+    }
+    setMetronomeActive(false);
+    if (metronomeSamples.length === 0) return;
+    const average = metronomeSamples.reduce((sum, value) => sum + value, 0) / metronomeSamples.length;
+    const variance = metronomeSamples.reduce((sum, value) => sum + Math.pow(value - average, 2), 0) / metronomeSamples.length;
+    const calibration = {
+      inputLatencyMs: Math.round(average),
+      consistencyMs: Math.round(Math.sqrt(variance)),
+      createdAt: new Date().toISOString()
+    };
+    setDeviceCalibration(calibration);
+    window.localStorage.setItem(DEVICE_CALIBRATION_KEY, JSON.stringify(calibration));
+    showToast(`Device calibration saved: ${calibration.inputLatencyMs}ms.`);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (metronomeTimerRef.current) {
+        window.clearInterval(metronomeTimerRef.current);
+      }
+      if (anchorLoopTimerRef.current) {
+        window.clearInterval(anchorLoopTimerRef.current);
+      }
+    };
+  }, []);
+
+  const ensureActivePass = () => {
+    if (activePassId) return { passId: activePassId, passes: tapCalibrationPasses };
+    const pass = {
+      id: crypto.randomUUID(),
+      startedAt: new Date().toISOString(),
+      inputLatencyMs: deviceCalibration?.inputLatencyMs || 0
+    };
+    const nextPasses = [...tapCalibrationPasses, pass];
+    setTapCalibrationPasses(nextPasses);
+    setActivePassId(pass.id);
+    return { passId: pass.id, passes: nextPasses };
+  };
+
+  const suggestedCountForNextTap = () => {
+    const lastAnchor = [...reviewedAnchors].sort((a, b) => a.timeMs - b.timeMs).at(-1);
+    return lastAnchor?.count === 1 ? 5 : 1;
+  };
+
   const handleTap = () => {
+    if (metronomeActive) {
+      if (metronomeBeatTimeRef.current === null) return;
+      const sample = Math.round(performance.now() - metronomeBeatTimeRef.current);
+      setMetronomeSamples(current => [...current, sample]);
+      setTapFlash(true);
+      setTimeout(() => setTapFlash(false), 80);
+      return;
+    }
+
     if (!player) return;
     setTapFlash(true);
     setTimeout(() => setTapFlash(false), 80);
 
-    const tapTimeMs = Math.round((currentTime - (userDelaySetting / 1000)) * 1000);
-    if (tapTimeMs < 0 || tapTimeMs > duration * 1000) return;
+    const inputLatencyMs = deviceCalibration?.inputLatencyMs || 0;
+    const rawTimeMs = Math.round(currentTime * 1000);
+    const correctedTimeMs = Math.max(0, rawTimeMs - inputLatencyMs);
+    if (correctedTimeMs > duration * 1000) return;
 
-    const tooCloseToTap = taps.some((tap: any) => tap.count === activeTapCount && Math.abs(tap.timeMs - tapTimeMs) < 120);
+    const tooCloseToTap = taps.some((tap: any) => Math.abs(tap.correctedTimeMs - correctedTimeMs) < 120);
     if (tooCloseToTap) {
       showToast("Tap is too close to an existing mark.");
       return;
     }
 
-    updateTapsState([...taps, { id: crypto.randomUUID(), timeMs: tapTimeMs, count: activeTapCount }], true);
+    const passState = ensureActivePass();
+    const tap = {
+      id: crypto.randomUUID(),
+      timeMs: rawTimeMs,
+      correctedTimeMs,
+      passId: passState.passId,
+      source: "manual"
+    };
+    const anchor = {
+      id: crypto.randomUUID(),
+      tapId: tap.id,
+      timeMs: correctedTimeMs,
+      count: suggestedCountForNextTap(),
+      confidence: "suggested",
+      reviewed: false
+    };
+    updateTapCalibrationState(passState.passes, [...taps, tap], [...reviewedAnchors, anchor], true);
+  };
+
+  const handleUpdateReviewedAnchor = (anchorId: string, patch: any, triggerAutoSave = false) => {
+    const nextAnchors = reviewedAnchors.map(anchor => {
+      if (anchor.id !== anchorId) return anchor;
+      return {
+        ...anchor,
+        ...patch,
+        reviewed: patch.reviewed ?? true,
+        confidence: patch.confidence || "confirmed"
+      };
+    });
+    updateTapCalibrationState(tapCalibrationPasses, taps, nextAnchors, triggerAutoSave);
+  };
+
+  const handleNudgeReviewedAnchor = (anchorId: string, deltaMs: number) => {
+    const anchor = reviewedAnchors.find(item => item.id === anchorId);
+    if (!anchor) return;
+    handleUpdateReviewedAnchor(anchorId, { timeMs: Math.max(0, anchor.timeMs + deltaMs) }, true);
+  };
+
+  const handleDeleteRawTap = (tapId: string) => {
+    const nextTaps = taps.filter(tap => tap.id !== tapId);
+    const nextAnchors = reviewedAnchors.filter(anchor => anchor.tapId !== tapId);
+    updateTapCalibrationState(tapCalibrationPasses, nextTaps, nextAnchors, true);
+  };
+
+  const handleLoopReviewedAnchor = (timeMs: number) => {
+    const startSec = Math.max(0, (timeMs - 2000) / 1000);
+    const endSec = Math.min(duration, (timeMs + 2000) / 1000);
+    if (anchorLoopTimerRef.current) {
+      window.clearInterval(anchorLoopTimerRef.current);
+    }
+    throttledSeek(startSec, true);
+    try {
+      player?.playVideo?.();
+    } catch (err) {
+      console.warn(err);
+    }
+    anchorLoopTimerRef.current = window.setInterval(() => {
+      try {
+        if (player?.getCurrentTime?.() >= endSec) {
+          throttledSeek(startSec, true);
+        }
+      } catch (err) {
+        console.warn(err);
+      }
+    }, 150);
+    window.setTimeout(() => {
+      if (anchorLoopTimerRef.current) {
+        window.clearInterval(anchorLoopTimerRef.current);
+        anchorLoopTimerRef.current = null;
+      }
+    }, 12000);
   };
 
   const handleUpdateSectionTimes = (id: string, field: "startTimeMs" | "endTimeMs", valueMs: number) => {
@@ -591,7 +803,7 @@ export default function DevCalibrator({
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [currentTime, editorSections, taps, player, duration, activeTab, activeTapCount]);
+  }, [currentTime, editorSections, taps, player, duration, activeTab, metronomeActive, metronomeSamples, reviewedAnchors, activePassId, tapCalibrationPasses, deviceCalibration]);
 
   const seekTimelineFromClientX = (clientX: number, immediate: boolean) => {
     if (!timelineRef.current) return;
@@ -697,58 +909,98 @@ export default function DevCalibrator({
           padding: "20px 16px",
           background: "rgba(255,255,255,0.02)",
           border: `2px solid ${tapFlash ? "#ffffff" : "#27272a"}`,
-          borderRadius: "16px",
+          borderRadius: "8px",
           display: "flex",
           flexDirection: "column",
           gap: "14px",
-          alignItems: "center",
           boxShadow: tapFlash ? "0 0 36px rgba(255,255,255,0.35)" : "none",
           transition: "all 0.08s ease"
         }}>
-          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", justifyContent: "center" }}>
-            {[1, 5].map((count) => (
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px", padding: "12px", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "8px", background: "rgba(0,0,0,0.16)" }}>
+              <span style={{ fontSize: "0.76rem", color: "#fff", fontWeight: 900, textTransform: "uppercase" }}>Device Metronome</span>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <div style={{ width: "42px", height: "42px", borderRadius: "50%", background: metronomeActive && metronomeBeat % 2 === 1 ? "#ffffff" : "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.16)", boxShadow: metronomeActive && metronomeBeat % 2 === 1 ? "0 0 24px rgba(255,255,255,0.65)" : "none" }} />
+                <div style={{ display: "flex", flexDirection: "column", gap: "2px", color: "#a1a1aa", fontSize: "0.72rem" }}>
+                  <span>Latency: <strong style={{ color: "#fff" }}>{deviceCalibration ? `${deviceCalibration.inputLatencyMs}ms` : "none"}</strong></span>
+                  <span>Consistency: <strong style={{ color: "#fff" }}>{deviceCalibration ? `${deviceCalibration.consistencyMs}ms` : "none"}</strong></span>
+                  <span>Samples: <strong style={{ color: "#fff" }}>{metronomeSamples.length}</strong></span>
+                </div>
+              </div>
+              <div style={{ display: "flex", gap: "8px" }}>
+                <button onClick={metronomeActive ? stopMetronomeCalibration : startMetronomeCalibration} style={{ flex: 1, padding: "8px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", background: metronomeActive ? "#ffffff" : "rgba(255,255,255,0.05)", color: metronomeActive ? "#000" : "#fff", fontWeight: 900, cursor: "pointer" }}>
+                  {metronomeActive ? "Save Calibration" : "Start Metronome"}
+                </button>
+                {metronomeActive && (
+                  <button onClick={handleTap} style={{ flex: 1, padding: "8px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.05)", color: "#fff", fontWeight: 900, cursor: "pointer" }}>
+                    Tap Sample
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px", padding: "12px", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "8px", background: "rgba(0,0,0,0.16)" }}>
+              <span style={{ fontSize: "0.76rem", color: "#fff", fontWeight: 900, textTransform: "uppercase" }}>Song Anchors</span>
+              <div style={{ display: "flex", flexDirection: "column", gap: "2px", color: "#a1a1aa", fontSize: "0.72rem" }}>
+                <span>Raw taps: <strong style={{ color: "#fff" }}>{taps.length}</strong></span>
+                <span>Reviewed: <strong style={{ color: "#fff" }}>{reviewedAnchors.filter(anchor => anchor.reviewed).length}</strong></span>
+                <span>Passes: <strong style={{ color: "#fff" }}>{tapCalibrationPasses.length}</strong></span>
+              </div>
               <button
-                key={count}
-                onClick={() => setActiveTapCount(count as 1 | 5)}
+                onClick={handleTap}
+                disabled={metronomeActive}
                 style={{
-                  fontSize: "0.72rem",
-                  fontWeight: 900,
-                  padding: "7px 12px",
-                  borderRadius: "999px",
-                  border: `1px solid ${activeTapCount === count ? "#ffffff" : "rgba(255,255,255,0.12)"}`,
-                  background: activeTapCount === count ? "#ffffff" : "rgba(255,255,255,0.04)",
-                  color: activeTapCount === count ? "#000" : "#d4d4d8",
-                  cursor: "pointer"
+                  width: "100%",
+                  height: "62px",
+                  borderRadius: "8px",
+                  border: `2px solid ${tapFlash ? "#ffffff" : "#3f3f46"}`,
+                  background: tapFlash ? "#ffffff" : "rgba(255,255,255,0.04)",
+                  cursor: metronomeActive ? "not-allowed" : "pointer",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "3px",
+                  opacity: metronomeActive ? 0.5 : 1
                 }}
               >
-                Count {count}: {taps.filter((tap: any) => tap.count === count).length}
+                <span style={{ fontSize: "1rem", fontWeight: 900, color: tapFlash ? "#000" : "#fff", textTransform: "uppercase", letterSpacing: "1px" }}>
+                  Tap Anchor
+                </span>
+                <span style={{ fontSize: "0.66rem", color: tapFlash ? "rgba(0,0,0,0.6)" : "#71717a" }}>
+                  Click or press <kbd style={{ background: "rgba(255,255,255,0.12)", borderRadius: "3px", padding: "0 3px" }}>T</kbd>
+                </span>
               </button>
-            ))}
+            </div>
           </div>
 
-          <button
-            onClick={handleTap}
-            style={{
-              width: "100%",
-              height: "90px",
-              borderRadius: "14px",
-              border: `2px solid ${tapFlash ? "#ffffff" : "#3f3f46"}`,
-              background: tapFlash ? "#ffffff" : "rgba(255,255,255,0.04)",
-              cursor: "pointer",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "4px"
-            }}
-          >
-            <span style={{ fontSize: "1.35rem", fontWeight: 900, color: tapFlash ? "#000" : "#fff", textTransform: "uppercase", letterSpacing: "1px" }}>
-              TAP COUNT {activeTapCount}
-            </span>
-            <span style={{ fontSize: "0.68rem", color: tapFlash ? "rgba(0,0,0,0.6)" : "#71717a" }}>
-              Click or press <kbd style={{ background: "rgba(255,255,255,0.12)", borderRadius: "3px", padding: "0 3px" }}>T</kbd>
-            </span>
-          </button>
+          <div style={{ display: "flex", flexDirection: "column", gap: "8px", maxHeight: "220px", overflowY: "auto" }}>
+            {reviewedAnchors.map((anchor: any) => {
+              const rawTap = taps.find((tap: any) => tap.id === anchor.tapId);
+              return (
+                <div key={anchor.id} style={{ display: "grid", gridTemplateColumns: "70px 1fr auto", alignItems: "center", gap: "8px", padding: "8px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.07)", background: anchor.reviewed ? "rgba(255,255,255,0.04)" : "rgba(251,191,36,0.08)" }}>
+                  <span style={{ color: "#fff", fontFamily: "monospace", fontSize: "0.72rem", fontWeight: 800 }}>{(anchor.timeMs / 1000).toFixed(2)}s</span>
+                  <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", alignItems: "center" }}>
+                    {[1, 5].map(count => (
+                      <button key={count} onClick={() => handleUpdateReviewedAnchor(anchor.id, { count, reviewed: true, confidence: "confirmed" }, true)} style={{ padding: "3px 9px", borderRadius: "999px", border: `1px solid ${anchor.count === count ? "#ffffff" : "rgba(255,255,255,0.12)"}`, background: anchor.count === count ? "#ffffff" : "transparent", color: anchor.count === count ? "#000" : "#a1a1aa", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>
+                        {count}
+                      </button>
+                    ))}
+                    <button onClick={() => handleNudgeReviewedAnchor(anchor.id, -50)} style={{ padding: "3px 7px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", background: "transparent", color: "#fff", cursor: "pointer" }}>-50</button>
+                    <button onClick={() => handleNudgeReviewedAnchor(anchor.id, 50)} style={{ padding: "3px 7px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", background: "transparent", color: "#fff", cursor: "pointer" }}>+50</button>
+                    <button onClick={() => handleUpdateReviewedAnchor(anchor.id, { confidence: "uncertain", reviewed: true }, true)} style={{ padding: "3px 7px", borderRadius: "6px", border: "1px solid rgba(251,191,36,0.35)", background: "rgba(251,191,36,0.08)", color: "#fbbf24", cursor: "pointer" }}>Uncertain</button>
+                  </div>
+                  <div style={{ display: "flex", gap: "6px" }}>
+                    <button onClick={() => handleLoopReviewedAnchor(anchor.timeMs)} style={{ padding: "3px 7px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.04)", color: "#fff", cursor: "pointer" }}>Loop</button>
+                    <button onClick={() => rawTap && handleDeleteRawTap(rawTap.id)} style={{ padding: "3px 7px", borderRadius: "6px", border: "1px solid rgba(248,113,113,0.35)", background: "rgba(248,113,113,0.08)", color: "#fca5a5", cursor: "pointer" }}>Delete</button>
+                  </div>
+                </div>
+              );
+            })}
+            {reviewedAnchors.length === 0 && (
+              <div style={{ padding: "12px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.07)", color: "#71717a", fontSize: "0.76rem", textAlign: "center" }}>No anchor taps yet.</div>
+            )}
+          </div>
         </div>
       )}
 
@@ -968,12 +1220,16 @@ export default function DevCalibrator({
                 );
               })}
 
-              {taps.map((tap: any) => {
-                const layerKey = tap.count === 1 ? "count1" : "count5";
+              {timelineLayers.rawTaps && taps.map((tap: any) => (
+                <div key={tap.id} title={`Raw anchor ${(tap.correctedTimeMs / 1000).toFixed(2)}s`} style={{ position: "absolute", top: "19px", height: "10px", left: `${(tap.correctedTimeMs / (duration * 1000)) * 100}%`, width: "2px", background: "#a1a1aa", opacity: 0.72, zIndex: 8, pointerEvents: "none" }} />
+              ))}
+
+              {reviewedAnchors.map((anchor: any) => {
+                const layerKey = anchor.count === 1 ? "reviewed1" : "reviewed5";
                 if (!timelineLayers[layerKey as keyof typeof timelineLayers]) return null;
-                const color = tap.count === 1 ? "#60a5fa" : "#34d399";
+                const color = anchor.count === 1 ? "#60a5fa" : "#34d399";
                 return (
-                  <div key={tap.id} title={`Count ${tap.count} ${(tap.timeMs / 1000).toFixed(2)}s`} style={{ position: "absolute", top: tap.count === 1 ? "5px" : "27px", height: "16px", left: `${(tap.timeMs / (duration * 1000)) * 100}%`, width: "3px", background: color, opacity: 0.95, zIndex: 8, pointerEvents: "none", boxShadow: `0 0 9px ${color}aa` }} />
+                  <div key={anchor.id} title={`Reviewed ${anchor.count} ${(anchor.timeMs / 1000).toFixed(2)}s`} style={{ position: "absolute", top: anchor.count === 1 ? "5px" : "27px", height: "16px", left: `${(anchor.timeMs / (duration * 1000)) * 100}%`, width: "3px", background: color, opacity: anchor.reviewed ? 0.95 : 0.55, zIndex: 9, pointerEvents: "none", boxShadow: anchor.reviewed ? `0 0 9px ${color}aa` : "none" }} />
                 );
               })}
 
@@ -1179,7 +1435,7 @@ export default function DevCalibrator({
           <span><kbd style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "4px", padding: "1px 4px", color: "#fff", marginRight: "4px" }}>← / →</kbd> Nudge 100ms</span>
           <span><kbd style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "4px", padding: "1px 4px", color: "#fff", marginRight: "4px" }}>Shift + ← / →</kbd> Nudge 1.0s</span>
           <span><kbd style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "4px", padding: "1px 4px", color: "#fff", marginRight: "4px" }}>C</kbd> Slice Section / Event</span>
-          <span><kbd style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "4px", padding: "1px 4px", color: "#fff", marginRight: "4px" }}>T</kbd> Tap Count 1 / 5</span>
+          <span><kbd style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "4px", padding: "1px 4px", color: "#fff", marginRight: "4px" }}>T</kbd> Tap Anchor</span>
         </div>
       </div>
     </div>

@@ -30,10 +30,27 @@ export const TimelineRangeSchema = z.object({
   tags: z.array(z.string().trim().min(1)).default([])
 });
 
+export const TapCalibrationPassSchema = z.object({
+  id: z.string().trim().min(1),
+  startedAt: z.string().trim().min(1),
+  inputLatencyMs: z.number().int().default(0)
+});
+
 export const TapSchema = z.object({
   id: z.string().trim().min(1),
   timeMs: z.number().int().nonnegative(),
-  count: z.union([z.literal(1), z.literal(5)])
+  correctedTimeMs: z.number().int().nonnegative(),
+  passId: z.string().trim().min(1),
+  source: z.literal('manual')
+});
+
+export const ReviewedAnchorSchema = z.object({
+  id: z.string().trim().min(1),
+  tapId: z.string().trim().min(1),
+  timeMs: z.number().int().nonnegative(),
+  count: z.union([z.literal(1), z.literal(5)]),
+  confidence: z.enum(['suggested', 'confirmed', 'uncertain']).default('suggested'),
+  reviewed: z.boolean().default(false)
 });
 
 export const SongMapSchema = z.object({
@@ -45,8 +62,10 @@ export const SongMapSchema = z.object({
   status: z.enum(['DRAFT', 'READY']).default('DRAFT'),
   sections: z.array(TimelineRangeSchema).default([]),
   events: z.array(TimelineRangeSchema).default([]),
+  tapCalibrationPasses: z.array(TapCalibrationPassSchema).default([]),
   taps: z.array(TapSchema).default([]),
-  schemaVersion: z.literal('3.0')
+  reviewedAnchors: z.array(ReviewedAnchorSchema).default([]),
+  schemaVersion: z.literal('3.1')
 });
 
 export type Genre = z.infer<typeof GenreSchema>;
@@ -55,7 +74,9 @@ export type Tag = z.infer<typeof TagSchema>;
 export type CategoryCollection = z.infer<typeof CategoryCollectionSchema>;
 export type TagCollection = z.infer<typeof TagCollectionSchema>;
 export type TimelineRange = z.infer<typeof TimelineRangeSchema>;
+export type TapCalibrationPass = z.infer<typeof TapCalibrationPassSchema>;
 export type Tap = z.infer<typeof TapSchema>;
+export type ReviewedAnchor = z.infer<typeof ReviewedAnchorSchema>;
 export type SongMap = z.infer<typeof SongMapSchema>;
 
 const validateRangeList = (ranges: TimelineRange[], ctx: z.RefinementCtx, pathName: 'sections' | 'events') => {
@@ -73,6 +94,8 @@ const validateRangeList = (ranges: TimelineRange[], ctx: z.RefinementCtx, pathNa
 export const StrictSongMapSchema = SongMapSchema.superRefine((data, ctx) => {
   validateRangeList(data.sections, ctx, 'sections');
   validateRangeList(data.events, ctx, 'events');
+  const passIds = new Set(data.tapCalibrationPasses.map(pass => pass.id));
+  const tapIds = new Set(data.taps.map(tap => tap.id));
 
   const sortedSections = [...data.sections].sort((a, b) => a.startTimeMs - b.startTimeMs);
   for (let index = 1; index < sortedSections.length; index++) {
@@ -107,6 +130,26 @@ export const StrictSongMapSchema = SongMapSchema.superRefine((data, ctx) => {
       }
     });
   }
+
+  data.taps.forEach((tap, index) => {
+    if (!passIds.has(tap.passId)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Tap pass does not exist',
+        path: ['taps', index, 'passId']
+      });
+    }
+  });
+
+  data.reviewedAnchors.forEach((anchor, index) => {
+    if (!tapIds.has(anchor.tapId)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Reviewed anchor points to a missing raw tap',
+        path: ['reviewedAnchors', index, 'tapId']
+      });
+    }
+  });
 });
 
 export const createVocabularySongMapSchema = (categoryIds: string[], tagIds: string[]) => {

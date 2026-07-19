@@ -6,10 +6,11 @@ The app stores song maps as static JSON files in `public/songs`. `catalog.json` 
 
 - Keep the schema small and readable.
 - Support only Salsa and Bachata.
-- Store song identity, status, sections, events, and manual count-1/count-5 taps.
+- Store song identity, status, sections, events, tap passes, raw anchor taps, and reviewed count anchors.
 - Keep categories and tags generic so they can be used on sections or events.
 - Allow partial drafts without requiring categories.
 - Block obvious invalid data, such as ranges whose end is before their start or overlapping section ranges.
+- Ensure raw taps belong to an existing tap pass and reviewed anchors point to existing raw taps.
 
 ## Static And Local Modes
 

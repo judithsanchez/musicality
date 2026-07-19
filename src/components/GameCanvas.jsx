@@ -108,7 +108,7 @@ export default function GameCanvas({
     }
 
     const tapTime = currentTime;
-    const beats = (songData?.taps || []).filter(tap => tap.count === 1);
+    const beats = (songData?.reviewedAnchors || []).filter(anchor => anchor.count === 1 && anchor.reviewed);
     if (beats.length === 0) return;
 
     // Find the closest beat

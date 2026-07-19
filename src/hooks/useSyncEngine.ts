@@ -142,10 +142,10 @@ export function useSyncEngine(
         let closestBeat: any = null;
         let minDiff = Infinity;
 
-        const countOneTaps = (sData.taps || []).filter((tap: any) => tap.count === 1);
-        if (countOneTaps.length > 0) {
-          for (let i = 0; i < countOneTaps.length; i++) {
-            const tapTimeMs = countOneTaps[i].timeMs;
+        const countOneAnchors = (sData.reviewedAnchors || []).filter((anchor: any) => anchor.count === 1 && anchor.reviewed);
+        if (countOneAnchors.length > 0) {
+          for (let i = 0; i < countOneAnchors.length; i++) {
+            const tapTimeMs = countOneAnchors[i].timeMs;
             const timeDiff = Math.abs(visualTimeMs - tapTimeMs);
             if (timeDiff <= 90 && timeDiff < minDiff) {
               minDiff = timeDiff;

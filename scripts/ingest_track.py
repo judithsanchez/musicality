@@ -42,9 +42,11 @@ def main():
         "genre": args.genre,
         "status": "DRAFT",
         "events": [],
-        "schemaVersion": "3.0",
+        "schemaVersion": "3.1",
         "sections": [],
-        "taps": []
+        "tapCalibrationPasses": [],
+        "taps": [],
+        "reviewedAnchors": []
     }
 
     os.makedirs(os.path.dirname(args.output), exist_ok=True)
