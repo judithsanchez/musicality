@@ -36,6 +36,12 @@ const SECTION_PALETTE = [
 const slugify = (value: string) => value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 const DEVICE_CALIBRATION_KEY = "musicality.deviceCalibration";
 const METRONOME_INTERVAL_MS = 600;
+const REVIEWED_ANCHOR_COLORS: Record<number, string> = {
+  1: "#60a5fa",
+  4: "#f472b6",
+  5: "#34d399",
+  8: "#fbbf24"
+};
 
 export default function DevCalibrator({
   songData,
@@ -70,7 +76,7 @@ export default function DevCalibrator({
   const [validationErrors, setValidationErrors] = useState<any[] | null>(null);
   const [activeTab, setActiveTab] = useState<number>(1);
   const [saving, setSaving] = useState<boolean>(false);
-  const [timelineLayers, setTimelineLayers] = useState({ sections: true, events: true, rawTaps: true, reviewed1: true, reviewed5: true });
+  const [timelineLayers, setTimelineLayers] = useState({ sections: true, events: true, rawTaps: true, reviewed: true });
   const [liveTime, setLiveTime] = useState(0);
 
   const duration = videoDuration || 300;
@@ -80,6 +86,17 @@ export default function DevCalibrator({
   const metronomeBeatTimeRef = useRef<number | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const anchorLoopTimerRef = useRef<number | null>(null);
+  const reviewedAnchorOptions = songData?.genre === "BACHATA"
+    ? [
+      { count: 1, label: "1" },
+      { count: 4, label: "Tap (4)" },
+      { count: 5, label: "5" },
+      { count: 8, label: "Tap (8)" }
+    ]
+    : [
+      { count: 1, label: "1" },
+      { count: 5, label: "5" }
+    ];
 
   useEffect(() => {
     latestSongDataRef.current = calibratedSongData || songData;
@@ -374,7 +391,10 @@ export default function DevCalibrator({
 
   const suggestedCountForNextTap = () => {
     const lastAnchor = [...reviewedAnchors].sort((a, b) => a.timeMs - b.timeMs).at(-1);
-    return lastAnchor?.count === 1 ? 5 : 1;
+    const cycle = reviewedAnchorOptions.map(option => option.count);
+    if (!lastAnchor) return cycle[0];
+    const index = cycle.indexOf(lastAnchor.count);
+    return cycle[(index + 1) % cycle.length] || cycle[0];
   };
 
   const handleTap = () => {
@@ -981,9 +1001,9 @@ export default function DevCalibrator({
                 <div key={anchor.id} style={{ display: "grid", gridTemplateColumns: "70px 1fr auto", alignItems: "center", gap: "8px", padding: "8px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.07)", background: anchor.reviewed ? "rgba(255,255,255,0.04)" : "rgba(251,191,36,0.08)" }}>
                   <span style={{ color: "#fff", fontFamily: "monospace", fontSize: "0.72rem", fontWeight: 800 }}>{(anchor.timeMs / 1000).toFixed(2)}s</span>
                   <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", alignItems: "center" }}>
-                    {[1, 5].map(count => (
-                      <button key={count} onClick={() => handleUpdateReviewedAnchor(anchor.id, { count, reviewed: true, confidence: "confirmed" }, true)} style={{ padding: "3px 9px", borderRadius: "999px", border: `1px solid ${anchor.count === count ? "#ffffff" : "rgba(255,255,255,0.12)"}`, background: anchor.count === count ? "#ffffff" : "transparent", color: anchor.count === count ? "#000" : "#a1a1aa", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>
-                        {count}
+                    {reviewedAnchorOptions.map(option => (
+                      <button key={option.count} onClick={() => handleUpdateReviewedAnchor(anchor.id, { count: option.count, reviewed: true, confidence: "confirmed" }, true)} style={{ padding: "3px 9px", borderRadius: "999px", border: `1px solid ${anchor.count === option.count ? "#ffffff" : "rgba(255,255,255,0.12)"}`, background: anchor.count === option.count ? "#ffffff" : "transparent", color: anchor.count === option.count ? "#000" : "#a1a1aa", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>
+                        {option.label}
                       </button>
                     ))}
                     <button onClick={() => handleNudgeReviewedAnchor(anchor.id, -50)} style={{ padding: "3px 7px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", background: "transparent", color: "#fff", cursor: "pointer" }}>-50</button>
@@ -1224,12 +1244,11 @@ export default function DevCalibrator({
                 <div key={tap.id} title={`Raw anchor ${(tap.correctedTimeMs / 1000).toFixed(2)}s`} style={{ position: "absolute", top: "19px", height: "10px", left: `${(tap.correctedTimeMs / (duration * 1000)) * 100}%`, width: "2px", background: "#a1a1aa", opacity: 0.72, zIndex: 8, pointerEvents: "none" }} />
               ))}
 
-              {reviewedAnchors.map((anchor: any) => {
-                const layerKey = anchor.count === 1 ? "reviewed1" : "reviewed5";
-                if (!timelineLayers[layerKey as keyof typeof timelineLayers]) return null;
-                const color = anchor.count === 1 ? "#60a5fa" : "#34d399";
+              {timelineLayers.reviewed && reviewedAnchors.map((anchor: any) => {
+                const color = REVIEWED_ANCHOR_COLORS[anchor.count] || "#ffffff";
+                const top = anchor.count === 1 ? "4px" : anchor.count === 4 ? "16px" : anchor.count === 5 ? "28px" : "38px";
                 return (
-                  <div key={anchor.id} title={`Reviewed ${anchor.count} ${(anchor.timeMs / 1000).toFixed(2)}s`} style={{ position: "absolute", top: anchor.count === 1 ? "5px" : "27px", height: "16px", left: `${(anchor.timeMs / (duration * 1000)) * 100}%`, width: "3px", background: color, opacity: anchor.reviewed ? 0.95 : 0.55, zIndex: 9, pointerEvents: "none", boxShadow: anchor.reviewed ? `0 0 9px ${color}aa` : "none" }} />
+                  <div key={anchor.id} title={`Reviewed ${anchor.count} ${(anchor.timeMs / 1000).toFixed(2)}s`} style={{ position: "absolute", top, height: "10px", left: `${(anchor.timeMs / (duration * 1000)) * 100}%`, width: "3px", background: color, opacity: anchor.reviewed ? 0.95 : 0.55, zIndex: 9, pointerEvents: "none", boxShadow: anchor.reviewed ? `0 0 9px ${color}aa` : "none" }} />
                 );
               })}
 

@@ -42,7 +42,7 @@ def main():
         "genre": args.genre,
         "status": "DRAFT",
         "events": [],
-        "schemaVersion": "3.1",
+        "schemaVersion": "3.2",
         "sections": [],
         "tapCalibrationPasses": [],
         "taps": [],

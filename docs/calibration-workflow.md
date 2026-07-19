@@ -14,7 +14,7 @@ Each song JSON keeps only the data the app needs:
 - reviewed count anchors
 - status: `DRAFT` or `READY`
 
-Sections and events share the same range model: `startTimeMs`, `endTimeMs`, `category`, and `tags`. Raw taps are manual anchor evidence. Reviewed anchors interpret those taps as count `1` or `5`. Categories and tags are global static JSON collections and can be reused anywhere.
+Sections and events share the same range model: `startTimeMs`, `endTimeMs`, `category`, and `tags`. Raw taps are manual anchor evidence. Reviewed anchors interpret those taps as genre-aware counts: Salsa uses `1` and `5`; Bachata uses `1`, tap step `4`, `5`, and tap step `8`. Categories and tags are global static JSON collections and can be reused anywhere.
 
 ## Ingestion
 
@@ -29,7 +29,7 @@ The local ingestion script accepts a YouTube id/link flow from the app and creat
 - Events use the same start/end range model as sections.
 - A local metronome calibration stores user/device input latency outside song JSON.
 - Song tapping records one-key manual anchors, corrected by the saved local latency.
-- Review labels anchors as count `1` or `5`, nudges timing, deletes bad taps, and marks uncertainty.
+- Review labels anchors with genre-aware count options, nudges timing, deletes bad taps, and marks uncertainty.
 - No library or automatic process generates trusted taps or downbeats.
 
 ## Publishing

@@ -48,7 +48,7 @@ export const ReviewedAnchorSchema = z.object({
   id: z.string().trim().min(1),
   tapId: z.string().trim().min(1),
   timeMs: z.number().int().nonnegative(),
-  count: z.union([z.literal(1), z.literal(5)]),
+  count: z.union([z.literal(1), z.literal(4), z.literal(5), z.literal(8)]),
   confidence: z.enum(['suggested', 'confirmed', 'uncertain']).default('suggested'),
   reviewed: z.boolean().default(false)
 });
@@ -65,7 +65,7 @@ export const SongMapSchema = z.object({
   tapCalibrationPasses: z.array(TapCalibrationPassSchema).default([]),
   taps: z.array(TapSchema).default([]),
   reviewedAnchors: z.array(ReviewedAnchorSchema).default([]),
-  schemaVersion: z.literal('3.1')
+  schemaVersion: z.literal('3.2')
 });
 
 export type Genre = z.infer<typeof GenreSchema>;
@@ -147,6 +147,13 @@ export const StrictSongMapSchema = SongMapSchema.superRefine((data, ctx) => {
         code: z.ZodIssueCode.custom,
         message: 'Reviewed anchor points to a missing raw tap',
         path: ['reviewedAnchors', index, 'tapId']
+      });
+    }
+    if (data.genre === 'SALSA' && anchor.count !== 1 && anchor.count !== 5) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Salsa reviewed anchors may only use count 1 or 5',
+        path: ['reviewedAnchors', index, 'count']
       });
     }
   });
