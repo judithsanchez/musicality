@@ -21,6 +21,31 @@ export default function DevCalibrationPanel({
   const [draftTimes, setDraftTimes] = useState({});
   const [newSectionDraft, setNewSectionDraft] = useState(null);
 
+  const formatTimecode = (timeMs) => {
+    const safeMs = Math.max(0, Math.round(timeMs || 0));
+    const minutes = Math.floor(safeMs / 60000);
+    const seconds = Math.floor((safeMs % 60000) / 1000);
+    const milliseconds = safeMs % 1000;
+    return `${minutes}:${String(seconds).padStart(2, "0")}.${String(milliseconds).padStart(3, "0")}`;
+  };
+
+  const parseTimecode = (value) => {
+    const trimmed = `${value}`.trim();
+    if (!trimmed) return Number.NaN;
+    if (!trimmed.includes(":")) {
+      const secondsOnly = Number(trimmed);
+      return Number.isFinite(secondsOnly) ? secondsOnly * 1000 : Number.NaN;
+    }
+    const parts = trimmed.split(":");
+    if (parts.length !== 2) return Number.NaN;
+    const minutes = Number(parts[0]);
+    const seconds = Number(parts[1]);
+    if (!Number.isFinite(minutes) || !Number.isFinite(seconds) || minutes < 0 || seconds < 0 || seconds >= 60) {
+      return Number.NaN;
+    }
+    return (minutes * 60 + seconds) * 1000;
+  };
+
   const toggleCollapse = (id) => {
     setExpandedSections(prev => ({ ...prev, [id]: !prev[id] }));
   };
@@ -29,7 +54,7 @@ export default function DevCalibrationPanel({
 
   const timeValue = (section, field) => {
     const key = draftKey(section.id, field);
-    return draftTimes[key] ?? (section[field] / 1000).toFixed(2);
+    return draftTimes[key] ?? formatTimecode(section[field]);
   };
 
   const updateDraftTime = (section, field, value) => {
@@ -44,12 +69,12 @@ export default function DevCalibrationPanel({
       onUpdateSectionTime(section.id, field, Number.NaN);
       return;
     }
-    const parsed = Number(value);
+    const parsed = parseTimecode(value);
     if (!Number.isFinite(parsed)) {
       onUpdateSectionTime(section.id, field, Number.NaN);
       return;
     }
-    const didCommit = onUpdateSectionTime(section.id, field, parsed * 1000);
+    const didCommit = onUpdateSectionTime(section.id, field, parsed);
     if (!didCommit) return;
     setDraftTimes(current => {
       const next = { ...current };
@@ -86,8 +111,8 @@ export default function DevCalibrationPanel({
   const submitNewSectionDraft = () => {
     if (!newSectionDraft) return;
     const didAdd = onAddSection({
-      startTimeMs: newSectionDraft.startTimeSec === "" ? Number.NaN : Number(newSectionDraft.startTimeSec) * 1000,
-      endTimeMs: newSectionDraft.endTimeSec === "" ? Number.NaN : Number(newSectionDraft.endTimeSec) * 1000,
+      startTimeMs: parseTimecode(newSectionDraft.startTimeSec),
+      endTimeMs: parseTimecode(newSectionDraft.endTimeSec),
       category: newSectionDraft.category,
       tags: newSectionDraft.tags || []
     });
@@ -157,9 +182,9 @@ export default function DevCalibrationPanel({
                 <label style={{ display: "flex", flexDirection: "column", gap: "3px", fontWeight: 800 }}>
                   Start
                   <input
-                    type="number"
-                    min="0"
-                    step="0.01"
+                    type="text"
+                    inputMode="decimal"
+                    placeholder="0:00.000"
                     value={newSectionDraft.startTimeSec}
                     onChange={(event) => updateNewSectionDraft({ startTimeSec: event.target.value })}
                     onKeyDown={(event) => {
@@ -171,9 +196,9 @@ export default function DevCalibrationPanel({
                 <label style={{ display: "flex", flexDirection: "column", gap: "3px", fontWeight: 800 }}>
                   End
                   <input
-                    type="number"
-                    min="0"
-                    step="0.01"
+                    type="text"
+                    inputMode="decimal"
+                    placeholder="0:00.000"
                     value={newSectionDraft.endTimeSec}
                     onChange={(event) => updateNewSectionDraft({ endTimeSec: event.target.value })}
                     onKeyDown={(event) => {
@@ -261,9 +286,8 @@ export default function DevCalibrationPanel({
                       <label style={{ display: "flex", flexDirection: "column", gap: "3px", fontWeight: 800 }}>
                         Start
                         <input
-                          type="number"
-                          min="0"
-                          step="0.01"
+                          type="text"
+                          inputMode="decimal"
                           disabled={sectionIndex === 0 || isLocked}
                           value={timeValue(section, "startTimeMs")}
                           onChange={(event) => updateDraftTime(section, "startTimeMs", event.target.value)}
@@ -276,9 +300,8 @@ export default function DevCalibrationPanel({
                       <label style={{ display: "flex", flexDirection: "column", gap: "3px", fontWeight: 800 }}>
                         End
                         <input
-                          type="number"
-                          min="0"
-                          step="0.01"
+                          type="text"
+                          inputMode="decimal"
                           disabled={sectionIndex === editorSections.length - 1 || isLocked}
                           value={timeValue(section, "endTimeMs")}
                           onChange={(event) => updateDraftTime(section, "endTimeMs", event.target.value)}
@@ -290,7 +313,7 @@ export default function DevCalibrationPanel({
                       </label>
                     </div>
                     <div style={{ color: "#71717a", fontSize: "0.64rem", lineHeight: 1.35 }}>
-                      Type freely, then press Enter to apply. Boundary edits keep neighboring sections aligned unless a section is locked.
+                      Use m:ss.mmm, then press Enter to apply. Boundary edits keep neighboring sections aligned unless a section is locked.
                     </div>
                     <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
                       {tags.map(tag => {
@@ -336,7 +359,7 @@ export default function DevCalibrationPanel({
           <div style={{ width: "min(420px, 100%)", display: "flex", flexDirection: "column", gap: "12px", padding: "16px", borderRadius: "8px", border: "1px solid rgba(248,113,113,0.28)", background: "#09090b", boxShadow: "0 24px 80px rgba(0,0,0,0.5)" }}>
             <span style={{ color: "#fff", fontSize: "0.9rem", fontWeight: 900 }}>Delete Section {pendingDeleteIndex + 1}?</span>
             <span style={{ color: "#a1a1aa", fontSize: "0.74rem", lineHeight: 1.45 }}>
-              This will remove {pendingDeleteLabel} from {(sectionPendingDelete.startTimeMs / 1000).toFixed(2)}s to {(sectionPendingDelete.endTimeMs / 1000).toFixed(2)}s and merge the time into a neighboring section.
+              This will remove {pendingDeleteLabel} from {formatTimecode(sectionPendingDelete.startTimeMs)} to {formatTimecode(sectionPendingDelete.endTimeMs)} and merge the time into a neighboring section.
             </span>
             <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end" }}>
               <button onClick={() => setSectionPendingDelete(null)} style={{ padding: "7px 12px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", background: "transparent", color: "#fff", fontWeight: 800, cursor: "pointer" }}>
