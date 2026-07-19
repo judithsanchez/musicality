@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "1.0",
+  "categories": [
+    {
+      "id": "intro",
+      "label": "Intro"
+    },
+    {
+      "id": "verse",
+      "label": "Verse"
+    },
+    {
+      "id": "chorus",
+      "label": "Chorus"
+    },
+    {
+      "id": "montuno",
+      "label": "Montuno"
+    },
+    {
+      "id": "mambo",
+      "label": "Mambo"
+    },
+    {
+      "id": "descarga",
+      "label": "Descarga"
+    },
+    {
+      "id": "break",
+      "label": "Break"
+    },
+    {
+      "id": "outro",
+      "label": "Outro"
+    },
+    {
+      "id": "derecho",
+      "label": "Derecho"
+    },
+    {
+      "id": "majao",
+      "label": "Majao"
+    },
+    {
+      "id": "accent",
+      "label": "Accent"
+    },
+    {
+      "id": "fill",
+      "label": "Fill"
+    },
+    {
+      "id": "vocal-cue",
+      "label": "Vocal Cue"
+    },
+    {
+      "id": "instrument-entry",
+      "label": "Instrument Entry"
+    },
+    {
+      "id": "build-up",
+      "label": "Build Up"
+    },
+    {
+      "id": "energy-drop",
+      "label": "Energy Drop"
+    }
+  ]
+}

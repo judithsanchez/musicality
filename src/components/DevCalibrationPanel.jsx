@@ -1,35 +1,24 @@
+import { AlertOctagon, ChevronDown, ChevronRight } from "lucide-react";
 import { useState } from "react";
-import { ChevronDown, ChevronRight, AlertOctagon } from "lucide-react";
-import {
-  SalsaEnergyStateSchema,
-  BachataEnergyStateSchema,
-  SalsaInstrumentSchema,
-  BachataInstrumentSchema
-} from "../types/schemas";
 
 export default function DevCalibrationPanel({
-  songData,
   editorSections,
+  categories,
+  tags,
   onExit,
   onUpdateSectionField,
+  onToggleSectionTag,
+  onAddCategory,
+  onAddTag,
   validationErrors,
   saving,
   onPublishSong
 }) {
-  const genre = songData?.genre || "SALSA";
   const [collapsedSections, setCollapsedSections] = useState({});
 
   const toggleCollapse = (id) => {
     setCollapsedSections(prev => ({ ...prev, [id]: !prev[id] }));
   };
-
-  const energyStates = genre === "SALSA" 
-    ? SalsaEnergyStateSchema.options
-    : BachataEnergyStateSchema.options;
-
-  const instruments = genre === "SALSA"
-    ? SalsaInstrumentSchema.options
-    : BachataInstrumentSchema.options;
 
   return (
     <div className="glass-panel dev-panel right-workspace-column" style={{
@@ -41,7 +30,7 @@ export default function DevCalibrationPanel({
     }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(255,255,255,0.08)", paddingBottom: "8px" }}>
         <span style={{ fontSize: "0.9rem", fontWeight: "800", color: "#ffffff", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-          🛠️ Creator Calibration Desk
+          Calibration Desk
         </span>
         <button
           onClick={onExit}
@@ -52,12 +41,24 @@ export default function DevCalibrationPanel({
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-        <span style={{ fontSize: "0.8rem", fontWeight: "800", color: "#ffffff", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-          🏷️ Song Sections & Details
-        </span>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <span style={{ fontSize: "0.8rem", fontWeight: "800", color: "#ffffff", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+            Sections
+          </span>
+          <div style={{ display: "flex", gap: "6px" }}>
+            <button onClick={onAddCategory} style={{ padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.05)", color: "#fff", fontSize: "0.68rem", fontWeight: 800, cursor: "pointer" }}>
+              Category
+            </button>
+            <button onClick={onAddTag} style={{ padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.05)", color: "#fff", fontSize: "0.68rem", fontWeight: 800, cursor: "pointer" }}>
+              Tag
+            </button>
+          </div>
+        </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-          {editorSections.map((section, sIdx) => (
+          {editorSections.map((section, sectionIndex) => {
+            const selectedTags = section.tags || [];
+            return (
               <div key={section.id} style={{
                 display: "flex",
                 flexDirection: "column",
@@ -75,54 +76,40 @@ export default function DevCalibrationPanel({
                   >
                     {collapsedSections[section.id] ? <ChevronRight size={16} /> : <ChevronDown size={16} />}
                   </button>
-                  <input
-                    type="text"
-                    value={section.emoji || "🎵"}
-                    onChange={(e) => onUpdateSectionField(section.id, "emoji", e.target.value)}
-                    style={{ width: "32px", textAlign: "center", padding: "4px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#fff" }}
-                  />
-                  <input
-                    type="text"
-                    value={section.label}
-                    placeholder={`Section ${sIdx + 1} label`}
-                    onChange={(e) => onUpdateSectionField(section.id, "label", e.target.value)}
-                    style={{ flexGrow: 1, minWidth: "90px", padding: "4px 6px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#fff" }}
-                  />
+                  <span style={{ width: "24px", color: "#71717a", fontSize: "0.72rem", fontWeight: 800 }}>{sectionIndex + 1}</span>
                   <select
-                    value={section.energyState}
-                    onChange={(e) => onUpdateSectionField(section.id, "energyState", e.target.value)}
+                    value={section.category || ""}
+                    onChange={(event) => onUpdateSectionField(section.id, "category", event.target.value)}
                     style={{ flexGrow: 1, padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#fff", fontWeight: "bold", fontSize: "0.85rem" }}
                   >
-                    {energyStates.map(st => (
-                      <option key={st} value={st}>{st}</option>
+                    <option value="">Uncategorized</option>
+                    {categories.map(category => (
+                      <option key={category.id} value={category.id}>{category.label}</option>
                     ))}
                   </select>
                 </div>
 
                 {!collapsedSections[section.id] && (
                   <>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                      <span style={{ fontSize: "0.65rem", color: "#a1a1aa" }}>Focus Instrument</span>
-                      <select
-                        value={section.focusInstrument || "NONE"}
-                        onChange={(e) => onUpdateSectionField(section.id, "focusInstrument", e.target.value)}
-                        style={{ padding: "4px 6px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#fff", fontSize: "0.75rem" }}
-                      >
-                        {instruments.map(inst => (
-                          <option key={inst} value={inst}>{inst}</option>
-                        ))}
-                      </select>
-                    </div>
-
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", fontSize: "0.7rem", color: "#a1a1aa" }}>
                       <div>Start: <strong style={{ color: "#fff" }}>{(section.startTimeMs / 1000).toFixed(2)}s</strong></div>
                       <div>End: <strong style={{ color: "#fff" }}>{(section.endTimeMs / 1000).toFixed(2)}s</strong></div>
                     </div>
-
+                    <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+                      {tags.map(tag => {
+                        const active = selectedTags.includes(tag.id);
+                        return (
+                          <button key={tag.id} onClick={() => onToggleSectionTag(section.id, tag.id)} title={tag.label} style={{ fontSize: "0.68rem", padding: "3px 8px", borderRadius: "999px", border: `1px solid ${active ? "#ffffff" : "rgba(255,255,255,0.12)"}`, background: active ? "#ffffff" : "transparent", color: active ? "#000" : "#a1a1aa", cursor: "pointer" }}>
+                            {tag.label}
+                          </button>
+                        );
+                      })}
+                    </div>
                   </>
                 )}
               </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
@@ -132,7 +119,7 @@ export default function DevCalibrationPanel({
         style={{
           width: "100%",
           padding: "10px",
-          borderRadius: "10px",
+          borderRadius: "8px",
           background: "linear-gradient(135deg, #10b981, #059669)",
           border: "none",
           color: "#fff",
@@ -158,8 +145,8 @@ export default function DevCalibrationPanel({
             <AlertOctagon size={12} /> Zod Validation Failed
           </h4>
           <div style={{ fontSize: "0.65rem", maxHeight: "100px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "4px" }}>
-            {validationErrors.map((err, i) => (
-              <div key={i}>
+            {validationErrors.map((err, index) => (
+              <div key={index}>
                 • <strong>{err.path.join(".")}</strong>: {err.message}
               </div>
             ))}

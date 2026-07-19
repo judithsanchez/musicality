@@ -1,27 +1,23 @@
 # Calibration Workflow
 
-The calibration workbench is a single flexible editor for a song timeline. Section slicing, section labeling, event ranges, and downbeat tapping are independent tools that can be used in any order.
+The calibration workbench is the core tool. Section ranges, event ranges, and taps are independent tools that can be used in any order.
 
 ## Song Map Shape
 
 Each song JSON keeps only the data the app needs:
 
-- song identity and metadata
+- song identity
 - genre: `SALSA` or `BACHATA`
-- base BPM
-- calibrated downbeats used by the player
-- raw human tap calibration takes
 - sections
 - timeline events
+- manual taps
 - status: `DRAFT` or `READY`
 
-Sections and events are time ranges. Downbeats are stored as millisecond timestamps. `tapCalibrationTakes` stores three sparse human anchor passes. `calibratedDownbeats` is the app-facing source of truth used by the player.
+Sections and events share the same range model: `startTimeMs`, `endTimeMs`, `category`, and `tags`. Taps are manual timestamp marks with count `1` or `5`. Categories and tags are global static JSON collections and can be reused anywhere.
 
 ## Ingestion
 
-The local ingestion script accepts a YouTube id/link flow from the app and creates a clean song calibration record. New songs start with metadata, base BPM, empty sections, empty events, and empty calibrated downbeats.
-
-The workbench reconciles three sparse human tap takes into a proposed full count-1 list. The proposal must be reviewed and approved before it replaces `calibratedDownbeats`.
+The local ingestion script accepts a YouTube id/link flow from the app and creates an empty calibration record. It does not infer BPM, sections, events, or taps.
 
 ## Workbench Behavior
 
@@ -29,11 +25,9 @@ The workbench reconciles three sparse human tap takes into a proposed full count
 - The playhead can be dragged all the way back to `0:00`.
 - Section handles resize adjacent section ranges.
 - Clicking a section selects it without moving the playhead.
-- Section labels can be edited in the same place where slices are created.
-- Events use the same start/end range model as sections and can be added before or after slicing.
-- Downbeat tapping does not require sections or events.
-- Downbeat tapping records sparse anchors into Take 1, Take 2, or Take 3.
-- The reconciliation proposal estimates the phrase interval, flags suspicious taps, fills skipped phrases, and shows confidence before approval.
+- Events use the same start/end range model as sections.
+- Tapping records only manual count-1 or count-5 marks.
+- No library or automatic process generates taps or downbeats.
 
 ## Publishing
 

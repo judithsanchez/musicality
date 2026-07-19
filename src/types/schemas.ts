@@ -2,195 +2,141 @@ import { z } from 'zod';
 
 export const GenreSchema = z.enum(['SALSA', 'BACHATA']);
 
-export const BachataEnergyStateSchema = z.enum([
-  'UNLABELED',
-  'INTRO',
-  'DERECHO',
-  'MAJAO',
-  'MAMBO',
-  'BREAK',
-  'OUTRO'
-]);
-
-export const SalsaEnergyStateSchema = z.enum([
-  'UNLABELED',
-  'INTRO',
-  'VERSE',
-  'CHORUS',
-  'MONTUNO',
-  'MAMBO',
-  'DESCARGA',
-  'BREAK',
-  'OUTRO'
-]);
-
-export const SalsaInstrumentSchema = z.enum([
-  'PIANO',
-  'VOCALS',
-  'BRASS',
-  'CONGAS',
-  'BONGOS',
-  'TIMBALES',
-  'BASS',
-  'COWBELL',
-  'NONE'
-]);
-
-export const BachataInstrumentSchema = z.enum([
-  'REQUINTO',
-  'SEGUNDA',
-  'BONGOS',
-  'GUIRA',
-  'BASS',
-  'VOCALS',
-  'NONE'
-]);
-
-export const DanceEventSchema = z.object({
-  timestampMs: z.number().int().nonnegative(),
-  durationMs: z.number().int().positive(),
-  type: z.enum(['ACCENT', 'FILL', 'VOCAL_CUE', 'INSTRUMENT_ENTRY', 'BUILD_UP', 'ENERGY_DROP']),
-  description: z.string().default(''),
-  uiHighlight: z.boolean().default(true)
+export const CategorySchema = z.object({
+  id: z.string().trim().min(1),
+  label: z.string().trim().min(1)
 });
 
-export const TapCalibrationTakeSchema = z.object({
-  id: z.string(),
-  label: z.string(),
-  createdAt: z.string(),
-  tapsMs: z.array(z.number().int()).default([])
+export const TagSchema = z.object({
+  id: z.string().trim().min(1),
+  label: z.string().trim().min(1)
 });
 
-export const BaseSectionSchema = z.object({
-  id: z.string(),
-  startTimeMs: z.number().int(),
-  endTimeMs: z.number().int(),
-  label: z.string(),
-  emoji: z.string().optional()
+export const CategoryCollectionSchema = z.object({
+  schemaVersion: z.literal('1.0'),
+  categories: z.array(CategorySchema)
 });
 
-export const BachataSectionSchema = BaseSectionSchema.extend({
-  energyState: BachataEnergyStateSchema,
-  focusInstrument: BachataInstrumentSchema.optional()
+export const TagCollectionSchema = z.object({
+  schemaVersion: z.literal('1.0'),
+  tags: z.array(TagSchema)
 });
 
-export const SalsaSectionSchema = BaseSectionSchema.extend({
-  energyState: SalsaEnergyStateSchema,
-  focusInstrument: SalsaInstrumentSchema.optional()
+export const TimelineRangeSchema = z.object({
+  id: z.string().trim().min(1),
+  startTimeMs: z.number().int().nonnegative(),
+  endTimeMs: z.number().int().nonnegative(),
+  category: z.string().trim().default(''),
+  tags: z.array(z.string().trim().min(1)).default([])
 });
 
-export const SectionSchema = z.union([
-  BachataSectionSchema,
-  SalsaSectionSchema
-]);
+export const TapSchema = z.object({
+  id: z.string().trim().min(1),
+  timeMs: z.number().int().nonnegative(),
+  count: z.union([z.literal(1), z.literal(5)])
+});
 
-export const BaseSongMapSchema = z.object({
-  id: z.string(),
-  youtubeId: z.string(),
-  title: z.string(),
-  artist: z.string(),
+export const SongMapSchema = z.object({
+  id: z.string().trim().min(1),
+  youtubeId: z.string().trim().min(1),
+  title: z.string().trim().min(1),
+  artist: z.string().trim().min(1),
   genre: GenreSchema,
   status: z.enum(['DRAFT', 'READY']).default('DRAFT'),
-  metadata: z.record(z.string(), z.unknown()).default({}),
-  baseBpm: z.number().positive(),
-  calibratedDownbeats: z.array(z.number().int()).default([]),
-  tapCalibrationTakes: z.array(TapCalibrationTakeSchema).default([]),
-  events: z.array(DanceEventSchema).default([]),
-  schemaVersion: z.literal('2.0')
+  sections: z.array(TimelineRangeSchema).default([]),
+  events: z.array(TimelineRangeSchema).default([]),
+  taps: z.array(TapSchema).default([]),
+  schemaVersion: z.literal('3.0')
 });
-
-export const BachataSongMapSchema = BaseSongMapSchema.extend({
-  genre: z.literal(GenreSchema.enum.BACHATA),
-  sections: z.array(BachataSectionSchema)
-});
-
-export const SalsaSongMapSchema = BaseSongMapSchema.extend({
-  genre: z.literal(GenreSchema.enum.SALSA),
-  sections: z.array(SalsaSectionSchema)
-});
-
-export const SongMapSchema = z.discriminatedUnion('genre', [
-  BachataSongMapSchema,
-  SalsaSongMapSchema
-]);
 
 export type Genre = z.infer<typeof GenreSchema>;
-
-export type DanceEvent = z.infer<typeof DanceEventSchema>;
-export type TapCalibrationTake = z.infer<typeof TapCalibrationTakeSchema>;
-export type BaseSection = z.infer<typeof BaseSectionSchema>;
-export type BachataSection = z.infer<typeof BachataSectionSchema>;
-export type SalsaSection = z.infer<typeof SalsaSectionSchema>;
-export type Section = z.infer<typeof SectionSchema>;
-export type BaseSongMap = z.infer<typeof BaseSongMapSchema>;
-export type BachataSongMap = z.infer<typeof BachataSongMapSchema>;
-export type SalsaSongMap = z.infer<typeof SalsaSongMapSchema>;
+export type Category = z.infer<typeof CategorySchema>;
+export type Tag = z.infer<typeof TagSchema>;
+export type CategoryCollection = z.infer<typeof CategoryCollectionSchema>;
+export type TagCollection = z.infer<typeof TagCollectionSchema>;
+export type TimelineRange = z.infer<typeof TimelineRangeSchema>;
+export type Tap = z.infer<typeof TapSchema>;
 export type SongMap = z.infer<typeof SongMapSchema>;
 
-export const StrictSongMapSchema = SongMapSchema.superRefine((data, ctx) => {
-  if (data.genre === 'BACHATA') {
-    data.sections.forEach((section, idx) => {
-      const parsed = BachataEnergyStateSchema.safeParse(section.energyState);
-      if (!parsed.success) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: `Bachata song map contains section with non-Bachata energyState: ${section.energyState}`,
-          path: ['sections', idx, 'energyState'],
-        });
-      }
-    });
-  } else if (data.genre === 'SALSA') {
-    data.sections.forEach((section, idx) => {
-      const parsed = SalsaEnergyStateSchema.safeParse(section.energyState);
-      if (!parsed.success) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: `Salsa song map contains section with non-Salsa energyState: ${section.energyState}`,
-          path: ['sections', idx, 'energyState'],
-        });
-      }
-    });
-  }
-
-  if (data.status === 'READY') {
-    data.sections.forEach((section, sectionIndex) => {
-      if (!section.label.trim()) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Ready songs require a label for every section',
-          path: ['sections', sectionIndex, 'label']
-        });
-      }
-      if (section.energyState === 'UNLABELED') {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Ready songs require an energy state for every section',
-          path: ['sections', sectionIndex, 'energyState']
-        });
-      }
-    });
-  }
-
-  const sortedSections = [...data.sections].sort((a, b) => a.startTimeMs - b.startTimeMs);
-  sortedSections.forEach((section, index) => {
-    if (section.endTimeMs <= section.startTimeMs) {
+const validateRangeList = (ranges: TimelineRange[], ctx: z.RefinementCtx, pathName: 'sections' | 'events') => {
+  ranges.forEach((range, index) => {
+    if (range.endTimeMs <= range.startTimeMs) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Section end time must be after start time',
-        path: ['sections', index, 'endTimeMs'],
+        message: 'End time must be after start time',
+        path: [pathName, index, 'endTimeMs']
       });
     }
   });
+};
 
-  for (let i = 1; i < sortedSections.length; i++) {
-    const prev = sortedSections[i - 1];
-    const curr = sortedSections[i];
+export const StrictSongMapSchema = SongMapSchema.superRefine((data, ctx) => {
+  validateRangeList(data.sections, ctx, 'sections');
+  validateRangeList(data.events, ctx, 'events');
+
+  const sortedSections = [...data.sections].sort((a, b) => a.startTimeMs - b.startTimeMs);
+  for (let index = 1; index < sortedSections.length; index++) {
+    const prev = sortedSections[index - 1];
+    const curr = sortedSections[index];
     if (curr.startTimeMs < prev.endTimeMs) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: `Section overlap detected between ${prev.label || `section ${i}`} and ${curr.label || `section ${i + 1}`}`,
-        path: ['sections', i, 'startTimeMs'],
+        message: 'Section ranges cannot overlap',
+        path: ['sections', index, 'startTimeMs']
       });
     }
   }
+
+  if (data.status === 'READY') {
+    data.sections.forEach((section, index) => {
+      if (!section.category.trim()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Ready songs require a category for every section',
+          path: ['sections', index, 'category']
+        });
+      }
+    });
+    data.events.forEach((event, index) => {
+      if (!event.category.trim()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Ready songs require a category for every event',
+          path: ['events', index, 'category']
+        });
+      }
+    });
+  }
 });
+
+export const createVocabularySongMapSchema = (categoryIds: string[], tagIds: string[]) => {
+  const categorySet = new Set(categoryIds);
+  const tagSet = new Set(tagIds);
+
+  return StrictSongMapSchema.superRefine((data, ctx) => {
+    const validateVocabulary = (ranges: TimelineRange[], pathName: 'sections' | 'events') => {
+      ranges.forEach((range, rangeIndex) => {
+        if (range.category && !categorySet.has(range.category)) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'Category does not exist in the category collection',
+            path: [pathName, rangeIndex, 'category']
+          });
+        }
+
+        range.tags.forEach((tagId, tagIndex) => {
+          if (!tagSet.has(tagId)) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: 'Tag does not exist in the tag collection',
+              path: [pathName, rangeIndex, 'tags', tagIndex]
+            });
+          }
+        });
+      });
+    };
+
+    validateVocabulary(data.sections, 'sections');
+    validateVocabulary(data.events, 'events');
+  });
+};

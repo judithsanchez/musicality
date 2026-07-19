@@ -149,7 +149,7 @@ export default function DevDashboard({ onBack, onIngestSuccess }) {
           🚀 Developer Ingestion Console
         </h2>
         <p style={{ margin: "0 0 24px 0", fontSize: "0.85rem", color: "#9ca3af" }}>
-          Add a new track by parsing audio transients natively and generating style-agnostic draft schemas.
+          Add a new track and open a clean manual calibration record.
         </p>
 
         {status === "idle" ? (
@@ -205,15 +205,13 @@ export default function DevDashboard({ onBack, onIngestSuccess }) {
                 ) : null}
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                  <label style={{ fontSize: "0.75rem", fontWeight: "bold", color: "#ffffff", textTransform: "uppercase" }}>Difficulty</label>
+              <label style={{ fontSize: "0.75rem", fontWeight: "bold", color: "#ffffff", textTransform: "uppercase" }}>Status</label>
                 <select 
                   value={difficulty} 
                   onChange={(e) => setDifficulty(e.target.value)}
                   style={{ padding: "10px 12px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#fff", outline: "none", cursor: "pointer" }}
                 >
-                  <option value="easy">Easy</option>
-                  <option value="medium">Medium</option>
-                  <option value="hard">Hard</option>
+                  <option value="medium">Draft Calibration</option>
                 </select>
               </div>
             </div>
@@ -276,7 +274,7 @@ export default function DevDashboard({ onBack, onIngestSuccess }) {
                 gap: "8px"
               }}
             >
-              Start Automated Ingestion Pipeline
+              Create Calibration Record
             </button>
           </form>
         ) : (
@@ -331,7 +329,7 @@ export default function DevDashboard({ onBack, onIngestSuccess }) {
               ) : (
                 <span style={{ fontSize: "0.75rem", color: "#6b7280", fontStyle: "italic" }}>
                   {status === "uploading" && "Uploading raw audio track securely to local server..."}
-                  {status === "analyzing" && "Running MIR transient separation and clustering. This may take 10-15 seconds..."}
+                  {status === "analyzing" && "Creating a clean calibration record..."}
                   {status === "success" && "Successfully generated schemas! Redirecting to Workbench..."}
                 </span>
               )}

@@ -5,13 +5,26 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { ServerResponse } from 'http';
 import { spawnSync } from 'child_process';
-import { StrictSongMapSchema } from './src/types/schemas';
+import { CategoryCollectionSchema, TagCollectionSchema, createVocabularySongMapSchema } from './src/types/schemas';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 
 function songDbPlugin() {
+  const readVocabulary = () => {
+    const dataDir = path.resolve(__dirname, './public/data');
+    const categoriesPath = path.join(dataDir, 'categories.json');
+    const tagsPath = path.join(dataDir, 'tags.json');
+    const categories = fs.existsSync(categoriesPath)
+      ? CategoryCollectionSchema.parse(JSON.parse(fs.readFileSync(categoriesPath, 'utf8'))).categories
+      : [];
+    const tags = fs.existsSync(tagsPath)
+      ? TagCollectionSchema.parse(JSON.parse(fs.readFileSync(tagsPath, 'utf8'))).tags
+      : [];
+    return { categories, tags };
+  };
+
   return {
     name: 'song-db-plugin',
     configureServer(server: ViteDevServer) {
@@ -26,7 +39,11 @@ function songDbPlugin() {
           req.on('end', () => {
             try {
               const payload = JSON.parse(body);
-              const result = StrictSongMapSchema.safeParse(payload);
+              const vocabulary = readVocabulary();
+              const result = createVocabularySongMapSchema(
+                vocabulary.categories.map(category => category.id),
+                vocabulary.tags.map(tag => tag.id)
+              ).safeParse(payload);
               if (!result.success) {
                 console.error('Validation failed for /api/songs:', JSON.stringify(result.error.issues, null, 2));
                 res.statusCode = 400;
@@ -70,8 +87,6 @@ function songDbPlugin() {
                 artist: songMap.artist,
                 genre: songMap.genre,
                 status: songMap.status,
-                metadata: songMap.metadata || {},
-                baseBpm: songMap.baseBpm,
               };
 
               const index = catalog.findIndex((item) => item.youtubeId === youtubeId);
@@ -165,8 +180,6 @@ function songDbPlugin() {
                   artist: songMap.artist,
                   genre: songMap.genre,
                   status: songMap.status || 'DRAFT',
-                  metadata: songMap.metadata || {},
-                  baseBpm: songMap.baseBpm
                 };
                 const index = catalog.findIndex(item => item.youtubeId === youtubeId);
                 if (index >= 0) {
@@ -196,6 +209,70 @@ function songDbPlugin() {
           });
         }
         
+        else if (req.method === 'POST' && urlPath === '/api/categories') {
+          let body = '';
+          req.on('data', (chunk) => {
+            body += chunk.toString();
+          });
+          req.on('end', () => {
+            try {
+              const payload = JSON.parse(body);
+              const result = CategoryCollectionSchema.safeParse(payload);
+              if (!result.success) {
+                res.statusCode = 400;
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify({ error: 'Validation failed', issues: result.error.issues }));
+                return;
+              }
+
+              const dataDir = path.resolve(__dirname, './public/data');
+              if (!fs.existsSync(dataDir)) {
+                fs.mkdirSync(dataDir, { recursive: true });
+              }
+              fs.writeFileSync(path.join(dataDir, 'categories.json'), JSON.stringify(result.data, null, 2), 'utf8');
+              res.statusCode = 200;
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({ success: true }));
+            } catch (error: any) {
+              res.statusCode = 500;
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({ error: 'Server Error', message: error.message }));
+            }
+          });
+        }
+
+        else if (req.method === 'POST' && urlPath === '/api/tags') {
+          let body = '';
+          req.on('data', (chunk) => {
+            body += chunk.toString();
+          });
+          req.on('end', () => {
+            try {
+              const payload = JSON.parse(body);
+              const result = TagCollectionSchema.safeParse(payload);
+              if (!result.success) {
+                res.statusCode = 400;
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify({ error: 'Validation failed', issues: result.error.issues }));
+                return;
+              }
+
+              const dataDir = path.resolve(__dirname, './public/data');
+              if (!fs.existsSync(dataDir)) {
+                fs.mkdirSync(dataDir, { recursive: true });
+              }
+              fs.writeFileSync(path.join(dataDir, 'tags.json'), JSON.stringify(result.data, null, 2), 'utf8');
+              res.statusCode = 200;
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({ success: true }));
+            } catch (error: any) {
+              res.statusCode = 500;
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({ error: 'Server Error', message: error.message }));
+            }
+          });
+        }
+
         else {
           next();
         }

@@ -108,7 +108,7 @@ export default function GameCanvas({
     }
 
     const tapTime = currentTime;
-    const beats = songData?.beats || [];
+    const beats = (songData?.taps || []).filter(tap => tap.count === 1);
     if (beats.length === 0) return;
 
     // Find the closest beat
@@ -117,7 +117,7 @@ export default function GameCanvas({
 
     for (let i = 0; i < beats.length; i++) {
       const b = beats[i];
-      const diff = Math.abs(tapTime - b.timestamp);
+      const diff = Math.abs(tapTime - b.timeMs / 1000);
       if (diff < minDiff) {
         minDiff = diff;
         closestIndex = i;

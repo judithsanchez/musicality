@@ -5,11 +5,8 @@
   "artist": "Ronald Borjas",
   "genre": "SALSA",
   "status": "DRAFT",
-  "baseBpm": 153.4,
-  "schemaVersion": "2.0",
-  "sections": [],
   "events": [],
-  "metadata": {},
-  "calibratedDownbeats": [],
-  "tapCalibrationTakes": []
+  "schemaVersion": "3.0",
+  "sections": [],
+  "taps": []
 }

@@ -1,18 +1,19 @@
-# Song Database Validation
+# Song Data Validation
 
-The local app stores song maps as JSON files in `public/songs`, with `catalog.json` holding lightweight catalog metadata.
+The app stores song maps as static JSON files in `public/songs`. `catalog.json` holds lightweight catalog metadata, while `public/data/categories.json` and `public/data/tags.json` hold reusable calibration vocabulary.
 
 ## Validation Goals
 
 - Keep the schema small and readable.
 - Support only Salsa and Bachata.
-- Store metadata, base BPM, human tap calibration takes, calibrated downbeats, sections, and events.
-- Allow partial drafts without workflow completion flags.
-- Block obvious invalid data, such as section ranges whose end is before their start or overlapping section ranges.
+- Store song identity, status, sections, events, and manual count-1/count-5 taps.
+- Keep categories and tags generic so they can be used on sections or events.
+- Allow partial drafts without requiring categories.
+- Block obvious invalid data, such as ranges whose end is before their start or overlapping section ranges.
 
-## Local Save API
+## Static And Local Modes
 
-The Vite dev server exposes local-only endpoints for saving song JSON and creating new draft song maps. This is intentionally simple developer tooling, not production infrastructure.
+GitHub Pages serves the JSON files directly as read-only static assets. Local calibration can use Vite dev endpoints to save song maps, categories, and tags back to the JSON files.
 
 Saved catalog entries include:
 
@@ -22,5 +23,3 @@ Saved catalog entries include:
 - artist
 - genre
 - status
-- metadata
-- base BPM

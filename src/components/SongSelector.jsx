@@ -177,7 +177,6 @@ export default function SongSelector({ onSelectSong, onOpenDevDashboard }) {
               <h3 className="song-card-title">{song.title}</h3>
               <p className="song-card-artist">{song.artist}</p>
               <div className="song-card-meta">
-                <span className="badge badge-bpm">{song.baseBpm} BPM</span>
                 <span className="badge badge-style" style={{ textTransform: "capitalize" }}>{song.genre}</span>
                 {song.status && song.status !== "READY" && (
                   <span className="badge" style={{

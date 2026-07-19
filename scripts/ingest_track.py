@@ -23,10 +23,6 @@ def normalize_youtube_id(value):
     return trimmed
 
 
-def default_bpm(genre):
-    return 153.4 if genre == "SALSA" else 120.0
-
-
 def main():
     parser = argparse.ArgumentParser(description="Create a clean song calibration record")
     parser.add_argument("--youtubeId", required=True, help="YouTube ID or URL of the song")
@@ -34,11 +30,9 @@ def main():
     parser.add_argument("--artist", required=True, help="Artist of the song")
     parser.add_argument("--genre", choices=["SALSA", "BACHATA"], required=True, help="Song genre")
     parser.add_argument("--output", required=True, help="Path where output JSON should be written")
-    parser.add_argument("--bpm", type=float, help="Base BPM of the song")
 
     args = parser.parse_args()
     youtube_id = normalize_youtube_id(args.youtubeId)
-    bpm = args.bpm or default_bpm(args.genre)
 
     song_map = {
         "id": f"song-{youtube_id}",
@@ -47,17 +41,10 @@ def main():
         "artist": args.artist,
         "genre": args.genre,
         "status": "DRAFT",
-        "metadata": {
-            "ingestion": {
-                "source": "manual",
-                "requiresCalibration": True
-            }
-        },
-        "baseBpm": float(round(bpm, 2)),
-        "calibratedDownbeats": [],
         "events": [],
-        "schemaVersion": "2.0",
-        "sections": []
+        "schemaVersion": "3.0",
+        "sections": [],
+        "taps": []
     }
 
     os.makedirs(os.path.dirname(args.output), exist_ok=True)

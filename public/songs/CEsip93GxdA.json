@@ -5,11 +5,8 @@
   "artist": "Leoni Torres",
   "genre": "SALSA",
   "status": "DRAFT",
-  "baseBpm": 150,
   "events": [],
-  "schemaVersion": "2.0",
+  "schemaVersion": "3.0",
   "sections": [],
-  "metadata": {},
-  "calibratedDownbeats": [],
-  "tapCalibrationTakes": []
+  "taps": []
 }

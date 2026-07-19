@@ -5,17 +5,8 @@
   "artist": "Gilberto Santa Rosa",
   "genre": "SALSA",
   "status": "DRAFT",
-  "metadata": {
-    "ingestion": {
-      "audioSource": "youtube",
-      "analysisSkipped": false,
-      "downloadSucceeded": true
-    }
-  },
-  "baseBpm": 123.05,
-  "calibratedDownbeats": [],
   "events": [],
-  "schemaVersion": "2.0",
+  "schemaVersion": "3.0",
   "sections": [],
-  "tapCalibrationTakes": []
+  "taps": []
 }

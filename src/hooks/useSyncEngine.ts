@@ -133,7 +133,7 @@ export function useSyncEngine(
         }
         setActiveSection(matchedSection);
 
-        if (matchedSection && ['INTRO', 'OUTRO'].includes(matchedSection.energyState)) {
+        if (matchedSection && ['intro', 'outro'].includes(matchedSection.category)) {
           setCurrentBeat(null);
           frameIdRef.current = requestAnimationFrame(updateLoop);
           return;
@@ -141,23 +141,19 @@ export function useSyncEngine(
 
         let closestBeat: any = null;
         let minDiff = Infinity;
-        const beatDuration = 60000.0 / (sData.baseBpm || 150.0);
 
-        const calibratedDownbeats = sData.calibratedDownbeats || [];
-        if (calibratedDownbeats.length > 0) {
-          for (let i = 0; i < calibratedDownbeats.length; i++) {
-            const downbeatTimeMs = calibratedDownbeats[i];
-            const timeDiff = visualTimeMs - downbeatTimeMs;
-            if (timeDiff >= -40 && timeDiff < beatDuration * 0.6) {
-              const absDiff = Math.abs(timeDiff);
-              if (absDiff < minDiff) {
-                minDiff = absDiff;
-                closestBeat = {
-                  count: 1,
-                  timestampMs: downbeatTimeMs,
-                  type: "DOWNBEAT"
-                };
-              }
+        const countOneTaps = (sData.taps || []).filter((tap: any) => tap.count === 1);
+        if (countOneTaps.length > 0) {
+          for (let i = 0; i < countOneTaps.length; i++) {
+            const tapTimeMs = countOneTaps[i].timeMs;
+            const timeDiff = Math.abs(visualTimeMs - tapTimeMs);
+            if (timeDiff <= 90 && timeDiff < minDiff) {
+              minDiff = timeDiff;
+              closestBeat = {
+                count: 1,
+                timestampMs: tapTimeMs,
+                type: "TAP"
+              };
             }
           }
         }

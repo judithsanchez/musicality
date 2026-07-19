@@ -821,10 +821,6 @@ body {
   }
 }
 
-/* ==========================================================================
-   Multi-Anchor Calibration Deck & BPM Badges
-   ========================================================================== */
-
 .diagnose-table-container {
   width: 100%;
   max-height: 160px;
@@ -870,32 +866,6 @@ body {
 .diagnose-mono {
   font-family: monospace;
   font-weight: 600;
-}
-
-/* Dynamic BPM badge coloring based on tempo ranges */
-.bpm-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 2px 6px;
-  border-radius: 20px;
-  font-weight: 800;
-  font-family: monospace;
-  font-size: 0.65rem;
-  background: rgba(255, 255, 255, 0.05);
-  color: #a1a1aa;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-}
-
-.bpm-badge.fast {
-  background: rgba(255, 255, 255, 0.12);
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-}
-
-.bpm-badge.slow {
-  background: rgba(255, 255, 255, 0.02);
-  color: #71717a;
-  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .btn-del-anchor {
@@ -1859,6 +1829,5 @@ body {
     min-width: clamp(36px, 10vw, 44px);
   }
 }
-
 
 

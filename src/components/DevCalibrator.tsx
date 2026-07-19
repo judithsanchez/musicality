@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Scissors, RotateCcw } from "lucide-react";
+import { Scissors } from "lucide-react";
 import DevCalibrationPanel from "./DevCalibrationPanel";
 import EventAnnotationPanel from "./EventAnnotationPanel";
-import { StrictSongMapSchema } from "../types/schemas";
+import { CategoryCollectionSchema, TagCollectionSchema, createVocabularySongMapSchema } from "../types/schemas";
 import { addDanceEvent, removeDanceEvent, type DanceEventDraft } from "../utils/danceEvents";
 
 interface DevCalibratorProps {
@@ -33,29 +33,7 @@ const SECTION_PALETTE = [
   { bg: "rgba(255,255,255,0.14)", border: "rgba(255,255,255,0.37)", text: "#ffffff" },
 ];
 
-const ENERGY_STATE_DEFAULTS: Record<string, { emoji: string }> = {
-  INTRO: { emoji: "🎵" },
-  VERSE: { emoji: "🎤" },
-  CHORUS: { emoji: "🗣️" },
-  MONTUNO: { emoji: "🔥" },
-  MAMBO: { emoji: "🎺" },
-  DESCARGA: { emoji: "🥁" },
-  BREAK: { emoji: "🛑" },
-  OUTRO: { emoji: "🏁" },
-  DERECHO: { emoji: "🎸" },
-  MAJAO: { emoji: "💥" }
-};
-
-const PULSE_VISUAL_COMPENSATION_MS = 90;
-const TAKE_LABELS = ["Take 1", "Take 2", "Take 3"];
-const PHRASE_BEATS = 8;
-
-const emptyTapCalibrationTakes = () => TAKE_LABELS.map((label, index) => ({
-  id: `take-${index + 1}`,
-  label,
-  createdAt: "",
-  tapsMs: []
-}));
+const slugify = (value: string) => value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 
 export default function DevCalibrator({
   songData,
@@ -74,16 +52,17 @@ export default function DevCalibrator({
   videoElement
 }: DevCalibratorProps) {
   const [editorSections, setEditorSections] = useState<any[]>([]);
-  const [tappedDownbeats, setTappedDownbeats] = useState<number[]>([]);
-  const [tapCalibrationTakes, setTapCalibrationTakes] = useState<any[]>([]);
+  const [taps, setTaps] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [tags, setTags] = useState<any[]>([]);
   const [focusedSectionId, setFocusedSectionId] = useState<string | null>(null);
   const [focusedEventIndex, setFocusedEventIndex] = useState<number | null>(null);
   const [tapFlash, setTapFlash] = useState(false);
   const [validationErrors, setValidationErrors] = useState<any[] | null>(null);
   const [activeTab, setActiveTab] = useState<number>(1);
   const [saving, setSaving] = useState<boolean>(false);
-  const [timelineLayers, setTimelineLayers] = useState({ sections: true, events: true, calibrated: true, proposal: true, take1: true, take2: true, take3: true });
-  const [activeTakeIndex, setActiveTakeIndex] = useState(0);
+  const [timelineLayers, setTimelineLayers] = useState({ sections: true, events: true, count1: true, count5: true });
+  const [activeTapCount, setActiveTapCount] = useState<1 | 5>(1);
   const [liveTime, setLiveTime] = useState(0);
 
   const duration = videoDuration || 300;
@@ -93,6 +72,28 @@ export default function DevCalibrator({
   useEffect(() => {
     latestSongDataRef.current = calibratedSongData || songData;
   }, [calibratedSongData, songData]);
+
+  useEffect(() => {
+    fetch(`${import.meta.env.BASE_URL}data/categories.json`)
+      .then(response => response.json())
+      .then(data => {
+        const parsed = CategoryCollectionSchema.safeParse(data);
+        if (parsed.success) {
+          setCategories(parsed.data.categories);
+        }
+      })
+      .catch(err => console.warn(err));
+
+    fetch(`${import.meta.env.BASE_URL}data/tags.json`)
+      .then(response => response.json())
+      .then(data => {
+        const parsed = TagCollectionSchema.safeParse(data);
+        if (parsed.success) {
+          setTags(parsed.data.tags);
+        }
+      })
+      .catch(err => console.warn(err));
+  }, []);
 
   useEffect(() => {
     let frameId: number;
@@ -121,32 +122,19 @@ export default function DevCalibrator({
     if (!songData.sections || songData.sections.length === 0) {
       const defaultSec = {
         id: "sec-default",
-        label: "",
-        energyState: "UNLABELED",
+        category: "",
+        tags: [],
         startTimeMs: 0,
         endTimeMs: duration * 1000 || 300000
       };
       setEditorSections([defaultSec]);
-      setTappedDownbeats([]);
     } else {
       setEditorSections(sortedSections);
-      setTappedDownbeats([]);
     }
-    const savedTakes = Array.isArray(songData.tapCalibrationTakes) ? songData.tapCalibrationTakes : [];
-    const normalizedTakes = emptyTapCalibrationTakes().map((fallback, index) => ({
-      ...fallback,
-      ...(savedTakes[index] || {}),
-      label: savedTakes[index]?.label || fallback.label,
-      tapsMs: sortedUniqueMs(savedTakes[index]?.tapsMs || [])
-    }));
-    setTapCalibrationTakes(normalizedTakes);
-    setActiveTakeIndex(0);
+    setTaps(Array.isArray(songData.taps) ? songData.taps.sort((a: any, b: any) => a.timeMs - b.timeMs) : []);
+    setActiveTapCount(1);
     setFocusedEventIndex(null);
   }, [songData?.youtubeId]);
-
-  useEffect(() => {
-    setTappedDownbeats(tapCalibrationTakes[activeTakeIndex]?.tapsMs || []);
-  }, [activeTakeIndex, tapCalibrationTakes]);
 
   const autoSaveSongMap = (updatedData: any) => {
     setSaving(true);
@@ -167,8 +155,6 @@ export default function DevCalibrator({
       showToast("❌ Auto-save failed");
     });
   };
-
-  const sortedUniqueMs = (values: number[]) => Array.from(new Set(values.map(value => Math.round(value)))).sort((a, b) => a - b);
 
   const syncSongMapState = (patch: any) => {
     const updated = {
@@ -195,7 +181,7 @@ export default function DevCalibrator({
   };
 
   const updateEventsState = (eventsList: any[], triggerAutoSave = false) => {
-    const sortedEvents = [...eventsList].sort((a, b) => a.timestampMs - b.timestampMs);
+    const sortedEvents = [...eventsList].sort((a, b) => a.startTimeMs - b.startTimeMs);
     const updated = {
       ...latestSongDataRef.current,
       events: sortedEvents,
@@ -207,163 +193,57 @@ export default function DevCalibrator({
     }
   };
 
-  const nearestDownbeat = (values: number[], targetMs: number) => {
-    if (values.length === 0) return null;
-    return values.reduce((best, value) => Math.abs(value - targetMs) < Math.abs(best - targetMs) ? value : best, values[0]);
-  };
-
-  const median = (values: number[]) => {
-    const sorted = [...values].sort((a, b) => a - b);
-    const half = Math.floor(sorted.length / 2);
-    return sorted.length % 2 !== 0 ? sorted[half] : (sorted[half - 1] + sorted[half]) / 2.0;
-  };
-
-  const updateTapCalibrationTakes = (nextTakes: any[], message?: string) => {
-    const normalizedTakes = nextTakes.map((take, index) => ({
-      id: take.id || `take-${index + 1}`,
-      label: take.label || TAKE_LABELS[index] || `Take ${index + 1}`,
-      createdAt: take.createdAt || new Date().toISOString(),
-      tapsMs: sortedUniqueMs(take.tapsMs || [])
-    }));
-    const proposal = buildTapProposal(normalizedTakes);
-    const hasThreeTakeAnchors = normalizedTakes.slice(0, 3).every(take => (take.tapsMs || []).length > 0);
-    const tapCalibration = {
-      lastUpdatedAt: new Date().toISOString(),
-      takeCount: normalizedTakes.length,
-      tapsPerTake: normalizedTakes.map(take => (take.tapsMs || []).length),
-      estimatedPhraseIntervalMs: Math.round(proposal.estimatedIntervalMs),
-      impliedBpm: Number(proposal.impliedBpm.toFixed(2)),
-      confidenceCounts: proposal.confidenceCounts,
-      warnings: proposal.warnings
-    };
+  const updateTapsState = (nextTaps: any[], triggerAutoSave = false) => {
+    const sortedTaps = [...nextTaps].sort((a, b) => a.timeMs - b.timeMs);
     const updated = {
       ...latestSongDataRef.current,
-      metadata: {
-        ...(latestSongDataRef.current?.metadata || {}),
-        tapCalibration
-      },
-      tapCalibrationTakes: normalizedTakes,
-      ...(hasThreeTakeAnchors && proposal.proposedDownbeats.length > 0 ? { calibratedDownbeats: proposal.proposedDownbeats } : {}),
+      taps: sortedTaps,
       status: latestSongDataRef.current?.status === "READY" ? "READY" : "DRAFT"
     };
-    setTapCalibrationTakes(normalizedTakes);
-    setTappedDownbeats(normalizedTakes[activeTakeIndex]?.tapsMs || []);
+    setTaps(sortedTaps);
     syncSongMapState(updated);
-    autoSaveSongMap(updated);
-    if (message) {
-      showToast(message);
+    if (triggerAutoSave) {
+      autoSaveSongMap(updated);
     }
   };
 
-  const estimatePhraseInterval = (takes: any[]) => {
-    const expectedIntervalMs = (60000 / (songData?.baseBpm || 150)) * PHRASE_BEATS;
-    const estimates: number[] = [];
-    takes.forEach(take => {
-      const taps = sortedUniqueMs(take.tapsMs || []);
-      for (let index = 1; index < taps.length; index++) {
-        const gap = taps[index] - taps[index - 1];
-        if (gap <= 0) continue;
-        const phraseCount = Math.max(1, Math.round(gap / expectedIntervalMs));
-        const normalized = gap / phraseCount;
-        if (normalized >= expectedIntervalMs * 0.65 && normalized <= expectedIntervalMs * 1.35) {
-          estimates.push(normalized);
-        }
-      }
-    });
-    return estimates.length ? median(estimates) : expectedIntervalMs;
-  };
+  const getCategoryLabel = (categoryId: string) => categories.find(category => category.id === categoryId)?.label || categoryId || "Uncategorized";
 
-  const buildTapProposal = (takes: any[]) => {
-    const estimatedIntervalMs = estimatePhraseInterval(takes);
-    const clusterToleranceMs = Math.max(180, Math.min(450, estimatedIntervalMs * 0.16));
-    const warnings: string[] = [];
-    const allTaps: any[] = [];
-    takes.forEach((take, takeIndex) => {
-      const taps = sortedUniqueMs(take.tapsMs || []);
-      for (let index = 1; index < taps.length; index++) {
-        const gap = taps[index] - taps[index - 1];
-        if (gap < estimatedIntervalMs * 0.55) {
-          const label = take.label || `Take ${takeIndex + 1}`;
-          if (gap >= estimatedIntervalMs * 0.42) {
-            warnings.push(`${label}: taps at ${(taps[index - 1] / 1000).toFixed(2)}s and ${(taps[index] / 1000).toFixed(2)}s look like possible 1-and-5 anchors.`);
-          } else {
-            warnings.push(`${label}: taps at ${(taps[index - 1] / 1000).toFixed(2)}s and ${(taps[index] / 1000).toFixed(2)}s are too close.`);
-          }
-        }
-      }
-      taps.forEach((tap: number) => allTaps.push({ timestampMs: tap, takeIndex }));
-    });
-    const sortedTaps = allTaps.sort((a, b) => a.timestampMs - b.timestampMs);
-    const clusters: any[] = [];
-    sortedTaps.forEach(tap => {
-      const last = clusters[clusters.length - 1];
-      if (!last || Math.abs(tap.timestampMs - median(last.values)) > clusterToleranceMs) {
-        clusters.push({ values: [tap.timestampMs], takeIndexes: new Set([tap.takeIndex]) });
-      } else {
-        last.values.push(tap.timestampMs);
-        last.takeIndexes.add(tap.takeIndex);
-      }
-    });
-    const clusterSummaries = clusters.map(cluster => ({
-      timestampMs: Math.round(median(cluster.values)),
-      spreadMs: Math.max(...cluster.values) - Math.min(...cluster.values),
-      takeCount: cluster.takeIndexes.size
-    }));
-    clusterSummaries.forEach(cluster => {
-      if (cluster.spreadMs > clusterToleranceMs) {
-        warnings.push(`Disagreement near ${(cluster.timestampMs / 1000).toFixed(2)}s is ${Math.round(cluster.spreadMs)}ms.`);
-      }
-    });
-    if (takes.filter(take => (take.tapsMs || []).length > 0).length < 3) {
-      warnings.push("Record all 3 takes for a stronger proposal.");
-    }
-    if (allTaps.length < 3) {
-      warnings.push("Add at least 3 clear anchors before trusting the proposal.");
-    }
-    if (clusterSummaries.length === 0) {
-      return {
-        proposedDownbeats: [],
-        estimatedIntervalMs,
-        impliedBpm: (60000 * PHRASE_BEATS) / estimatedIntervalMs,
-        confidenceCounts: { high: 0, medium: 0, low: 0 },
-        warnings
-      };
-    }
-    clusterSummaries.sort((a, b) => a.timestampMs - b.timestampMs);
-    for (let index = 1; index < clusterSummaries.length; index++) {
-      const gap = clusterSummaries[index].timestampMs - clusterSummaries[index - 1].timestampMs;
-      if (gap > estimatedIntervalMs * 3.25) {
-        warnings.push(`Sparse region between ${(clusterSummaries[index - 1].timestampMs / 1000).toFixed(1)}s and ${(clusterSummaries[index].timestampMs / 1000).toFixed(1)}s.`);
-      }
-    }
-    let anchorMs = clusterSummaries[0].timestampMs;
-    while (anchorMs - estimatedIntervalMs >= 0) {
-      anchorMs -= estimatedIntervalMs;
-    }
-    const songEndMs = Math.round(duration * 1000 || 300000);
-    const proposed: number[] = [];
-    const confidenceCounts = { high: 0, medium: 0, low: 0 };
-    for (let value = anchorMs; value <= songEndMs; value += estimatedIntervalMs) {
-      const nearestCluster = clusterSummaries.reduce((best, cluster) => Math.abs(cluster.timestampMs - value) < Math.abs(best.timestampMs - value) ? cluster : best, clusterSummaries[0]);
-      if (Math.abs(nearestCluster.timestampMs - value) <= clusterToleranceMs) {
-        proposed.push(nearestCluster.timestampMs);
-        if (nearestCluster.takeCount >= 2) {
-          confidenceCounts.high += 1;
+  const saveVocabulary = (path: string, payload: any, successMessage: string) => {
+    fetch(path, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    })
+      .then(response => response.json())
+      .then(result => {
+        if (result.success) {
+          showToast(successMessage);
         } else {
-          confidenceCounts.medium += 1;
+          showToast("Saved locally in memory. Static hosting is read-only.");
         }
-      } else {
-        proposed.push(Math.round(value));
-        confidenceCounts.low += 1;
-      }
-    }
-    return {
-      proposedDownbeats: sortedUniqueMs(proposed),
-      estimatedIntervalMs,
-      impliedBpm: (60000 * PHRASE_BEATS) / estimatedIntervalMs,
-      confidenceCounts,
-      warnings
-    };
+      })
+      .catch(() => showToast("Added locally. Static hosting is read-only."));
+  };
+
+  const handleAddCategory = () => {
+    const label = window.prompt("Category name");
+    if (!label) return;
+    const id = slugify(label);
+    if (!id || categories.some(category => category.id === id)) return;
+    const nextCategories = [...categories, { id, label: label.trim() }].sort((a, b) => a.label.localeCompare(b.label));
+    setCategories(nextCategories);
+    saveVocabulary("/api/categories", { schemaVersion: "1.0", categories: nextCategories }, "Category saved.");
+  };
+
+  const handleAddTag = () => {
+    const label = window.prompt("Tag name");
+    if (!label) return;
+    const id = slugify(label);
+    if (!id || tags.some(tag => tag.id === id)) return;
+    const nextTags = [...tags, { id, label: label.trim() }].sort((a, b) => a.label.localeCompare(b.label));
+    setTags(nextTags);
+    saveVocabulary("/api/tags", { schemaVersion: "1.0", tags: nextTags }, "Tag saved.");
   };
 
   const handleTap = () => {
@@ -374,25 +254,13 @@ export default function DevCalibrator({
     const tapTimeMs = Math.round((currentTime - (userDelaySetting / 1000)) * 1000);
     if (tapTimeMs < 0 || tapTimeMs > duration * 1000) return;
 
-    const currentBpm = songData.baseBpm || (songData.genre === "SALSA" ? 153.4 : 120.0);
-    const beatIntervalMs = 60000.0 / currentBpm;
-    const minTapGapMs = Math.max(250, beatIntervalMs * 1.5);
-    const activeTake = tapCalibrationTakes[activeTakeIndex] || emptyTapCalibrationTakes()[activeTakeIndex];
-    const activeTaps = activeTake?.tapsMs || [];
-
-    const tooCloseToTap = activeTaps.some((t: number) => Math.abs(t - tapTimeMs) < minTapGapMs);
+    const tooCloseToTap = taps.some((tap: any) => tap.count === activeTapCount && Math.abs(tap.timeMs - tapTimeMs) < 120);
     if (tooCloseToTap) {
-      showToast("⚠️ Tap is too close to an existing tap.");
+      showToast("Tap is too close to an existing mark.");
       return;
     }
 
-    const nextTakes = [...tapCalibrationTakes];
-    nextTakes[activeTakeIndex] = {
-      ...activeTake,
-      createdAt: activeTake.createdAt || new Date().toISOString(),
-      tapsMs: sortedUniqueMs([...activeTaps, tapTimeMs])
-    };
-    updateTapCalibrationTakes(nextTakes);
+    updateTapsState([...taps, { id: crypto.randomUUID(), timeMs: tapTimeMs, count: activeTapCount }], true);
   };
 
   const handleUpdateSectionTimes = (id: string, field: "startTimeMs" | "endTimeMs", valueMs: number) => {
@@ -425,10 +293,7 @@ export default function DevCalibrator({
       }
     }
 
-    const lastBeatTimeMs = songData.absoluteBeatMap && songData.absoluteBeatMap.length > 0
-      ? songData.absoluteBeatMap[songData.absoluteBeatMap.length - 1]
-      : maxDurationMs;
-    B[N] = lastBeatTimeMs;
+    B[N] = maxDurationMs;
 
     for (let k = boundaryIdx - 1; k >= 1; k--) {
       if (B[k] > B[k + 1] - minDurMs) {
@@ -449,16 +314,24 @@ export default function DevCalibrator({
   const handleUpdateSectionField = (id: string, field: string, value: any) => {
     const updated = editorSections.map(s => {
       if (s.id === id) {
-        if (field === "energyState") {
-          const defaults = ENERGY_STATE_DEFAULTS[value] || { emoji: "🎵" };
-          return { ...s, energyState: value, emoji: value === "UNLABELED" ? undefined : defaults.emoji };
-        }
         return { ...s, [field]: value };
       }
       return s;
     });
     setEditorSections(updated);
     syncSongMapState({ sections: updated });
+  };
+
+  const handleToggleSectionTag = (id: string, tagId: string) => {
+    const updated = editorSections.map(section => {
+      if (section.id !== id) return section;
+      const currentTags = section.tags || [];
+      const nextTags = currentTags.includes(tagId)
+        ? currentTags.filter((value: string) => value !== tagId)
+        : [...currentTags, tagId];
+      return { ...section, tags: nextTags };
+    });
+    updateSectionsState(updated);
   };
 
   const handleAddNewSection = () => {
@@ -476,8 +349,8 @@ export default function DevCalibrator({
 
       const newSec = {
         id: crypto.randomUUID(),
-        label: "",
-        energyState: "UNLABELED",
+        category: "",
+        tags: [],
         startTimeMs: playheadMs,
         endTimeMs: target.endTimeMs
       };
@@ -522,7 +395,7 @@ export default function DevCalibrator({
       return false;
     }
     updateEventsState(result.events, true);
-    const newIndex = result.events.findIndex(event => event.timestampMs === draft.startTimeMs && event.durationMs === draft.endTimeMs - draft.startTimeMs);
+    const newIndex = result.events.findIndex(event => event.startTimeMs === draft.startTimeMs && event.endTimeMs === draft.endTimeMs);
     setFocusedEventIndex(newIndex === -1 ? result.events.length - 1 : newIndex);
     showToast("Event added.");
     return true;
@@ -534,9 +407,8 @@ export default function DevCalibrator({
     handleAddEvent({
       startTimeMs,
       endTimeMs: startTimeMs + defaultDurationMs,
-      type: "ACCENT",
-      description: "",
-      uiHighlight: true
+      category: "",
+      tags: []
     });
   };
 
@@ -547,19 +419,32 @@ export default function DevCalibrator({
     updateEventsState(events);
   };
 
-  const handleUpdateEventTimes = (eventIndex: number, field: "timestampMs" | "endTimeMs", valueMs: number) => {
+  const handleToggleEventTag = (eventIndex: number, tagId: string) => {
+    const events = [...(latestSongDataRef.current?.events || [])];
+    if (!events[eventIndex]) return;
+    const currentTags = events[eventIndex].tags || [];
+    events[eventIndex] = {
+      ...events[eventIndex],
+      tags: currentTags.includes(tagId)
+        ? currentTags.filter((value: string) => value !== tagId)
+        : [...currentTags, tagId]
+    };
+    updateEventsState(events);
+  };
+
+  const handleUpdateEventTimes = (eventIndex: number, field: "startTimeMs" | "endTimeMs", valueMs: number) => {
     const events = [...(latestSongDataRef.current?.events || [])];
     const event = events[eventIndex];
     if (!event) return;
 
     const maxDurationMs = Math.round(duration * 1000);
     const minDurMs = 100;
-    const currentStartMs = event.timestampMs;
-    const currentEndMs = event.timestampMs + event.durationMs;
+    const currentStartMs = event.startTimeMs;
+    const currentEndMs = event.endTimeMs;
     let nextStartMs = currentStartMs;
     let nextEndMs = currentEndMs;
 
-    if (field === "timestampMs") {
+    if (field === "startTimeMs") {
       nextStartMs = Math.max(0, Math.min(Math.round(valueMs), currentEndMs - minDurMs));
     } else {
       nextEndMs = Math.min(maxDurationMs, Math.max(Math.round(valueMs), currentStartMs + minDurMs));
@@ -567,11 +452,11 @@ export default function DevCalibrator({
 
     events[eventIndex] = {
       ...event,
-      timestampMs: nextStartMs,
-      durationMs: nextEndMs - nextStartMs
+      startTimeMs: nextStartMs,
+      endTimeMs: nextEndMs
     };
     updateEventsState(events);
-    throttledSeek((field === "timestampMs" ? nextStartMs : nextEndMs) / 1000, false);
+    throttledSeek((field === "startTimeMs" ? nextStartMs : nextEndMs) / 1000, false);
   };
 
   const handleRemoveEvent = (eventIndex: number) => {
@@ -626,7 +511,7 @@ export default function DevCalibrator({
       ...latestSongDataRef.current,
       status: "READY"
     };
-    const validation = StrictSongMapSchema.safeParse(updated);
+    const validation = createVocabularySongMapSchema(categories.map(category => category.id), tags.map(tag => tag.id)).safeParse(updated);
     if (!validation.success) {
       setValidationErrors(validation.error.issues);
       showToast("Publish blocked by validation errors.");
@@ -706,7 +591,7 @@ export default function DevCalibrator({
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [currentTime, editorSections, tappedDownbeats, player, duration, activeTab]);
+  }, [currentTime, editorSections, taps, player, duration, activeTab, activeTapCount]);
 
   const seekTimelineFromClientX = (clientX: number, immediate: boolean) => {
     if (!timelineRef.current) return;
@@ -737,17 +622,6 @@ export default function DevCalibrator({
 
   const liveDisplayTime = player ? liveTime : currentTime;
   const playheadPct = duration > 0 ? (liveDisplayTime / duration) * 100 : 0;
-  const calibratedDownbeats = latestSongDataRef.current?.calibratedDownbeats || [];
-  const proposal = buildTapProposal(tapCalibrationTakes);
-  const proposedDownbeats = proposal.proposedDownbeats;
-  const currentMs = Math.round(liveDisplayTime * 1000 + PULSE_VISUAL_COMPENSATION_MS);
-  const nearestCalibrated = nearestDownbeat(calibratedDownbeats, currentMs);
-  const nearestProposal = nearestDownbeat(proposedDownbeats, currentMs);
-  const calibratedDistance = nearestCalibrated === null ? null : nearestCalibrated - currentMs;
-  const proposalDistance = nearestProposal === null ? null : nearestProposal - currentMs;
-  const nearWindowMs = 90;
-  const isNearCalibrated = calibratedDistance !== null && Math.abs(calibratedDistance) <= nearWindowMs;
-  const isNearProposal = proposalDistance !== null && Math.abs(proposalDistance) <= nearWindowMs;
   const sortedEvents = songData?.events || [];
   const focusedEvent = focusedEventIndex === null ? null : sortedEvents[focusedEventIndex] || null;
 
@@ -792,7 +666,7 @@ export default function DevCalibrator({
         paddingBottom: "8px",
         gap: "16px"
       }}>
-        {["Sections & Labels", "Events", "Downbeat Tapping"].map((tabName, idx) => {
+        {["Sections", "Events", "Taps"].map((tabName, idx) => {
           const tabNum = idx + 1;
           const isActive = activeTab === tabNum;
           
@@ -832,22 +706,22 @@ export default function DevCalibrator({
           transition: "all 0.08s ease"
         }}>
           <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", justifyContent: "center" }}>
-            {tapCalibrationTakes.map((take, index) => (
+            {[1, 5].map((count) => (
               <button
-                key={take.id}
-                onClick={() => setActiveTakeIndex(index)}
+                key={count}
+                onClick={() => setActiveTapCount(count as 1 | 5)}
                 style={{
                   fontSize: "0.72rem",
                   fontWeight: 900,
                   padding: "7px 12px",
                   borderRadius: "999px",
-                  border: `1px solid ${activeTakeIndex === index ? "#ffffff" : "rgba(255,255,255,0.12)"}`,
-                  background: activeTakeIndex === index ? "#ffffff" : "rgba(255,255,255,0.04)",
-                  color: activeTakeIndex === index ? "#000" : "#d4d4d8",
+                  border: `1px solid ${activeTapCount === count ? "#ffffff" : "rgba(255,255,255,0.12)"}`,
+                  background: activeTapCount === count ? "#ffffff" : "rgba(255,255,255,0.04)",
+                  color: activeTapCount === count ? "#000" : "#d4d4d8",
                   cursor: "pointer"
                 }}
               >
-                {take.label}: {(take.tapsMs || []).length}
+                Count {count}: {taps.filter((tap: any) => tap.count === count).length}
               </button>
             ))}
           </div>
@@ -869,10 +743,10 @@ export default function DevCalibrator({
             }}
           >
             <span style={{ fontSize: "1.35rem", fontWeight: 900, color: tapFlash ? "#000" : "#fff", textTransform: "uppercase", letterSpacing: "1px" }}>
-              TAP CLEAR "1"
+              TAP COUNT {activeTapCount}
             </span>
             <span style={{ fontSize: "0.68rem", color: tapFlash ? "rgba(0,0,0,0.6)" : "#71717a" }}>
-              Recording {tapCalibrationTakes[activeTakeIndex]?.label || "Take"} · click or press <kbd style={{ background: "rgba(255,255,255,0.12)", borderRadius: "3px", padding: "0 3px" }}>T</kbd>
+              Click or press <kbd style={{ background: "rgba(255,255,255,0.12)", borderRadius: "3px", padding: "0 3px" }}>T</kbd>
             </span>
           </button>
         </div>
@@ -887,10 +761,14 @@ export default function DevCalibrator({
 
         {activeTab === 1 && (
           <DevCalibrationPanel
-            songData={songData}
             editorSections={editorSections}
+            categories={categories}
+            tags={tags}
             onExit={onBackToCatalog}
             onUpdateSectionField={handleUpdateSectionField}
+            onToggleSectionTag={handleToggleSectionTag}
+            onAddCategory={handleAddCategory}
+            onAddTag={handleAddTag}
             validationErrors={validationErrors}
             saving={saving}
             onPublishSong={handlePublishSong}
@@ -912,7 +790,12 @@ export default function DevCalibrator({
             <EventAnnotationPanel
               selectedEvent={focusedEvent}
               selectedEventIndex={focusedEventIndex}
+              categories={categories}
+              tags={tags}
               onUpdateEvent={handleUpdateEventField}
+              onToggleTag={handleToggleEventTag}
+              onAddCategory={handleAddCategory}
+              onAddTag={handleAddTag}
               onRemoveEvent={handleRemoveEvent}
               disabled={false}
             />
@@ -1010,7 +893,7 @@ export default function DevCalibrator({
                 const leftPct = (startSec / duration) * 100;
                 const color = SECTION_PALETTE[idx % SECTION_PALETTE.length];
                 const isActive = sec.id === focusedSectionId;
-                const labelText = sec.label ? `${sec.emoji || ""} ${sec.label}` : `Section ${idx + 1}`;
+                const labelText = sec.category ? getCategoryLabel(sec.category) : `Section ${idx + 1}`;
 
                 return (
                   <div
@@ -1045,14 +928,14 @@ export default function DevCalibrator({
               })}
 
               {timelineLayers.events && (songData?.events || []).map((event: any, index: number) => {
-                const leftPct = (event.timestampMs / (duration * 1000)) * 100;
-                const widthPct = (event.durationMs / (duration * 1000)) * 100;
+                const leftPct = (event.startTimeMs / (duration * 1000)) * 100;
+                const widthPct = ((event.endTimeMs - event.startTimeMs) / (duration * 1000)) * 100;
                 const isActive = index === focusedEventIndex;
-                const labelText = event.description || event.type.replaceAll("_", " ");
+                const labelText = event.category ? getCategoryLabel(event.category) : `Event ${index + 1}`;
                 return (
                   <div
-                    key={`event-${index}-${event.timestampMs}`}
-                    title={`${event.type}: ${event.description}`}
+                    key={`event-${event.id}`}
+                    title={labelText}
                     onClick={(e) => {
                       e.stopPropagation();
                       setFocusedEventIndex(index);
@@ -1064,7 +947,7 @@ export default function DevCalibrator({
                       left: `${leftPct}%`,
                       width: `${Math.max(widthPct, 0.3)}%`,
                       borderRadius: "3px",
-                      background: event.uiHighlight ? "rgba(245,158,11,0.78)" : "rgba(161,161,170,0.78)",
+                      background: "rgba(245,158,11,0.78)",
                       outline: isActive ? "2px solid #ffffff" : "none",
                       outlineOffset: "-1px",
                       zIndex: isActive ? 12 : 7,
@@ -1085,29 +968,13 @@ export default function DevCalibrator({
                 );
               })}
 
-              {timelineLayers.proposal && proposedDownbeats.map((downbeat: number, index: number) => (
-                <div
-                  key={`proposal-downbeat-${index}-${downbeat}`}
-                  title={`Proposed ${Math.round(downbeat / 1000)}s`}
-                  style={{ position: "absolute", top: "3px", height: "14px", left: `${(downbeat / (duration * 1000)) * 100}%`, width: "2px", background: "#fbbf24", opacity: nearestProposal === downbeat ? 1 : 0.72, zIndex: 6, pointerEvents: "none", boxShadow: nearestProposal === downbeat && isNearProposal ? "0 0 10px #fbbf24" : "none" }}
-                />
-              ))}
-
-              {timelineLayers.calibrated && calibratedDownbeats.map((downbeat: number, index: number) => (
-                <div
-                  key={`calibrated-downbeat-${index}-${downbeat}`}
-                  title={`Human calibrated ${Math.round(downbeat / 1000)}s`}
-                  style={{ position: "absolute", top: "24px", height: "18px", left: `${(downbeat / (duration * 1000)) * 100}%`, width: "2px", background: "#60a5fa", opacity: nearestCalibrated === downbeat ? 1 : 0.82, zIndex: 6, pointerEvents: "none", boxShadow: nearestCalibrated === downbeat && isNearCalibrated ? "0 0 10px #60a5fa" : "none" }}
-                />
-              ))}
-
-              {tapCalibrationTakes.map((take, takeIndex) => {
-                const layerKey = `take${takeIndex + 1}`;
-                const colors = ["#f97316", "#fb7185", "#34d399"];
+              {taps.map((tap: any) => {
+                const layerKey = tap.count === 1 ? "count1" : "count5";
                 if (!timelineLayers[layerKey as keyof typeof timelineLayers]) return null;
-                return (take.tapsMs || []).map((downbeat: number, index: number) => (
-                  <div key={`${take.id}-${index}-${downbeat}`} title={`${take.label} ${(downbeat / 1000).toFixed(2)}s`} style={{ position: "absolute", top: `${4 + takeIndex * 10}px`, height: "8px", left: `${(downbeat / (duration * 1000)) * 100}%`, width: "3px", background: colors[takeIndex], opacity: 0.95, zIndex: 8, pointerEvents: "none", boxShadow: `0 0 9px ${colors[takeIndex]}aa` }} />
-                ));
+                const color = tap.count === 1 ? "#60a5fa" : "#34d399";
+                return (
+                  <div key={tap.id} title={`Count ${tap.count} ${(tap.timeMs / 1000).toFixed(2)}s`} style={{ position: "absolute", top: tap.count === 1 ? "5px" : "27px", height: "16px", left: `${(tap.timeMs / (duration * 1000)) * 100}%`, width: "3px", background: color, opacity: 0.95, zIndex: 8, pointerEvents: "none", boxShadow: `0 0 9px ${color}aa` }} />
+                );
               })}
 
               <div style={{
@@ -1175,11 +1042,11 @@ export default function DevCalibrator({
             })}
 
             {activeTab === 2 && (songData?.events || []).flatMap((event: any, index: number) => {
-              const startPct = (event.timestampMs / (duration * 1000)) * 100;
-              const endPct = ((event.timestampMs + event.durationMs) / (duration * 1000)) * 100;
+              const startPct = (event.startTimeMs / (duration * 1000)) * 100;
+              const endPct = (event.endTimeMs / (duration * 1000)) * 100;
               return [
                 <div
-                  key={`event-start-handle-${index}-${event.timestampMs}`}
+                  key={`event-start-handle-${event.id}`}
                   onMouseDown={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
@@ -1188,7 +1055,7 @@ export default function DevCalibrator({
                       if (!timelineRef.current) return;
                       const rect = timelineRef.current.getBoundingClientRect();
                       const ratio = Math.max(0, Math.min(1, (moveEvt.clientX - rect.left) / rect.width));
-                      handleUpdateEventTimes(index, "timestampMs", ratio * duration * 1000);
+                      handleUpdateEventTimes(index, "startTimeMs", ratio * duration * 1000);
                     };
                     const handleMouseUp = () => {
                       window.removeEventListener("mousemove", handleMouseMove);
@@ -1204,7 +1071,7 @@ export default function DevCalibrator({
                   <div style={{ position: "absolute", width: "8px", height: "8px", borderRadius: "50%", background: "#fbbf24", border: "1.5px solid #27272a" }} />
                 </div>,
                 <div
-                  key={`event-end-handle-${index}-${event.timestampMs}`}
+                  key={`event-end-handle-${event.id}`}
                   onMouseDown={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
@@ -1238,7 +1105,7 @@ export default function DevCalibrator({
             {editorSections.map((sec, idx) => {
                const color = SECTION_PALETTE[idx % SECTION_PALETTE.length];
                const isActive = sec.id === focusedSectionId;
-               const labelText = sec.label ? `${sec.emoji || ""} ${sec.label}` : `Section ${idx + 1}`;
+               const labelText = sec.category ? getCategoryLabel(sec.category) : `Section ${idx + 1}`;
                return (
                  <button
                    key={sec.id}
@@ -1268,13 +1135,13 @@ export default function DevCalibrator({
           <div style={{ display: "flex", gap: "6px", marginTop: "2px", flexWrap: "wrap" }}>
             {sortedEvents.map((event: any, idx: number) => {
                const isActive = idx === focusedEventIndex;
-               const labelText = event.description || event.type.replaceAll("_", " ");
+               const labelText = event.category ? getCategoryLabel(event.category) : `Event ${idx + 1}`;
                return (
                  <button
-                   key={`event-chip-${idx}-${event.timestampMs}`}
+                   key={`event-chip-${event.id}`}
                    onClick={() => {
                      setFocusedEventIndex(isActive ? null : idx);
-                     if (!isActive) throttledSeek(event.timestampMs / 1000, true);
+                     if (!isActive) throttledSeek(event.startTimeMs / 1000, true);
                    }}
                    style={{
                      fontSize: "0.68rem",
@@ -1312,7 +1179,7 @@ export default function DevCalibrator({
           <span><kbd style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "4px", padding: "1px 4px", color: "#fff", marginRight: "4px" }}>← / →</kbd> Nudge 100ms</span>
           <span><kbd style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "4px", padding: "1px 4px", color: "#fff", marginRight: "4px" }}>Shift + ← / →</kbd> Nudge 1.0s</span>
           <span><kbd style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "4px", padding: "1px 4px", color: "#fff", marginRight: "4px" }}>C</kbd> Slice Section / Event</span>
-          <span><kbd style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "4px", padding: "1px 4px", color: "#fff", marginRight: "4px" }}>T</kbd> Tap Downbeat</span>
+          <span><kbd style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "4px", padding: "1px 4px", color: "#fff", marginRight: "4px" }}>T</kbd> Tap Count 1 / 5</span>
         </div>
       </div>
     </div>

@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "1.0",
+  "tags": [
+    {
+      "id": "soft",
+      "label": "Soft"
+    },
+    {
+      "id": "strong",
+      "label": "Strong"
+    },
+    {
+      "id": "vocals",
+      "label": "Vocals"
+    },
+    {
+      "id": "percussion",
+      "label": "Percussion"
+    },
+    {
+      "id": "brass",
+      "label": "Brass"
+    },
+    {
+      "id": "bass",
+      "label": "Bass"
+    },
+    {
+      "id": "transition",
+      "label": "Transition"
+    },
+    {
+      "id": "low-energy",
+      "label": "Low Energy"
+    },
+    {
+      "id": "high-energy",
+      "label": "High Energy"
+    }
+  ]
+}

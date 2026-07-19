@@ -9,7 +9,7 @@ export default function Visualizer({
   activeBreak: _activeBreak = null,
   isPlaying = false
 }) {
-  const isQuietSection = ["INTRO", "OUTRO"].includes(_activeSection?.energyState);
+  const isQuietSection = ["intro", "outro"].includes(_activeSection?.category);
   const isActive = 
     isPlaying &&
     !isQuietSection &&

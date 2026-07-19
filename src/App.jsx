@@ -107,27 +107,20 @@ export default function App() {
         if (!adjustedData.status) {
           adjustedData.status = "DRAFT";
         }
-        if (!adjustedData.metadata) {
-          adjustedData.metadata = {};
-        }
         if (!adjustedData.events) {
           adjustedData.events = [];
         }
-        if (!adjustedData.calibratedDownbeats) {
-          adjustedData.calibratedDownbeats = [];
-        }
-        if (!adjustedData.tapCalibrationTakes) {
-          adjustedData.tapCalibrationTakes = [];
+        if (!adjustedData.taps) {
+          adjustedData.taps = [];
         }
         if (!adjustedData.sections || adjustedData.sections.length === 0) {
-          const lastBeatTimeMs = adjustedData.calibratedDownbeats?.at(-1) || 300000;
           adjustedData.sections = [
             {
               id: "sec-default",
               startTimeMs: 0,
-              endTimeMs: lastBeatTimeMs,
-              label: "",
-              energyState: "UNLABELED"
+              endTimeMs: 300000,
+              category: "",
+              tags: []
             }
           ];
         }
