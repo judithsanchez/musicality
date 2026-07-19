@@ -1121,14 +1121,17 @@ export default function DevCalibrator({
   };
 
   const handleAddEventRangeAtPlayhead = () => {
-    const startTimeMs = Math.round(getEditorCurrentTime() * 1000);
     const scopedSection = eventTimelineScope === "section"
       ? editorSections.find(section => section.id === focusedSectionId)
       : null;
-    const rangeEndMs = scopedSection && startTimeMs >= scopedSection.startTimeMs && startTimeMs < scopedSection.endTimeMs
+    const rawStartTimeMs = Math.round(getEditorCurrentTime() * 1000);
+    const songEndMs = Math.round(duration * 1000);
+    const rangeStartMs = scopedSection ? scopedSection.startTimeMs : 0;
+    const rangeEndMs = scopedSection && rawStartTimeMs >= scopedSection.startTimeMs && rawStartTimeMs < scopedSection.endTimeMs
       ? scopedSection.endTimeMs
-      : Math.round(duration * 1000);
-    const defaultDurationMs = Math.min(8000, Math.max(1000, rangeEndMs - startTimeMs));
+      : songEndMs;
+    const startTimeMs = Math.max(rangeStartMs, Math.min(Math.max(rangeStartMs, rangeEndMs - 1000), rawStartTimeMs));
+    const defaultDurationMs = Math.min(3000, Math.max(1000, rangeEndMs - startTimeMs));
     handleAddEvent({
       startTimeMs,
       endTimeMs: startTimeMs + defaultDurationMs,
@@ -1400,6 +1403,13 @@ export default function DevCalibrator({
   const activeEventSectionTimeMs = activeEventSection
     ? Math.max(0, Math.min(activeEventSectionDurationMs, liveDisplayTime * 1000 - activeEventSection.startTimeMs))
     : 0;
+  const eventDraftRangeStartMs = activeEventSection ? activeEventSection.startTimeMs : 0;
+  const eventDraftRangeEndMs = activeEventSection ? activeEventSection.endTimeMs : Math.round(duration * 1000);
+  const defaultEventDraftStartMs = Math.max(
+    eventDraftRangeStartMs,
+    Math.min(Math.max(eventDraftRangeStartMs, eventDraftRangeEndMs - 1000), Math.round(liveDisplayTime * 1000))
+  );
+  const defaultEventDraftEndMs = Math.min(eventDraftRangeEndMs, defaultEventDraftStartMs + 3000);
   const timelineStatusText = activeEventSection
     ? `${getCategoryLabel(activeEventSection.category)} · ${(activeEventSectionTimeMs / 1000).toFixed(2)}s / ${(activeEventSectionDurationMs / 1000).toFixed(2)}s · section 0.0-${(activeEventSectionDurationMs / 1000).toFixed(1)}s`
     : `${liveDisplayTime.toFixed(2)}s / ${duration.toFixed(2)}s · ${(visibleTimeline.startTimeMs / 1000).toFixed(1)}-${(visibleTimeline.endTimeMs / 1000).toFixed(1)}s`;
@@ -1702,6 +1712,9 @@ export default function DevCalibrator({
               onAddCategory={handleAddCategory}
               onAddTag={handleAddTag}
               onRemoveEvent={handleRemoveEvent}
+              onAddEvent={handleAddEvent}
+              defaultStartTimeMs={defaultEventDraftStartMs}
+              defaultEndTimeMs={defaultEventDraftEndMs}
               disabled={false}
             />
             <button onClick={handleSaveEvents} disabled={saving} style={{ padding: "9px", border: "none", borderRadius: "8px", fontWeight: 800, cursor: saving ? "not-allowed" : "pointer" }}>

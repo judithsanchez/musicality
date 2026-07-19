@@ -7,16 +7,20 @@ export default function EventAnnotationPanel({
   categories,
   tags,
   onSelectEvent,
+  onAddEvent,
   onUpdateEvent,
   onUpdateEventTime,
   onToggleTag,
   onAddCategory,
   onAddTag,
   onRemoveEvent,
+  defaultStartTimeMs = 0,
+  defaultEndTimeMs = 3000,
   disabled = false
 }) {
   const [expandedEvents, setExpandedEvents] = useState({});
   const [draftTimes, setDraftTimes] = useState({});
+  const [newEventDraft, setNewEventDraft] = useState(null);
 
   const formatTimecode = (timeMs) => {
     const safeMs = Math.max(0, Math.round(timeMs || 0));
@@ -73,11 +77,50 @@ export default function EventAnnotationPanel({
     setExpandedEvents(current => ({ ...current, [eventId]: !current[eventId] }));
   };
 
+  const openNewEventDraft = () => {
+    setNewEventDraft({
+      startTime: formatTimecode(defaultStartTimeMs),
+      endTime: formatTimecode(defaultEndTimeMs),
+      category: "",
+      tags: []
+    });
+  };
+
+  const updateNewEventDraft = (patch) => {
+    setNewEventDraft(current => ({ ...current, ...patch }));
+  };
+
+  const toggleNewEventTag = (tagId) => {
+    setNewEventDraft(current => {
+      const currentTags = current?.tags || [];
+      return {
+        ...current,
+        tags: currentTags.includes(tagId)
+          ? currentTags.filter(value => value !== tagId)
+          : [...currentTags, tagId]
+      };
+    });
+  };
+
+  const submitNewEventDraft = () => {
+    if (!newEventDraft) return;
+    const didAdd = onAddEvent({
+      startTimeMs: parseTimecode(newEventDraft.startTime),
+      endTimeMs: parseTimecode(newEventDraft.endTime),
+      category: newEventDraft.category,
+      tags: newEventDraft.tags || []
+    });
+    if (didAdd) setNewEventDraft(null);
+  };
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <span style={{ fontSize: "0.8rem", fontWeight: 800, color: "#fff", textTransform: "uppercase" }}>Event Ranges</span>
         <div style={{ display: "flex", gap: "6px" }}>
+          <button disabled={disabled} onClick={openNewEventDraft} style={{ padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(245,158,11,0.35)", background: "rgba(245,158,11,0.1)", color: "#fbbf24", fontSize: "0.68rem", fontWeight: 900, cursor: disabled ? "not-allowed" : "pointer" }}>
+            New Event
+          </button>
           <button disabled={disabled} onClick={onAddCategory} style={{ padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.05)", color: "#fff", fontSize: "0.68rem", fontWeight: 800, cursor: disabled ? "not-allowed" : "pointer" }}>
             New Category
           </button>
@@ -86,6 +129,74 @@ export default function EventAnnotationPanel({
           </button>
         </div>
       </div>
+
+      {newEventDraft && (
+        <div style={{ display: "flex", flexDirection: "column", gap: "9px", padding: "10px", borderRadius: "8px", border: "1px solid rgba(245,158,11,0.28)", background: "rgba(245,158,11,0.08)" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+            <span style={{ color: "#fff", fontSize: "0.76rem", fontWeight: 900 }}>Draft Event</span>
+            <span style={{ color: "#fbbf24", fontSize: "0.64rem", fontWeight: 800 }}>Independent range, saved when you add it</span>
+          </div>
+          <select
+            disabled={disabled}
+            value={newEventDraft.category}
+            onChange={(event) => updateNewEventDraft({ category: event.target.value })}
+            style={{ width: "100%", padding: "5px 8px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#fff", fontWeight: "bold", fontSize: "0.8rem" }}
+          >
+            <option value="">Uncategorized</option>
+            {categories.map(category => (
+              <option key={category.id} value={category.id}>{category.label}</option>
+            ))}
+          </select>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", fontSize: "0.7rem", color: "#a1a1aa" }}>
+            <label style={{ display: "flex", flexDirection: "column", gap: "3px", fontWeight: 800 }}>
+              Start
+              <input
+                type="text"
+                inputMode="decimal"
+                disabled={disabled}
+                value={newEventDraft.startTime}
+                onChange={(event) => updateNewEventDraft({ startTime: event.target.value })}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") submitNewEventDraft();
+                }}
+                style={{ padding: "5px 7px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.28)", color: "#fff", fontWeight: 900 }}
+              />
+            </label>
+            <label style={{ display: "flex", flexDirection: "column", gap: "3px", fontWeight: 800 }}>
+              End
+              <input
+                type="text"
+                inputMode="decimal"
+                disabled={disabled}
+                value={newEventDraft.endTime}
+                onChange={(event) => updateNewEventDraft({ endTime: event.target.value })}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") submitNewEventDraft();
+                }}
+                style={{ padding: "5px 7px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.28)", color: "#fff", fontWeight: 900 }}
+              />
+            </label>
+          </div>
+          <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+            {tags.map(tag => {
+              const active = (newEventDraft.tags || []).includes(tag.id);
+              return (
+                <button key={tag.id} disabled={disabled} onClick={() => toggleNewEventTag(tag.id)} title={tag.label} style={{ fontSize: "0.68rem", padding: "3px 8px", borderRadius: "999px", border: `1px solid ${active ? "#ffffff" : "rgba(255,255,255,0.12)"}`, background: active ? "#ffffff" : "transparent", color: active ? "#000" : "#a1a1aa", cursor: disabled ? "not-allowed" : "pointer" }}>
+                  {tag.label}
+                </button>
+              );
+            })}
+          </div>
+          <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end" }}>
+            <button disabled={disabled} onClick={() => setNewEventDraft(null)} style={{ padding: "5px 9px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", background: "transparent", color: "#d4d4d8", fontSize: "0.68rem", fontWeight: 800, cursor: disabled ? "not-allowed" : "pointer" }}>
+              Cancel
+            </button>
+            <button disabled={disabled} onClick={submitNewEventDraft} style={{ padding: "5px 9px", borderRadius: "6px", border: "1px solid rgba(245,158,11,0.45)", background: "rgba(245,158,11,0.16)", color: "#fbbf24", fontSize: "0.68rem", fontWeight: 900, cursor: disabled ? "not-allowed" : "pointer" }}>
+              Add Event
+            </button>
+          </div>
+        </div>
+      )}
 
       {events.length === 0 && (
         <div style={{ display: "flex", flexDirection: "column", gap: "4px", padding: "12px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.18)", color: "#a1a1aa", fontSize: "0.76rem", lineHeight: 1.4 }}>
