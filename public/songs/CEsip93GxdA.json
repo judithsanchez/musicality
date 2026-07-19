@@ -9,7 +9,7 @@
     {
       "id": "sec-default",
       "startTimeMs": 0,
-      "endTimeMs": 20000,
+      "endTimeMs": 20797,
       "category": "intro",
       "tags": [
         "hide-downbeats"
@@ -17,28 +17,21 @@
     },
     {
       "id": "8745ab27-e3cb-4a0f-a444-f6fc92ada756",
-      "startTimeMs": 20000,
-      "endTimeMs": 39000,
-      "category": "verse",
-      "tags": []
-    },
-    {
-      "id": "9445f972-7b1d-47e4-8421-6847d9ea062e",
-      "startTimeMs": 39000,
-      "endTimeMs": 44000,
+      "startTimeMs": 20797,
+      "endTimeMs": 40060,
       "category": "chorus",
       "tags": []
     },
     {
-      "id": "f59d519a-4397-4661-aeb3-7c2456d3981a",
-      "startTimeMs": 44000,
-      "endTimeMs": 60000,
-      "category": "verse",
+      "id": "ebfe9cb1-9bc3-4cb4-9a2a-af19a9e2b53b",
+      "startTimeMs": 40060,
+      "endTimeMs": 69835,
+      "category": "soneo",
       "tags": []
     },
     {
       "id": "31586db1-c142-4c06-9679-0441ed7eb7f3",
-      "startTimeMs": 60000,
+      "startTimeMs": 69835,
       "endTimeMs": 89000,
       "category": "chorus",
       "tags": []
@@ -60,13 +53,13 @@
     {
       "id": "de367001-c70a-4372-bc88-3bb77d6a8f8c",
       "startTimeMs": 119000,
-      "endTimeMs": 137000,
+      "endTimeMs": 138424,
       "category": "chorus",
       "tags": []
     },
     {
       "id": "c673cbf9-d650-4d10-a1ef-ff2428bed751",
-      "startTimeMs": 137000,
+      "startTimeMs": 138424,
       "endTimeMs": 164000,
       "category": "montuno",
       "tags": []
@@ -81,7 +74,26 @@
       ]
     }
   ],
-  "events": [],
+  "events": [
+    {
+      "id": "fa98599d-ccec-45a7-ad18-9e38aca7aa6b",
+      "startTimeMs": 72320,
+      "endTimeMs": 72801,
+      "category": "break",
+      "tags": [
+        "hide-downbeats"
+      ]
+    },
+    {
+      "id": "112fbf88-0a1f-4b3c-8251-e22f027255b4",
+      "startTimeMs": 120880,
+      "endTimeMs": 121271,
+      "category": "break",
+      "tags": [
+        "hide-downbeats"
+      ]
+    }
+  ],
   "tapCalibrationPasses": [
     {
       "id": "37a9a85f-b68d-4ab1-93df-fa8c971eff6d",
