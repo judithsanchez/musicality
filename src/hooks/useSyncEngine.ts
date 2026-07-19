@@ -148,7 +148,12 @@ export function useSyncEngine(
         let closestBeat: any = null;
         let minDiff = Infinity;
 
-        const countOneAnchors = (sData.reviewedAnchors || []).filter((anchor: any) => anchor.count === 1 && anchor.reviewed);
+        const excludedPassIds = new Set((sData.tapCalibrationPasses || []).filter((pass: any) => pass.excluded).map((pass: any) => pass.id));
+        const tapById = new Map((sData.taps || []).map((tap: any) => [tap.id, tap]));
+        const countOneAnchors = (sData.reviewedAnchors || []).filter((anchor: any) => {
+          const tap = tapById.get(anchor.tapId) as any;
+          return anchor.count === 1 && anchor.reviewed && !excludedPassIds.has(tap?.passId);
+        });
         if (countOneAnchors.length > 0) {
           for (let i = 0; i < countOneAnchors.length; i++) {
             const tapTimeMs = countOneAnchors[i].timeMs;

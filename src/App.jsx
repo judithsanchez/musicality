@@ -119,6 +119,9 @@ export default function App() {
         if (!adjustedData.reviewedAnchors) {
           adjustedData.reviewedAnchors = [];
         }
+        if (!adjustedData.tapCalibration) {
+          adjustedData.tapCalibration = { sectionDecisions: [] };
+        }
         if (!adjustedData.sections || adjustedData.sections.length === 0) {
           adjustedData.sections = [
             {

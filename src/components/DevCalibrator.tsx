@@ -34,6 +34,7 @@ const SECTION_PALETTE = [
 ];
 
 const slugify = (value: string) => value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+const HIDE_DOWNBEATS_TAG = "hide-downbeats";
 const DEVICE_CALIBRATION_KEY = "musicality.deviceCalibration";
 const METRONOME_INTERVAL_MS = 600;
 const REVIEWED_ANCHOR_COLORS: Record<number, string> = {
@@ -79,6 +80,7 @@ export default function DevCalibrator({
   const [activeRetapRegion, setActiveRetapRegion] = useState<any>(null);
   const [verificationGroupId, setVerificationGroupId] = useState<string | null>(null);
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
+  const [activeTapSectionId, setActiveTapSectionId] = useState<string | null>(null);
   const [categories, setCategories] = useState<any[]>([]);
   const [tags, setTags] = useState<any[]>([]);
   const [focusedSectionId, setFocusedSectionId] = useState<string | null>(null);
@@ -146,9 +148,15 @@ export default function DevCalibrator({
 
   const anchorLabel = (count: number) => reviewedAnchorOptions.find(option => option.count === count)?.label || String(count);
   const tapById = useMemo(() => new Map(taps.map((tap: any) => [tap.id, tap])), [taps]);
+  const passById = useMemo(() => new Map(tapCalibrationPasses.map((pass: any) => [pass.id, pass])), [tapCalibrationPasses]);
+  const activeReviewedAnchors = useMemo(() => reviewedAnchors.filter((anchor: any) => {
+    const tap = tapById.get(anchor.tapId) as any;
+    const pass = tap ? passById.get(tap.passId) as any : null;
+    return !pass?.excluded;
+  }), [passById, reviewedAnchors, tapById]);
 
   const tapGroups = useMemo(() => {
-    const anchors = [...reviewedAnchors].sort((a, b) => a.timeMs - b.timeMs);
+    const anchors = [...activeReviewedAnchors].sort((a, b) => a.timeMs - b.timeMs);
     if (anchors.length === 0) return [];
 
     const gaps = anchors.slice(1).map((anchor, index) => anchor.timeMs - anchors[index].timeMs);
@@ -232,14 +240,32 @@ export default function DevCalibrator({
         reasons: reasons.length ? reasons : ["stable"]
       };
     });
-  }, [reviewedAnchors, taps, countCycle]);
+  }, [activeReviewedAnchors, taps, countCycle]);
 
   const verificationGroup = useMemo(() => {
     if (verificationGroupId) {
-      return tapGroups.find((group: any) => group.id === verificationGroupId) || null;
+      const matchedGroup = tapGroups.find((group: any) => group.id === verificationGroupId);
+      if (matchedGroup) return matchedGroup;
+      if (verificationGroupId.startsWith("section:")) {
+        const sectionId = verificationGroupId.replace("section:", "");
+        const section = editorSections.find(item => item.id === sectionId);
+        if (!section) return null;
+        const anchors = activeReviewedAnchors
+          .filter((anchor: any) => anchor.timeMs >= section.startTimeMs && anchor.timeMs <= section.endTimeMs)
+          .sort((a: any, b: any) => a.timeMs - b.timeMs);
+        return {
+          id: verificationGroupId,
+          index: editorSections.findIndex(item => item.id === sectionId),
+          anchors,
+          startTimeMs: section.startTimeMs,
+          endTimeMs: section.endTimeMs,
+          confidence: anchors.length >= 3 ? "medium" : "low",
+          reasons: anchors.length ? ["section verification"] : ["no anchors yet"]
+        };
+      }
     }
     return null;
-  }, [tapGroups, verificationGroupId]);
+  }, [activeReviewedAnchors, editorSections, tapGroups, verificationGroupId]);
 
   const verificationAnchors = useMemo(() => {
     if (!verificationGroup) return [];
@@ -269,6 +295,43 @@ export default function DevCalibrator({
     });
   }, [duration, editorSections]);
 
+  const tapSectionDecisions = calibratedSongData?.tapCalibration?.sectionDecisions || songData?.tapCalibration?.sectionDecisions || [];
+  const calibrationEvents = calibratedSongData?.events || songData?.events || [];
+
+  const tapSectionCards = useMemo(() => {
+    return editorSections.map((section, index) => {
+      const sectionPasses = tapCalibrationPasses.filter((pass: any) => pass.sectionId === section.id);
+      const sectionAnchors = activeReviewedAnchors.filter((anchor: any) => anchor.timeMs >= section.startTimeMs && anchor.timeMs <= section.endTimeMs);
+      const hiddenEvents = calibrationEvents.filter((event: any) =>
+        event.startTimeMs < section.endTimeMs &&
+        event.endTimeMs > section.startTimeMs &&
+        (event.tags || []).includes(HIDE_DOWNBEATS_TAG)
+      );
+      const markedNotNeeded = tapSectionDecisions.some((decision: any) => decision.sectionId === section.id && decision.status === "not_needed");
+      const sectionHidden = (section.tags || []).includes(HIDE_DOWNBEATS_TAG) || ["intro", "outro"].includes(section.category);
+      let status = "Needs Calibration";
+      if (markedNotNeeded) {
+        status = "Marked Not Needed";
+      } else if (sectionAnchors.some((anchor: any) => anchor.reviewed && anchor.confidence === "confirmed")) {
+        status = "Calibrated";
+      } else if (sectionAnchors.length > 0 || sectionPasses.length > 0) {
+        status = "Review";
+      } else if (sectionHidden) {
+        status = "Optional";
+      }
+      return {
+        section,
+        index,
+        sectionPasses,
+        sectionAnchors,
+        hiddenEvents,
+        markedNotNeeded,
+        sectionHidden,
+        status
+      };
+    });
+  }, [activeReviewedAnchors, calibrationEvents, editorSections, tapCalibrationPasses, tapSectionDecisions]);
+
   const visibleTimeline = useMemo(() => {
     const songEndMs = Math.round(duration * 1000);
     if (!timelineZoom) return { startTimeMs: 0, endTimeMs: songEndMs };
@@ -286,7 +349,7 @@ export default function DevCalibrator({
   const timelineModeShowsSections = activeTab === 2
     ? eventTimelineScope === "section"
     : timelineView === "sections" || timelineView === "events" || timelineView === "taps" || (timelineView === "all" && (timelineLayers.sections || activeTab === 3));
-  const timelineModeShowsEvents = activeTab === 2 || timelineView === "events" || (timelineView === "all" && timelineLayers.events);
+  const timelineModeShowsEvents = activeTab === 2 || timelineView === "events" || timelineView === "taps" || (timelineView === "all" && timelineLayers.events);
   const timelineModeShowsRawTaps = timelineView === "taps" || (timelineView === "all" && timelineLayers.rawTaps);
   const timelineModeShowsReviewed = timelineView === "taps" || (timelineView === "all" && timelineLayers.reviewed);
 
@@ -405,6 +468,7 @@ export default function DevCalibrator({
     setReviewedAnchors(Array.isArray(songData.reviewedAnchors) ? songData.reviewedAnchors.sort((a: any, b: any) => a.timeMs - b.timeMs) : []);
     setActivePassId(nextPasses.at(-1)?.id || null);
     setFocusedEventIndex(null);
+    setActiveTapSectionId(sortedSections[0]?.id || null);
   }, [songData?.youtubeId]);
 
   const autoSaveSongMap = (updatedData: any) => {
@@ -648,15 +712,18 @@ export default function DevCalibrator({
   }, []);
 
   const ensureActivePass = () => {
+    if (activeRetapRegion?.passId) return { passId: activeRetapRegion.passId, passes: tapCalibrationPasses };
     if (activePassId) return { passId: activePassId, passes: tapCalibrationPasses };
-    return createTapPass();
+    return createTapPass(activeTapSectionId || undefined);
   };
 
-  const createTapPass = () => {
+  const createTapPass = (sectionId?: string) => {
     const pass = {
       id: crypto.randomUUID(),
       startedAt: new Date().toISOString(),
-      inputLatencyMs: deviceCalibration?.inputLatencyMs || 0
+      inputLatencyMs: deviceCalibration?.inputLatencyMs || 0,
+      sectionId,
+      excluded: false
     };
     const nextPasses = [...tapCalibrationPasses, pass];
     setTapCalibrationPasses(nextPasses);
@@ -664,7 +731,7 @@ export default function DevCalibrator({
     return { passId: pass.id, passes: nextPasses };
   };
 
-  const suggestedCountForTap = (timeMs: number, passId: string, anchorSource = reviewedAnchors, tapSource = taps) => {
+  const suggestedCountForTap = (timeMs: number, passId: string, anchorSource = activeReviewedAnchors, tapSource = taps) => {
     const existingAnchors = [...anchorSource]
       .filter(anchor => tapSource.find((tap: any) => tap.id === anchor.tapId)?.passId !== passId)
       .sort((a, b) => a.timeMs - b.timeMs);
@@ -773,6 +840,10 @@ export default function DevCalibrator({
     }
 
     if (!player) return;
+    if (!activeRetapRegion) {
+      showToast("Choose Calibrate Section or Retap Region first.");
+      return;
+    }
     setTapFlash(true);
     setTimeout(() => setTapFlash(false), 80);
 
@@ -797,7 +868,8 @@ export default function DevCalibrator({
       timeMs: rawTimeMs,
       correctedTimeMs,
       passId: passState.passId,
-      source: "manual"
+      source: "manual",
+      sectionId: activeRetapRegion?.sectionId || activeTapSectionId || undefined
     };
     const anchor = {
       id: crypto.randomUUID(),
@@ -863,6 +935,64 @@ export default function DevCalibrator({
     updateTapCalibrationState(tapCalibrationPasses, nextTaps, nextAnchors, true);
   };
 
+  const updateTapSectionDecision = (sectionId: string, skipped: boolean) => {
+    const currentCalibration = latestSongDataRef.current?.tapCalibration || { sectionDecisions: [] };
+    const existingDecisions = Array.isArray(currentCalibration.sectionDecisions) ? currentCalibration.sectionDecisions : [];
+    const sectionDecisions = skipped
+      ? [
+        ...existingDecisions.filter((decision: any) => decision.sectionId !== sectionId),
+        { sectionId, status: "not_needed", updatedAt: new Date().toISOString() }
+      ]
+      : existingDecisions.filter((decision: any) => decision.sectionId !== sectionId);
+    const updated = {
+      ...latestSongDataRef.current,
+      tapCalibration: {
+        ...currentCalibration,
+        sectionDecisions
+      },
+      status: latestSongDataRef.current?.status === "READY" ? "READY" : "DRAFT"
+    };
+    syncSongMapState(updated);
+    autoSaveSongMap(updated);
+    showToast(skipped ? "Section marked not needed." : "Section reopened for tap calibration.");
+  };
+
+  const handleStartSectionTapRound = (section: any) => {
+    if (!deviceCalibration) {
+      showToast("Calibrate device offset first.");
+      return;
+    }
+    const decisions = latestSongDataRef.current?.tapCalibration?.sectionDecisions || [];
+    if (decisions.some((decision: any) => decision.sectionId === section.id && decision.status === "not_needed")) {
+      updateTapSectionDecision(section.id, false);
+    }
+    const passState = createTapPass(section.id);
+    setActiveTapSectionId(section.id);
+    setActiveRetapRegion({
+      id: `section:${section.id}:${passState.passId}`,
+      sectionId: section.id,
+      passId: passState.passId,
+      startTimeMs: section.startTimeMs,
+      endTimeMs: section.endTimeMs
+    });
+    setVerificationGroupId(`section:${section.id}`);
+    handleLoopRegion(section.startTimeMs, section.endTimeMs, 0);
+    showToast("Section tap round armed.");
+  };
+
+  const handleVerifySection = (section: any) => {
+    setActiveTapSectionId(section.id);
+    setVerificationGroupId(`section:${section.id}`);
+    handleLoopRegion(section.startTimeMs, section.endTimeMs, 0);
+  };
+
+  const handleExcludePass = (passId: string, excluded: boolean) => {
+    const nextPasses = tapCalibrationPasses.map((pass: any) => pass.id === passId ? { ...pass, excluded } : pass);
+    updateTapCalibrationState(nextPasses, taps, reviewedAnchors, true);
+    if (activePassId === passId && excluded) setActivePassId(null);
+    showToast(excluded ? "Round excluded." : "Round restored.");
+  };
+
   const handleLoopReviewedAnchor = (timeMs: number) => {
     const startSec = Math.max(0, (timeMs - 2000) / 1000);
     const endSec = Math.min(duration, (timeMs + 2000) / 1000);
@@ -892,9 +1022,9 @@ export default function DevCalibrator({
     }, 12000);
   };
 
-  const handleLoopRegion = (startTimeMs: number, endTimeMs: number) => {
-    const startSec = Math.max(0, (startTimeMs - 2000) / 1000);
-    const endSec = Math.min(duration, (endTimeMs + 2000) / 1000);
+  const handleLoopRegion = (startTimeMs: number, endTimeMs: number, paddingMs = 2000) => {
+    const startSec = Math.max(0, (startTimeMs - paddingMs) / 1000);
+    const endSec = Math.min(duration, (endTimeMs + paddingMs) / 1000);
     if (anchorLoopTimerRef.current) {
       window.clearInterval(anchorLoopTimerRef.current);
     }
@@ -953,11 +1083,13 @@ export default function DevCalibrator({
   };
 
   const handleStartRetapRegion = (group: any) => {
-    const passState = createTapPass();
+    const section = editorSections.find(sec => group.startTimeMs >= sec.startTimeMs && group.startTimeMs < sec.endTimeMs);
+    const passState = createTapPass(section?.id);
     const startTimeMs = Math.max(0, group.startTimeMs - 2000);
     const endTimeMs = Math.min(Math.round(duration * 1000), group.endTimeMs + 2000);
     setActiveRetapRegion({
       id: group.id,
+      sectionId: section?.id,
       passId: passState.passId,
       startTimeMs,
       endTimeMs
@@ -1351,7 +1483,7 @@ export default function DevCalibrator({
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [currentTime, editorSections, taps, player, duration, activeTab, metronomeActive, metronomeSamples, reviewedAnchors, activePassId, tapCalibrationPasses, deviceCalibration]);
+  }, [currentTime, editorSections, taps, player, duration, activeTab, metronomeActive, metronomeSamples, reviewedAnchors, activeReviewedAnchors, activePassId, activeRetapRegion, activeTapSectionId, tapCalibrationPasses, deviceCalibration]);
 
   const seekTimelineFromClientX = (clientX: number, immediate: boolean) => {
     if (!timelineRef.current) return;
@@ -1562,13 +1694,13 @@ export default function DevCalibrator({
               <span style={{ fontSize: "0.76rem", color: "#fff", fontWeight: 900, textTransform: "uppercase" }}>Song Anchors</span>
               <div style={{ display: "flex", flexDirection: "column", gap: "2px", color: "#a1a1aa", fontSize: "0.72rem" }}>
                 <span>Raw taps: <strong style={{ color: "#fff" }}>{taps.length}</strong></span>
-                <span>Reviewed: <strong style={{ color: "#fff" }}>{reviewedAnchors.filter(anchor => anchor.reviewed).length}</strong></span>
+                <span>Reviewed: <strong style={{ color: "#fff" }}>{activeReviewedAnchors.filter(anchor => anchor.reviewed).length}</strong></span>
                 <span>Passes: <strong style={{ color: "#fff" }}>{tapCalibrationPasses.length}</strong></span>
                 <span>Groups: <strong style={{ color: "#fff" }}>{tapGroups.length}</strong></span>
               </div>
               {activeRetapRegion && (
                 <div style={{ display: "flex", alignItems: "center", gap: "8px", color: "#fbbf24", fontSize: "0.7rem", fontWeight: 800 }}>
-                  <span>{(activeRetapRegion.startTimeMs / 1000).toFixed(1)}s-{(activeRetapRegion.endTimeMs / 1000).toFixed(1)}s</span>
+                  <span>{formatTimelineTime(activeRetapRegion.startTimeMs)}-{formatTimelineTime(activeRetapRegion.endTimeMs)}</span>
                   <button onClick={handleStopRetapRegion} style={{ padding: "2px 7px", borderRadius: "6px", border: "1px solid rgba(251,191,36,0.35)", background: "rgba(251,191,36,0.08)", color: "#fbbf24", cursor: "pointer", fontWeight: 900 }}>Stop</button>
                 </div>
               )}
@@ -1597,6 +1729,59 @@ export default function DevCalibrator({
                   Click or press <kbd style={{ background: "rgba(255,255,255,0.12)", borderRadius: "3px", padding: "0 3px" }}>T</kbd>
                 </span>
               </button>
+            </div>
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px" }}>
+              <span style={{ fontSize: "0.76rem", color: "#fff", fontWeight: 900, textTransform: "uppercase" }}>Calibrate By Section</span>
+              {!deviceCalibration && (
+                <span style={{ fontSize: "0.68rem", color: "#fbbf24", fontWeight: 800 }}>Start with Device Metronome</span>
+              )}
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "8px", maxHeight: "260px", overflowY: "auto", paddingRight: "3px" }}>
+              {tapSectionCards.map((card: any) => {
+                const { section } = card;
+                const active = activeTapSectionId === section.id || activeRetapRegion?.sectionId === section.id;
+                const statusColor = card.status === "Calibrated" ? "#34d399" : card.status === "Review" ? "#fbbf24" : card.status === "Marked Not Needed" ? "#a1a1aa" : "#93c5fd";
+                const labelText = section.category ? getCategoryLabel(section.category) : `Section ${card.index + 1}`;
+                return (
+                  <div key={`tap-section-${section.id}`} style={{ display: "flex", flexDirection: "column", gap: "8px", padding: "10px", borderRadius: "8px", border: `1px solid ${active ? "rgba(96,165,250,0.45)" : "rgba(255,255,255,0.08)"}`, background: active ? "rgba(96,165,250,0.08)" : "rgba(0,0,0,0.16)" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", gap: "8px", alignItems: "flex-start" }}>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                        <span style={{ color: "#fff", fontSize: "0.76rem", fontWeight: 900 }}>{labelText}</span>
+                        <span style={{ color: "#a1a1aa", fontSize: "0.66rem", fontFamily: "monospace" }}>{formatTimelineTime(section.startTimeMs)}-{formatTimelineTime(section.endTimeMs)}</span>
+                      </div>
+                      <span style={{ color: statusColor, fontSize: "0.66rem", fontWeight: 900, textTransform: "uppercase" }}>{card.status}</span>
+                    </div>
+                    <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", color: "#a1a1aa", fontSize: "0.66rem", fontWeight: 800 }}>
+                      <span>{card.sectionPasses.filter((pass: any) => !pass.excluded).length} rounds</span>
+                      {card.sectionPasses.some((pass: any) => pass.excluded) && <span>{card.sectionPasses.filter((pass: any) => pass.excluded).length} excluded</span>}
+                      <span>{card.sectionAnchors.length} anchors</span>
+                      {card.sectionHidden && <span>downbeats hidden</span>}
+                      {card.hiddenEvents.length > 0 && <span>{card.hiddenEvents.length} hidden event{card.hiddenEvents.length === 1 ? "" : "s"}</span>}
+                    </div>
+                    <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+                      <button onClick={() => handleStartSectionTapRound(section)} style={{ padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(96,165,250,0.35)", background: "rgba(96,165,250,0.08)", color: "#93c5fd", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>
+                        {card.markedNotNeeded || card.sectionHidden ? "Calibrate Anyway" : "Calibrate Section"}
+                      </button>
+                      <button onClick={() => handleVerifySection(section)} style={{ padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(244,114,182,0.35)", background: verificationGroupId === `section:${section.id}` ? "rgba(244,114,182,0.22)" : "rgba(244,114,182,0.08)", color: "#f9a8d4", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>Verify</button>
+                      <button onClick={() => updateTapSectionDecision(section.id, !card.markedNotNeeded)} style={{ padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", background: card.markedNotNeeded ? "#ffffff" : "transparent", color: card.markedNotNeeded ? "#000" : "#d4d4d8", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>
+                        {card.markedNotNeeded ? "Needs Tapping" : "Mark Not Needed"}
+                      </button>
+                    </div>
+                    {card.sectionPasses.length > 0 && (
+                      <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+                        {card.sectionPasses.map((pass: any, passIndex: number) => (
+                          <button key={pass.id} onClick={() => handleExcludePass(pass.id, !pass.excluded)} style={{ padding: "3px 7px", borderRadius: "999px", border: `1px solid ${pass.excluded ? "rgba(248,113,113,0.35)" : "rgba(255,255,255,0.12)"}`, background: pass.excluded ? "rgba(248,113,113,0.08)" : "rgba(255,255,255,0.04)", color: pass.excluded ? "#fca5a5" : "#a1a1aa", fontSize: "0.64rem", fontWeight: 900, cursor: "pointer" }}>
+                            Round {passIndex + 1}{pass.excluded ? " excluded" : ""}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
 
@@ -1840,7 +2025,7 @@ export default function DevCalibrator({
           <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: "12px", alignItems: "center", padding: "10px 12px", borderRadius: "10px", border: "1px solid rgba(244,114,182,0.25)", background: "rgba(244,114,182,0.08)" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: "5px", minWidth: 0 }}>
               <div style={{ display: "flex", gap: "8px", alignItems: "center", flexWrap: "wrap" }}>
-                <span style={{ color: "#fff", fontSize: "0.76rem", fontWeight: 900 }}>Verifying Group {verificationGroup.index + 1}</span>
+                <span style={{ color: "#fff", fontSize: "0.76rem", fontWeight: 900 }}>{`${verificationGroup.id}`.startsWith("section:") ? "Verifying Section" : `Verifying Group ${verificationGroup.index + 1}`}</span>
                 <span style={{ color: "#f9a8d4", fontSize: "0.7rem", fontWeight: 800 }}>{(verificationGroup.startTimeMs / 1000).toFixed(2)}s-{(verificationGroup.endTimeMs / 1000).toFixed(2)}s</span>
                 <span style={{ color: verificationGroup.confidence === "high" ? "#34d399" : verificationGroup.confidence === "medium" ? "#fbbf24" : "#fca5a5", fontSize: "0.68rem", fontWeight: 900, textTransform: "uppercase" }}>{verificationGroup.confidence}</span>
                 <span style={{ color: "#a1a1aa", fontSize: "0.68rem" }}>{verificationGroup.reasons.join(", ")}</span>
@@ -1978,7 +2163,7 @@ export default function DevCalibrator({
                 <div key={tap.id} title={`Raw anchor ${(tap.correctedTimeMs / 1000).toFixed(2)}s`} style={{ position: "absolute", top: `${rawTapLane.top}px`, height: `${rawTapLane.height}px`, left: `${timelinePct(tap.correctedTimeMs)}%`, width: "2px", background: "#a1a1aa", opacity: 0.72, zIndex: 8, pointerEvents: "none" }} />
               ))}
 
-              {timelineModeShowsReviewed && reviewedAnchors.filter((anchor: any) => anchor.timeMs >= visibleTimeline.startTimeMs && anchor.timeMs <= visibleTimeline.endTimeMs).map((anchor: any) => {
+              {timelineModeShowsReviewed && activeReviewedAnchors.filter((anchor: any) => anchor.timeMs >= visibleTimeline.startTimeMs && anchor.timeMs <= visibleTimeline.endTimeMs).map((anchor: any) => {
                 const color = REVIEWED_ANCHOR_COLORS[anchor.count] || "#ffffff";
                 const top = anchor.count === 1 ? reviewedLane.top : anchor.count === 4 ? reviewedLane.top + 4 : anchor.count === 5 ? reviewedLane.top + 8 : reviewedLane.top + 12;
                 return (

@@ -33,7 +33,9 @@ export const TimelineRangeSchema = z.object({
 export const TapCalibrationPassSchema = z.object({
   id: z.string().trim().min(1),
   startedAt: z.string().trim().min(1),
-  inputLatencyMs: z.number().int().default(0)
+  inputLatencyMs: z.number().int().default(0),
+  sectionId: z.string().trim().min(1).optional(),
+  excluded: z.boolean().default(false)
 });
 
 export const TapSchema = z.object({
@@ -41,7 +43,8 @@ export const TapSchema = z.object({
   timeMs: z.number().int().nonnegative(),
   correctedTimeMs: z.number().int().nonnegative(),
   passId: z.string().trim().min(1),
-  source: z.literal('manual')
+  source: z.literal('manual'),
+  sectionId: z.string().trim().min(1).optional()
 });
 
 export const ReviewedAnchorSchema = z.object({
@@ -52,6 +55,16 @@ export const ReviewedAnchorSchema = z.object({
   confidence: z.enum(['suggested', 'confirmed', 'uncertain']).default('suggested'),
   reviewed: z.boolean().default(false)
 });
+
+export const TapSectionDecisionSchema = z.object({
+  sectionId: z.string().trim().min(1),
+  status: z.enum(['not_needed']).default('not_needed'),
+  updatedAt: z.string().trim().min(1)
+});
+
+export const TapCalibrationSchema = z.object({
+  sectionDecisions: z.array(TapSectionDecisionSchema).default([])
+}).default({ sectionDecisions: [] });
 
 export const SongMapSchema = z.object({
   id: z.string().trim().min(1),
@@ -65,6 +78,7 @@ export const SongMapSchema = z.object({
   tapCalibrationPasses: z.array(TapCalibrationPassSchema).default([]),
   taps: z.array(TapSchema).default([]),
   reviewedAnchors: z.array(ReviewedAnchorSchema).default([]),
+  tapCalibration: TapCalibrationSchema,
   schemaVersion: z.literal('3.2')
 });
 
@@ -77,6 +91,8 @@ export type TimelineRange = z.infer<typeof TimelineRangeSchema>;
 export type TapCalibrationPass = z.infer<typeof TapCalibrationPassSchema>;
 export type Tap = z.infer<typeof TapSchema>;
 export type ReviewedAnchor = z.infer<typeof ReviewedAnchorSchema>;
+export type TapSectionDecision = z.infer<typeof TapSectionDecisionSchema>;
+export type TapCalibration = z.infer<typeof TapCalibrationSchema>;
 export type SongMap = z.infer<typeof SongMapSchema>;
 
 const validateRangeList = (ranges: TimelineRange[], ctx: z.RefinementCtx, pathName: 'sections' | 'events') => {
