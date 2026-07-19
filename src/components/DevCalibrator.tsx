@@ -2677,8 +2677,11 @@ export default function DevCalibrator({
                 >
                   <span>{labelText}</span>
                   <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: statusColor }} />
-                  {(card.sectionHidden || card.hiddenEvents.length > 0) && (
+                  {card.sectionHidden && (
                     <span style={{ color: isActive ? "#52525b" : "#fbbf24", fontSize: "0.6rem", fontWeight: 900 }}>hidden</span>
+                  )}
+                  {!card.sectionHidden && card.hiddenEvents.length > 0 && (
+                    <span style={{ color: isActive ? "#52525b" : "#fbbf24", fontSize: "0.6rem", fontWeight: 900 }}>{card.hiddenEvents.length} break{card.hiddenEvents.length === 1 ? "" : "s"}</span>
                   )}
                 </button>
               );
