@@ -80,6 +80,9 @@ export default function DevCalibrator({
   const [activeTab, setActiveTab] = useState<number>(1);
   const [saving, setSaving] = useState<boolean>(false);
   const [timelineLayers, setTimelineLayers] = useState({ sections: true, events: true, rawTaps: true, reviewed: true });
+  const [timelineView, setTimelineView] = useState<"sections" | "events" | "taps" | "all">("sections");
+  const [timelineZoom, setTimelineZoom] = useState<{ startTimeMs: number; endTimeMs: number } | null>(null);
+  const [followPlayhead, setFollowPlayhead] = useState(false);
   const [liveTime, setLiveTime] = useState(0);
 
   const duration = videoDuration || 300;
@@ -229,6 +232,36 @@ export default function DevCalibrator({
     return verificationAnchors.find((anchor: any) => anchor.timeMs >= liveTimeMs - 80) || verificationAnchors[0] || null;
   }, [liveDisplayTime, verificationAnchors, verificationGroup]);
 
+  const sectionStructureReady = useMemo(() => {
+    const sections = [...editorSections].sort((a, b) => a.startTimeMs - b.startTimeMs);
+    if (sections.length < 2 || sections[0]?.category !== "intro") return false;
+    const songEndMs = Math.round(duration * 1000);
+    if (sections[0].startTimeMs > 250 || sections.at(-1).endTimeMs < songEndMs - 250) return false;
+    return sections.slice(1).every((section, index) => {
+      const previous = sections[index];
+      return section.startTimeMs >= previous.startTimeMs && Math.abs(section.startTimeMs - previous.endTimeMs) <= 250 && section.endTimeMs > section.startTimeMs;
+    });
+  }, [duration, editorSections]);
+
+  const visibleTimeline = useMemo(() => {
+    const songEndMs = Math.round(duration * 1000);
+    if (!timelineZoom) return { startTimeMs: 0, endTimeMs: songEndMs };
+    return {
+      startTimeMs: Math.max(0, Math.min(timelineZoom.startTimeMs, songEndMs - 1000)),
+      endTimeMs: Math.max(1000, Math.min(timelineZoom.endTimeMs, songEndMs))
+    };
+  }, [duration, timelineZoom]);
+
+  const visibleDurationMs = Math.max(1000, visibleTimeline.endTimeMs - visibleTimeline.startTimeMs);
+  const timelinePct = (timeMs: number) => ((timeMs - visibleTimeline.startTimeMs) / visibleDurationMs) * 100;
+  const timelineWidthPct = (startTimeMs: number, endTimeMs: number) => ((endTimeMs - startTimeMs) / visibleDurationMs) * 100;
+  const timelineRangeVisible = (startTimeMs: number, endTimeMs: number) => endTimeMs >= visibleTimeline.startTimeMs && startTimeMs <= visibleTimeline.endTimeMs;
+  const clampVisibleTime = (timeMs: number) => Math.max(visibleTimeline.startTimeMs, Math.min(visibleTimeline.endTimeMs, timeMs));
+  const timelineModeShowsSections = timelineView === "sections" || timelineView === "events" || timelineView === "taps" || (timelineView === "all" && (timelineLayers.sections || activeTab === 2 || activeTab === 3));
+  const timelineModeShowsEvents = timelineView === "events" || (timelineView === "all" && timelineLayers.events);
+  const timelineModeShowsRawTaps = timelineView === "taps" || (timelineView === "all" && timelineLayers.rawTaps);
+  const timelineModeShowsReviewed = timelineView === "taps" || (timelineView === "all" && timelineLayers.reviewed);
+
   useEffect(() => {
     latestSongDataRef.current = calibratedSongData || songData;
   }, [calibratedSongData, songData]);
@@ -265,6 +298,28 @@ export default function DevCalibrator({
       })
       .catch(err => console.warn(err));
   }, []);
+
+  useEffect(() => {
+    if (activeTab === 1) setTimelineView("sections");
+    if (activeTab === 2) setTimelineView("events");
+    if (activeTab === 3) setTimelineView("taps");
+  }, [activeTab]);
+
+  useEffect(() => {
+    if (activeTab === 2 && !sectionStructureReady) {
+      setActiveTab(1);
+    }
+  }, [activeTab, sectionStructureReady]);
+
+  useEffect(() => {
+    if (!followPlayhead || !timelineZoom) return;
+    const liveTimeMs = liveDisplayTime * 1000;
+    if (liveTimeMs >= visibleTimeline.startTimeMs && liveTimeMs <= visibleTimeline.endTimeMs) return;
+    const windowSize = visibleTimeline.endTimeMs - visibleTimeline.startTimeMs;
+    const songEndMs = duration * 1000;
+    const startTimeMs = Math.max(0, Math.min(songEndMs - windowSize, liveTimeMs - windowSize * 0.35));
+    setTimelineZoom({ startTimeMs, endTimeMs: startTimeMs + windowSize });
+  }, [duration, followPlayhead, liveDisplayTime, timelineZoom, visibleTimeline.endTimeMs, visibleTimeline.startTimeMs]);
 
   useEffect(() => {
     let frameId: number;
@@ -1172,7 +1227,30 @@ export default function DevCalibrator({
     if (!timelineRef.current) return;
     const rect = timelineRef.current.getBoundingClientRect();
     const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-    throttledSeek(ratio * duration, immediate);
+    throttledSeek((visibleTimeline.startTimeMs + ratio * visibleDurationMs) / 1000, immediate);
+  };
+
+  const timeFromTimelineClientX = (clientX: number) => {
+    if (!timelineRef.current) return visibleTimeline.startTimeMs;
+    const rect = timelineRef.current.getBoundingClientRect();
+    const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    return visibleTimeline.startTimeMs + ratio * visibleDurationMs;
+  };
+
+  const zoomTimelineToRange = (startTimeMs: number, endTimeMs: number, paddingMs = 2500) => {
+    const songEndMs = Math.round(duration * 1000);
+    const paddedStart = Math.max(0, startTimeMs - paddingMs);
+    const paddedEnd = Math.min(songEndMs, endTimeMs + paddingMs);
+    setTimelineZoom({ startTimeMs: paddedStart, endTimeMs: Math.max(paddedStart + 1000, paddedEnd) });
+  };
+
+  const zoomTimelineBy = (factor: number) => {
+    const songEndMs = Math.round(duration * 1000);
+    const currentWindow = visibleTimeline.endTimeMs - visibleTimeline.startTimeMs;
+    const nextWindow = Math.max(5000, Math.min(songEndMs, currentWindow * factor));
+    const center = Math.max(0, Math.min(songEndMs, liveDisplayTime * 1000 || visibleTimeline.startTimeMs + currentWindow / 2));
+    const startTimeMs = Math.max(0, Math.min(songEndMs - nextWindow, center - nextWindow / 2));
+    setTimelineZoom({ startTimeMs, endTimeMs: startTimeMs + nextWindow });
   };
 
   const handleTimelineClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -1195,9 +1273,13 @@ export default function DevCalibrator({
     window.addEventListener("mouseup", handleMouseUp);
   };
 
-  const playheadPct = duration > 0 ? (liveDisplayTime / duration) * 100 : 0;
   const sortedEvents = songData?.events || [];
   const focusedEvent = focusedEventIndex === null ? null : sortedEvents[focusedEventIndex] || null;
+  const zoomedPlayheadPct = timelinePct(liveDisplayTime * 1000);
+  const sectionLane = timelineView === "sections" ? { top: 0, height: 104 } : { top: 0, height: 36 };
+  const eventLane = { top: 38, height: 22 };
+  const rawTapLane = { top: 64, height: 16 };
+  const reviewedLane = { top: 83, height: 17 };
 
   return (
     <div className="glass-panel dev-calibrator-workbench" style={{
@@ -1243,28 +1325,43 @@ export default function DevCalibrator({
         {["Sections", "Events", "Taps"].map((tabName, idx) => {
           const tabNum = idx + 1;
           const isActive = activeTab === tabNum;
+          const isLocked = tabNum === 2 && !sectionStructureReady;
           
           return (
             <button
               key={tabNum}
-              onClick={() => setActiveTab(tabNum)}
+              onClick={() => {
+                if (isLocked) {
+                  showToast("Add at least Intro + Rest sections before event calibration.");
+                  return;
+                }
+                setActiveTab(tabNum);
+              }}
+              disabled={isLocked}
               style={{
                 background: "none",
                 border: "none",
                 borderBottom: isActive ? "2px solid #ffffff" : "2px solid transparent",
-                color: isActive ? "#ffffff" : "#9ca3af",
+                color: isLocked ? "#52525b" : isActive ? "#ffffff" : "#9ca3af",
                 padding: "8px 12px",
                 fontSize: "0.85rem",
                 fontWeight: "bold",
-                cursor: "pointer",
+                cursor: isLocked ? "not-allowed" : "pointer",
+                opacity: isLocked ? 0.55 : 1,
                 transition: "all 0.2s ease"
               }}
             >
-              {tabName}
+              {tabName}{isLocked ? " Locked" : ""}
             </button>
           );
         })}
       </div>
+
+      {!sectionStructureReady && (
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "9px 12px", borderRadius: "8px", border: "1px solid rgba(251,191,36,0.18)", background: "rgba(251,191,36,0.06)", color: "#fbbf24", fontSize: "0.72rem", fontWeight: 800 }}>
+          <span>Events unlock after the song has at least an Intro section plus one later section covering the full song.</span>
+        </div>
+      )}
 
       {activeTab === 3 && (
         <div className={tapFlash ? "active-flash" : ""} style={{
@@ -1496,17 +1593,30 @@ export default function DevCalibrator({
             Song Timeline Editing Console
           </span>
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            {Object.entries(timelineLayers).map(([layer, visible]) => (
+            {(["sections", "events", "taps", "all"] as const).map(view => (
+              <button
+                key={view}
+                onClick={() => setTimelineView(view)}
+                style={{ fontSize: "0.65rem", padding: "3px 8px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.12)", background: timelineView === view ? "#fff" : "transparent", color: timelineView === view ? "#000" : "#71717a", cursor: "pointer", textTransform: "capitalize", fontWeight: 800 }}
+              >
+                {view}
+              </button>
+            ))}
+            {timelineView === "all" && Object.entries(timelineLayers).map(([layer, visible]) => (
               <button
                 key={layer}
                 onClick={() => setTimelineLayers(current => ({ ...current, [layer]: !visible }))}
-                style={{ fontSize: "0.65rem", padding: "3px 7px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.12)", background: visible ? "#fff" : "transparent", color: visible ? "#000" : "#71717a", cursor: "pointer", textTransform: "capitalize" }}
+                style={{ fontSize: "0.65rem", padding: "3px 7px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.12)", background: visible ? "rgba(255,255,255,0.9)" : "transparent", color: visible ? "#000" : "#71717a", cursor: "pointer", textTransform: "capitalize" }}
               >
                 {layer}
               </button>
             ))}
+            <button onClick={() => setTimelineZoom(null)} style={{ fontSize: "0.65rem", padding: "3px 8px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.12)", background: timelineZoom ? "transparent" : "rgba(255,255,255,0.9)", color: timelineZoom ? "#a1a1aa" : "#000", cursor: "pointer", fontWeight: 800 }}>Fit Song</button>
+            <button onClick={() => zoomTimelineBy(0.55)} style={{ fontSize: "0.65rem", padding: "3px 8px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.12)", background: "transparent", color: "#a1a1aa", cursor: "pointer", fontWeight: 800 }}>Zoom In</button>
+            <button onClick={() => zoomTimelineBy(1.8)} style={{ fontSize: "0.65rem", padding: "3px 8px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.12)", background: "transparent", color: "#a1a1aa", cursor: "pointer", fontWeight: 800 }}>Zoom Out</button>
+            <button onClick={() => setFollowPlayhead(current => !current)} style={{ fontSize: "0.65rem", padding: "3px 8px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.12)", background: followPlayhead ? "#fff" : "transparent", color: followPlayhead ? "#000" : "#71717a", cursor: "pointer", fontWeight: 800 }}>Follow</button>
             <span style={{ fontFamily: "monospace", fontSize: "0.78rem", color: "#ffffff", fontWeight: 600 }}>
-              {liveDisplayTime.toFixed(2)}s / {duration.toFixed(2)}s
+              {liveDisplayTime.toFixed(2)}s / {duration.toFixed(2)}s · {(visibleTimeline.startTimeMs / 1000).toFixed(1)}-{(visibleTimeline.endTimeMs / 1000).toFixed(1)}s
             </span>
             {activeTab === 1 && (
               <div style={{ display: "flex", gap: "8px" }}>
@@ -1591,7 +1701,7 @@ export default function DevCalibrator({
             onClick={handleTimelineClick}
             style={{
               position: "relative",
-              height: "48px",
+              height: "104px",
               borderRadius: "10px",
               background: "#0c0c0e",
               cursor: "crosshair",
@@ -1605,8 +1715,8 @@ export default function DevCalibrator({
                   position: "absolute",
                   top: 0,
                   bottom: 0,
-                  left: `${(verificationGroup.startTimeMs / (duration * 1000)) * 100}%`,
-                  width: `${Math.max(((verificationGroup.endTimeMs - verificationGroup.startTimeMs) / (duration * 1000)) * 100, 0.35)}%`,
+                  left: `${timelinePct(clampVisibleTime(verificationGroup.startTimeMs))}%`,
+                  width: `${Math.max(timelineWidthPct(clampVisibleTime(verificationGroup.startTimeMs), clampVisibleTime(verificationGroup.endTimeMs)), 0.35)}%`,
                   background: "rgba(244,114,182,0.12)",
                   borderLeft: "1px solid rgba(244,114,182,0.7)",
                   borderRight: "1px solid rgba(244,114,182,0.7)",
@@ -1614,11 +1724,9 @@ export default function DevCalibrator({
                   pointerEvents: "none"
                 }} />
               )}
-              {timelineLayers.sections && editorSections.map((sec, idx) => {
-                const startSec = sec.startTimeMs / 1000;
-                const endSec = sec.endTimeMs / 1000;
-                const widthPct = ((endSec - startSec) / duration) * 100;
-                const leftPct = (startSec / duration) * 100;
+              {timelineModeShowsSections && editorSections.filter(sec => timelineRangeVisible(sec.startTimeMs, sec.endTimeMs)).map((sec, idx) => {
+                const widthPct = timelineWidthPct(clampVisibleTime(sec.startTimeMs), clampVisibleTime(sec.endTimeMs));
+                const leftPct = timelinePct(clampVisibleTime(sec.startTimeMs));
                 const color = SECTION_PALETTE[idx % SECTION_PALETTE.length];
                 const isActive = sec.id === focusedSectionId;
                 const labelText = sec.category ? getCategoryLabel(sec.category) : `Section ${idx + 1}`;
@@ -1632,10 +1740,10 @@ export default function DevCalibrator({
                     }}
                     style={{
                       position: "absolute",
-                      top: 0,
-                      bottom: 0,
+                      top: `${sectionLane.top}px`,
+                      height: `${sectionLane.height}px`,
                       left: `${leftPct}%`,
-                      width: `${widthPct}%`,
+                      width: `${Math.max(widthPct, 0.35)}%`,
                       background: color.bg,
                       borderRight: `1px solid ${color.border}`,
                       outline: isActive ? "2px solid #ffffff" : "none",
@@ -1655,9 +1763,10 @@ export default function DevCalibrator({
                 );
               })}
 
-              {timelineLayers.events && (songData?.events || []).map((event: any, index: number) => {
-                const leftPct = (event.startTimeMs / (duration * 1000)) * 100;
-                const widthPct = ((event.endTimeMs - event.startTimeMs) / (duration * 1000)) * 100;
+              {timelineModeShowsEvents && (songData?.events || []).map((event: any, index: number) => {
+                if (!timelineRangeVisible(event.startTimeMs, event.endTimeMs)) return null;
+                const leftPct = timelinePct(clampVisibleTime(event.startTimeMs));
+                const widthPct = timelineWidthPct(clampVisibleTime(event.startTimeMs), clampVisibleTime(event.endTimeMs));
                 const isActive = index === focusedEventIndex;
                 const labelText = event.category ? getCategoryLabel(event.category) : `Event ${index + 1}`;
                 return (
@@ -1667,11 +1776,11 @@ export default function DevCalibrator({
                     onClick={(e) => {
                       e.stopPropagation();
                       setFocusedEventIndex(index);
-                    }}
-                    style={{
-                      position: "absolute",
-                      top: "6px",
-                      bottom: "6px",
+                      }}
+                      style={{
+                        position: "absolute",
+                      top: `${eventLane.top}px`,
+                      height: `${eventLane.height}px`,
                       left: `${leftPct}%`,
                       width: `${Math.max(widthPct, 0.3)}%`,
                       borderRadius: "3px",
@@ -1696,27 +1805,27 @@ export default function DevCalibrator({
                 );
               })}
 
-              {timelineLayers.rawTaps && taps.map((tap: any) => (
-                <div key={tap.id} title={`Raw anchor ${(tap.correctedTimeMs / 1000).toFixed(2)}s`} style={{ position: "absolute", top: "19px", height: "10px", left: `${(tap.correctedTimeMs / (duration * 1000)) * 100}%`, width: "2px", background: "#a1a1aa", opacity: 0.72, zIndex: 8, pointerEvents: "none" }} />
+              {timelineModeShowsRawTaps && taps.filter((tap: any) => tap.correctedTimeMs >= visibleTimeline.startTimeMs && tap.correctedTimeMs <= visibleTimeline.endTimeMs).map((tap: any) => (
+                <div key={tap.id} title={`Raw anchor ${(tap.correctedTimeMs / 1000).toFixed(2)}s`} style={{ position: "absolute", top: `${rawTapLane.top}px`, height: `${rawTapLane.height}px`, left: `${timelinePct(tap.correctedTimeMs)}%`, width: "2px", background: "#a1a1aa", opacity: 0.72, zIndex: 8, pointerEvents: "none" }} />
               ))}
 
-              {timelineLayers.reviewed && reviewedAnchors.map((anchor: any) => {
+              {timelineModeShowsReviewed && reviewedAnchors.filter((anchor: any) => anchor.timeMs >= visibleTimeline.startTimeMs && anchor.timeMs <= visibleTimeline.endTimeMs).map((anchor: any) => {
                 const color = REVIEWED_ANCHOR_COLORS[anchor.count] || "#ffffff";
-                const top = anchor.count === 1 ? "4px" : anchor.count === 4 ? "16px" : anchor.count === 5 ? "28px" : "38px";
+                const top = anchor.count === 1 ? reviewedLane.top : anchor.count === 4 ? reviewedLane.top + 4 : anchor.count === 5 ? reviewedLane.top + 8 : reviewedLane.top + 12;
                 return (
-                  <div key={anchor.id} title={`Reviewed ${anchor.count} ${(anchor.timeMs / 1000).toFixed(2)}s`} style={{ position: "absolute", top, height: "10px", left: `${(anchor.timeMs / (duration * 1000)) * 100}%`, width: "3px", background: color, opacity: anchor.reviewed ? 0.95 : 0.55, zIndex: 9, pointerEvents: "none", boxShadow: anchor.reviewed ? `0 0 9px ${color}aa` : "none" }} />
+                  <div key={anchor.id} title={`Reviewed ${anchor.count} ${(anchor.timeMs / 1000).toFixed(2)}s`} style={{ position: "absolute", top: `${top}px`, height: "12px", left: `${timelinePct(anchor.timeMs)}%`, width: "3px", background: color, opacity: anchor.reviewed ? 0.95 : 0.55, zIndex: 9, pointerEvents: "none", boxShadow: anchor.reviewed ? `0 0 9px ${color}aa` : "none" }} />
                 );
               })}
 
-              {activeTab === 3 && verificationGroup && verificationAnchors.map((anchor: any) => {
+              {activeTab === 3 && verificationGroup && verificationAnchors.filter((anchor: any) => anchor.timeMs >= visibleTimeline.startTimeMs && anchor.timeMs <= visibleTimeline.endTimeMs).map((anchor: any) => {
                 const color = REVIEWED_ANCHOR_COLORS[anchor.count] || "#ffffff";
                 const isCurrent = currentVerificationAnchor?.id === anchor.id;
                 return (
                   <div key={`verify-${anchor.id}`} title={`Verify ${anchorLabel(anchor.count)} ${(anchor.timeMs / 1000).toFixed(2)}s`} style={{
                     position: "absolute",
-                    top: isCurrent ? "2px" : "9px",
-                    height: isCurrent ? "44px" : "30px",
-                    left: `${(anchor.timeMs / (duration * 1000)) * 100}%`,
+                    top: isCurrent ? "59px" : "66px",
+                    height: isCurrent ? "40px" : "28px",
+                    left: `${timelinePct(anchor.timeMs)}%`,
                     width: isCurrent ? "6px" : "4px",
                     transform: "translateX(-50%)",
                     borderRadius: "999px",
@@ -1733,7 +1842,7 @@ export default function DevCalibrator({
                 position: "absolute",
                 top: 0,
                 bottom: 0,
-                left: `${playheadPct}%`,
+                left: `${zoomedPlayheadPct}%`,
                 width: "2px",
                 background: "#ffffff",
                 zIndex: 10,
@@ -1748,7 +1857,8 @@ export default function DevCalibrator({
 
             {activeTab === 1 && editorSections.map((sec, idx) => {
               if (idx === editorSections.length - 1) return null;
-              const leftPct = ((sec.endTimeMs / 1000) / duration) * 100;
+              if (sec.endTimeMs < visibleTimeline.startTimeMs || sec.endTimeMs > visibleTimeline.endTimeMs) return null;
+              const leftPct = timelinePct(sec.endTimeMs);
 
               return (
                 <div
@@ -1758,10 +1868,7 @@ export default function DevCalibrator({
                     e.stopPropagation();
                     e.preventDefault();
                     const handleMouseMove = (moveEvt: MouseEvent) => {
-                      if (!timelineRef.current) return;
-                      const rect = timelineRef.current.getBoundingClientRect();
-                      const ratio = Math.max(0, Math.min(1, (moveEvt.clientX - rect.left) / rect.width));
-                      handleUpdateSectionTimes(sec.id, "endTimeMs", ratio * duration * 1000);
+                      handleUpdateSectionTimes(sec.id, "endTimeMs", timeFromTimelineClientX(moveEvt.clientX));
                     };
                     const handleMouseUp = () => {
                       window.removeEventListener("mousemove", handleMouseMove);
@@ -1774,9 +1881,9 @@ export default function DevCalibrator({
                   style={{
                     position: "absolute",
                     left: `${leftPct}%`,
-                    top: "-8px",
+                    top: "-6px",
                     width: "12px",
-                    height: "64px",
+                    height: "116px",
                     transform: "translateX(-50%)",
                     cursor: activeTab === 1 ? "col-resize" : "not-allowed",
                     zIndex: 20,
@@ -1794,8 +1901,9 @@ export default function DevCalibrator({
             })}
 
             {activeTab === 2 && (songData?.events || []).flatMap((event: any, index: number) => {
-              const startPct = (event.startTimeMs / (duration * 1000)) * 100;
-              const endPct = (event.endTimeMs / (duration * 1000)) * 100;
+              if (!timelineRangeVisible(event.startTimeMs, event.endTimeMs)) return [];
+              const startPct = timelinePct(clampVisibleTime(event.startTimeMs));
+              const endPct = timelinePct(clampVisibleTime(event.endTimeMs));
               return [
                 <div
                   key={`event-start-handle-${event.id}`}
@@ -1804,10 +1912,7 @@ export default function DevCalibrator({
                     e.preventDefault();
                     setFocusedEventIndex(index);
                     const handleMouseMove = (moveEvt: MouseEvent) => {
-                      if (!timelineRef.current) return;
-                      const rect = timelineRef.current.getBoundingClientRect();
-                      const ratio = Math.max(0, Math.min(1, (moveEvt.clientX - rect.left) / rect.width));
-                      handleUpdateEventTimes(index, "startTimeMs", ratio * duration * 1000);
+                      handleUpdateEventTimes(index, "startTimeMs", timeFromTimelineClientX(moveEvt.clientX));
                     };
                     const handleMouseUp = () => {
                       window.removeEventListener("mousemove", handleMouseMove);
@@ -1817,7 +1922,7 @@ export default function DevCalibrator({
                     window.addEventListener("mousemove", handleMouseMove);
                     window.addEventListener("mouseup", handleMouseUp);
                   }}
-                  style={{ position: "absolute", left: `${startPct}%`, top: "-4px", width: "12px", height: "56px", transform: "translateX(-50%)", cursor: "col-resize", zIndex: 22, display: "flex", alignItems: "center", justifyContent: "center" }}
+                  style={{ position: "absolute", left: `${startPct}%`, top: `${eventLane.top - 6}px`, width: "12px", height: `${eventLane.height + 12}px`, transform: "translateX(-50%)", cursor: "col-resize", zIndex: 22, display: "flex", alignItems: "center", justifyContent: "center" }}
                 >
                   <div style={{ width: "3px", height: "100%", borderRadius: "1.5px", background: "#fbbf24" }} />
                   <div style={{ position: "absolute", width: "8px", height: "8px", borderRadius: "50%", background: "#fbbf24", border: "1.5px solid #27272a" }} />
@@ -1829,10 +1934,7 @@ export default function DevCalibrator({
                     e.preventDefault();
                     setFocusedEventIndex(index);
                     const handleMouseMove = (moveEvt: MouseEvent) => {
-                      if (!timelineRef.current) return;
-                      const rect = timelineRef.current.getBoundingClientRect();
-                      const ratio = Math.max(0, Math.min(1, (moveEvt.clientX - rect.left) / rect.width));
-                      handleUpdateEventTimes(index, "endTimeMs", ratio * duration * 1000);
+                      handleUpdateEventTimes(index, "endTimeMs", timeFromTimelineClientX(moveEvt.clientX));
                     };
                     const handleMouseUp = () => {
                       window.removeEventListener("mousemove", handleMouseMove);
@@ -1842,7 +1944,7 @@ export default function DevCalibrator({
                     window.addEventListener("mousemove", handleMouseMove);
                     window.addEventListener("mouseup", handleMouseUp);
                   }}
-                  style={{ position: "absolute", left: `${endPct}%`, top: "-4px", width: "12px", height: "56px", transform: "translateX(-50%)", cursor: "col-resize", zIndex: 22, display: "flex", alignItems: "center", justifyContent: "center" }}
+                  style={{ position: "absolute", left: `${endPct}%`, top: `${eventLane.top - 6}px`, width: "12px", height: `${eventLane.height + 12}px`, transform: "translateX(-50%)", cursor: "col-resize", zIndex: 22, display: "flex", alignItems: "center", justifyContent: "center" }}
                 >
                   <div style={{ width: "3px", height: "100%", borderRadius: "1.5px", background: "#fbbf24" }} />
                   <div style={{ position: "absolute", width: "8px", height: "8px", borderRadius: "50%", background: "#fbbf24", border: "1.5px solid #27272a" }} />
@@ -1863,7 +1965,10 @@ export default function DevCalibrator({
                    key={sec.id}
                    onClick={() => {
                      setFocusedSectionId(isActive ? null : sec.id);
-                     if (!isActive) throttledSeek(sec.startTimeMs / 1000, true);
+                     if (!isActive) {
+                       throttledSeek(sec.startTimeMs / 1000, true);
+                       zoomTimelineToRange(sec.startTimeMs, sec.endTimeMs);
+                     }
                    }}
                    style={{
                      fontSize: "0.68rem",
@@ -1893,7 +1998,10 @@ export default function DevCalibrator({
                    key={`event-chip-${event.id}`}
                    onClick={() => {
                      setFocusedEventIndex(isActive ? null : idx);
-                     if (!isActive) throttledSeek(event.startTimeMs / 1000, true);
+                     if (!isActive) {
+                       throttledSeek(event.startTimeMs / 1000, true);
+                       zoomTimelineToRange(event.startTimeMs, event.endTimeMs);
+                     }
                    }}
                    style={{
                      fontSize: "0.68rem",
