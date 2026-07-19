@@ -69,6 +69,7 @@ export default function DevCalibrator({
   const [metronomeBeat, setMetronomeBeat] = useState(0);
   const [metronomeSamples, setMetronomeSamples] = useState<number[]>([]);
   const [activeRetapRegion, setActiveRetapRegion] = useState<any>(null);
+  const [verificationGroupId, setVerificationGroupId] = useState<string | null>(null);
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
   const [categories, setCategories] = useState<any[]>([]);
   const [tags, setTags] = useState<any[]>([]);
@@ -82,6 +83,7 @@ export default function DevCalibrator({
   const [liveTime, setLiveTime] = useState(0);
 
   const duration = videoDuration || 300;
+  const liveDisplayTime = player ? liveTime : currentTime;
   const timelineRef = useRef<HTMLDivElement>(null);
   const latestSongDataRef = useRef<any>(null);
   const metronomeTimerRef = useRef<number | null>(null);
@@ -113,6 +115,7 @@ export default function DevCalibrator({
     return countCycle[(index + 1) % countCycle.length];
   };
 
+  const anchorLabel = (count: number) => reviewedAnchorOptions.find(option => option.count === count)?.label || String(count);
   const tapById = useMemo(() => new Map(taps.map((tap: any) => [tap.id, tap])), [taps]);
 
   const tapGroups = useMemo(() => {
@@ -201,6 +204,30 @@ export default function DevCalibrator({
       };
     });
   }, [reviewedAnchors, taps, countCycle]);
+
+  const verificationGroup = useMemo(() => {
+    if (verificationGroupId) {
+      return tapGroups.find((group: any) => group.id === verificationGroupId) || null;
+    }
+    return null;
+  }, [tapGroups, verificationGroupId]);
+
+  const verificationAnchors = useMemo(() => {
+    if (!verificationGroup) return [];
+    return [...verificationGroup.anchors].sort((a: any, b: any) => a.timeMs - b.timeMs);
+  }, [verificationGroup]);
+
+  const currentVerificationAnchor = useMemo(() => {
+    if (!verificationGroup) return null;
+    const liveTimeMs = liveDisplayTime * 1000;
+    return verificationAnchors.find((anchor: any) => Math.abs(anchor.timeMs - liveTimeMs) <= 140) || null;
+  }, [liveDisplayTime, verificationAnchors, verificationGroup]);
+
+  const nextVerificationAnchor = useMemo(() => {
+    if (!verificationGroup) return null;
+    const liveTimeMs = liveDisplayTime * 1000;
+    return verificationAnchors.find((anchor: any) => anchor.timeMs >= liveTimeMs - 80) || verificationAnchors[0] || null;
+  }, [liveDisplayTime, verificationAnchors, verificationGroup]);
 
   useEffect(() => {
     latestSongDataRef.current = calibratedSongData || songData;
@@ -736,6 +763,43 @@ export default function DevCalibrator({
     }, 150);
   };
 
+  const handleVerifyGroup = (group: any) => {
+    setVerificationGroupId(group.id);
+    handleLoopRegion(group.startTimeMs, group.endTimeMs);
+  };
+
+  const handleStopVerification = () => {
+    setVerificationGroupId(null);
+    if (anchorLoopTimerRef.current) {
+      window.clearInterval(anchorLoopTimerRef.current);
+      anchorLoopTimerRef.current = null;
+    }
+    showToast("Verification stopped.");
+  };
+
+  const handleVerifyLooksRight = () => {
+    if (!verificationGroup) return;
+    handleAcceptGroup(verificationGroup);
+    setVerificationGroupId(null);
+    if (anchorLoopTimerRef.current) {
+      window.clearInterval(anchorLoopTimerRef.current);
+      anchorLoopTimerRef.current = null;
+    }
+    showToast("Group accepted.");
+  };
+
+  const handleVerifyFeelsOff = () => {
+    if (!verificationGroup) return;
+    handleMarkGroupUncertain(verificationGroup);
+    showToast("Group marked uncertain.");
+  };
+
+  const handleVerifyRetapAgain = () => {
+    if (!verificationGroup) return;
+    handleStartRetapRegion(verificationGroup);
+    setVerificationGroupId(verificationGroup.id);
+  };
+
   const handleStartRetapRegion = (group: any) => {
     const passState = createTapPass();
     const startTimeMs = Math.max(0, group.startTimeMs - 2000);
@@ -746,6 +810,7 @@ export default function DevCalibrator({
       startTimeMs,
       endTimeMs
     });
+    setVerificationGroupId(group.id);
     handleLoopRegion(group.startTimeMs, group.endTimeMs);
     showToast("Retap region armed.");
   };
@@ -753,6 +818,7 @@ export default function DevCalibrator({
   const handleStopRetapRegion = () => {
     setActiveRetapRegion(null);
     setActivePassId(null);
+    setVerificationGroupId(null);
     if (anchorLoopTimerRef.current) {
       window.clearInterval(anchorLoopTimerRef.current);
       anchorLoopTimerRef.current = null;
@@ -1117,7 +1183,6 @@ export default function DevCalibrator({
     window.addEventListener("mouseup", handleMouseUp);
   };
 
-  const liveDisplayTime = player ? liveTime : currentTime;
   const playheadPct = duration > 0 ? (liveDisplayTime / duration) * 100 : 0;
   const sortedEvents = songData?.events || [];
   const focusedEvent = focusedEventIndex === null ? null : sortedEvents[focusedEventIndex] || null;
@@ -1283,6 +1348,7 @@ export default function DevCalibrator({
                     <button onClick={() => handleAcceptGroup(group)} style={{ padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(52,211,153,0.35)", background: "rgba(52,211,153,0.08)", color: "#34d399", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>Accept Group</button>
                     <button onClick={() => handleMarkGroupUncertain(group)} style={{ padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(251,191,36,0.35)", background: "rgba(251,191,36,0.08)", color: "#fbbf24", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>Mark Uncertain</button>
                     <button onClick={() => handleStartRetapRegion(group)} style={{ padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(96,165,250,0.35)", background: "rgba(96,165,250,0.08)", color: "#93c5fd", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>Retap Region</button>
+                    <button onClick={() => handleVerifyGroup(group)} style={{ padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(244,114,182,0.35)", background: verificationGroup?.id === group.id ? "rgba(244,114,182,0.22)" : "rgba(244,114,182,0.08)", color: "#f9a8d4", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>Verify Loop</button>
                     <button onClick={() => handleLoopRegion(group.startTimeMs, group.endTimeMs)} style={{ padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.04)", color: "#fff", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>Loop Region</button>
                     <button onClick={() => setExpandedGroups(current => ({ ...current, [group.id]: !expanded }))} style={{ padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", background: "transparent", color: "#fff", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>{expanded ? "Hide Details" : "Review Details"}</button>
                   </div>
@@ -1326,7 +1392,43 @@ export default function DevCalibrator({
         gridTemplateColumns: activeTab === 1 || activeTab === 2 ? "1.15fr 0.85fr" : "1fr"
       }}>
         <div style={{ display: "flex", flexDirection: "column", gap: "16px", maxWidth: activeTab === 1 || activeTab === 2 ? "100%" : "800px", margin: activeTab === 1 || activeTab === 2 ? "0" : "0 auto", width: "100%" }}>
-          {videoElement}
+          <div style={{ position: "relative" }}>
+            {videoElement}
+            {activeTab === 3 && verificationGroup && (
+              <div style={{ position: "absolute", inset: 0, pointerEvents: "none", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", borderRadius: "12px" }}>
+                <div style={{ position: "absolute", top: "12px", left: "12px", right: "12px", display: "flex", justifyContent: "space-between", gap: "10px", alignItems: "flex-start" }}>
+                  <div style={{ padding: "7px 10px", borderRadius: "8px", background: "rgba(0,0,0,0.68)", border: "1px solid rgba(255,255,255,0.14)", color: "#fff", fontSize: "0.72rem", fontWeight: 900 }}>
+                    Verify {((verificationGroup.startTimeMs) / 1000).toFixed(2)}s-{((verificationGroup.endTimeMs) / 1000).toFixed(2)}s
+                  </div>
+                  {nextVerificationAnchor && (
+                    <div style={{ padding: "7px 10px", borderRadius: "8px", background: "rgba(0,0,0,0.68)", border: "1px solid rgba(255,255,255,0.14)", color: "#d4d4d8", fontSize: "0.72rem", fontWeight: 900, textAlign: "right" }}>
+                      Next {anchorLabel(nextVerificationAnchor.count)} in {Math.max(0, (nextVerificationAnchor.timeMs / 1000) - liveDisplayTime).toFixed(2)}s
+                    </div>
+                  )}
+                </div>
+                {currentVerificationAnchor && (
+                  <div key={`${currentVerificationAnchor.id}-${Math.round(liveDisplayTime * 10)}`} style={{
+                    width: "148px",
+                    height: "148px",
+                    borderRadius: "50%",
+                    border: `5px solid ${REVIEWED_ANCHOR_COLORS[currentVerificationAnchor.count] || "#fff"}`,
+                    background: currentVerificationAnchor.confidence === "uncertain" ? "rgba(251,191,36,0.16)" : currentVerificationAnchor.reviewed ? "rgba(255,255,255,0.12)" : "rgba(96,165,250,0.12)",
+                    boxShadow: `0 0 ${currentVerificationAnchor.reviewed ? 54 : 32}px ${REVIEWED_ANCHOR_COLORS[currentVerificationAnchor.count] || "#fff"}aa`,
+                    opacity: currentVerificationAnchor.confidence === "uncertain" ? 0.72 : currentVerificationAnchor.reviewed ? 0.96 : 0.62,
+                    transform: "scale(1.08)",
+                    transition: "transform 90ms ease, opacity 90ms ease",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center"
+                  }}>
+                    <span style={{ color: "#fff", fontSize: currentVerificationAnchor.count === 4 || currentVerificationAnchor.count === 8 ? "1.45rem" : "3rem", fontWeight: 1000, textShadow: "0 2px 18px rgba(0,0,0,0.75)" }}>
+                      {anchorLabel(currentVerificationAnchor.count)}
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
         {activeTab === 1 && (
@@ -1441,6 +1543,36 @@ export default function DevCalibrator({
           </div>
         </div>
 
+        {activeTab === 3 && verificationGroup && (
+          <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: "12px", alignItems: "center", padding: "10px 12px", borderRadius: "10px", border: "1px solid rgba(244,114,182,0.25)", background: "rgba(244,114,182,0.08)" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "5px", minWidth: 0 }}>
+              <div style={{ display: "flex", gap: "8px", alignItems: "center", flexWrap: "wrap" }}>
+                <span style={{ color: "#fff", fontSize: "0.76rem", fontWeight: 900 }}>Verifying Group {verificationGroup.index + 1}</span>
+                <span style={{ color: "#f9a8d4", fontSize: "0.7rem", fontWeight: 800 }}>{(verificationGroup.startTimeMs / 1000).toFixed(2)}s-{(verificationGroup.endTimeMs / 1000).toFixed(2)}s</span>
+                <span style={{ color: verificationGroup.confidence === "high" ? "#34d399" : verificationGroup.confidence === "medium" ? "#fbbf24" : "#fca5a5", fontSize: "0.68rem", fontWeight: 900, textTransform: "uppercase" }}>{verificationGroup.confidence}</span>
+                <span style={{ color: "#a1a1aa", fontSize: "0.68rem" }}>{verificationGroup.reasons.join(", ")}</span>
+              </div>
+              <div style={{ display: "flex", gap: "5px", alignItems: "center", overflowX: "auto", paddingBottom: "1px" }}>
+                {verificationAnchors.map((anchor: any) => {
+                  const isCurrent = currentVerificationAnchor?.id === anchor.id;
+                  const color = REVIEWED_ANCHOR_COLORS[anchor.count] || "#ffffff";
+                  return (
+                    <span key={anchor.id} style={{ flex: "0 0 auto", minWidth: "34px", textAlign: "center", padding: "3px 7px", borderRadius: "999px", border: `1px solid ${isCurrent ? "#ffffff" : `${color}66`}`, background: isCurrent ? color : "rgba(0,0,0,0.18)", color: isCurrent ? "#000" : color, opacity: anchor.confidence === "uncertain" ? 0.65 : anchor.reviewed ? 1 : 0.58, fontSize: "0.66rem", fontWeight: 900 }}>
+                      {anchorLabel(anchor.count)}
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", justifyContent: "flex-end" }}>
+              <button onClick={handleVerifyLooksRight} style={{ padding: "5px 9px", borderRadius: "6px", border: "1px solid rgba(52,211,153,0.35)", background: "rgba(52,211,153,0.1)", color: "#34d399", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>Looks Right</button>
+              <button onClick={handleVerifyFeelsOff} style={{ padding: "5px 9px", borderRadius: "6px", border: "1px solid rgba(251,191,36,0.35)", background: "rgba(251,191,36,0.1)", color: "#fbbf24", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>Feels Off</button>
+              <button onClick={handleVerifyRetapAgain} style={{ padding: "5px 9px", borderRadius: "6px", border: "1px solid rgba(96,165,250,0.35)", background: "rgba(96,165,250,0.1)", color: "#93c5fd", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>Retap Again</button>
+              <button onClick={handleStopVerification} style={{ padding: "5px 9px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", background: "transparent", color: "#fff", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>Stop</button>
+            </div>
+          </div>
+        )}
+
         <div style={{ position: "relative", padding: "8px 0" }}>
           <div
             ref={timelineRef}
@@ -1456,6 +1588,20 @@ export default function DevCalibrator({
             }}
           >
             <div style={{ position: "absolute", inset: 0, borderRadius: "9px", overflow: "hidden" }}>
+              {activeTab === 3 && verificationGroup && (
+                <div style={{
+                  position: "absolute",
+                  top: 0,
+                  bottom: 0,
+                  left: `${(verificationGroup.startTimeMs / (duration * 1000)) * 100}%`,
+                  width: `${Math.max(((verificationGroup.endTimeMs - verificationGroup.startTimeMs) / (duration * 1000)) * 100, 0.35)}%`,
+                  background: "rgba(244,114,182,0.12)",
+                  borderLeft: "1px solid rgba(244,114,182,0.7)",
+                  borderRight: "1px solid rgba(244,114,182,0.7)",
+                  zIndex: 6,
+                  pointerEvents: "none"
+                }} />
+              )}
               {timelineLayers.sections && editorSections.map((sec, idx) => {
                 const startSec = sec.startTimeMs / 1000;
                 const endSec = sec.endTimeMs / 1000;
@@ -1547,6 +1693,27 @@ export default function DevCalibrator({
                 const top = anchor.count === 1 ? "4px" : anchor.count === 4 ? "16px" : anchor.count === 5 ? "28px" : "38px";
                 return (
                   <div key={anchor.id} title={`Reviewed ${anchor.count} ${(anchor.timeMs / 1000).toFixed(2)}s`} style={{ position: "absolute", top, height: "10px", left: `${(anchor.timeMs / (duration * 1000)) * 100}%`, width: "3px", background: color, opacity: anchor.reviewed ? 0.95 : 0.55, zIndex: 9, pointerEvents: "none", boxShadow: anchor.reviewed ? `0 0 9px ${color}aa` : "none" }} />
+                );
+              })}
+
+              {activeTab === 3 && verificationGroup && verificationAnchors.map((anchor: any) => {
+                const color = REVIEWED_ANCHOR_COLORS[anchor.count] || "#ffffff";
+                const isCurrent = currentVerificationAnchor?.id === anchor.id;
+                return (
+                  <div key={`verify-${anchor.id}`} title={`Verify ${anchorLabel(anchor.count)} ${(anchor.timeMs / 1000).toFixed(2)}s`} style={{
+                    position: "absolute",
+                    top: isCurrent ? "2px" : "9px",
+                    height: isCurrent ? "44px" : "30px",
+                    left: `${(anchor.timeMs / (duration * 1000)) * 100}%`,
+                    width: isCurrent ? "6px" : "4px",
+                    transform: "translateX(-50%)",
+                    borderRadius: "999px",
+                    background: color,
+                    opacity: anchor.confidence === "uncertain" ? 0.65 : anchor.reviewed ? 1 : 0.58,
+                    zIndex: 14,
+                    pointerEvents: "none",
+                    boxShadow: isCurrent ? `0 0 16px ${color}` : `0 0 7px ${color}88`
+                  }} />
                 );
               })}
 
