@@ -83,7 +83,6 @@ export default function DevCalibrator({
   const [timelineView, setTimelineView] = useState<"sections" | "events" | "taps" | "all">("sections");
   const [timelineZoom, setTimelineZoom] = useState<{ startTimeMs: number; endTimeMs: number } | null>(null);
   const [followPlayhead, setFollowPlayhead] = useState(false);
-  const [lockedSectionTimes, setLockedSectionTimes] = useState<Record<string, boolean>>({});
   const [liveTime, setLiveTime] = useState(0);
   const [vocabularyModal, setVocabularyModal] = useState<"category" | "tag" | null>(null);
   const [vocabularyDraft, setVocabularyDraft] = useState("");
@@ -955,18 +954,48 @@ export default function DevCalibrator({
 
     const maxDurationMs = Math.round(duration * 1000);
     const boundaryIdx = field === "startTimeMs" ? secIdx : secIdx + 1;
-    if (boundaryIdx === 0 || boundaryIdx >= N) {
+    if (boundaryIdx === 0) {
+      showToast("That song edge is fixed.");
+      return false;
+    }
+    const minDurMs = 100;
+
+    if (field === "endTimeMs" && secIdx === N - 1) {
+      const section = editorSections[secIdx];
+      if (numericVal <= section.startTimeMs + minDurMs || numericVal > maxDurationMs) {
+        showToast("Time would make a section too short.");
+        return false;
+      }
+      if (numericVal === section.endTimeMs) return true;
+      const updated = editorSections.map((sec, i) => {
+        if (i === secIdx) return { ...sec, endTimeMs: numericVal };
+        return sec;
+      });
+      if (numericVal < maxDurationMs - minDurMs) {
+        updated.push({
+          id: crypto.randomUUID(),
+          category: "",
+          tags: [],
+          startTimeMs: numericVal,
+          endTimeMs: maxDurationMs
+        });
+      } else if (numericVal !== maxDurationMs) {
+        showToast("Remaining section would be too short.");
+        return false;
+      }
+      updateSectionsState(updated, true);
+      throttledSeek(numericVal / 1000, false);
+      showToast(numericVal < maxDurationMs - minDurMs ? "Remaining song section created." : "Section boundary saved.");
+      return true;
+    }
+
+    if (boundaryIdx >= N) {
       showToast("That song edge is fixed.");
       return false;
     }
     const leftSection = editorSections[boundaryIdx - 1];
     const rightSection = editorSections[boundaryIdx];
-    if (lockedSectionTimes[leftSection?.id] || lockedSectionTimes[rightSection?.id]) {
-      showToast("🔒 Boundary touches a locked section.");
-      return false;
-    }
 
-    const minDurMs = 100;
     if (numericVal <= leftSection.startTimeMs + minDurMs || numericVal >= rightSection.endTimeMs - minDurMs || numericVal > maxDurationMs) {
       showToast("Time would make a section too short.");
       return false;
@@ -980,7 +1009,7 @@ export default function DevCalibrator({
 
     updateSectionsState(updated, true);
     throttledSeek(numericVal / 1000, false);
-    showToast("Section time saved.");
+    showToast("Section boundary saved.");
     return true;
   };
 
@@ -1006,79 +1035,6 @@ export default function DevCalibrator({
     updateSectionsState(updated, true);
   };
 
-  const handleAddManualSection = (draft: any) => {
-    const startTimeMs = Math.round(draft.startTimeMs);
-    const endTimeMs = Math.round(draft.endTimeMs);
-    const songEndMs = Math.round(duration * 1000);
-    const minDurMs = 100;
-    if (!Number.isFinite(startTimeMs) || !Number.isFinite(endTimeMs)) {
-      showToast("Enter valid start and end times.");
-      return false;
-    }
-    if (startTimeMs < 0 || endTimeMs > songEndMs || endTimeMs - startTimeMs < minDurMs) {
-      showToast("Section range is outside the song or too short.");
-      return false;
-    }
-
-    const sortedSections = [...editorSections].sort((a, b) => a.startTimeMs - b.startTimeMs);
-    const overlappingSections = sortedSections.filter(section => section.startTimeMs < endTimeMs && section.endTimeMs > startTimeMs);
-    if (overlappingSections.length === 0) {
-      showToast("New section must overlap the current structure.");
-      return false;
-    }
-    if (overlappingSections.some(section => lockedSectionTimes[section.id])) {
-      showToast("🔒 New section overlaps a locked section.");
-      return false;
-    }
-
-    const nextSections: any[] = [];
-    for (const section of sortedSections) {
-      if (section.endTimeMs <= startTimeMs || section.startTimeMs >= endTimeMs) {
-        nextSections.push(section);
-        continue;
-      }
-
-      const leftDurationMs = startTimeMs - section.startTimeMs;
-      const rightDurationMs = section.endTimeMs - endTimeMs;
-      if (leftDurationMs > 0 && leftDurationMs < minDurMs) {
-        showToast("Start time is too close to an existing boundary.");
-        return false;
-      }
-      if (rightDurationMs > 0 && rightDurationMs < minDurMs) {
-        showToast("End time is too close to an existing boundary.");
-        return false;
-      }
-      if (leftDurationMs >= minDurMs) {
-        nextSections.push({ ...section, endTimeMs: startTimeMs });
-      }
-      if (rightDurationMs >= minDurMs) {
-        nextSections.push({ ...section, id: crypto.randomUUID(), startTimeMs: endTimeMs });
-      }
-    }
-
-    const newSection = {
-      id: crypto.randomUUID(),
-      category: draft.category || "",
-      tags: draft.tags || [],
-      startTimeMs,
-      endTimeMs
-    };
-    const updated = [...nextSections, newSection].sort((a, b) => a.startTimeMs - b.startTimeMs);
-    const isContinuous = updated[0]?.startTimeMs === 0
-      && updated.at(-1)?.endTimeMs === songEndMs
-      && updated.every((section, index) => index === 0 || section.startTimeMs === updated[index - 1].endTimeMs);
-    if (!isContinuous) {
-      showToast("Section range would create a gap or overlap.");
-      return false;
-    }
-
-    updateSectionsState(updated, true);
-    setFocusedSectionId(newSection.id);
-    throttledSeek(startTimeMs / 1000, true);
-    showToast("Section added.");
-    return true;
-  };
-
   const handleAddNewSection = () => {
     const playheadMs = Math.round(getEditorCurrentTime() * 1000);
     const targetIdx = editorSections.findIndex(
@@ -1087,10 +1043,6 @@ export default function DevCalibrator({
 
     if (targetIdx !== -1) {
       const target = editorSections[targetIdx];
-      if (lockedSectionTimes[target.id]) {
-        showToast("🔒 Unlock this section before slicing it.");
-        return;
-      }
       if (playheadMs - target.startTimeMs < 100 || target.endTimeMs - playheadMs < 100) {
         showToast("⚠️ Slice is too close to an existing boundary.");
         return;
@@ -1124,18 +1076,6 @@ export default function DevCalibrator({
     }
     const idx = editorSections.findIndex(s => s.id === id);
     if (idx === -1) return;
-    if (lockedSectionTimes[id]) {
-      showToast("🔒 Unlock this section before removing it.");
-      return;
-    }
-    if (idx > 0 && lockedSectionTimes[editorSections[idx - 1]?.id]) {
-      showToast("🔒 Unlock the previous section before merging into it.");
-      return;
-    }
-    if (idx === 0 && lockedSectionTimes[editorSections[1]?.id]) {
-      showToast("🔒 Unlock the next section before merging into it.");
-      return;
-    }
     const updated = [...editorSections];
 
     if (idx > 0) {
@@ -1148,10 +1088,6 @@ export default function DevCalibrator({
     updateSectionsState(updated, true);
     if (focusedSectionId === id) setFocusedSectionId(updated[Math.max(0, idx - 1)]?.id ?? null);
     showToast("🗑️ Section removed.");
-  };
-
-  const handleToggleSectionTimeLock = (id: string) => {
-    setLockedSectionTimes(current => ({ ...current, [id]: !current[id] }));
   };
 
   const handleAddEvent = (draft: DanceEventDraft) => {
@@ -1680,15 +1616,12 @@ export default function DevCalibrator({
         {activeTab === 1 && (
           <DevCalibrationPanel
             editorSections={editorSections}
-            lockedSectionTimes={lockedSectionTimes}
             categories={categories}
             tags={tags}
             onUpdateSectionField={handleUpdateSectionField}
             onUpdateSectionTime={handleUpdateSectionTimes}
             onToggleSectionTag={handleToggleSectionTag}
-            onAddSection={handleAddManualSection}
             onRemoveSection={handleDeleteSection}
-            onToggleSectionTimeLock={handleToggleSectionTimeLock}
             onAddCategory={handleAddCategory}
             onAddTag={handleAddTag}
             validationErrors={validationErrors}
