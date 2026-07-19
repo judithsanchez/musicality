@@ -209,9 +209,6 @@ export default function EventAnnotationPanel({
         {events.map((event, eventIndex) => {
           const selectedTags = event.tags || [];
           const isExpanded = !!expandedEvents[event.id] || selectedEventIndex === eventIndex;
-          const labelText = event.category
-            ? categories.find(category => category.id === event.category)?.label || event.category
-            : `Event ${eventIndex + 1}`;
 
           return (
             <div key={event.id} style={{
@@ -220,8 +217,8 @@ export default function EventAnnotationPanel({
               gap: "8px",
               padding: "10px",
               borderRadius: "8px",
-              border: `1px solid ${selectedEventIndex === eventIndex ? "rgba(251,191,36,0.35)" : "rgba(255,255,255,0.06)"}`,
-              background: selectedEventIndex === eventIndex ? "rgba(245,158,11,0.08)" : "rgba(0,0,0,0.15)"
+              border: "1px solid rgba(255, 255, 255, 0.06)",
+              background: "rgba(0, 0, 0, 0.15)"
             }}>
               <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
                 <button
@@ -249,6 +246,11 @@ export default function EventAnnotationPanel({
 
               {isExpanded && (
                 <>
+                  <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end", alignItems: "center" }}>
+                    <button disabled={disabled} onClick={() => onRemoveEvent(eventIndex)} style={{ padding: "5px 8px", borderRadius: "6px", border: "1px solid rgba(248,113,113,0.35)", background: "rgba(248,113,113,0.08)", color: "#fca5a5", fontSize: "0.68rem", fontWeight: 800, cursor: disabled ? "not-allowed" : "pointer" }}>
+                      Remove
+                    </button>
+                  </div>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", fontSize: "0.7rem", color: "#a1a1aa" }}>
                     <label style={{ display: "flex", flexDirection: "column", gap: "3px", fontWeight: 800 }}>
                       Start
@@ -286,23 +288,16 @@ export default function EventAnnotationPanel({
                     Use m:ss.mmm, then press Enter. Event ranges are independent and can overlap.
                   </div>
 
-                  <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                    <span style={{ fontSize: "0.68rem", color: "#a1a1aa", textTransform: "uppercase", fontWeight: 800 }}>Labels</span>
-                    <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
-                      {tags.map(tag => {
-                        const active = selectedTags.includes(tag.id);
-                        return (
-                          <button key={tag.id} disabled={disabled} onClick={() => onToggleTag(eventIndex, tag.id)} title={tag.label} style={{ fontSize: "0.68rem", padding: "3px 8px", borderRadius: "999px", border: `1px solid ${active ? "#ffffff" : "rgba(255,255,255,0.12)"}`, background: active ? "#ffffff" : "transparent", color: active ? "#000" : "#a1a1aa", cursor: disabled ? "not-allowed" : "pointer" }}>
-                            {tag.label}
-                          </button>
-                        );
-                      })}
-                    </div>
+                  <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+                    {tags.map(tag => {
+                      const active = selectedTags.includes(tag.id);
+                      return (
+                        <button key={tag.id} disabled={disabled} onClick={() => onToggleTag(eventIndex, tag.id)} title={tag.label} style={{ fontSize: "0.68rem", padding: "3px 8px", borderRadius: "999px", border: `1px solid ${active ? "#ffffff" : "rgba(255,255,255,0.12)"}`, background: active ? "#ffffff" : "transparent", color: active ? "#000" : "#a1a1aa", cursor: disabled ? "not-allowed" : "pointer" }}>
+                          {tag.label}
+                        </button>
+                      );
+                    })}
                   </div>
-
-                  <button disabled={disabled} onClick={() => onRemoveEvent(eventIndex)} style={{ padding: "7px", borderRadius: "6px", border: "1px solid rgba(248,113,113,0.35)", background: "rgba(248,113,113,0.08)", color: "#fca5a5", fontWeight: 800, cursor: disabled ? "not-allowed" : "pointer" }}>
-                    Delete {labelText}
-                  </button>
                 </>
               )}
             </div>
