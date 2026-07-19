@@ -334,6 +334,16 @@ export default function DevCalibrator({
   }, [activeTab, sectionStructureReady]);
 
   useEffect(() => {
+    if (activeTab !== 2 || eventTimelineScope !== "section" || !focusedSectionId) return;
+    const section = editorSections.find(sec => sec.id === focusedSectionId);
+    if (!section) return;
+    const liveTimeMs = liveDisplayTime * 1000;
+    if (liveTimeMs > section.endTimeMs - 80 || liveTimeMs < section.startTimeMs - 250) {
+      throttledSeek(section.startTimeMs / 1000, true);
+    }
+  }, [activeTab, editorSections, eventTimelineScope, focusedSectionId, liveDisplayTime, throttledSeek]);
+
+  useEffect(() => {
     if (!followPlayhead || !timelineZoom) return;
     const liveTimeMs = liveDisplayTime * 1000;
     if (liveTimeMs >= visibleTimeline.startTimeMs && liveTimeMs <= visibleTimeline.endTimeMs) return;
@@ -1700,7 +1710,7 @@ export default function DevCalibrator({
             {activeTab === 2 ? (
               <>
                 <button onClick={showWholeEventTimeline} style={{ fontSize: "0.65rem", padding: "3px 8px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.12)", background: eventTimelineScope === "song" ? "#fff" : "transparent", color: eventTimelineScope === "song" ? "#000" : "#71717a", cursor: "pointer", fontWeight: 800 }}>Whole Song</button>
-                <button onClick={() => showSectionEventTimeline()} style={{ fontSize: "0.65rem", padding: "3px 8px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.12)", background: eventTimelineScope === "section" ? "#fff" : "transparent", color: eventTimelineScope === "section" ? "#000" : "#71717a", cursor: "pointer", fontWeight: 800 }}>Current Section</button>
+                <button onClick={() => showSectionEventTimeline()} style={{ fontSize: "0.65rem", padding: "3px 8px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.12)", background: eventTimelineScope === "section" ? "#fff" : "transparent", color: eventTimelineScope === "section" ? "#000" : "#71717a", cursor: "pointer", fontWeight: 800 }}>Loop Section</button>
               </>
             ) : (
               <>
