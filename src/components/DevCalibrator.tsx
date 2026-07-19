@@ -1131,7 +1131,7 @@ export default function DevCalibrator({
     const events = [...(latestSongDataRef.current?.events || [])];
     if (!events[eventIndex]) return;
     events[eventIndex] = { ...events[eventIndex], [field]: value };
-    updateEventsState(events);
+    updateEventsState(events, true);
   };
 
   const handleToggleEventTag = (eventIndex: number, tagId: string) => {
@@ -1144,13 +1144,17 @@ export default function DevCalibrator({
         ? currentTags.filter((value: string) => value !== tagId)
         : [...currentTags, tagId]
     };
-    updateEventsState(events);
+    updateEventsState(events, true);
   };
 
   const handleUpdateEventTimes = (eventIndex: number, field: "startTimeMs" | "endTimeMs", valueMs: number) => {
     const events = [...(latestSongDataRef.current?.events || [])];
     const event = events[eventIndex];
-    if (!event) return;
+    if (!event) return false;
+    if (!Number.isFinite(valueMs) || valueMs < 0) {
+      showToast("Enter a valid event time.");
+      return false;
+    }
 
     const maxDurationMs = Math.round(duration * 1000);
     const minDurMs = 100;
@@ -1165,13 +1169,20 @@ export default function DevCalibrator({
       nextEndMs = Math.min(maxDurationMs, Math.max(Math.round(valueMs), currentStartMs + minDurMs));
     }
 
+    if (nextEndMs - nextStartMs < minDurMs) {
+      showToast("Event range is too short.");
+      return false;
+    }
+
     events[eventIndex] = {
       ...event,
       startTimeMs: nextStartMs,
       endTimeMs: nextEndMs
     };
-    updateEventsState(events);
+    updateEventsState(events, true);
     throttledSeek((field === "startTimeMs" ? nextStartMs : nextEndMs) / 1000, false);
+    showToast("Event range saved.");
+    return true;
   };
 
   const handleRemoveEvent = (eventIndex: number) => {
@@ -1372,7 +1383,6 @@ export default function DevCalibrator({
   };
 
   const sortedEvents = songData?.events || [];
-  const focusedEvent = focusedEventIndex === null ? null : sortedEvents[focusedEventIndex] || null;
   const zoomedPlayheadPct = timelinePct(liveDisplayTime * 1000);
   const sectionLane = timelineView === "sections" ? { top: 0, height: 104 } : { top: 0, height: 36 };
   const eventLane = { top: 38, height: 22 };
@@ -1661,11 +1671,13 @@ export default function DevCalibrator({
               </span>
             </div>
             <EventAnnotationPanel
-              selectedEvent={focusedEvent}
+              events={sortedEvents}
               selectedEventIndex={focusedEventIndex}
               categories={categories}
               tags={tags}
+              onSelectEvent={setFocusedEventIndex}
               onUpdateEvent={handleUpdateEventField}
+              onUpdateEventTime={handleUpdateEventTimes}
               onToggleTag={handleToggleEventTag}
               onAddCategory={handleAddCategory}
               onAddTag={handleAddTag}
