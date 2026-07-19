@@ -16,10 +16,16 @@ export default function DevCalibrationPanel({
   validationErrors
 }) {
   const [expandedSections, setExpandedSections] = useState({});
+  const [sectionPendingDelete, setSectionPendingDelete] = useState(null);
 
   const toggleCollapse = (id) => {
     setExpandedSections(prev => ({ ...prev, [id]: !prev[id] }));
   };
+
+  const pendingDeleteIndex = sectionPendingDelete ? editorSections.findIndex(section => section.id === sectionPendingDelete.id) : -1;
+  const pendingDeleteLabel = sectionPendingDelete
+    ? categories.find(category => category.id === sectionPendingDelete.category)?.label || sectionPendingDelete.category || `Section ${pendingDeleteIndex + 1}`
+    : "";
 
   return (
     <div className="glass-panel dev-panel right-workspace-column" style={{
@@ -95,7 +101,7 @@ export default function DevCalibrationPanel({
                   <button
                     type="button"
                     disabled={editorSections.length <= 1}
-                    onClick={() => onRemoveSection(section.id)}
+                    onClick={() => setSectionPendingDelete(section)}
                     style={{ padding: "5px 8px", borderRadius: "6px", border: "1px solid rgba(248,113,113,0.35)", background: "rgba(248,113,113,0.08)", color: "#fca5a5", fontSize: "0.68rem", fontWeight: 800, cursor: editorSections.length <= 1 ? "not-allowed" : "pointer", opacity: editorSections.length <= 1 ? 0.45 : 1 }}
                   >
                     Remove
@@ -168,6 +174,28 @@ export default function DevCalibrationPanel({
                 • <strong>{err.path.join(".")}</strong>: {err.message}
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {sectionPendingDelete && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 1000, background: "rgba(0,0,0,0.72)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px" }}>
+          <div style={{ width: "min(420px, 100%)", display: "flex", flexDirection: "column", gap: "12px", padding: "16px", borderRadius: "8px", border: "1px solid rgba(248,113,113,0.28)", background: "#09090b", boxShadow: "0 24px 80px rgba(0,0,0,0.5)" }}>
+            <span style={{ color: "#fff", fontSize: "0.9rem", fontWeight: 900 }}>Delete Section {pendingDeleteIndex + 1}?</span>
+            <span style={{ color: "#a1a1aa", fontSize: "0.74rem", lineHeight: 1.45 }}>
+              This will remove {pendingDeleteLabel} from {(sectionPendingDelete.startTimeMs / 1000).toFixed(2)}s to {(sectionPendingDelete.endTimeMs / 1000).toFixed(2)}s and merge the time into a neighboring section.
+            </span>
+            <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end" }}>
+              <button onClick={() => setSectionPendingDelete(null)} style={{ padding: "7px 12px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", background: "transparent", color: "#fff", fontWeight: 800, cursor: "pointer" }}>
+                Cancel
+              </button>
+              <button onClick={() => {
+                onRemoveSection(sectionPendingDelete.id);
+                setSectionPendingDelete(null);
+              }} style={{ padding: "7px 12px", borderRadius: "6px", border: "1px solid rgba(248,113,113,0.35)", background: "rgba(248,113,113,0.12)", color: "#fca5a5", fontWeight: 900, cursor: "pointer" }}>
+                Delete Section
+              </button>
+            </div>
           </div>
         </div>
       )}
