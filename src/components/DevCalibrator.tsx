@@ -160,16 +160,10 @@ export default function DevCalibrator({
     const pass = tap ? passById.get(tap.passId) as any : null;
     return !pass?.excluded;
   }), [passById, reviewedAnchors, tapById]);
-  const displayReviewedAnchors = useMemo(() => reviewedAnchors.filter((anchor: any) => {
-    const tap = tapById.get(anchor.tapId) as any;
-    const pass = tap ? passById.get(tap.passId) as any : null;
-    return !pass?.excluded || pass?.id === activePassId;
-  }), [activePassId, passById, reviewedAnchors, tapById]);
-  const displayTaps = useMemo(() => taps.filter((tap: any) => {
+  const activeTaps = useMemo(() => taps.filter((tap: any) => {
     const pass = passById.get(tap.passId) as any;
-    return !pass?.excluded || pass?.id === activePassId;
-  }), [activePassId, passById, taps]);
-
+    return !pass?.excluded;
+  }), [passById, taps]);
   const tapGroups = useMemo(() => {
     const anchors = [...activeReviewedAnchors].sort((a, b) => a.timeMs - b.timeMs);
     if (anchors.length === 0) return [];
@@ -263,28 +257,18 @@ export default function DevCalibrator({
   const verificationGroup = useMemo(() => {
     if (verificationGroupId) {
       const matchedGroup = tapGroups.find((group: any) => group.id === verificationGroupId);
-      if (matchedGroup) {
-        const anchors = displayReviewedAnchors
-          .filter((anchor: any) => anchor.timeMs >= matchedGroup.startTimeMs && anchor.timeMs <= matchedGroup.endTimeMs)
-          .sort((a: any, b: any) => a.timeMs - b.timeMs);
-        return {
-          ...matchedGroup,
-          anchors,
-          passIds: Array.from(new Set(anchors.map((anchor: any) => (tapById.get(anchor.tapId) as any)?.passId).filter(Boolean)))
-        };
-      }
+      if (matchedGroup) return matchedGroup;
       if (verificationGroupId.startsWith("section:")) {
         const sectionId = verificationGroupId.replace("section:", "");
         const section = editorSections.find(item => item.id === sectionId);
         if (!section) return null;
-        const anchors = displayReviewedAnchors
+        const anchors = activeReviewedAnchors
           .filter((anchor: any) => anchor.timeMs >= section.startTimeMs && anchor.timeMs <= section.endTimeMs)
           .sort((a: any, b: any) => a.timeMs - b.timeMs);
         return {
           id: verificationGroupId,
           index: editorSections.findIndex(item => item.id === sectionId),
           anchors,
-          passIds: Array.from(new Set(anchors.map((anchor: any) => (tapById.get(anchor.tapId) as any)?.passId).filter(Boolean))),
           startTimeMs: section.startTimeMs,
           endTimeMs: section.endTimeMs,
           confidence: anchors.length >= 3 ? "medium" : "low",
@@ -293,7 +277,7 @@ export default function DevCalibrator({
       }
     }
     return null;
-  }, [displayReviewedAnchors, editorSections, tapById, tapGroups, verificationGroupId]);
+  }, [activeReviewedAnchors, editorSections, tapGroups, verificationGroupId]);
 
   const verificationAnchors = useMemo(() => {
     if (!verificationGroup) return [];
@@ -328,7 +312,7 @@ export default function DevCalibrator({
 
   const tapSectionCards = useMemo(() => {
     return editorSections.map((section, index) => {
-      const sectionPasses = tapCalibrationPasses.filter((pass: any) => pass.sectionId === section.id);
+      const sectionPasses = tapCalibrationPasses.filter((pass: any) => pass.sectionId === section.id && !pass.excluded);
       const sectionAnchors = activeReviewedAnchors.filter((anchor: any) => anchor.timeMs >= section.startTimeMs && anchor.timeMs <= section.endTimeMs);
       const hiddenEvents = calibrationEvents.filter((event: any) =>
         event.startTimeMs < section.endTimeMs &&
@@ -776,97 +760,46 @@ export default function DevCalibrator({
     return { passId: pass.id, passes: nextPasses };
   };
 
-  const suggestedCountForTap = (timeMs: number, passId: string, anchorSource = activeReviewedAnchors, tapSource = taps) => {
-    const existingAnchors = [...anchorSource]
-      .filter(anchor => tapSource.find((tap: any) => tap.id === anchor.tapId)?.passId !== passId)
-      .sort((a, b) => a.timeMs - b.timeMs);
-    const nearest = existingAnchors.reduce((best: any, anchor: any) => {
-      if (!best || Math.abs(anchor.timeMs - timeMs) < Math.abs(best.timeMs - timeMs)) return anchor;
-      return best;
-    }, null);
-    if (nearest && Math.abs(nearest.timeMs - timeMs) <= 800) return nearest.count;
+  const createReplacementSectionTapPass = (section: any) => {
+    const oldSectionPassIds = new Set(tapCalibrationPasses.filter((pass: any) => pass.sectionId === section.id).map((pass: any) => pass.id));
+    const deletedTapIds = new Set(taps
+      .filter((tap: any) =>
+        oldSectionPassIds.has(tap.passId) ||
+        tap.sectionId === section.id ||
+        (tap.correctedTimeMs >= section.startTimeMs && tap.correctedTimeMs <= section.endTimeMs)
+      )
+      .map((tap: any) => tap.id)
+    );
+    const nextTaps = taps.filter((tap: any) => !deletedTapIds.has(tap.id));
+    const nextAnchors = reviewedAnchors.filter((anchor: any) =>
+      !deletedTapIds.has(anchor.tapId) &&
+      !(anchor.timeMs >= section.startTimeMs && anchor.timeMs <= section.endTimeMs)
+    );
+    const remainingPassIds = new Set(nextTaps.map((tap: any) => tap.passId));
+    const pass = {
+      id: crypto.randomUUID(),
+      startedAt: new Date().toISOString(),
+      inputLatencyMs: deviceCalibration?.inputLatencyMs || 0,
+      sectionId: section.id,
+      excluded: false
+    };
+    const nextPasses = [
+      ...tapCalibrationPasses.filter((existingPass: any) => !oldSectionPassIds.has(existingPass.id) && remainingPassIds.has(existingPass.id)),
+      pass
+    ];
+    updateTapCalibrationState(nextPasses, nextTaps, nextAnchors, true);
+    setActivePassId(pass.id);
+    return { passId: pass.id, passes: nextPasses };
+  };
 
+  const suggestedCountForTap = (timeMs: number, passId: string, anchorSource = reviewedAnchors, tapSource = taps) => {
+    const existingAnchors = [...anchorSource]
+      .filter(anchor => tapSource.find((tap: any) => tap.id === anchor.tapId)?.passId === passId)
+      .sort((a, b) => a.timeMs - b.timeMs);
     const previous = existingAnchors.filter(anchor => anchor.timeMs < timeMs).at(-1);
     if (!previous) return countCycle[0];
     const index = countCycle.indexOf(previous.count);
     return countCycle[(index + 1) % countCycle.length] || countCycle[0];
-  };
-
-  const buildRetapReviewedAnchors = (passId: string, region: any, nextTaps: any[], anchorSource: any[]) => {
-    const tapLookup = new Map(nextTaps.map((tap: any) => [tap.id, tap]));
-    const regionTaps = nextTaps
-      .filter((tap: any) => tap.passId === passId && tap.correctedTimeMs >= region.startTimeMs && tap.correctedTimeMs <= region.endTimeMs)
-      .sort((a: any, b: any) => a.correctedTimeMs - b.correctedTimeMs);
-    const seedAnchors = anchorSource
-      .filter(anchor => {
-        const tap = tapLookup.get(anchor.tapId) as any;
-        const pass = tap ? passById.get(tap.passId) as any : null;
-        return tap?.passId !== passId && !pass?.excluded && anchor.timeMs >= region.startTimeMs - 900 && anchor.timeMs <= region.endTimeMs + 900;
-      })
-      .sort((a, b) => a.timeMs - b.timeMs);
-    const preservedAnchors = anchorSource.filter(anchor => {
-      const tap = tapLookup.get(anchor.tapId) as any;
-      const isRetapCandidate = tap?.passId === passId && !anchor.reviewed && anchor.timeMs >= region.startTimeMs && anchor.timeMs <= region.endTimeMs;
-      return !isRetapCandidate;
-    });
-    if (regionTaps.length === 0) return preservedAnchors;
-
-    const clusters = seedAnchors.map(anchor => ({
-      seedTimeMs: anchor.timeMs,
-      seedCount: anchor.count,
-      taps: [] as any[]
-    }));
-
-    regionTaps.forEach((tap: any) => {
-      const nearestCluster = clusters.reduce((best: any, cluster: any) => {
-        const clusterTime = cluster.taps.length ? median(cluster.taps.map((sample: any) => sample.correctedTimeMs)) : cluster.seedTimeMs;
-        const distance = Math.abs(clusterTime - tap.correctedTimeMs);
-        if (!best || distance < best.distance) return { cluster, distance };
-        return best;
-      }, null);
-      if (nearestCluster && nearestCluster.distance <= 900) {
-        nearestCluster.cluster.taps.push(tap);
-      } else {
-        clusters.push({
-          seedTimeMs: tap.correctedTimeMs,
-          seedCount: null,
-          taps: [tap]
-        });
-      }
-    });
-
-    const sortedClusters = clusters
-      .filter(cluster => cluster.taps.length > 0)
-      .map(cluster => ({
-        ...cluster,
-        timeMs: Math.round(median(cluster.taps.map((tap: any) => tap.correctedTimeMs)))
-      }))
-      .sort((a, b) => a.timeMs - b.timeMs);
-    const previousAnchor = preservedAnchors
-      .filter(anchor => anchor.timeMs < region.startTimeMs)
-      .sort((a, b) => b.timeMs - a.timeMs)[0];
-    const firstCount = previousAnchor ? expectedNextCount(previousAnchor.count) : countCycle[0];
-    const firstCountIndex = Math.max(0, countCycle.indexOf(firstCount));
-
-    const clusterAnchors = sortedClusters
-      .map((cluster, index) => {
-        const sampleTimes = cluster.taps.map((tap: any) => tap.correctedTimeMs);
-        const clusterTimeMs = cluster.timeMs;
-        const representativeTap = cluster.taps.reduce((best: any, tap: any) => {
-          if (!best || Math.abs(tap.correctedTimeMs - clusterTimeMs) < Math.abs(best.correctedTimeMs - clusterTimeMs)) return tap;
-          return best;
-        }, null);
-        return {
-          id: crypto.randomUUID(),
-          tapId: representativeTap.id,
-          timeMs: clusterTimeMs,
-          count: countCycle[(firstCountIndex + index) % countCycle.length],
-          confidence: "suggested",
-          reviewed: false
-        };
-      });
-
-    return [...preservedAnchors, ...clusterAnchors];
   };
 
   const handleTap = () => {
@@ -885,7 +818,7 @@ export default function DevCalibrator({
       return;
     }
     if (!activeRetapRegion) {
-      showToast("Choose Calibrate Section or Retap Region first.");
+      showToast("Choose a section tap session first.");
       return;
     }
     setTapFlash(true);
@@ -924,9 +857,7 @@ export default function DevCalibrator({
       reviewed: false
     };
     const nextTaps = [...taps, tap];
-    const nextAnchors = activeRetapRegion
-      ? buildRetapReviewedAnchors(passState.passId, activeRetapRegion, nextTaps, [...reviewedAnchors, anchor])
-      : [...reviewedAnchors, anchor];
+    const nextAnchors = [...reviewedAnchors, anchor];
     updateTapCalibrationState(passState.passes, nextTaps, nextAnchors, true);
   };
 
@@ -965,24 +896,6 @@ export default function DevCalibrator({
       : anchor
     );
     updateTapCalibrationState(tapCalibrationPasses, taps, nextAnchors, true);
-  };
-
-  const activateSectionPass = (passId: string) => {
-    const acceptedPass = passById.get(passId) as any;
-    if (!acceptedPass?.sectionId) return false;
-    const nextPasses = tapCalibrationPasses.map((pass: any) => {
-      if (pass.id === passId) return { ...pass, excluded: false };
-      if (pass.sectionId === acceptedPass.sectionId) return { ...pass, excluded: true };
-      return pass;
-    });
-    const nextAnchors = reviewedAnchors.map(anchor => {
-      const tap = tapById.get(anchor.tapId) as any;
-      return tap?.passId === passId
-        ? { ...anchor, reviewed: true, confidence: "confirmed" }
-        : anchor;
-    });
-    updateTapCalibrationState(nextPasses, taps, nextAnchors, true);
-    return true;
   };
 
   const handleNudgeReviewedAnchor = (anchorId: string, deltaMs: number) => {
@@ -1088,7 +1001,7 @@ export default function DevCalibrator({
     if (decisions.some((decision: any) => decision.sectionId === section.id && decision.status === "not_needed")) {
       updateTapSectionDecision(section.id, false);
     }
-    const passState = createTapPass(section.id, true);
+    const passState = createReplacementSectionTapPass(section);
     setActiveTapSectionId(section.id);
     setFocusedSectionId(section.id);
     setPendingTapRoundSection(section);
@@ -1140,11 +1053,6 @@ export default function DevCalibrator({
   };
 
   const handleExcludePass = (passId: string, excluded: boolean) => {
-    if (!excluded && activateSectionPass(passId)) {
-      setActivePassId(passId);
-      showToast("Round restored as active section calibration.");
-      return;
-    }
     const nextPasses = tapCalibrationPasses.map((pass: any) => pass.id === passId ? { ...pass, excluded } : pass);
     updateTapCalibrationState(nextPasses, taps, reviewedAnchors, true);
     if (activePassId === passId && excluded) setActivePassId(null);
@@ -1219,20 +1127,13 @@ export default function DevCalibrator({
 
   const handleVerifyLooksRight = () => {
     if (!verificationGroup) return;
-    const candidatePass = activePassId ? passById.get(activePassId) as any : null;
-    const verifiedPassIds = new Set(verificationGroup.passIds || []);
-    const activated = activePassId && candidatePass?.sectionId && verifiedPassIds.has(activePassId)
-      ? activateSectionPass(activePassId)
-      : false;
-    if (!activated) {
-      handleAcceptGroup(verificationGroup);
-    }
+    handleAcceptGroup(verificationGroup);
     setVerificationGroupId(null);
     if (anchorLoopTimerRef.current) {
       window.clearInterval(anchorLoopTimerRef.current);
       anchorLoopTimerRef.current = null;
     }
-    showToast(activated ? "Section round accepted." : "Group accepted.");
+    showToast("Section taps accepted.");
   };
 
   const handleVerifyFeelsOff = () => {
@@ -1252,48 +1153,12 @@ export default function DevCalibrator({
       showToast("Calibrate device offset first.");
       return;
     }
-    clearTapRoundTimers();
-    if (anchorLoopTimerRef.current) {
-      window.clearInterval(anchorLoopTimerRef.current);
-      anchorLoopTimerRef.current = null;
-    }
     const section = editorSections.find(sec => group.startTimeMs >= sec.startTimeMs && group.startTimeMs < sec.endTimeMs);
-    const passState = createTapPass(section?.id, true);
-    const startTimeMs = Math.max(0, group.startTimeMs - 2000);
-    const endTimeMs = Math.min(Math.round(duration * 1000), group.endTimeMs + 2000);
-    setActiveTapSectionId(section?.id || activeTapSectionId);
-    setFocusedSectionId(section?.id || focusedSectionId);
-    setPendingTapRoundSection(section || { id: group.id, category: "Retap Region", startTimeMs, endTimeMs });
-    setActiveRetapRegion(null);
-    setVerificationGroupId(group.id);
-    zoomTimelineToRange(startTimeMs, endTimeMs, 500);
-    throttledSeek(startTimeMs / 1000, true);
-    try {
-      player?.pauseVideo?.();
-    } catch (err) {
-      console.warn(err);
+    if (!section) {
+      showToast("Choose a section to replace its taps.");
+      return;
     }
-    setTapCountdown(3);
-    tapCountdownTimerRef.current = window.setInterval(() => {
-      setTapCountdown(current => {
-        if (current === null) return current;
-        if (current <= 1) {
-          if (tapCountdownTimerRef.current) {
-            window.clearInterval(tapCountdownTimerRef.current);
-            tapCountdownTimerRef.current = null;
-          }
-          armTapRoundPlayback({
-            id: group.id,
-            sectionId: section?.id,
-            startTimeMs,
-            endTimeMs
-          }, passState);
-          return null;
-        }
-        return current - 1;
-      });
-    }, 1000);
-    showToast("Get ready to retap this region.");
+    handleStartSectionTapRound(section);
   };
 
   const handleUpdateSectionTimes = (id: string, field: "startTimeMs" | "endTimeMs", valueMs: number) => {
@@ -1988,7 +1853,7 @@ export default function DevCalibrator({
                   <div style={{ display: "flex", gap: "6px" }}>
                     <button onClick={() => handleAcceptGroup(group)} style={{ padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(52,211,153,0.35)", background: "rgba(52,211,153,0.08)", color: "#34d399", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>Accept Group</button>
                     <button onClick={() => handleMarkGroupUncertain(group)} style={{ padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(251,191,36,0.35)", background: "rgba(251,191,36,0.08)", color: "#fbbf24", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>Mark Uncertain</button>
-                    <button onClick={() => handleStartRetapRegion(group)} style={{ padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(96,165,250,0.35)", background: "rgba(96,165,250,0.08)", color: "#93c5fd", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>Retap Region</button>
+                    <button onClick={() => handleStartRetapRegion(group)} style={{ padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(96,165,250,0.35)", background: "rgba(96,165,250,0.08)", color: "#93c5fd", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>Replace Section</button>
                     <button onClick={() => handleVerifyGroup(group)} style={{ padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(244,114,182,0.35)", background: verificationGroup?.id === group.id ? "rgba(244,114,182,0.22)" : "rgba(244,114,182,0.08)", color: "#f9a8d4", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>Verify Loop</button>
                     <button onClick={() => handleLoopRegion(group.startTimeMs, group.endTimeMs)} style={{ padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.04)", color: "#fff", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>Loop Region</button>
                     <button onClick={() => setExpandedGroups(current => ({ ...current, [group.id]: !expanded }))} style={{ padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", background: "transparent", color: "#fff", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>{expanded ? "Hide Details" : "Review Details"}</button>
@@ -2152,7 +2017,7 @@ export default function DevCalibrator({
               {activeTapSectionCard && (
                 <>
                   <button onClick={() => activeTapRoundSectionId === activeTapSectionCard.section.id ? handleStopRetapRegion() : handleStartSectionTapRound(activeTapSectionCard.section)} style={{ flex: "1 1 120px", padding: "6px 8px", borderRadius: "6px", border: "1px solid rgba(96,165,250,0.35)", background: activeTapRoundSectionId === activeTapSectionCard.section.id ? "#ffffff" : "rgba(96,165,250,0.08)", color: activeTapRoundSectionId === activeTapSectionCard.section.id ? "#000" : "#93c5fd", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>
-                    {tapCountdown !== null && activeTapRoundSectionId === activeTapSectionCard.section.id ? "Starting..." : activeTapRoundSectionId === activeTapSectionCard.section.id ? "Stop Round" : "Start Round"}
+                    {tapCountdown !== null && activeTapRoundSectionId === activeTapSectionCard.section.id ? "Starting..." : activeTapRoundSectionId === activeTapSectionCard.section.id ? "Stop Round" : activeTapSectionCard.sectionAnchors.length > 0 ? "Replace Section Taps" : "Start Round"}
                   </button>
                   <button onClick={() => handleVerifySection(activeTapSectionCard.section)} style={{ flex: "1 1 90px", padding: "6px 8px", borderRadius: "6px", border: "1px solid rgba(244,114,182,0.35)", background: verificationGroupId === `section:${activeTapSectionCard.section.id}` ? "rgba(244,114,182,0.22)" : "rgba(244,114,182,0.08)", color: "#f9a8d4", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>Verify</button>
                   <button onClick={() => updateTapSectionDecision(activeTapSectionCard.section.id, !activeTapSectionCard.markedNotNeeded)} style={{ flex: "1 1 120px", padding: "6px 8px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", background: activeTapSectionCard.markedNotNeeded ? "#ffffff" : "transparent", color: activeTapSectionCard.markedNotNeeded ? "#000" : "#d4d4d8", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>
@@ -2329,7 +2194,7 @@ export default function DevCalibrator({
             <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", justifyContent: "flex-end" }}>
               <button onClick={handleVerifyLooksRight} style={{ padding: "5px 9px", borderRadius: "6px", border: "1px solid rgba(52,211,153,0.35)", background: "rgba(52,211,153,0.1)", color: "#34d399", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>Looks Right</button>
               <button onClick={handleVerifyFeelsOff} style={{ padding: "5px 9px", borderRadius: "6px", border: "1px solid rgba(251,191,36,0.35)", background: "rgba(251,191,36,0.1)", color: "#fbbf24", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>Feels Off</button>
-              <button onClick={handleVerifyRetapAgain} style={{ padding: "5px 9px", borderRadius: "6px", border: "1px solid rgba(96,165,250,0.35)", background: "rgba(96,165,250,0.1)", color: "#93c5fd", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>Retap Again</button>
+              <button onClick={handleVerifyRetapAgain} style={{ padding: "5px 9px", borderRadius: "6px", border: "1px solid rgba(96,165,250,0.35)", background: "rgba(96,165,250,0.1)", color: "#93c5fd", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>Replace Section</button>
               <button onClick={handleStopVerification} style={{ padding: "5px 9px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", background: "transparent", color: "#fff", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>Stop</button>
             </div>
           </div>
@@ -2446,7 +2311,7 @@ export default function DevCalibrator({
                 );
               })}
 
-              {timelineModeShowsRawTaps && displayTaps.filter((tap: any) => tap.correctedTimeMs >= visibleTimeline.startTimeMs && tap.correctedTimeMs <= visibleTimeline.endTimeMs).map((tap: any) => (
+              {timelineModeShowsRawTaps && activeTaps.filter((tap: any) => tap.correctedTimeMs >= visibleTimeline.startTimeMs && tap.correctedTimeMs <= visibleTimeline.endTimeMs).map((tap: any) => (
                 <div key={tap.id} title={`Raw anchor ${(tap.correctedTimeMs / 1000).toFixed(2)}s`} style={{ position: "absolute", top: `${rawTapLane.top}px`, height: `${rawTapLane.height}px`, left: `${timelinePct(tap.correctedTimeMs)}%`, width: "2px", background: "#a1a1aa", opacity: 0.72, zIndex: 8, pointerEvents: "none" }} />
               ))}
 
@@ -2757,7 +2622,7 @@ export default function DevCalibrator({
                       <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
                         <button onClick={() => handleAcceptGroup(group)} style={{ padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(52,211,153,0.35)", background: "rgba(52,211,153,0.08)", color: "#34d399", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>Accept Group</button>
                         <button onClick={() => handleMarkGroupUncertain(group)} style={{ padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(251,191,36,0.35)", background: "rgba(251,191,36,0.08)", color: "#fbbf24", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>Mark Uncertain</button>
-                        <button onClick={() => handleStartRetapRegion(group)} style={{ padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(96,165,250,0.35)", background: "rgba(96,165,250,0.08)", color: "#93c5fd", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>Retap Region</button>
+                        <button onClick={() => handleStartRetapRegion(group)} style={{ padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(96,165,250,0.35)", background: "rgba(96,165,250,0.08)", color: "#93c5fd", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>Replace Section</button>
                         <button onClick={() => handleVerifyGroup(group)} style={{ padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(244,114,182,0.35)", background: verificationGroup?.id === group.id ? "rgba(244,114,182,0.22)" : "rgba(244,114,182,0.08)", color: "#f9a8d4", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>Verify Loop</button>
                         <button onClick={() => setExpandedGroups(current => ({ ...current, [group.id]: !expanded }))} style={{ padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", background: "transparent", color: "#fff", fontSize: "0.68rem", fontWeight: 900, cursor: "pointer" }}>{expanded ? "Hide Details" : "Review Details"}</button>
                       </div>
