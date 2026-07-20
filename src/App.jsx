@@ -605,6 +605,17 @@ export default function App() {
               <div className="video-wrapper">
                 <div key={songData?.youtubeId || "yt-player"} id="yt-player" ref={ytPlayerRefCallback}></div>
                 <AudioShield onPlayToggle={handlePlayToggle} />
+                {mode !== "practice" && (
+                  <Visualizer 
+                    danceStyle={songData?.genre?.toLowerCase() || "salsa"}
+                    currentTime={currentTime}
+                    introEnd={0}
+                    currentBeat={currentBeat}
+                    activeSection={activeSection}
+                    activeBreak={null}
+                    isPlaying={isActuallyPlaying}
+                  />
+                )}
               </div>
 
               {mode === "practice" ? (
@@ -615,17 +626,7 @@ export default function App() {
                   isPlaying={isActuallyPlaying}
                   onPlayToggle={handlePlayToggle}
                 />
-              ) : (
-                <Visualizer 
-                  danceStyle={songData?.genre?.toLowerCase() || "salsa"}
-                  currentTime={currentTime}
-                  introEnd={0}
-                  currentBeat={currentBeat}
-                  activeSection={activeSection}
-                  activeBreak={null}
-                  isPlaying={isActuallyPlaying}
-                />
-              )}
+              ) : null}
 
               <RoadmapScrubber
                 currentTime={currentTime}

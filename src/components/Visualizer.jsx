@@ -1,4 +1,4 @@
-
+import { useEffect, useRef, useState } from "react";
 
 export default function Visualizer({
   danceStyle: _danceStyle = "salsa",
@@ -9,6 +9,9 @@ export default function Visualizer({
   activeBreak: _activeBreak = null,
   isPlaying = false
 }) {
+  const [pulse, setPulse] = useState(null);
+  const lastBeatRef = useRef(null);
+  const pulseTimerRef = useRef(null);
   const isQuietSection = ["intro", "outro"].includes(_activeSection?.category);
   const isActive = 
     isPlaying &&
@@ -17,45 +20,32 @@ export default function Visualizer({
     currentBeat && 
     currentBeat.count === 1;
 
-  let highlightStyle = {};
-  if (isActive) {
-    highlightStyle = {
-      background: "#ffffff",
-      color: "#000000",
-      borderColor: "#ffffff",
-      boxShadow: "0 0 28px 8px rgba(255, 255, 255, 0.95), inset 0 0 8px rgba(255, 255, 255, 0.5)",
-      transform: "scale(1.15)"
+  useEffect(() => {
+    if (!isActive) return;
+    const beatKey = currentBeat.timestampMs || currentBeat.timeMs || currentTime;
+    if (lastBeatRef.current === beatKey) return;
+    lastBeatRef.current = beatKey;
+    setPulse({ id: `${beatKey}-${performance.now()}` });
+    if (pulseTimerRef.current) clearTimeout(pulseTimerRef.current);
+    pulseTimerRef.current = setTimeout(() => setPulse(null), 430);
+  }, [currentBeat, currentTime, isActive]);
+
+  useEffect(() => {
+    return () => {
+      if (pulseTimerRef.current) clearTimeout(pulseTimerRef.current);
     };
-  }
+  }, []);
 
   return (
-    <div className="visualizer-wrapper">
-      <div className="glass-panel visualizer-glass-panel" style={{ display: "flex", justifyContent: "center", alignItems: "center", padding: "24px" }}>
-        <div 
-          className="beat-circle" 
-          style={{
-            width: "80px",
-            height: "80px",
-            borderRadius: "50%",
-            border: "2px solid rgba(255, 255, 255, 0.12)",
-            background: "rgba(255, 255, 255, 0.02)",
-            color: "rgba(255, 255, 255, 0.4)",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: "1.8rem",
-            fontWeight: "900",
-            transition: "all 0.1s ease",
-            ...highlightStyle
-          }}
-        >
-          <span>1</span>
-          <span style={{ fontSize: "0.55rem", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.5px", marginTop: "2px", opacity: isActive ? 0.8 : 0.4 }}>
-            Downbeat
-          </span>
+    <div className="downbeat-overlay" aria-hidden="true">
+      {pulse && (
+        <div key={pulse.id} className="downbeat-pulse">
+          <div className="downbeat-shockwave" />
+          <div className="downbeat-core">
+            <span>1</span>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
