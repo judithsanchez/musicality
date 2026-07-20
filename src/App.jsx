@@ -637,6 +637,7 @@ export default function App() {
                 timeToNextSection={timeToNextSection}
                 sectionsList={sectionsList}
                 breaks={[]}
+                events={(calibratedSongData || songData)?.events || []}
                 onSeek={throttledSeek}
               />
 
