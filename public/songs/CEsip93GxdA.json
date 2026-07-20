@@ -100,9 +100,43 @@
       "startedAt": "2026-07-19T22:48:50.233Z",
       "inputLatencyMs": 472,
       "sectionId": "31586db1-c142-4c06-9679-0441ed7eb7f3"
+    },
+    {
+      "id": "20d65c67-a72f-4216-8a16-e347c3ba5f98",
+      "startedAt": "2026-07-20T06:09:29.037Z",
+      "inputLatencyMs": 448,
+      "sectionId": "8745ab27-e3cb-4a0f-a444-f6fc92ada756"
     }
   ],
   "taps": [
+    {
+      "id": "b054a7c8-e11a-4f33-b4ab-4b4e2cb6a6da",
+      "timeMs": 25704,
+      "correctedTimeMs": 25256,
+      "passId": "20d65c67-a72f-4216-8a16-e347c3ba5f98",
+      "source": "manual"
+    },
+    {
+      "id": "fc6a9739-33d0-48b4-9a1d-0ce185b28416",
+      "timeMs": 28088,
+      "correctedTimeMs": 27640,
+      "passId": "20d65c67-a72f-4216-8a16-e347c3ba5f98",
+      "source": "manual"
+    },
+    {
+      "id": "622d8248-e582-4906-a896-c3f8476d98a2",
+      "timeMs": 30422,
+      "correctedTimeMs": 29974,
+      "passId": "20d65c67-a72f-4216-8a16-e347c3ba5f98",
+      "source": "manual"
+    },
+    {
+      "id": "056cb113-4c08-41e9-bc94-8d7b01e5f918",
+      "timeMs": 32888,
+      "correctedTimeMs": 32440,
+      "passId": "20d65c67-a72f-4216-8a16-e347c3ba5f98",
+      "source": "manual"
+    },
     {
       "id": "9c822d2e-33ab-4832-b8f5-bd29b83c4ea2",
       "timeMs": 72467,
@@ -162,6 +196,43 @@
   ],
   "reviewedAnchors": [
     {
+      "source": "manual",
+      "id": "47c19b4b-487f-4e0c-a6f0-59468339150f",
+      "tapId": "b054a7c8-e11a-4f33-b4ab-4b4e2cb6a6da",
+      "timeMs": 25256,
+      "count": 1,
+      "confidence": "suggested",
+      "reviewed": false
+    },
+    {
+      "source": "manual",
+      "id": "d56748d5-96dd-4602-86a0-356a8b7cf9a6",
+      "tapId": "fc6a9739-33d0-48b4-9a1d-0ce185b28416",
+      "timeMs": 27640,
+      "count": 5,
+      "confidence": "suggested",
+      "reviewed": false
+    },
+    {
+      "source": "manual",
+      "id": "bdd8c383-9146-4c55-8196-2325945d3454",
+      "tapId": "622d8248-e582-4906-a896-c3f8476d98a2",
+      "timeMs": 29974,
+      "count": 1,
+      "confidence": "suggested",
+      "reviewed": false
+    },
+    {
+      "source": "manual",
+      "id": "c2bc3788-d49a-4c32-b5e5-9703ea0d8d43",
+      "tapId": "056cb113-4c08-41e9-bc94-8d7b01e5f918",
+      "timeMs": 32440,
+      "count": 5,
+      "confidence": "suggested",
+      "reviewed": false
+    },
+    {
+      "source": "manual",
       "id": "b1000c85-162f-4278-88df-b4eeabd5780f",
       "tapId": "9c822d2e-33ab-4832-b8f5-bd29b83c4ea2",
       "timeMs": 71995,
@@ -170,6 +241,7 @@
       "reviewed": true
     },
     {
+      "source": "manual",
       "id": "81208cdc-41c9-48a2-9d4f-de47ca5f7572",
       "tapId": "531f1b2f-89df-4f68-a71b-488315c29a02",
       "timeMs": 74804,
@@ -178,6 +250,7 @@
       "reviewed": true
     },
     {
+      "source": "manual",
       "id": "03b9a327-7bc0-4fe9-9e7e-e7d76b6c2381",
       "tapId": "546e144d-82a9-4aa1-a510-f5ab193e8de0",
       "timeMs": 76153,
@@ -186,6 +259,7 @@
       "reviewed": true
     },
     {
+      "source": "manual",
       "id": "e0e32eda-64ed-4c2f-a527-2f90d453c3cb",
       "tapId": "10ac43e2-e939-4a71-805d-84852f72660e",
       "timeMs": 78453,
@@ -194,6 +268,7 @@
       "reviewed": true
     },
     {
+      "source": "manual",
       "id": "ee7daaff-6999-4435-ae0a-433edd15535b",
       "tapId": "9bd61af1-44a2-43ba-bbb7-9e43b203acac",
       "timeMs": 80845,
@@ -202,6 +277,7 @@
       "reviewed": true
     },
     {
+      "source": "manual",
       "id": "6c789a71-bd4d-4984-b8a1-a928ce06f093",
       "tapId": "52491aa4-a57a-4492-a904-fb4e3846b67a",
       "timeMs": 83311,
@@ -210,6 +286,7 @@
       "reviewed": true
     },
     {
+      "source": "manual",
       "id": "024abf4b-b7f1-4ccc-b139-91c96775068c",
       "tapId": "11c6b3b8-ae3c-40c3-9230-bee8529b6846",
       "timeMs": 85728,
@@ -218,6 +295,7 @@
       "reviewed": true
     },
     {
+      "source": "manual",
       "id": "4da84b3c-07e9-4034-8cd2-97b31aacf6a4",
       "tapId": "bb273458-4855-44e9-b385-38cab406d3b8",
       "timeMs": 88262,
@@ -240,5 +318,5 @@
       }
     ]
   },
-  "schemaVersion": "3.3"
+  "schemaVersion": "3.4"
 }

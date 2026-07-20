@@ -152,7 +152,8 @@ export function useSyncEngine(
         const tapById = new Map((sData.taps || []).map((tap: any) => [tap.id, tap]));
         const countOneAnchors = (sData.reviewedAnchors || []).filter((anchor: any) => {
           const tap = tapById.get(anchor.tapId) as any;
-          return anchor.count === 1 && anchor.reviewed && passIds.has(tap?.passId);
+          const passId = anchor.passId || tap?.passId;
+          return anchor.count === 1 && anchor.reviewed && passIds.has(passId);
         });
         if (countOneAnchors.length > 0) {
           for (let i = 0; i < countOneAnchors.length; i++) {

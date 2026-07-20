@@ -112,7 +112,8 @@ export default function GameCanvas({
     const tapById = new Map((songData?.taps || []).map(tap => [tap.id, tap]));
     const beats = (songData?.reviewedAnchors || []).filter(anchor => {
       const tap = tapById.get(anchor.tapId);
-      return anchor.count === 1 && anchor.reviewed && passIds.has(tap?.passId);
+      const passId = anchor.passId || tap?.passId;
+      return anchor.count === 1 && anchor.reviewed && passIds.has(passId);
     });
     if (beats.length === 0) return;
 

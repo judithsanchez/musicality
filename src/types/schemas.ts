@@ -47,7 +47,9 @@ export const TapSchema = z.object({
 
 export const ReviewedAnchorSchema = z.object({
   id: z.string().trim().min(1),
-  tapId: z.string().trim().min(1),
+  tapId: z.string().trim().min(1).optional(),
+  passId: z.string().trim().min(1).optional(),
+  source: z.enum(['manual', 'filled']).default('manual'),
   timeMs: z.number().int().nonnegative(),
   count: z.union([z.literal(1), z.literal(4), z.literal(5), z.literal(8)]),
   confidence: z.enum(['suggested', 'confirmed', 'uncertain']).default('suggested'),
@@ -77,7 +79,7 @@ export const SongMapSchema = z.object({
   taps: z.array(TapSchema).default([]),
   reviewedAnchors: z.array(ReviewedAnchorSchema).default([]),
   tapCalibration: TapCalibrationSchema,
-  schemaVersion: z.literal('3.3')
+  schemaVersion: z.literal('3.4')
 });
 
 export type Genre = z.infer<typeof GenreSchema>;
@@ -190,8 +192,23 @@ export const StrictSongMapSchema = SongMapSchema.superRefine((data, ctx) => {
   });
 
   data.reviewedAnchors.forEach((anchor, index) => {
-    const tap = data.taps.find(item => item.id === anchor.tapId);
-    if (!tapIds.has(anchor.tapId) || !tap) {
+    if (anchor.source === 'manual' && !anchor.tapId) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Manual reviewed anchor requires a raw tap',
+        path: ['reviewedAnchors', index, 'tapId']
+      });
+      return;
+    }
+    if (anchor.source === 'filled' && anchor.tapId) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Filled reviewed anchor must not point to a raw tap',
+        path: ['reviewedAnchors', index, 'tapId']
+      });
+    }
+    const tap = anchor.tapId ? data.taps.find(item => item.id === anchor.tapId) : null;
+    if (anchor.tapId && (!tapIds.has(anchor.tapId) || !tap)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: 'Reviewed anchor points to a missing raw tap',
@@ -199,7 +216,16 @@ export const StrictSongMapSchema = SongMapSchema.superRefine((data, ctx) => {
       });
       return;
     }
-    const pass = data.tapCalibrationPasses.find(item => item.id === tap.passId);
+    const passId = anchor.source === 'filled' ? anchor.passId : tap?.passId;
+    const pass = data.tapCalibrationPasses.find(item => item.id === passId);
+    if (!pass) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Reviewed anchor pass does not exist',
+        path: ['reviewedAnchors', index, 'passId']
+      });
+      return;
+    }
     const section = pass ? sectionById.get(pass.sectionId) : null;
     if (section && (anchor.timeMs < section.startTimeMs || anchor.timeMs > section.endTimeMs)) {
       ctx.addIssue({

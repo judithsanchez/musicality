@@ -127,6 +127,13 @@ export default function DevCalibrator({
 	const [showOffsetCalibrationModal, setShowOffsetCalibrationModal] =
 		useState(false);
 	const [showTapAdvancedReview, setShowTapAdvancedReview] = useState(false);
+	const [fillPreview, setFillPreview] = useState<any | null>(null);
+	const [pendingAutoFillSectionId, setPendingAutoFillSectionId] = useState<
+		string | null
+	>(null);
+	const [clearTapSectionRequest, setClearTapSectionRequest] = useState<any | null>(
+		null,
+	);
 	const [tapCountdown, setTapCountdown] = useState<number | null>(null);
 	const [pendingTapRoundSection, setPendingTapRoundSection] =
 		useState<any>(null);
@@ -175,6 +182,7 @@ export default function DevCalibrator({
 	const anchorLoopTimerRef = useRef<number | null>(null);
 	const tapCountdownTimerRef = useRef<number | null>(null);
 	const tapRoundEndTimerRef = useRef<number | null>(null);
+	const sectionPreviewTimerRef = useRef<number | null>(null);
 	const reviewedAnchorOptions =
 		songData?.genre === 'BACHATA'
 			? [
@@ -232,7 +240,11 @@ export default function DevCalibrator({
 		() =>
 				reviewedAnchors.filter((anchor: any) => {
 					const tap = tapById.get(anchor.tapId) as any;
-					const pass = tap ? (passById.get(tap.passId) as any) : null;
+					const pass = anchor.passId
+						? (passById.get(anchor.passId) as any)
+						: tap
+							? (passById.get(tap.passId) as any)
+							: null;
 					return Boolean(pass);
 				}),
 		[passById, reviewedAnchors, tapById],
@@ -410,21 +422,26 @@ export default function DevCalibrator({
 							anchor.timeMs <= section.endTimeMs,
 					)
 					.sort((a: any, b: any) => a.timeMs - b.timeMs);
+				const previewAnchors =
+					fillPreview?.sectionId === sectionId ? fillPreview.anchors : [];
+				const verificationSectionAnchors = [...anchors, ...previewAnchors].sort(
+					(a: any, b: any) => a.timeMs - b.timeMs,
+				);
 				return {
 					id: verificationGroupId,
 					index: editorSections.findIndex(item => item.id === sectionId),
-					anchors,
+					anchors: verificationSectionAnchors,
 					startTimeMs: section.startTimeMs,
 					endTimeMs: section.endTimeMs,
-					confidence: anchors.length >= 3 ? 'medium' : 'low',
-					reasons: anchors.length
-						? ['section verification']
+					confidence: verificationSectionAnchors.length >= 3 ? 'medium' : 'low',
+					reasons: verificationSectionAnchors.length
+						? [previewAnchors.length ? 'section verification, fill preview' : 'section verification']
 						: ['no anchors yet'],
 				};
 			}
 		}
 		return null;
-	}, [activeReviewedAnchors, editorSections, tapGroups, verificationGroupId]);
+	}, [activeReviewedAnchors, editorSections, fillPreview, tapGroups, verificationGroupId]);
 
 	const verificationAnchors = useMemo(() => {
 		if (!verificationGroup) return [];
@@ -1093,6 +1110,9 @@ export default function DevCalibrator({
 			if (tapRoundEndTimerRef.current) {
 				window.clearInterval(tapRoundEndTimerRef.current);
 			}
+			if (sectionPreviewTimerRef.current) {
+				window.clearInterval(sectionPreviewTimerRef.current);
+			}
 		};
 	}, []);
 
@@ -1120,6 +1140,7 @@ export default function DevCalibrator({
 	};
 
 	const createReplacementSectionTapPass = (section: any) => {
+		setFillPreview(null);
 		const oldSectionPassIds = new Set(
 			tapCalibrationPasses
 				.filter((pass: any) => pass.sectionId === section.id)
@@ -1164,6 +1185,218 @@ export default function DevCalibrator({
 		setActivePassId(pass.id);
 		return {passId: pass.id, passes: nextPasses};
 	};
+
+	const clearSectionTapData = (section: any) => {
+		const sectionPassIds = new Set(
+			tapCalibrationPasses
+				.filter((pass: any) => pass.sectionId === section.id)
+				.map((pass: any) => pass.id),
+		);
+		const deletedTapIds = new Set(
+			taps
+				.filter((tap: any) => sectionPassIds.has(tap.passId))
+				.map((tap: any) => tap.id),
+		);
+		const nextPasses = tapCalibrationPasses.filter(
+			(pass: any) => !sectionPassIds.has(pass.id),
+		);
+		const nextTaps = taps.filter((tap: any) => !deletedTapIds.has(tap.id));
+		const nextAnchors = reviewedAnchors.filter((anchor: any) => {
+			const anchorPassId = anchor.passId || tapById.get(anchor.tapId)?.passId;
+			return !sectionPassIds.has(anchorPassId) && !deletedTapIds.has(anchor.tapId);
+		});
+		updateTapCalibrationState(nextPasses, nextTaps, nextAnchors, true);
+		if (activeTapSectionId === section.id) setActivePassId(null);
+		if (fillPreview?.sectionId === section.id) setFillPreview(null);
+		setVerificationGroupId(null);
+		showToast('Section taps cleared.');
+	};
+
+	const handleConfirmClearSectionTaps = () => {
+		if (!clearTapSectionRequest) return;
+		clearSectionTapData(clearTapSectionRequest);
+		setClearTapSectionRequest(null);
+	};
+
+	const hiddenBreaksForSection = (section: any) =>
+		calibrationEvents.filter(
+			(event: any) =>
+				event.startTimeMs < section.endTimeMs &&
+				event.endTimeMs > section.startTimeMs &&
+				(event.tags || []).includes(HIDE_DOWNBEATS_TAG),
+		);
+
+	const rangeTouchesHiddenBreak = (startTimeMs: number, endTimeMs: number, section: any) =>
+		hiddenBreaksForSection(section).some(
+			(event: any) =>
+				event.startTimeMs < Math.max(startTimeMs, endTimeMs) &&
+				event.endTimeMs > Math.min(startTimeMs, endTimeMs),
+		);
+
+	const generateFillPreview = (section: any) => {
+		if (songData?.genre !== 'SALSA') {
+			showToast('Auto-fill is only available for Salsa 1/5 sections right now.');
+			return;
+		}
+		const pass = tapCalibrationPasses.find(
+			(item: any) => item.sectionId === section.id,
+		);
+		if (!pass) {
+			showToast('Tap this section before using Auto-Fill.');
+			return;
+		}
+		const sectionAnchors = activeReviewedAnchors
+			.filter((anchor: any) => {
+				const anchorPassId =
+					anchor.passId || tapById.get(anchor.tapId)?.passId;
+				return (
+					anchorPassId === pass.id &&
+					anchor.source !== 'filled' &&
+					anchor.timeMs >= section.startTimeMs &&
+					anchor.timeMs <= section.endTimeMs
+				);
+			})
+			.sort((a: any, b: any) => a.timeMs - b.timeMs);
+		if (sectionAnchors.length < 2) {
+			showToast('Auto-Fill needs at least two tapped anchors.');
+			return;
+		}
+		const invalidCycle = sectionAnchors
+			.slice(1)
+			.some(
+				(anchor: any, index: number) =>
+					anchor.count !== expectedNextCount(sectionAnchors[index].count),
+			);
+		if (invalidCycle) {
+			showToast('Auto-Fill needs a clean 1/5 pattern first.');
+			return;
+		}
+		const gaps = sectionAnchors
+			.slice(1)
+			.map((anchor: any, index: number) => anchor.timeMs - sectionAnchors[index].timeMs)
+			.filter((gap: number) => gap >= 400 && gap <= 7000);
+		const stepMs = Math.round(median(gaps));
+		if (!stepMs || stepMs < 400) {
+			showToast('Auto-Fill could not find a stable anchor spacing.');
+			return;
+		}
+		const filledAnchors: any[] = [];
+		const addFilledAnchor = (timeMs: number, count: number) => {
+			const roundedTimeMs = Math.round(timeMs);
+			if (
+				roundedTimeMs < section.startTimeMs ||
+				roundedTimeMs > section.endTimeMs ||
+				sectionAnchors.some((anchor: any) => Math.abs(anchor.timeMs - roundedTimeMs) < 180) ||
+				filledAnchors.some(anchor => Math.abs(anchor.timeMs - roundedTimeMs) < 180) ||
+				rangeTouchesHiddenBreak(roundedTimeMs - 120, roundedTimeMs + 120, section)
+			) {
+				return;
+			}
+			filledAnchors.push({
+				id: crypto.randomUUID(),
+				passId: pass.id,
+				source: 'filled',
+				timeMs: roundedTimeMs,
+				count,
+				confidence: 'suggested',
+				reviewed: false,
+			});
+		};
+
+		for (let index = 0; index < sectionAnchors.length - 1; index++) {
+			const start = sectionAnchors[index];
+			const end = sectionAnchors[index + 1];
+			if (rangeTouchesHiddenBreak(start.timeMs, end.timeMs, section)) continue;
+			let nextTimeMs = start.timeMs + stepMs;
+			let nextCount = expectedNextCount(start.count);
+			while (nextTimeMs < end.timeMs - stepMs * 0.55) {
+				addFilledAnchor(nextTimeMs, nextCount);
+				nextTimeMs += stepMs;
+				nextCount = expectedNextCount(nextCount);
+			}
+		}
+
+		let previousTimeMs = sectionAnchors[0].timeMs - stepMs;
+		let previousCount = expectedNextCount(sectionAnchors[0].count);
+		while (previousTimeMs >= section.startTimeMs) {
+			if (rangeTouchesHiddenBreak(previousTimeMs, previousTimeMs + stepMs, section)) break;
+			addFilledAnchor(previousTimeMs, previousCount);
+			previousTimeMs -= stepMs;
+			previousCount = expectedNextCount(previousCount);
+		}
+
+		let nextTimeMs = sectionAnchors.at(-1).timeMs + stepMs;
+		let nextCount = expectedNextCount(sectionAnchors.at(-1).count);
+		while (nextTimeMs <= section.endTimeMs) {
+			if (rangeTouchesHiddenBreak(nextTimeMs - stepMs, nextTimeMs, section)) break;
+			addFilledAnchor(nextTimeMs, nextCount);
+			nextTimeMs += stepMs;
+			nextCount = expectedNextCount(nextCount);
+		}
+
+		const sortedFilledAnchors = filledAnchors.sort((a, b) => a.timeMs - b.timeMs);
+		setFillPreview({
+			id: `fill:${section.id}`,
+			sectionId: section.id,
+			passId: pass.id,
+			startTimeMs: section.startTimeMs,
+			endTimeMs: section.endTimeMs,
+			anchors: sortedFilledAnchors,
+		});
+		setVerificationGroupId(`section:${section.id}`);
+		if (sortedFilledAnchors.length === 0) {
+			showToast('No safe missing anchors found for this section.');
+		} else {
+			showToast(`Auto-Fill preview created: ${sortedFilledAnchors.length} anchors.`);
+		}
+	};
+
+	const acceptFillPreview = () => {
+		if (!fillPreview) return;
+		const acceptedAnchors = fillPreview.anchors.map((anchor: any) => ({
+			...anchor,
+			reviewed: true,
+			confidence: 'confirmed',
+		}));
+		updateTapCalibrationState(
+			tapCalibrationPasses,
+			taps,
+			[...reviewedAnchors, ...acceptedAnchors],
+			true,
+		);
+		setFillPreview(null);
+		showToast('Filled anchors accepted.');
+	};
+
+	const rejectFillPreview = () => {
+		setFillPreview(null);
+		showToast('Fill preview rejected.');
+	};
+
+	useEffect(() => {
+		if (
+			!pendingAutoFillSectionId ||
+			activeRetapRegion ||
+			pendingTapRoundSection ||
+			tapCountdown !== null
+		) {
+			return;
+		}
+		const section = editorSections.find(
+			item => item.id === pendingAutoFillSectionId,
+		);
+		setPendingAutoFillSectionId(null);
+		if (section) generateFillPreview(section);
+	}, [
+		activeRetapRegion,
+		editorSections,
+		pendingAutoFillSectionId,
+		pendingTapRoundSection,
+		tapCountdown,
+		taps,
+		reviewedAnchors,
+		generateFillPreview,
+	]);
 
 	const suggestedCountForTap = (
 		timeMs: number,
@@ -1244,6 +1477,7 @@ export default function DevCalibrator({
 		const anchor = {
 			id: crypto.randomUUID(),
 			tapId: tap.id,
+			source: 'manual',
 			timeMs: correctedTimeMs,
 			count: suggestedCountForTap(correctedTimeMs, passState.passId),
 			confidence: 'suggested',
@@ -1382,13 +1616,52 @@ export default function DevCalibrator({
 		}
 	};
 
+	const clearSectionPreviewTimer = () => {
+		if (sectionPreviewTimerRef.current) {
+			window.clearInterval(sectionPreviewTimerRef.current);
+			sectionPreviewTimerRef.current = null;
+		}
+	};
+
 	const handleStopRetapRegion = () => {
 		clearTapRoundTimers();
+		clearSectionPreviewTimer();
 		setTapCountdown(null);
 		setPendingTapRoundSection(null);
 		setActiveRetapRegion(null);
 		setActivePassId(null);
 		showToast('Tap round stopped.');
+	};
+
+	const handlePreviewSection = (section: any) => {
+		clearTapRoundTimers();
+		clearSectionPreviewTimer();
+		if (anchorLoopTimerRef.current) {
+			window.clearInterval(anchorLoopTimerRef.current);
+			anchorLoopTimerRef.current = null;
+		}
+		setActiveTapSectionId(section.id);
+		setFocusedSectionId(section.id);
+		setActiveRetapRegion(null);
+		setPendingTapRoundSection(null);
+		zoomTimelineToRange(section.startTimeMs, section.endTimeMs, 500);
+		throttledSeek(section.startTimeMs / 1000, true);
+		try {
+			player?.playVideo?.();
+		} catch (err) {
+			console.warn(err);
+		}
+		sectionPreviewTimerRef.current = window.setInterval(() => {
+			try {
+				if (player?.getCurrentTime?.() >= section.endTimeMs / 1000) {
+					player?.pauseVideo?.();
+					clearSectionPreviewTimer();
+					showToast('Section preview complete.');
+				}
+			} catch (err) {
+				console.warn(err);
+			}
+		}, 120);
 	};
 
 	const armTapRoundPlayback = (region: any, passState: any) => {
@@ -1418,6 +1691,7 @@ export default function DevCalibrator({
 						tapRoundEndTimerRef.current = null;
 					}
 					setActiveRetapRegion(null);
+					setPendingAutoFillSectionId(region.sectionId || null);
 					showToast('Tap round complete.');
 				}
 			} catch (err) {
@@ -1436,6 +1710,7 @@ export default function DevCalibrator({
 			window.clearInterval(anchorLoopTimerRef.current);
 			anchorLoopTimerRef.current = null;
 		}
+		clearSectionPreviewTimer();
 		const decisions =
 			latestSongDataRef.current?.tapCalibration?.sectionDecisions || [];
 		if (
@@ -1543,6 +1818,7 @@ export default function DevCalibrator({
 		endTimeMs: number,
 		paddingMs = 2000,
 	) => {
+		clearSectionPreviewTimer();
 		const startSec = Math.max(0, (startTimeMs - paddingMs) / 1000);
 		const endSec = Math.min(duration, (endTimeMs + paddingMs) / 1000);
 		if (anchorLoopTimerRef.current) {
@@ -3697,6 +3973,24 @@ export default function DevCalibrator({
 									<>
 										<button
 											onClick={() =>
+												handlePreviewSection(activeTapSectionCard.section)
+											}
+											style={{
+												flex: '1 1 110px',
+												padding: '6px 8px',
+												borderRadius: '6px',
+												border: '1px solid rgba(255,255,255,0.12)',
+												background: 'rgba(255,255,255,0.04)',
+												color: '#d4d4d8',
+												fontSize: '0.68rem',
+												fontWeight: 900,
+												cursor: 'pointer',
+											}}
+										>
+											Preview Section
+										</button>
+										<button
+											onClick={() =>
 												activeTapRoundSectionId ===
 												activeTapSectionCard.section.id
 													? handleStopRetapRegion()
@@ -3759,6 +4053,32 @@ export default function DevCalibrator({
 										</button>
 										<button
 											onClick={() =>
+												generateFillPreview(activeTapSectionCard.section)
+											}
+											disabled={activeTapSectionCard.sectionAnchors.length < 2}
+											style={{
+												flex: '1 1 110px',
+												padding: '6px 8px',
+												borderRadius: '6px',
+												border: '1px solid rgba(52,211,153,0.35)',
+												background: 'rgba(52,211,153,0.08)',
+												color: '#34d399',
+												fontSize: '0.68rem',
+												fontWeight: 900,
+												cursor:
+													activeTapSectionCard.sectionAnchors.length < 2
+														? 'not-allowed'
+														: 'pointer',
+												opacity:
+													activeTapSectionCard.sectionAnchors.length < 2
+														? 0.45
+														: 1,
+											}}
+										>
+											Auto-Fill
+										</button>
+										<button
+											onClick={() =>
 												updateTapSectionDecision(
 													activeTapSectionCard.section.id,
 													!activeTapSectionCard.markedNotNeeded,
@@ -3784,9 +4104,104 @@ export default function DevCalibrator({
 												? 'Needs Tapping'
 												: 'Not Needed'}
 										</button>
+										{activeTapSectionCard.sectionAnchors.length > 0 && (
+											<button
+												onClick={() =>
+													setClearTapSectionRequest(
+														activeTapSectionCard.section,
+													)
+												}
+												style={{
+													flex: '1 1 120px',
+													padding: '6px 8px',
+													borderRadius: '6px',
+													border: '1px solid rgba(248,113,113,0.35)',
+													background: 'rgba(248,113,113,0.08)',
+													color: '#fca5a5',
+													fontSize: '0.68rem',
+													fontWeight: 900,
+													cursor: 'pointer',
+												}}
+											>
+												Clear Section Taps
+											</button>
+										)}
 									</>
 								)}
 							</div>
+							{fillPreview &&
+								activeTapSectionCard?.section.id === fillPreview.sectionId && (
+									<div
+										style={{
+											display: 'flex',
+											gap: '6px',
+											flexWrap: 'wrap',
+											alignItems: 'center',
+											padding: '6px',
+											borderRadius: '8px',
+											border: '1px solid rgba(52,211,153,0.2)',
+											background: 'rgba(52,211,153,0.06)',
+										}}
+									>
+										<span
+											style={{
+												flex: '1 1 160px',
+												color: '#d4d4d8',
+												fontSize: '0.66rem',
+												fontWeight: 800,
+											}}
+										>
+											Fill preview: {fillPreview.anchors.length} anchors
+										</span>
+										<button
+											onClick={acceptFillPreview}
+											style={{
+												padding: '5px 8px',
+												borderRadius: '6px',
+												border: '1px solid rgba(52,211,153,0.35)',
+												background: 'rgba(52,211,153,0.12)',
+												color: '#34d399',
+												fontSize: '0.66rem',
+												fontWeight: 900,
+												cursor: 'pointer',
+											}}
+										>
+											Accept Fill
+										</button>
+										<button
+											onClick={() =>
+												handleVerifySection(activeTapSectionCard.section)
+											}
+											style={{
+												padding: '5px 8px',
+												borderRadius: '6px',
+												border: '1px solid rgba(244,114,182,0.35)',
+												background: 'rgba(244,114,182,0.08)',
+												color: '#f9a8d4',
+												fontSize: '0.66rem',
+												fontWeight: 900,
+												cursor: 'pointer',
+											}}
+										>
+											Verify Fill
+										</button>
+										<button
+											onClick={rejectFillPreview}
+											style={{
+												padding: '5px 8px',
+												borderRadius: '6px',
+												border: '1px solid rgba(255,255,255,0.12)',
+												background: 'transparent',
+												color: '#d4d4d8',
+												fontSize: '0.66rem',
+												fontWeight: 900,
+												cursor: 'pointer',
+											}}
+										>
+											Reject Fill
+										</button>
+									</div>
+								)}
 						</div>
 					)}
 
@@ -4498,7 +4913,7 @@ export default function DevCalibrator({
 											return (
 												<div
 													key={anchor.id}
-													title={`Reviewed ${anchor.count} ${(anchor.timeMs / 1000).toFixed(2)}s`}
+													title={`${anchor.source === 'filled' ? 'Filled' : 'Reviewed'} ${anchor.count} ${(anchor.timeMs / 1000).toFixed(2)}s`}
 													style={{
 														position: 'absolute',
 														top: `${top}px`,
@@ -4509,9 +4924,44 @@ export default function DevCalibrator({
 														opacity: anchor.reviewed ? 0.95 : 0.55,
 														zIndex: 9,
 														pointerEvents: 'none',
+														borderRadius:
+															anchor.source === 'filled' ? '999px' : '0',
 														boxShadow: anchor.reviewed
 															? `0 0 9px ${color}aa`
 															: 'none',
+													}}
+												/>
+											);
+										})}
+
+								{timelineModeShowsReviewed &&
+									fillPreview?.anchors
+										.filter(
+											(anchor: any) =>
+												anchor.timeMs >= visibleTimeline.startTimeMs &&
+												anchor.timeMs <= visibleTimeline.endTimeMs,
+										)
+										.map((anchor: any) => {
+											const color =
+												REVIEWED_ANCHOR_COLORS[anchor.count] || '#ffffff';
+											return (
+												<div
+													key={`fill-preview-${anchor.id}`}
+													title={`Fill preview ${anchor.count} ${(anchor.timeMs / 1000).toFixed(2)}s`}
+													style={{
+														position: 'absolute',
+														top: `${reviewedLane.top + 18}px`,
+														height: '10px',
+														left: `${timelinePct(anchor.timeMs)}%`,
+														width: '8px',
+														transform: 'translateX(-50%)',
+														borderRadius: '999px',
+														border: `1px dashed ${color}`,
+														background: 'rgba(0,0,0,0.2)',
+														opacity: 0.9,
+														zIndex: 13,
+														pointerEvents: 'none',
+														boxShadow: `0 0 8px ${color}88`,
 													}}
 												/>
 											);
@@ -5799,6 +6249,82 @@ export default function DevCalibrator({
 									Clear Saved Offset
 								</button>
 							)}
+						</div>
+					</div>
+				</div>
+			)}
+			{clearTapSectionRequest && (
+				<div
+					style={{
+						position: 'fixed',
+						inset: 0,
+						zIndex: 80,
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+						background: 'rgba(0,0,0,0.68)',
+						padding: '20px',
+					}}
+				>
+					<div
+						style={{
+							width: 'min(460px, 100%)',
+							borderRadius: '12px',
+							border: '1px solid rgba(248,113,113,0.25)',
+							background: '#09090b',
+							padding: '18px',
+							boxShadow: '0 18px 48px rgba(0,0,0,0.45)',
+							display: 'flex',
+							flexDirection: 'column',
+							gap: '14px',
+						}}
+					>
+						<div style={{display: 'flex', flexDirection: 'column', gap: '5px'}}>
+							<span
+								style={{color: '#fff', fontSize: '1rem', fontWeight: 900}}
+							>
+								Clear Section Taps?
+							</span>
+							<span
+								style={{
+									color: '#a1a1aa',
+									fontSize: '0.78rem',
+									lineHeight: 1.45,
+								}}
+							>
+								This deletes the current tap session, raw taps, reviewed anchors,
+								and accepted filled anchors for this section only.
+							</span>
+						</div>
+						<div style={{display: 'flex', justifyContent: 'flex-end', gap: '8px'}}>
+							<button
+								onClick={() => setClearTapSectionRequest(null)}
+								style={{
+									padding: '8px 12px',
+									borderRadius: '7px',
+									border: '1px solid rgba(255,255,255,0.12)',
+									background: 'transparent',
+									color: '#d4d4d8',
+									fontWeight: 800,
+									cursor: 'pointer',
+								}}
+							>
+								Cancel
+							</button>
+							<button
+								onClick={handleConfirmClearSectionTaps}
+								style={{
+									padding: '8px 12px',
+									borderRadius: '7px',
+									border: '1px solid rgba(248,113,113,0.45)',
+									background: 'rgba(248,113,113,0.14)',
+									color: '#fca5a5',
+									fontWeight: 900,
+									cursor: 'pointer',
+								}}
+							>
+								Clear Taps
+							</button>
 						</div>
 					</div>
 				</div>
