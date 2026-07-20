@@ -668,6 +668,70 @@ export default function DevCalibrator({
 		tapCalibrationPasses,
 		tapSectionDecisions,
 	]);
+
+	const releaseChecklist = useMemo(() => {
+		const songDraft = calibratedSongData || songData;
+		const categoryIds = categories.map(category => category.id);
+		const tagIds = tags.map(tag => tag.id);
+		const schemaValidation = songDraft
+			? createVocabularySongMapSchema(categoryIds, tagIds).safeParse({
+					...songDraft,
+					status: 'READY',
+				})
+			: null;
+		const hasSections = editorSections.length > 0;
+		const sectionsCategorized =
+			hasSections && editorSections.every(section => Boolean(section.category));
+		const eventsCategorized = calibrationEvents.every((event: any) =>
+			Boolean(event.category),
+		);
+		const tapsReady =
+			tapSectionCards.length > 0 &&
+			tapSectionCards.every(card =>
+				['Calibrated', 'Marked Not Needed', 'Optional'].includes(card.status),
+			);
+		const items = [
+			{
+				id: 'structure',
+				label: 'Intro + full song section structure',
+				ready: sectionStructureReady,
+			},
+			{
+				id: 'sections',
+				label: 'Every section has a category',
+				ready: sectionsCategorized,
+			},
+			{
+				id: 'events',
+				label: 'Every event has a category',
+				ready: eventsCategorized,
+			},
+			{
+				id: 'taps',
+				label: 'Sections are calibrated, optional, or skipped',
+				ready: tapsReady,
+			},
+			{
+				id: 'schema',
+				label: 'Song JSON passes Zod release validation',
+				ready: Boolean(schemaValidation?.success),
+			},
+		];
+		return {
+			items,
+			ready: items.every(item => item.ready),
+			issues: schemaValidation && !schemaValidation.success ? schemaValidation.error.issues : [],
+		};
+	}, [
+		calibratedSongData,
+		calibrationEvents,
+		categories,
+		editorSections,
+		sectionStructureReady,
+		songData,
+		tags,
+		tapSectionCards,
+	]);
 	const activeTapSectionCard =
 		tapSectionCards.find(
 			(card: any) => card.section.id === activeTapSectionId,
@@ -2484,6 +2548,11 @@ export default function DevCalibrator({
 	};
 
 	const handlePublishSong = () => {
+		if (!releaseChecklist.ready) {
+			setValidationErrors(releaseChecklist.issues.length ? releaseChecklist.issues : null);
+			showToast('Release blocked. Finish the readiness checklist first.');
+			return;
+		}
 		const updated = {
 			...latestSongDataRef.current,
 			status: 'READY',
@@ -2880,6 +2949,113 @@ export default function DevCalibrator({
 						</span>
 					</div>
 				)}
+
+				<div
+					style={{
+						display: 'grid',
+						gridTemplateColumns: isTapCockpit ? '1fr' : 'minmax(0, 1fr) auto',
+						gap: '12px',
+						alignItems: 'center',
+						padding: isTapCockpit ? '10px 12px' : '12px 14px',
+						borderRadius: '12px',
+						border: releaseChecklist.ready
+							? '1px solid rgba(52,211,153,0.28)'
+							: '1px solid rgba(251,191,36,0.2)',
+						background: releaseChecklist.ready
+							? 'rgba(52,211,153,0.06)'
+							: 'rgba(251,191,36,0.045)',
+					}}
+				>
+					<div style={{display: 'flex', flexDirection: 'column', gap: '7px'}}>
+						<div
+							style={{
+								display: 'flex',
+								alignItems: 'center',
+								gap: '8px',
+								color: releaseChecklist.ready ? '#34d399' : '#fbbf24',
+								fontSize: '0.78rem',
+								fontWeight: 900,
+								textTransform: 'uppercase',
+								letterSpacing: '0.4px',
+							}}
+						>
+							<span>{releaseChecklist.ready ? 'Ready To Release' : 'Release Checklist'}</span>
+							<span
+								style={{
+									color: '#a1a1aa',
+									fontSize: '0.68rem',
+									textTransform: 'none',
+									letterSpacing: 0,
+								}}
+							>
+								updates song JSON + production catalog locally
+							</span>
+						</div>
+						<div
+							style={{
+								display: 'flex',
+								flexWrap: 'wrap',
+								gap: '6px',
+							}}
+						>
+							{releaseChecklist.items.map(item => (
+								<span
+									key={item.id}
+									style={{
+										display: 'inline-flex',
+										alignItems: 'center',
+										gap: '5px',
+										padding: '4px 8px',
+										borderRadius: '999px',
+										border: item.ready
+											? '1px solid rgba(52,211,153,0.25)'
+											: '1px solid rgba(251,191,36,0.24)',
+										background: item.ready
+											? 'rgba(52,211,153,0.08)'
+											: 'rgba(251,191,36,0.06)',
+										color: item.ready ? '#bbf7d0' : '#fde68a',
+										fontSize: '0.66rem',
+										fontWeight: 800,
+									}}
+								>
+									{item.ready ? '✓' : '•'} {item.label}
+								</span>
+							))}
+						</div>
+					</div>
+					<button
+						onClick={handlePublishSong}
+						disabled={saving || !releaseChecklist.ready || songData?.status === 'READY'}
+						style={{
+							padding: '9px 14px',
+							borderRadius: '10px',
+							border: releaseChecklist.ready
+								? '1px solid rgba(52,211,153,0.38)'
+								: '1px solid rgba(255,255,255,0.1)',
+							background:
+								releaseChecklist.ready && songData?.status !== 'READY'
+									? 'rgba(52,211,153,0.16)'
+									: 'rgba(255,255,255,0.04)',
+							color:
+								releaseChecklist.ready && songData?.status !== 'READY'
+									? '#34d399'
+									: '#a1a1aa',
+							fontSize: '0.72rem',
+							fontWeight: 900,
+							cursor:
+								saving || !releaseChecklist.ready || songData?.status === 'READY'
+									? 'not-allowed'
+									: 'pointer',
+							whiteSpace: 'nowrap',
+						}}
+					>
+						{songData?.status === 'READY'
+							? 'Song Ready'
+							: saving
+								? 'Saving...'
+								: 'Mark Song Ready'}
+					</button>
+				</div>
 
 				{activeTab === 3 && false && (
 					<div
