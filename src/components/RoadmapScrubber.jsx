@@ -69,14 +69,16 @@ export default function RoadmapScrubber({
         </span>
       </div>
 
-      <div className="roadmap-scrubber-wrapper">
+      <div
+        className="roadmap-scrubber-wrapper"
+        onClick={(e) => {
+          const rect = e.currentTarget.getBoundingClientRect();
+          const clickPercent = (e.clientX - rect.left) / rect.width;
+          onSeek(clickPercent * duration, true);
+        }}
+      >
         <div
-          className="roadmap-scrubber-track"
-          onClick={(e) => {
-            const rect = e.currentTarget.getBoundingClientRect();
-            const clickPercent = (e.clientX - rect.left) / rect.width;
-            onSeek(clickPercent * duration, true);
-          }}
+          className="roadmap-scrubber-track roadmap-section-track"
         >
           {introEnd > introStart && (
             <div
@@ -109,25 +111,33 @@ export default function RoadmapScrubber({
               </div>
             );
           })}
-
+          <div
+            className="roadmap-playhead"
+            style={{ left: `${(currentTime / duration) * 100}%` }}
+          />
+        </div>
+        <div className="roadmap-scrubber-track roadmap-event-track">
+          {normalizedEvents.length === 0 && (
+            <span className="roadmap-empty-event-lane">No events</span>
+          )}
           {normalizedEvents.map((event, idx) => {
             const theme = eventTheme[event.category] || { icon: "◆", label: event.category };
             return (
-            <div
-              key={event.id || `event-${idx}`}
-              className="roadmap-event-range"
-              style={{
-                left: `${Math.max(0, (event.start / duration) * 100)}%`,
-                width: `${Math.max(0.55, ((event.end - event.start) / duration) * 100)}%`
-              }}
-              title={`${theme.label} · ${formatTime(event.start)}-${formatTime(event.end)}`}
-            >
-              <span>{theme.icon}</span>
-            </div>
-          );})}
-
+              <div
+                key={event.id || `event-${idx}`}
+                className="roadmap-event-range"
+                style={{
+                  left: `${Math.max(0, (event.start / duration) * 100)}%`,
+                  width: `${Math.max(0.55, ((event.end - event.start) / duration) * 100)}%`
+                }}
+                title={`${theme.label} · ${formatTime(event.start)}-${formatTime(event.end)}`}
+              >
+                <span>{theme.icon}</span>
+              </div>
+            );
+          })}
           <div
-            className="roadmap-playhead"
+            className="roadmap-playhead roadmap-playhead-event"
             style={{ left: `${(currentTime / duration) * 100}%` }}
           />
         </div>
