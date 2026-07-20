@@ -81,7 +81,7 @@ export default function DevCalibrator({
   const [verificationGroupId, setVerificationGroupId] = useState<string | null>(null);
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
   const [activeTapSectionId, setActiveTapSectionId] = useState<string | null>(null);
-  const [showTapMetronome, setShowTapMetronome] = useState(false);
+  const [showOffsetCalibrationModal, setShowOffsetCalibrationModal] = useState(false);
   const [showTapAdvancedReview, setShowTapAdvancedReview] = useState(false);
   const [tapCountdown, setTapCountdown] = useState<number | null>(null);
   const [pendingTapRoundSection, setPendingTapRoundSection] = useState<any>(null);
@@ -376,7 +376,10 @@ export default function DevCalibrator({
     try {
       const stored = window.localStorage.getItem(DEVICE_CALIBRATION_KEY);
       if (stored) {
-        setDeviceCalibration(JSON.parse(stored));
+        const parsed = JSON.parse(stored);
+        if (Number.isFinite(parsed?.inputLatencyMs) && Number.isFinite(parsed?.consistencyMs)) {
+          setDeviceCalibration(parsed);
+        }
       }
     } catch (err) {
       console.warn(err);
@@ -710,7 +713,10 @@ export default function DevCalibrator({
       metronomeTimerRef.current = null;
     }
     setMetronomeActive(false);
-    if (metronomeSamples.length === 0) return;
+    if (metronomeSamples.length === 0) {
+      showToast("Tap at least one sample before saving offset.");
+      return;
+    }
     const average = metronomeSamples.reduce((sum, value) => sum + value, 0) / metronomeSamples.length;
     const variance = metronomeSamples.reduce((sum, value) => sum + Math.pow(value - average, 2), 0) / metronomeSamples.length;
     const calibration = {
@@ -720,7 +726,25 @@ export default function DevCalibrator({
     };
     setDeviceCalibration(calibration);
     window.localStorage.setItem(DEVICE_CALIBRATION_KEY, JSON.stringify(calibration));
+    setShowOffsetCalibrationModal(false);
     showToast(`Device calibration saved: ${calibration.inputLatencyMs}ms.`);
+  };
+
+  const clearDeviceCalibration = () => {
+    setDeviceCalibration(null);
+    setMetronomeSamples([]);
+    window.localStorage.removeItem(DEVICE_CALIBRATION_KEY);
+    showToast("Device offset cleared.");
+  };
+
+  const closeOffsetCalibrationModal = () => {
+    if (metronomeTimerRef.current) {
+      window.clearInterval(metronomeTimerRef.current);
+      metronomeTimerRef.current = null;
+    }
+    setMetronomeActive(false);
+    setMetronomeSamples([]);
+    setShowOffsetCalibrationModal(false);
   };
 
   useEffect(() => {
@@ -1955,15 +1979,19 @@ export default function DevCalibrator({
                   {activeTapSectionCard ? `${formatTimelineTime(activeTapSectionCard.section.startTimeMs)}-${formatTimelineTime(activeTapSectionCard.section.endTimeMs)}` : "No section selected"}
                 </span>
               </div>
-              <button onClick={() => setShowTapMetronome(current => !current)} style={{ padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", background: !deviceCalibration ? "rgba(251,191,36,0.12)" : "transparent", color: !deviceCalibration ? "#fbbf24" : "#d4d4d8", fontSize: "0.66rem", fontWeight: 900, cursor: "pointer" }}>
-                {deviceCalibration ? "Offset" : "Set Offset"}
+              <button
+                onClick={() => setShowOffsetCalibrationModal(true)}
+                title="Measure your keyboard/headphone delay. Saved only in this browser, not in song JSON."
+                style={{ padding: "4px 8px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", background: !deviceCalibration ? "rgba(251,191,36,0.12)" : "transparent", color: !deviceCalibration ? "#fbbf24" : "#d4d4d8", fontSize: "0.66rem", fontWeight: 900, cursor: "pointer" }}
+              >
+                {deviceCalibration ? "Device Offset" : "Set Device Offset"}
               </button>
             </div>
 
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: "6px" }}>
               <div style={{ padding: "7px", borderRadius: "8px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
-                <span style={{ display: "block", color: "#71717a", fontSize: "0.58rem", fontWeight: 900, textTransform: "uppercase" }}>Latency</span>
-                <strong style={{ color: "#fff", fontSize: "0.68rem" }}>{deviceCalibration ? `${deviceCalibration.inputLatencyMs}ms` : "none"}</strong>
+                <span style={{ display: "block", color: "#71717a", fontSize: "0.58rem", fontWeight: 900, textTransform: "uppercase" }}>Device Offset</span>
+                <strong title="Keyboard/headphone delay subtracted from your tap times. Saved in localStorage for this browser." style={{ color: "#fff", fontSize: "0.68rem" }}>{deviceCalibration ? `${deviceCalibration.inputLatencyMs}ms` : "not set"}</strong>
               </div>
               <div style={{ padding: "7px", borderRadius: "8px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
                 <span style={{ display: "block", color: "#71717a", fontSize: "0.58rem", fontWeight: 900, textTransform: "uppercase" }}>Raw</span>
@@ -1991,21 +2019,6 @@ export default function DevCalibrator({
                   {activeTapSectionCard.sectionHidden && <span>downbeats hidden</span>}
                   {activeTapSectionCard.hiddenEvents.length > 0 && <span>{activeTapSectionCard.hiddenEvents.length} hidden break{activeTapSectionCard.hiddenEvents.length === 1 ? "" : "s"}</span>}
                 </div>
-              </div>
-            )}
-
-            {(showTapMetronome || !deviceCalibration || metronomeActive) && (
-              <div style={{ display: "grid", gridTemplateColumns: "auto 1fr auto", gap: "7px", alignItems: "center", padding: "6px", borderRadius: "8px", border: "1px solid rgba(251,191,36,0.18)", background: "rgba(251,191,36,0.06)" }}>
-                <div style={{ width: "24px", height: "24px", borderRadius: "50%", background: metronomeActive && metronomeBeat % 2 === 1 ? "#ffffff" : "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.16)", boxShadow: metronomeActive && metronomeBeat % 2 === 1 ? "0 0 18px rgba(255,255,255,0.65)" : "none" }} />
-                <span style={{ color: "#d4d4d8", fontSize: "0.62rem", fontWeight: 800 }}>Consistency {deviceCalibration ? `${deviceCalibration.consistencyMs}ms` : "none"} · Samples {metronomeSamples.length}</span>
-                <button onClick={metronomeActive ? stopMetronomeCalibration : startMetronomeCalibration} style={{ padding: "5px 8px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", background: metronomeActive ? "#ffffff" : "rgba(255,255,255,0.05)", color: metronomeActive ? "#000" : "#fff", fontSize: "0.66rem", fontWeight: 900, cursor: "pointer" }}>
-                  {metronomeActive ? "Save" : "Start"}
-                </button>
-                {metronomeActive && (
-                  <button onClick={handleTap} style={{ padding: "5px 8px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.05)", color: "#fff", fontSize: "0.66rem", fontWeight: 900, cursor: "pointer" }}>
-                    Sample
-                  </button>
-                )}
               </div>
             )}
 
@@ -2685,6 +2698,83 @@ export default function DevCalibrator({
         </div>
       </div>
     </div>
+    {showOffsetCalibrationModal && (
+      <div style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 80,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "rgba(0,0,0,0.68)",
+        padding: "20px"
+      }}>
+        <div style={{
+          width: "min(520px, 100%)",
+          borderRadius: "12px",
+          border: "1px solid rgba(255,255,255,0.12)",
+          background: "#09090b",
+          padding: "18px",
+          boxShadow: "0 18px 48px rgba(0,0,0,0.45)",
+          display: "flex",
+          flexDirection: "column",
+          gap: "14px"
+        }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "12px" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+              <span style={{ color: "#fff", fontSize: "1rem", fontWeight: 900 }}>Device Offset</span>
+              <span style={{ color: "#a1a1aa", fontSize: "0.78rem", lineHeight: 1.45 }}>
+                Measures the delay between hearing the metronome and your keyboard tap. This is saved in this browser only and is subtracted from future tap times.
+              </span>
+            </div>
+            <button onClick={closeOffsetCalibrationModal} style={{ padding: "5px 9px", borderRadius: "7px", border: "1px solid rgba(255,255,255,0.12)", background: "transparent", color: "#d4d4d8", fontWeight: 900, cursor: "pointer" }}>
+              Close
+            </button>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+            <div style={{ padding: "10px", borderRadius: "8px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+              <span style={{ display: "block", color: "#71717a", fontSize: "0.62rem", fontWeight: 900, textTransform: "uppercase" }}>Saved Offset</span>
+              <strong style={{ color: "#fff", fontSize: "1rem" }}>{deviceCalibration ? `${deviceCalibration.inputLatencyMs}ms` : "Not set"}</strong>
+            </div>
+            <div style={{ padding: "10px", borderRadius: "8px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+              <span style={{ display: "block", color: "#71717a", fontSize: "0.62rem", fontWeight: 900, textTransform: "uppercase" }}>Consistency</span>
+              <strong style={{ color: "#fff", fontSize: "1rem" }}>{deviceCalibration ? `${deviceCalibration.consistencyMs}ms` : "Not set"}</strong>
+            </div>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: "14px", alignItems: "center", padding: "14px", borderRadius: "10px", border: "1px solid rgba(251,191,36,0.2)", background: "rgba(251,191,36,0.06)" }}>
+            <div style={{ width: "58px", height: "58px", borderRadius: "50%", background: metronomeActive && metronomeBeat % 2 === 1 ? "#ffffff" : "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.16)", boxShadow: metronomeActive && metronomeBeat % 2 === 1 ? "0 0 28px rgba(255,255,255,0.7)" : "none" }} />
+            <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+              <span style={{ color: "#fff", fontSize: "0.82rem", fontWeight: 900 }}>{metronomeActive ? "Tap Sample when you hear each click" : "Start the metronome, then tap samples"}</span>
+              <span style={{ color: "#a1a1aa", fontSize: "0.72rem" }}>
+                Samples: {metronomeSamples.length}. Use the same keyboard and headphones you will use for song tapping.
+              </span>
+            </div>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: metronomeActive ? "1fr 1fr" : "1fr", gap: "8px" }}>
+            <button onClick={metronomeActive ? stopMetronomeCalibration : startMetronomeCalibration} style={{ padding: "10px 12px", borderRadius: "8px", border: "1px solid rgba(96,165,250,0.35)", background: metronomeActive ? "#ffffff" : "rgba(96,165,250,0.12)", color: metronomeActive ? "#000" : "#93c5fd", fontWeight: 900, cursor: "pointer" }}>
+              {metronomeActive ? "Save Offset" : deviceCalibration ? "Recalibrate Offset" : "Start Offset Calibration"}
+            </button>
+            {metronomeActive && (
+              <button onClick={handleTap} style={{ padding: "10px 12px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.16)", background: tapFlash ? "#ffffff" : "rgba(255,255,255,0.05)", color: tapFlash ? "#000" : "#fff", fontWeight: 900, cursor: "pointer" }}>
+                Tap Sample
+              </button>
+            )}
+          </div>
+
+          <div style={{ display: "flex", justifyContent: "space-between", gap: "8px", alignItems: "center", flexWrap: "wrap" }}>
+            <span style={{ color: "#71717a", fontSize: "0.68rem", fontWeight: 800 }}>Storage: localStorage key {DEVICE_CALIBRATION_KEY}</span>
+            {deviceCalibration && (
+              <button onClick={clearDeviceCalibration} style={{ padding: "7px 10px", borderRadius: "7px", border: "1px solid rgba(248,113,113,0.35)", background: "rgba(248,113,113,0.08)", color: "#fca5a5", fontWeight: 900, cursor: "pointer" }}>
+                Clear Saved Offset
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    )}
     {vocabularyModal && (
       <div style={{
         position: "fixed",
