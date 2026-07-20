@@ -34,8 +34,7 @@ export const TapCalibrationPassSchema = z.object({
   id: z.string().trim().min(1),
   startedAt: z.string().trim().min(1),
   inputLatencyMs: z.number().int().default(0),
-  sectionId: z.string().trim().min(1).optional(),
-  excluded: z.boolean().default(false)
+  sectionId: z.string().trim().min(1)
 });
 
 export const TapSchema = z.object({
@@ -43,8 +42,7 @@ export const TapSchema = z.object({
   timeMs: z.number().int().nonnegative(),
   correctedTimeMs: z.number().int().nonnegative(),
   passId: z.string().trim().min(1),
-  source: z.literal('manual'),
-  sectionId: z.string().trim().min(1).optional()
+  source: z.literal('manual')
 });
 
 export const ReviewedAnchorSchema = z.object({
@@ -79,7 +77,7 @@ export const SongMapSchema = z.object({
   taps: z.array(TapSchema).default([]),
   reviewedAnchors: z.array(ReviewedAnchorSchema).default([]),
   tapCalibration: TapCalibrationSchema,
-  schemaVersion: z.literal('3.2')
+  schemaVersion: z.literal('3.3')
 });
 
 export type Genre = z.infer<typeof GenreSchema>;
@@ -112,6 +110,30 @@ export const StrictSongMapSchema = SongMapSchema.superRefine((data, ctx) => {
   validateRangeList(data.events, ctx, 'events');
   const passIds = new Set(data.tapCalibrationPasses.map(pass => pass.id));
   const tapIds = new Set(data.taps.map(tap => tap.id));
+  const sectionIds = new Set(data.sections.map(section => section.id));
+  const sectionById = new Map(data.sections.map(section => [section.id, section]));
+  const passBySectionId = new Map<string, number>();
+
+  data.tapCalibrationPasses.forEach((pass, index) => {
+    if (!sectionIds.has(pass.sectionId)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Tap pass section does not exist',
+        path: ['tapCalibrationPasses', index, 'sectionId']
+      });
+    }
+    passBySectionId.set(pass.sectionId, (passBySectionId.get(pass.sectionId) || 0) + 1);
+  });
+
+  data.tapCalibrationPasses.forEach((pass, index) => {
+    if ((passBySectionId.get(pass.sectionId) || 0) > 1) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Only one tap pass is allowed per section',
+        path: ['tapCalibrationPasses', index, 'sectionId']
+      });
+    }
+  });
 
   const sortedSections = [...data.sections].sort((a, b) => a.startTimeMs - b.startTimeMs);
   for (let index = 1; index < sortedSections.length; index++) {
@@ -148,21 +170,42 @@ export const StrictSongMapSchema = SongMapSchema.superRefine((data, ctx) => {
   }
 
   data.taps.forEach((tap, index) => {
-    if (!passIds.has(tap.passId)) {
+    const pass = data.tapCalibrationPasses.find(item => item.id === tap.passId);
+    if (!passIds.has(tap.passId) || !pass) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: 'Tap pass does not exist',
         path: ['taps', index, 'passId']
       });
+      return;
+    }
+    const section = sectionById.get(pass.sectionId);
+    if (section && (tap.correctedTimeMs < section.startTimeMs || tap.correctedTimeMs > section.endTimeMs)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Tap time must be inside its pass section',
+        path: ['taps', index, 'correctedTimeMs']
+      });
     }
   });
 
   data.reviewedAnchors.forEach((anchor, index) => {
-    if (!tapIds.has(anchor.tapId)) {
+    const tap = data.taps.find(item => item.id === anchor.tapId);
+    if (!tapIds.has(anchor.tapId) || !tap) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: 'Reviewed anchor points to a missing raw tap',
         path: ['reviewedAnchors', index, 'tapId']
+      });
+      return;
+    }
+    const pass = data.tapCalibrationPasses.find(item => item.id === tap.passId);
+    const section = pass ? sectionById.get(pass.sectionId) : null;
+    if (section && (anchor.timeMs < section.startTimeMs || anchor.timeMs > section.endTimeMs)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Reviewed anchor time must be inside its pass section',
+        path: ['reviewedAnchors', index, 'timeMs']
       });
     }
     if (data.genre === 'SALSA' && anchor.count !== 1 && anchor.count !== 5) {

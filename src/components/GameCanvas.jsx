@@ -108,11 +108,11 @@ export default function GameCanvas({
     }
 
     const tapTime = currentTime;
-    const excludedPassIds = new Set((songData?.tapCalibrationPasses || []).filter(pass => pass.excluded).map(pass => pass.id));
+    const passIds = new Set((songData?.tapCalibrationPasses || []).map(pass => pass.id));
     const tapById = new Map((songData?.taps || []).map(tap => [tap.id, tap]));
     const beats = (songData?.reviewedAnchors || []).filter(anchor => {
       const tap = tapById.get(anchor.tapId);
-      return anchor.count === 1 && anchor.reviewed && !excludedPassIds.has(tap?.passId);
+      return anchor.count === 1 && anchor.reviewed && passIds.has(tap?.passId);
     });
     if (beats.length === 0) return;
 

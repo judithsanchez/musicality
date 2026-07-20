@@ -230,19 +230,19 @@ export default function DevCalibrator({
 	);
 	const activeReviewedAnchors = useMemo(
 		() =>
-			reviewedAnchors.filter((anchor: any) => {
-				const tap = tapById.get(anchor.tapId) as any;
-				const pass = tap ? (passById.get(tap.passId) as any) : null;
-				return !pass?.excluded;
-			}),
+				reviewedAnchors.filter((anchor: any) => {
+					const tap = tapById.get(anchor.tapId) as any;
+					const pass = tap ? (passById.get(tap.passId) as any) : null;
+					return Boolean(pass);
+				}),
 		[passById, reviewedAnchors, tapById],
 	);
 	const activeTaps = useMemo(
 		() =>
-			taps.filter((tap: any) => {
-				const pass = passById.get(tap.passId) as any;
-				return !pass?.excluded;
-			}),
+				taps.filter((tap: any) => {
+					const pass = passById.get(tap.passId) as any;
+					return Boolean(pass);
+				}),
 		[passById, taps],
 	);
 	const tapGroups = useMemo(() => {
@@ -316,13 +316,13 @@ export default function DevCalibrator({
 			);
 			const hasLargeInternalGap = groupGaps.some(gap => gap > splitThresholdMs);
 			const groupTapIds = new Set(group.map(anchor => anchor.tapId));
-			const groupTaps = taps.filter((tap: any) => {
-				const pass = passById.get(tap.passId) as any;
-				return (
-					!pass?.excluded &&
-					(groupTapIds.has(tap.id) ||
-						(tap.correctedTimeMs >= group[0].timeMs - 250 &&
-							tap.correctedTimeMs <= group.at(-1).timeMs + 250))
+				const groupTaps = taps.filter((tap: any) => {
+					const pass = passById.get(tap.passId) as any;
+					return (
+						Boolean(pass) &&
+						(groupTapIds.has(tap.id) ||
+							(tap.correctedTimeMs >= group[0].timeMs - 250 &&
+								tap.correctedTimeMs <= group.at(-1).timeMs + 250))
 				);
 			});
 			const passIds = Array.from(
@@ -484,10 +484,10 @@ export default function DevCalibrator({
 		calibratedSongData?.events || songData?.events || [];
 
 	const tapSectionCards = useMemo(() => {
-		return editorSections.map((section, index) => {
-			const sectionPasses = tapCalibrationPasses.filter(
-				(pass: any) => pass.sectionId === section.id && !pass.excluded,
-			);
+			return editorSections.map((section, index) => {
+				const sectionPasses = tapCalibrationPasses.filter(
+					(pass: any) => pass.sectionId === section.id,
+				);
 			const sectionAnchors = activeReviewedAnchors.filter(
 				(anchor: any) =>
 					anchor.timeMs >= section.startTimeMs &&
@@ -544,11 +544,6 @@ export default function DevCalibrator({
 		) ||
 		tapSectionCards[0] ||
 		null;
-	const activeTapPass = activeRetapRegion?.passId
-		? (passById.get(activeRetapRegion.passId) as any)
-		: activePassId
-			? (passById.get(activePassId) as any)
-			: null;
 	const activeTapRoundSectionId =
 		activeRetapRegion?.sectionId || pendingTapRoundSection?.id || null;
 
@@ -1106,16 +1101,17 @@ export default function DevCalibrator({
 			return {passId: activeRetapRegion.passId, passes: tapCalibrationPasses};
 		if (activePassId)
 			return {passId: activePassId, passes: tapCalibrationPasses};
-		return createTapPass(activeTapSectionId || undefined);
+		const sectionId = activeTapSectionId;
+		if (!sectionId) throw new Error('Section tap pass requires a section.');
+		return createTapPass(sectionId);
 	};
 
-	const createTapPass = (sectionId?: string, excluded = false) => {
+	const createTapPass = (sectionId: string) => {
 		const pass = {
 			id: crypto.randomUUID(),
 			startedAt: new Date().toISOString(),
 			inputLatencyMs: deviceCalibration?.inputLatencyMs || 0,
 			sectionId,
-			excluded,
 		};
 		const nextPasses = [...tapCalibrationPasses, pass];
 		setTapCalibrationPasses(nextPasses);
@@ -1155,7 +1151,6 @@ export default function DevCalibrator({
 			startedAt: new Date().toISOString(),
 			inputLatencyMs: deviceCalibration?.inputLatencyMs || 0,
 			sectionId: section.id,
-			excluded: false,
 		};
 		const nextPasses = [
 			...tapCalibrationPasses.filter(
@@ -1245,8 +1240,6 @@ export default function DevCalibrator({
 			correctedTimeMs,
 			passId: passState.passId,
 			source: 'manual',
-			sectionId:
-				activeRetapRegion?.sectionId || activeTapSectionId || undefined,
 		};
 		const anchor = {
 			id: crypto.randomUUID(),
@@ -1514,15 +1507,6 @@ export default function DevCalibrator({
 	const handleSelectTapSection = (section: any) => {
 		setActiveTapSectionId(section.id);
 		seekToSectionWithoutAutoplay(section, 500);
-	};
-
-	const handleExcludePass = (passId: string, excluded: boolean) => {
-		const nextPasses = tapCalibrationPasses.map((pass: any) =>
-			pass.id === passId ? {...pass, excluded} : pass,
-		);
-		updateTapCalibrationState(nextPasses, taps, reviewedAnchors, true);
-		if (activePassId === passId && excluded) setActivePassId(null);
-		showToast(excluded ? 'Round excluded.' : 'Round restored.');
 	};
 
 	const handleLoopReviewedAnchor = (timeMs: number) => {
@@ -2780,28 +2764,12 @@ export default function DevCalibrator({
 													fontSize: '0.66rem',
 													fontWeight: 800,
 												}}
-											>
-												<span>
-													{
-														card.sectionPasses.filter(
-															(pass: any) => !pass.excluded,
-														).length
-													}{' '}
-													rounds
-												</span>
-												{card.sectionPasses.some(
-													(pass: any) => pass.excluded,
-												) && (
+												>
 													<span>
-														{
-															card.sectionPasses.filter(
-																(pass: any) => pass.excluded,
-															).length
-														}{' '}
-														excluded
+														{card.sectionPasses.length} session
+														{card.sectionPasses.length === 1 ? '' : 's'}
 													</span>
-												)}
-												<span>{card.sectionAnchors.length} anchors</span>
+													<span>{card.sectionAnchors.length} anchors</span>
 												{card.sectionHidden && <span>downbeats hidden</span>}
 												{card.hiddenEvents.length > 0 && (
 													<span>
@@ -2873,41 +2841,6 @@ export default function DevCalibrator({
 														: 'Mark Not Needed'}
 												</button>
 											</div>
-											{card.sectionPasses.length > 0 && (
-												<div
-													style={{
-														display: 'flex',
-														gap: '6px',
-														flexWrap: 'wrap',
-													}}
-												>
-													{card.sectionPasses.map(
-														(pass: any, passIndex: number) => (
-															<button
-																key={pass.id}
-																onClick={() =>
-																	handleExcludePass(pass.id, !pass.excluded)
-																}
-																style={{
-																	padding: '3px 7px',
-																	borderRadius: '999px',
-																	border: `1px solid ${pass.excluded ? 'rgba(248,113,113,0.35)' : 'rgba(255,255,255,0.12)'}`,
-																	background: pass.excluded
-																		? 'rgba(248,113,113,0.08)'
-																		: 'rgba(255,255,255,0.04)',
-																	color: pass.excluded ? '#fca5a5' : '#a1a1aa',
-																	fontSize: '0.64rem',
-																	fontWeight: 900,
-																	cursor: 'pointer',
-																}}
-															>
-																Round {passIndex + 1}
-																{pass.excluded ? ' excluded' : ''}
-															</button>
-														),
-													)}
-												</div>
-											)}
 										</div>
 									);
 								})}
@@ -3645,15 +3578,12 @@ export default function DevCalibrator({
 											fontWeight: 900,
 											textTransform: 'uppercase',
 										}}
-									>
-										Rounds
-									</span>
-									<strong style={{color: '#fff', fontSize: '0.68rem'}}>
-										{
-											tapCalibrationPasses.filter((pass: any) => !pass.excluded)
-												.length
-										}
-									</strong>
+										>
+											Sessions
+										</span>
+										<strong style={{color: '#fff', fontSize: '0.68rem'}}>
+											{tapCalibrationPasses.length}
+										</strong>
 								</div>
 							</div>
 
@@ -3721,15 +3651,11 @@ export default function DevCalibrator({
 									>
 										<span>
 											{activeTapSectionCard.sectionAnchors.length} anchors
-										</span>
-										<span>
-											{
-												activeTapSectionCard.sectionPasses.filter(
-													(pass: any) => !pass.excluded,
-												).length
-											}{' '}
-											rounds
-										</span>
+											</span>
+											<span>
+												{activeTapSectionCard.sectionPasses.length} session
+												{activeTapSectionCard.sectionPasses.length === 1 ? '' : 's'}
+											</span>
 										{activeTapSectionCard.sectionHidden && (
 											<span>downbeats hidden</span>
 										)}
@@ -3859,33 +3785,6 @@ export default function DevCalibrator({
 												: 'Not Needed'}
 										</button>
 									</>
-								)}
-								{activeTapPass && (
-									<button
-										onClick={() =>
-											handleExcludePass(
-												activeTapPass.id,
-												!activeTapPass.excluded,
-											)
-										}
-										style={{
-											flex: '1 1 150px',
-											padding: '6px 8px',
-											borderRadius: '6px',
-											border: '1px solid rgba(248,113,113,0.35)',
-											background: activeTapPass.excluded
-												? '#ffffff'
-												: 'rgba(248,113,113,0.08)',
-											color: activeTapPass.excluded ? '#000' : '#fca5a5',
-											fontSize: '0.68rem',
-											fontWeight: 900,
-											cursor: 'pointer',
-										}}
-									>
-										{activeTapPass.excluded
-											? 'Restore Round'
-											: 'Exclude Current Round'}
-									</button>
 								)}
 							</div>
 						</div>
