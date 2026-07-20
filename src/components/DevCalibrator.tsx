@@ -134,6 +134,13 @@ export default function DevCalibrator({
 	const [clearTapSectionRequest, setClearTapSectionRequest] = useState<any | null>(
 		null,
 	);
+	const [timingAdjustScope, setTimingAdjustScope] = useState<
+		'section' | 'group' | 'anchor'
+	>('section');
+	const [timingAdjustMs, setTimingAdjustMs] = useState(0);
+	const [selectedTimingAnchorId, setSelectedTimingAnchorId] = useState<
+		string | null
+	>(null);
 	const [tapCountdown, setTapCountdown] = useState<number | null>(null);
 	const [pendingTapRoundSection, setPendingTapRoundSection] =
 		useState<any>(null);
@@ -450,27 +457,108 @@ export default function DevCalibrator({
 		);
 	}, [verificationGroup]);
 
+	const timingAdjustSection = useMemo(() => {
+		if (!verificationGroup) return null;
+		if (`${verificationGroup.id}`.startsWith('section:')) {
+			const sectionId = `${verificationGroup.id}`.replace('section:', '');
+			return editorSections.find(section => section.id === sectionId) || null;
+		}
+		return (
+			editorSections.find(
+				section =>
+					verificationGroup.startTimeMs >= section.startTimeMs &&
+					verificationGroup.startTimeMs < section.endTimeMs,
+			) || null
+		);
+	}, [editorSections, verificationGroup]);
+
+	const timingAdjustTargetIds = useMemo(() => {
+		if (!verificationGroup) return new Set<string>();
+		const savedAnchorIds = new Set(
+			activeReviewedAnchors.map((anchor: any) => anchor.id),
+		);
+		if (timingAdjustScope === 'anchor') {
+			return selectedTimingAnchorId && savedAnchorIds.has(selectedTimingAnchorId)
+				? new Set([selectedTimingAnchorId])
+				: new Set<string>();
+		}
+		if (timingAdjustScope === 'group') {
+			return new Set(
+				verificationAnchors
+					.filter((anchor: any) => savedAnchorIds.has(anchor.id))
+					.map((anchor: any) => anchor.id),
+			);
+		}
+		if (!timingAdjustSection) return new Set<string>();
+		return new Set(
+			activeReviewedAnchors
+				.filter(
+					(anchor: any) =>
+						anchor.timeMs >= timingAdjustSection.startTimeMs &&
+						anchor.timeMs <= timingAdjustSection.endTimeMs,
+				)
+				.map((anchor: any) => anchor.id),
+		);
+	}, [
+		activeReviewedAnchors,
+		selectedTimingAnchorId,
+		timingAdjustScope,
+		timingAdjustSection,
+		verificationAnchors,
+		verificationGroup,
+	]);
+
+	const adjustedAnchorTime = (anchor: any) => {
+		if (!timingAdjustTargetIds.has(anchor.id) || timingAdjustMs === 0) {
+			return anchor.timeMs;
+		}
+		const minTimeMs = timingAdjustSection?.startTimeMs ?? 0;
+		const maxTimeMs = timingAdjustSection?.endTimeMs ?? duration * 1000;
+		return Math.max(
+			minTimeMs,
+			Math.min(maxTimeMs, Math.round(anchor.timeMs + timingAdjustMs)),
+		);
+	};
+
+	const adjustedVerificationAnchors = useMemo(
+		() =>
+			verificationAnchors
+				.map((anchor: any) => ({
+					...anchor,
+					timeMs: adjustedAnchorTime(anchor),
+					originalTimeMs: anchor.timeMs,
+				}))
+				.sort((a: any, b: any) => a.timeMs - b.timeMs),
+		[
+			duration,
+			timingAdjustMs,
+			timingAdjustSection,
+			timingAdjustTargetIds,
+			verificationAnchors,
+		],
+	);
+
 	const currentVerificationAnchor = useMemo(() => {
 		if (!verificationGroup) return null;
 		const liveTimeMs = liveDisplayTime * 1000;
 		return (
-			verificationAnchors.find(
+			adjustedVerificationAnchors.find(
 				(anchor: any) => Math.abs(anchor.timeMs - liveTimeMs) <= 140,
 			) || null
 		);
-	}, [liveDisplayTime, verificationAnchors, verificationGroup]);
+	}, [adjustedVerificationAnchors, liveDisplayTime, verificationGroup]);
 
 	const nextVerificationAnchor = useMemo(() => {
 		if (!verificationGroup) return null;
 		const liveTimeMs = liveDisplayTime * 1000;
 		return (
-			verificationAnchors.find(
+			adjustedVerificationAnchors.find(
 				(anchor: any) => anchor.timeMs >= liveTimeMs - 80,
 			) ||
-			verificationAnchors[0] ||
+			adjustedVerificationAnchors[0] ||
 			null
 		);
-	}, [liveDisplayTime, verificationAnchors, verificationGroup]);
+	}, [adjustedVerificationAnchors, liveDisplayTime, verificationGroup]);
 
 	const sectionStructureReady = useMemo(() => {
 		const sections = [...editorSections].sort(
@@ -1554,6 +1642,47 @@ export default function DevCalibrator({
 		);
 	};
 
+	const clampTimingAdjustment = (value: number) =>
+		Math.max(-250, Math.min(250, Math.round(value || 0)));
+
+	const updateTimingAdjustment = (deltaMs: number) => {
+		setTimingAdjustMs(current => clampTimingAdjustment(current + deltaMs));
+	};
+
+	const resetTimingAdjustment = () => {
+		setTimingAdjustMs(0);
+		setSelectedTimingAnchorId(null);
+		setTimingAdjustScope('section');
+	};
+
+	const applyTimingAdjustment = () => {
+		if (!verificationGroup || timingAdjustMs === 0 || timingAdjustTargetIds.size === 0) {
+			showToast('No timing adjustment to apply.');
+			return;
+		}
+		const minTimeMs = timingAdjustSection?.startTimeMs ?? 0;
+		const maxTimeMs = timingAdjustSection?.endTimeMs ?? duration * 1000;
+		const nextAnchors = reviewedAnchors.map((anchor: any) => {
+			if (!timingAdjustTargetIds.has(anchor.id)) return anchor;
+			return {
+				...anchor,
+				timeMs: Math.max(
+					minTimeMs,
+					Math.min(maxTimeMs, Math.round(anchor.timeMs + timingAdjustMs)),
+				),
+				reviewed: true,
+			};
+		});
+		updateTapCalibrationState(tapCalibrationPasses, taps, nextAnchors, true);
+		resetTimingAdjustment();
+		showToast('Timing adjustment applied.');
+	};
+
+	const verifyTimingAdjustment = () => {
+		if (!verificationGroup) return;
+		handleLoopRegion(verificationGroup.startTimeMs, verificationGroup.endTimeMs, 0);
+	};
+
 	const handleDeleteRawTap = (tapId: string) => {
 		const nextTaps = taps.filter(tap => tap.id !== tapId);
 		const nextAnchors = reviewedAnchors.filter(
@@ -1705,6 +1834,7 @@ export default function DevCalibrator({
 			showToast('Calibrate device offset first.');
 			return;
 		}
+		resetTimingAdjustment();
 		clearTapRoundTimers();
 		if (anchorLoopTimerRef.current) {
 			window.clearInterval(anchorLoopTimerRef.current);
@@ -1761,6 +1891,7 @@ export default function DevCalibrator({
 	};
 
 	const handleVerifySection = (section: any) => {
+		resetTimingAdjustment();
 		setActiveTapSectionId(section.id);
 		setFocusedSectionId(section.id);
 		setVerificationGroupId(`section:${section.id}`);
@@ -1842,11 +1973,13 @@ export default function DevCalibrator({
 	};
 
 	const handleVerifyGroup = (group: any) => {
+		resetTimingAdjustment();
 		setVerificationGroupId(group.id);
 		handleLoopRegion(group.startTimeMs, group.endTimeMs);
 	};
 
 	const handleStopVerification = () => {
+		resetTimingAdjustment();
 		setVerificationGroupId(null);
 		if (anchorLoopTimerRef.current) {
 			window.clearInterval(anchorLoopTimerRef.current);
@@ -4531,10 +4664,9 @@ export default function DevCalibrator({
 					{activeTab === 3 && verificationGroup && (
 						<div
 							style={{
-								display: 'grid',
-								gridTemplateColumns: '1fr auto',
-								gap: '12px',
-								alignItems: 'center',
+								display: 'flex',
+								flexDirection: 'column',
+								gap: '8px',
 								padding: '10px 12px',
 								borderRadius: '10px',
 								border: '1px solid rgba(244,114,182,0.25)',
@@ -4606,21 +4738,27 @@ export default function DevCalibrator({
 										paddingBottom: '1px',
 									}}
 								>
-									{verificationAnchors.map((anchor: any) => {
+									{adjustedVerificationAnchors.map((anchor: any) => {
 										const isCurrent =
 											currentVerificationAnchor?.id === anchor.id;
+										const isSelected =
+											selectedTimingAnchorId === anchor.id;
 										const color =
 											REVIEWED_ANCHOR_COLORS[anchor.count] || '#ffffff';
 										return (
-											<span
+											<button
 												key={anchor.id}
+												onClick={() => {
+													setSelectedTimingAnchorId(anchor.id);
+													setTimingAdjustScope('anchor');
+												}}
 												style={{
 													flex: '0 0 auto',
 													minWidth: '34px',
 													textAlign: 'center',
 													padding: '3px 7px',
 													borderRadius: '999px',
-													border: `1px solid ${isCurrent ? '#ffffff' : `${color}66`}`,
+													border: `1px solid ${isCurrent || isSelected ? '#ffffff' : `${color}66`}`,
 													background: isCurrent ? color : 'rgba(0,0,0,0.18)',
 													color: isCurrent ? '#000' : color,
 													opacity:
@@ -4631,13 +4769,156 @@ export default function DevCalibrator({
 																: 0.58,
 													fontSize: '0.66rem',
 													fontWeight: 900,
+													cursor: 'pointer',
+													boxShadow: isSelected
+														? `0 0 10px ${color}aa`
+														: 'none',
 												}}
 											>
 												{anchorLabel(anchor.count)}
-											</span>
+											</button>
 										);
 									})}
 								</div>
+							</div>
+							<div
+								style={{
+									display: 'flex',
+									gap: '8px',
+									alignItems: 'center',
+									flexWrap: 'wrap',
+									padding: '8px',
+									borderRadius: '8px',
+									border: '1px solid rgba(255,255,255,0.08)',
+									background: 'rgba(0,0,0,0.16)',
+								}}
+							>
+								<span
+									style={{
+										color: '#fff',
+										fontSize: '0.7rem',
+										fontWeight: 900,
+										textTransform: 'uppercase',
+									}}
+								>
+									Timing Adjust
+								</span>
+								<select
+									value={timingAdjustScope}
+									onChange={event =>
+										setTimingAdjustScope(
+											event.target.value as 'section' | 'group' | 'anchor',
+										)
+									}
+									style={{
+										padding: '5px 8px',
+										borderRadius: '6px',
+										border: '1px solid rgba(255,255,255,0.12)',
+										background: '#09090b',
+										color: '#fff',
+										fontSize: '0.68rem',
+										fontWeight: 800,
+									}}
+								>
+									<option value="section">Section Anchors</option>
+									<option value="group">Current Group</option>
+									<option value="anchor">Selected Anchor</option>
+								</select>
+								{[-50, -25, -10, -5, 5, 10, 25, 50].map(deltaMs => (
+									<button
+										key={`timing-${deltaMs}`}
+										onClick={() => updateTimingAdjustment(deltaMs)}
+										style={{
+											padding: '5px 7px',
+											borderRadius: '6px',
+											border: '1px solid rgba(96,165,250,0.28)',
+											background: 'rgba(96,165,250,0.08)',
+											color: '#93c5fd',
+											fontSize: '0.66rem',
+											fontWeight: 900,
+											cursor: 'pointer',
+										}}
+									>
+										{deltaMs > 0 ? `+${deltaMs}` : deltaMs}
+									</button>
+								))}
+								<input
+									type="number"
+									min={-250}
+									max={250}
+									step={5}
+									value={timingAdjustMs}
+									onChange={event =>
+										setTimingAdjustMs(
+											clampTimingAdjustment(Number(event.target.value)),
+										)
+									}
+									style={{
+										width: '74px',
+										padding: '5px 8px',
+										borderRadius: '6px',
+										border: '1px solid rgba(255,255,255,0.12)',
+										background: 'rgba(255,255,255,0.04)',
+										color: '#fff',
+										fontSize: '0.68rem',
+										fontWeight: 900,
+									}}
+								/>
+								<span
+									style={{
+										color: '#a1a1aa',
+										fontSize: '0.66rem',
+										fontWeight: 800,
+									}}
+								>
+									ms · {timingAdjustTargetIds.size} anchor
+									{timingAdjustTargetIds.size === 1 ? '' : 's'}
+								</span>
+								<button
+									onClick={verifyTimingAdjustment}
+									style={{
+										padding: '5px 8px',
+										borderRadius: '6px',
+										border: '1px solid rgba(244,114,182,0.35)',
+										background: 'rgba(244,114,182,0.08)',
+										color: '#f9a8d4',
+										fontSize: '0.66rem',
+										fontWeight: 900,
+										cursor: 'pointer',
+									}}
+								>
+									Verify Timing
+								</button>
+								<button
+									onClick={applyTimingAdjustment}
+									style={{
+										padding: '5px 8px',
+										borderRadius: '6px',
+										border: '1px solid rgba(52,211,153,0.35)',
+										background: 'rgba(52,211,153,0.1)',
+										color: '#34d399',
+										fontSize: '0.66rem',
+										fontWeight: 900,
+										cursor: 'pointer',
+									}}
+								>
+									Apply Timing
+								</button>
+								<button
+									onClick={resetTimingAdjustment}
+									style={{
+										padding: '5px 8px',
+										borderRadius: '6px',
+										border: '1px solid rgba(255,255,255,0.12)',
+										background: 'transparent',
+										color: '#d4d4d8',
+										fontSize: '0.66rem',
+										fontWeight: 900,
+										cursor: 'pointer',
+									}}
+								>
+									Reset Preview
+								</button>
 							</div>
 							<div
 								style={{
@@ -4894,10 +5175,14 @@ export default function DevCalibrator({
 
 								{timelineModeShowsReviewed &&
 									activeReviewedAnchors
+										.map((anchor: any) => ({
+											...anchor,
+											displayTimeMs: adjustedAnchorTime(anchor),
+										}))
 										.filter(
 											(anchor: any) =>
-												anchor.timeMs >= visibleTimeline.startTimeMs &&
-												anchor.timeMs <= visibleTimeline.endTimeMs,
+												anchor.displayTimeMs >= visibleTimeline.startTimeMs &&
+												anchor.displayTimeMs <= visibleTimeline.endTimeMs,
 										)
 										.map((anchor: any) => {
 											const color =
@@ -4913,12 +5198,12 @@ export default function DevCalibrator({
 											return (
 												<div
 													key={anchor.id}
-													title={`${anchor.source === 'filled' ? 'Filled' : 'Reviewed'} ${anchor.count} ${(anchor.timeMs / 1000).toFixed(2)}s`}
+													title={`${anchor.source === 'filled' ? 'Filled' : 'Reviewed'} ${anchor.count} ${(anchor.displayTimeMs / 1000).toFixed(2)}s`}
 													style={{
 														position: 'absolute',
 														top: `${top}px`,
 														height: '12px',
-														left: `${timelinePct(anchor.timeMs)}%`,
+														left: `${timelinePct(anchor.displayTimeMs)}%`,
 														width: '3px',
 														background: color,
 														opacity: anchor.reviewed ? 0.95 : 0.55,
@@ -4969,7 +5254,7 @@ export default function DevCalibrator({
 
 								{activeTab === 3 &&
 									verificationGroup &&
-									verificationAnchors
+									adjustedVerificationAnchors
 										.filter(
 											(anchor: any) =>
 												anchor.timeMs >= visibleTimeline.startTimeMs &&
