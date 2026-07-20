@@ -151,12 +151,12 @@ export default function DevCalibrator({
 		null,
 	);
 	const [timingAdjustScope, setTimingAdjustScope] = useState<
-		'section' | 'group' | 'anchor'
+		'section' | 'group' | 'selection'
 	>('section');
 	const [timingAdjustMs, setTimingAdjustMs] = useState(0);
-	const [selectedTimingAnchorId, setSelectedTimingAnchorId] = useState<
-		string | null
-	>(null);
+	const [selectedTimingAnchorIds, setSelectedTimingAnchorIds] = useState<
+		string[]
+	>([]);
 	const [tapCountdown, setTapCountdown] = useState<number | null>(null);
 	const [pendingTapRoundSection, setPendingTapRoundSection] =
 		useState<any>(null);
@@ -493,10 +493,10 @@ export default function DevCalibrator({
 		const savedAnchorIds = new Set(
 			activeReviewedAnchors.map((anchor: any) => anchor.id),
 		);
-		if (timingAdjustScope === 'anchor') {
-			return selectedTimingAnchorId && savedAnchorIds.has(selectedTimingAnchorId)
-				? new Set([selectedTimingAnchorId])
-				: new Set<string>();
+		if (timingAdjustScope === 'selection') {
+			return new Set(
+				selectedTimingAnchorIds.filter(anchorId => savedAnchorIds.has(anchorId)),
+			);
 		}
 		if (timingAdjustScope === 'group') {
 			return new Set(
@@ -517,7 +517,7 @@ export default function DevCalibrator({
 		);
 	}, [
 		activeReviewedAnchors,
-		selectedTimingAnchorId,
+		selectedTimingAnchorIds,
 		timingAdjustScope,
 		timingAdjustSection,
 		verificationAnchors,
@@ -1678,9 +1678,31 @@ export default function DevCalibrator({
 		setTimingAdjustMs(current => clampTimingAdjustment(current + deltaMs));
 	};
 
+	const toggleTimingAnchorSelection = (anchorId: string) => {
+		setTimingAdjustScope('selection');
+		setSelectedTimingAnchorIds(current =>
+			current.includes(anchorId)
+				? current.filter(id => id !== anchorId)
+				: [...current, anchorId],
+		);
+	};
+
+	const selectTimingAnchorsByCount = (count: number) => {
+		const anchorIds = verificationAnchors
+			.filter((anchor: any) => anchor.count === count)
+			.map((anchor: any) => anchor.id);
+		setTimingAdjustScope('selection');
+		setSelectedTimingAnchorIds(anchorIds);
+	};
+
+	const clearTimingAnchorSelection = () => {
+		setSelectedTimingAnchorIds([]);
+		setTimingAdjustScope('selection');
+	};
+
 	const resetTimingAdjustment = () => {
 		setTimingAdjustMs(0);
-		setSelectedTimingAnchorId(null);
+		setSelectedTimingAnchorIds([]);
 		setTimingAdjustScope('section');
 	};
 
@@ -4770,8 +4792,9 @@ export default function DevCalibrator({
 									{adjustedVerificationAnchors.map((anchor: any) => {
 										const isCurrent =
 											currentVerificationAnchor?.id === anchor.id;
-										const isSelected =
-											selectedTimingAnchorId === anchor.id;
+										const isSelected = selectedTimingAnchorIds.includes(
+											anchor.id,
+										);
 										const isTimingTarget = timingAdjustTargetIds.has(
 											anchor.id,
 										);
@@ -4783,12 +4806,9 @@ export default function DevCalibrator({
 												title={
 													isTimingTarget
 														? 'Timing adjustment target'
-														: 'Click to adjust only this anchor'
+														: 'Click to add this anchor to the timing selection'
 												}
-												onClick={() => {
-													setSelectedTimingAnchorId(anchor.id);
-													setTimingAdjustScope('anchor');
-												}}
+												onClick={() => toggleTimingAnchorSelection(anchor.id)}
 												style={{
 													flex: '0 0 auto',
 													minWidth: '34px',
@@ -4852,7 +4872,10 @@ export default function DevCalibrator({
 									value={timingAdjustScope}
 									onChange={event =>
 										setTimingAdjustScope(
-											event.target.value as 'section' | 'group' | 'anchor',
+											event.target.value as
+												| 'section'
+												| 'group'
+												| 'selection',
 										)
 									}
 									style={{
@@ -4867,8 +4890,42 @@ export default function DevCalibrator({
 								>
 									<option value="section">Section Anchors</option>
 									<option value="group">Current Group</option>
-									<option value="anchor">Selected Anchor</option>
+									<option value="selection">Selected Anchors</option>
 								</select>
+								{reviewedAnchorOptions.map(option => (
+									<button
+										key={`select-count-${option.count}`}
+										onClick={() => selectTimingAnchorsByCount(option.count)}
+										style={{
+											padding: '5px 7px',
+											borderRadius: '6px',
+											border: '1px solid rgba(255,255,255,0.12)',
+											background: 'rgba(255,255,255,0.04)',
+											color:
+												REVIEWED_ANCHOR_COLORS[option.count] || '#ffffff',
+											fontSize: '0.66rem',
+											fontWeight: 900,
+											cursor: 'pointer',
+										}}
+									>
+										Select {option.label}
+									</button>
+								))}
+								<button
+									onClick={clearTimingAnchorSelection}
+									style={{
+										padding: '5px 7px',
+										borderRadius: '6px',
+										border: '1px solid rgba(255,255,255,0.12)',
+										background: 'transparent',
+										color: '#d4d4d8',
+										fontSize: '0.66rem',
+										fontWeight: 900,
+										cursor: 'pointer',
+									}}
+								>
+									Clear Selection
+								</button>
 								{[-50, -25, -10, -5, 5, 10, 25, 50].map(deltaMs => (
 									<button
 										key={`timing-${deltaMs}`}
@@ -4921,7 +4978,7 @@ export default function DevCalibrator({
 									ms ·{' '}
 									{timingAdjustTargetIds.size
 										? `${timingAdjustTargetIds.size} highlighted`
-										: timingAdjustScope === 'anchor'
+										: timingAdjustScope === 'selection'
 											? 'click an anchor chip'
 											: 'no saved anchors in scope'}
 								</span>
