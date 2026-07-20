@@ -4743,11 +4743,19 @@ export default function DevCalibrator({
 											currentVerificationAnchor?.id === anchor.id;
 										const isSelected =
 											selectedTimingAnchorId === anchor.id;
+										const isTimingTarget = timingAdjustTargetIds.has(
+											anchor.id,
+										);
 										const color =
 											REVIEWED_ANCHOR_COLORS[anchor.count] || '#ffffff';
 										return (
 											<button
 												key={anchor.id}
+												title={
+													isTimingTarget
+														? 'Timing adjustment target'
+														: 'Click to adjust only this anchor'
+												}
 												onClick={() => {
 													setSelectedTimingAnchorId(anchor.id);
 													setTimingAdjustScope('anchor');
@@ -4759,7 +4767,11 @@ export default function DevCalibrator({
 													padding: '3px 7px',
 													borderRadius: '999px',
 													border: `1px solid ${isCurrent || isSelected ? '#ffffff' : `${color}66`}`,
-													background: isCurrent ? color : 'rgba(0,0,0,0.18)',
+													background: isCurrent
+														? color
+														: isTimingTarget
+															? `${color}24`
+															: 'rgba(0,0,0,0.18)',
 													color: isCurrent ? '#000' : color,
 													opacity:
 														anchor.confidence === 'uncertain'
@@ -4770,8 +4782,12 @@ export default function DevCalibrator({
 													fontSize: '0.66rem',
 													fontWeight: 900,
 													cursor: 'pointer',
-													boxShadow: isSelected
-														? `0 0 10px ${color}aa`
+													outline: isTimingTarget
+														? `2px solid ${color}`
+														: 'none',
+													outlineOffset: '2px',
+													boxShadow: isSelected || isTimingTarget
+														? `0 0 12px ${color}aa`
 														: 'none',
 												}}
 											>
@@ -4866,13 +4882,19 @@ export default function DevCalibrator({
 								/>
 								<span
 									style={{
-										color: '#a1a1aa',
+										color: timingAdjustTargetIds.size
+											? '#d4d4d8'
+											: '#fbbf24',
 										fontSize: '0.66rem',
 										fontWeight: 800,
 									}}
 								>
-									ms · {timingAdjustTargetIds.size} anchor
-									{timingAdjustTargetIds.size === 1 ? '' : 's'}
+									ms ·{' '}
+									{timingAdjustTargetIds.size
+										? `${timingAdjustTargetIds.size} highlighted`
+										: timingAdjustScope === 'anchor'
+											? 'click an anchor chip'
+											: 'no saved anchors in scope'}
 								</span>
 								<button
 									onClick={verifyTimingAdjustment}
@@ -5187,6 +5209,9 @@ export default function DevCalibrator({
 										.map((anchor: any) => {
 											const color =
 												REVIEWED_ANCHOR_COLORS[anchor.count] || '#ffffff';
+											const isTimingTarget = timingAdjustTargetIds.has(
+												anchor.id,
+											);
 											const top =
 												anchor.count === 1
 													? reviewedLane.top
@@ -5202,18 +5227,27 @@ export default function DevCalibrator({
 													style={{
 														position: 'absolute',
 														top: `${top}px`,
-														height: '12px',
+														height: isTimingTarget ? '16px' : '12px',
 														left: `${timelinePct(anchor.displayTimeMs)}%`,
-														width: '3px',
+														width: isTimingTarget ? '5px' : '3px',
 														background: color,
-														opacity: anchor.reviewed ? 0.95 : 0.55,
-														zIndex: 9,
+														opacity: isTimingTarget
+															? 1
+															: anchor.reviewed
+																? 0.95
+																: 0.55,
+														zIndex: isTimingTarget ? 11 : 9,
 														pointerEvents: 'none',
 														borderRadius:
 															anchor.source === 'filled' ? '999px' : '0',
-														boxShadow: anchor.reviewed
-															? `0 0 9px ${color}aa`
+														outline: isTimingTarget
+															? '1px solid rgba(255,255,255,0.95)'
 															: 'none',
+														boxShadow: isTimingTarget
+															? `0 0 14px ${color}`
+															: anchor.reviewed
+																? `0 0 9px ${color}aa`
+																: 'none',
 													}}
 												/>
 											);
