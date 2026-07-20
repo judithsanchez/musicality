@@ -80,6 +80,22 @@ const REVIEWED_ANCHOR_COLORS: Record<number, string> = {
 	5: '#34d399',
 	8: '#fbbf24',
 };
+const CALIBRATION_TAB_BY_NAME: Record<string, number> = {
+	sections: 1,
+	events: 2,
+	taps: 3,
+};
+const CALIBRATION_TAB_NAME_BY_NUMBER: Record<number, string> = {
+	1: 'sections',
+	2: 'events',
+	3: 'taps',
+};
+
+const getInitialCalibrationTab = () => {
+	if (typeof window === 'undefined') return 1;
+	const tabName = new URLSearchParams(window.location.search).get('tab') || '';
+	return CALIBRATION_TAB_BY_NAME[tabName] || 1;
+};
 
 const formatTimelineTime = (timeMs: number) => {
 	const safeMs = Math.max(0, Math.round(timeMs || 0));
@@ -152,7 +168,7 @@ export default function DevCalibrator({
 	);
 	const [tapFlash, setTapFlash] = useState(false);
 	const [validationErrors, setValidationErrors] = useState<any[] | null>(null);
-	const [activeTab, setActiveTab] = useState<number>(1);
+	const [activeTab, setActiveTab] = useState<number>(getInitialCalibrationTab);
 	const [saving, setSaving] = useState<boolean>(false);
 	const [timelineLayers, setTimelineLayers] = useState({
 		sections: true,
@@ -766,6 +782,19 @@ export default function DevCalibrator({
 				zoomTimelineToRange(section.startTimeMs, section.endTimeMs, 500);
 			}
 		}
+	}, [activeTab]);
+
+	useEffect(() => {
+		if (typeof window === 'undefined') return;
+		const tabName = CALIBRATION_TAB_NAME_BY_NUMBER[activeTab] || 'sections';
+		const url = new URL(window.location.href);
+		if (url.searchParams.get('tab') === tabName) return;
+		url.searchParams.set('tab', tabName);
+		window.history.replaceState(
+			null,
+			'',
+			`${url.pathname}${url.search}${url.hash}`,
+		);
 	}, [activeTab]);
 
 	useEffect(() => {
