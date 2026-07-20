@@ -1,34 +1,10 @@
 [
   {
-    "id": "song-66HCBysrJS8",
-    "youtubeId": "66HCBysrJS8",
-    "title": "Pobre Diablo",
-    "artist": "Ronald Borjas",
-    "genre": "SALSA",
-    "status": "DRAFT"
-  },
-  {
     "id": "song-CEsip93GxdA",
     "youtubeId": "CEsip93GxdA",
     "title": "El Amor que espere",
     "artist": "Leoni Torres",
     "genre": "SALSA",
     "status": "READY"
-  },
-  {
-    "id": "song-k7Bd6xNw4Hg",
-    "youtubeId": "k7Bd6xNw4Hg",
-    "title": "Guaguanco",
-    "artist": "Avenida B",
-    "genre": "SALSA",
-    "status": "DRAFT"
-  },
-  {
-    "id": "song-H5qWtG7cziE",
-    "youtubeId": "H5qWtG7cziE",
-    "title": "Un monton de estrellas",
-    "artist": "Gilberto Santa Rosa",
-    "genre": "SALSA",
-    "status": "DRAFT"
   }
 ]
