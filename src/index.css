@@ -2029,24 +2029,24 @@ body {
   }
 
   .roadmap-scrubber-wrapper {
-    gap: 4px;
+    gap: 3px;
   }
 
   .roadmap-section-track,
   .roadmap-scrubber-wrapper:hover .roadmap-section-track {
-    height: 9px;
+    height: 10px;
     border-radius: 999px;
   }
 
   .roadmap-event-track,
   .roadmap-scrubber-wrapper:hover .roadmap-event-track {
-    height: 12px;
+    height: 10px;
     border-radius: 999px;
   }
 
   .roadmap-beat-track,
   .roadmap-scrubber-wrapper:hover .roadmap-beat-track {
-    height: 4px;
+    height: 10px;
     border-radius: 999px;
     background: rgba(255, 255, 255, 0.018);
   }
@@ -2056,11 +2056,14 @@ body {
   }
 
   .roadmap-event-range {
-    top: 2px;
-    height: calc(100% - 4px);
-    min-width: 10px;
-    font-size: 0;
-    box-shadow: 0 0 8px rgba(251, 191, 36, 0.55);
+    top: 0;
+    height: 100%;
+    min-width: 14px;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    font-size: 0.7rem;
+    line-height: 1;
   }
 
   .roadmap-playhead {
@@ -2069,8 +2072,8 @@ body {
 
   .roadmap-beat-marker {
     width: 1px;
-    height: 3px;
-    opacity: 0.72;
+    height: 8px;
+    opacity: 0.68;
     box-shadow: none;
   }
 
@@ -2105,8 +2108,8 @@ body {
     margin: 0 !important;
   }
   .control-bar-glass-panel {
-    padding: 12px;
-    gap: 10px;
+    padding: 10px;
+    gap: 8px;
   }
   .roadmap-scrubber-glass-panel {
     padding: 12px;
@@ -2138,14 +2141,14 @@ body {
     font-size: clamp(0.8rem, 2.5vw, 0.9rem);
   }
   .controls-panel {
-    gap: clamp(6px, 1dvh, 10px);
+    gap: clamp(6px, 0.8dvh, 9px);
   }
   .btn-touch {
-    min-height: clamp(38px, 5dvh, 44px);
+    min-height: clamp(34px, 4.4dvh, 40px);
     border-radius: 10px;
   }
   .speed-option {
-    height: clamp(30px, 4dvh, 36px);
+    height: clamp(28px, 3.6dvh, 32px);
     min-width: clamp(36px, 10vw, 44px);
   }
 }
