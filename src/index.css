@@ -1510,32 +1510,23 @@ body {
 /* Glowing Playhead dot */
 .roadmap-playhead {
   position: absolute;
-  top: 50%;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
+  top: 0;
+  width: 3px;
+  height: 100%;
+  border-radius: 999px;
   background: #ffffff;
-  border: 2px solid #ffffff;
-  transform: translate(-50%, -50%);
+  border: none;
+  transform: translateX(-50%);
   pointer-events: none;
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 4px #ffffff;
-  transition: width 0.15s ease, height 0.15s ease;
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.55),
+    0 0 12px rgba(255, 255, 255, 0.9),
+    0 0 4px #ffffff;
+  transition: width 0.15s ease;
 }
 
 .roadmap-scrubber-wrapper:hover .roadmap-playhead {
-  width: 16px;
-  height: 16px;
-}
-
-.roadmap-playhead-event {
-  width: 8px;
-  height: 8px;
-  box-shadow: 0 0 8px rgba(255, 255, 255, 0.72);
-}
-
-.roadmap-scrubber-wrapper:hover .roadmap-playhead-event {
-  width: 10px;
-  height: 10px;
+  width: 4px;
 }
 
 .roadmap-empty-event-lane {
@@ -2032,14 +2023,7 @@ body {
   }
 
   .roadmap-playhead {
-    width: 10px;
-    height: 10px;
-  }
-
-  .roadmap-playhead-event {
-    width: 5px;
-    height: 5px;
-    border-width: 1px;
+    width: 2px;
   }
 
   .roadmap-empty-event-lane {

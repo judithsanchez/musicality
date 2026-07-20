@@ -136,10 +136,6 @@ export default function RoadmapScrubber({
               </div>
             );
           })}
-          <div
-            className="roadmap-playhead roadmap-playhead-event"
-            style={{ left: `${(currentTime / duration) * 100}%` }}
-          />
         </div>
       </div>
     </div>
