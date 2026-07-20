@@ -473,6 +473,15 @@ export default function DevCalibrator({
 		);
 	}, [verificationGroup]);
 
+	const previousVerificationAnchor = useMemo(() => {
+		if (!verificationGroup) return null;
+		return (
+			[...activeReviewedAnchors]
+				.filter((anchor: any) => anchor.timeMs < verificationGroup.startTimeMs)
+				.sort((a: any, b: any) => b.timeMs - a.timeMs)[0] || null
+		);
+	}, [activeReviewedAnchors, verificationGroup]);
+
 	const timingAdjustSection = useMemo(() => {
 		if (!verificationGroup) return null;
 		if (`${verificationGroup.id}`.startsWith('section:')) {
@@ -1712,6 +1721,30 @@ export default function DevCalibrator({
 	const clearTimingAnchorSelection = () => {
 		setSelectedTimingAnchorIds([]);
 		setTimingAdjustScope('selection');
+	};
+
+	const flipSelectedAnchorLabels = () => {
+		if (selectedTimingAnchorIds.length === 0) {
+			showToast('Select one or more anchor chips first.');
+			return;
+		}
+		const selectedIds = new Set(selectedTimingAnchorIds);
+		let flippedCount = 0;
+		const nextAnchors = reviewedAnchors.map((anchor: any) => {
+			if (!selectedIds.has(anchor.id)) return anchor;
+			flippedCount += 1;
+			return {
+				...anchor,
+				count: expectedNextCount(anchor.count),
+				reviewed: true,
+			};
+		});
+		if (flippedCount === 0) {
+			showToast('Selected anchors are not saved yet.');
+			return;
+		}
+		updateTapCalibrationState(tapCalibrationPasses, taps, nextAnchors, true);
+		showToast(`Flipped ${flippedCount} anchor label${flippedCount === 1 ? '' : 's'}.`);
 	};
 
 	const resetTimingAdjustment = () => {
@@ -4802,6 +4835,22 @@ export default function DevCalibrator({
 									<span style={{color: '#a1a1aa', fontSize: '0.68rem'}}>
 										{verificationGroup.reasons.join(', ')}
 									</span>
+									{previousVerificationAnchor && (
+										<span
+											style={{
+												color: '#d4d4d8',
+												fontSize: '0.68rem',
+												fontWeight: 800,
+												padding: '2px 8px',
+												borderRadius: '999px',
+												border: '1px solid rgba(255,255,255,0.1)',
+												background: 'rgba(255,255,255,0.04)',
+											}}
+										>
+											Previous: {anchorLabel(previousVerificationAnchor.count)} @{' '}
+											{formatTimelineTime(previousVerificationAnchor.timeMs)}
+										</span>
+									)}
 								</div>
 								<div
 									style={{
@@ -4948,6 +4997,21 @@ export default function DevCalibrator({
 									}}
 								>
 									Clear Selection
+								</button>
+								<button
+									onClick={flipSelectedAnchorLabels}
+									style={{
+										padding: '5px 8px',
+										borderRadius: '6px',
+										border: '1px solid rgba(251,191,36,0.38)',
+										background: 'rgba(251,191,36,0.1)',
+										color: '#fbbf24',
+										fontSize: '0.66rem',
+										fontWeight: 900,
+										cursor: 'pointer',
+									}}
+								>
+									Flip Label
 								</button>
 								{[-50, -25, -10, -5, 5, 10, 25, 50].map(deltaMs => (
 									<button
