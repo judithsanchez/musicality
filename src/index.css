@@ -1958,6 +1958,37 @@ body {
   }
 }
 
+@media (max-width: 899px) {
+  .roadmap-section-label {
+    display: none;
+  }
+
+  .roadmap-section-emoji {
+    display: none;
+  }
+
+  .roadmap-scrubber-wrapper {
+    height: 26px;
+  }
+
+  .roadmap-scrubber-track,
+  .roadmap-scrubber-wrapper:hover .roadmap-scrubber-track {
+    height: 12px;
+    border-radius: 999px;
+  }
+
+  .roadmap-section-range {
+    min-width: 4px;
+  }
+
+  .roadmap-event-range {
+    top: 1px;
+    height: calc(100% - 2px);
+    min-width: 7px;
+    font-size: 0;
+  }
+}
+
 /* Mobile-First Spacing Compressors (fits 100% inside any viewport!) */
 @media (max-width: 480px) {
   #root:not(.dev-mode-active) {
@@ -1995,26 +2026,8 @@ body {
     gap: 8px;
     font-size: 0.72rem;
   }
-  .roadmap-current-section,
-  .roadmap-section-label {
+  .roadmap-current-section {
     display: none;
-  }
-  .roadmap-scrubber-wrapper {
-    height: 26px;
-  }
-  .roadmap-scrubber-track,
-  .roadmap-scrubber-wrapper:hover .roadmap-scrubber-track {
-    height: 12px;
-    border-radius: 999px;
-  }
-  .roadmap-section-emoji {
-    display: none;
-  }
-  .roadmap-event-range {
-    top: 1px;
-    height: calc(100% - 2px);
-    min-width: 7px;
-    font-size: 0;
   }
   .song-title {
     font-size: clamp(1.1rem, 4vw, 1.35rem);
