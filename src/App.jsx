@@ -306,10 +306,18 @@ export default function App() {
           disablekb: 1,
           fs: 0,
           rel: 0,
-          enablejsapi: 1
+          enablejsapi: 1,
+          cc_load_policy: 0,
+          iv_load_policy: 3
         },
         events: {
           onReady: (event) => {
+            try {
+              event.target.unloadModule?.("captions");
+              event.target.unloadModule?.("cc");
+            } catch (e) {
+              console.warn(e);
+            }
             setPlayer(event.target);
             playerRef.current = event.target;
           },
