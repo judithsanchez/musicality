@@ -646,6 +646,7 @@ export default function App() {
                 sectionsList={sectionsList}
                 breaks={[]}
                 events={(calibratedSongData || songData)?.events || []}
+                anchors={(calibratedSongData || songData)?.reviewedAnchors || []}
                 onSeek={throttledSeek}
               />
 

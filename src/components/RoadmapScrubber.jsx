@@ -8,6 +8,7 @@ export default function RoadmapScrubber({
   sectionsList,
   breaks,
   events = [],
+  anchors = [],
   onSeek
 }) {
   const duration = videoDuration || 1;
@@ -46,6 +47,12 @@ export default function RoadmapScrubber({
     end: (Number.isFinite(event.endTimeMs) ? event.endTimeMs : (event.endTimestamp || 0) * 1000) / 1000,
     category: event.category || "break"
   }));
+  const normalizedAnchors = (anchors || [])
+    .filter((anchor) => anchor.reviewed && (anchor.count === 1 || anchor.count === 5))
+    .map((anchor) => ({
+      ...anchor,
+      time: (Number.isFinite(anchor.timeMs) ? anchor.timeMs : 0) / 1000
+    }));
   const activeSection = normalizedSections.find((sec) => currentTime >= sec.start && currentTime < sec.end);
 
   return (
@@ -136,6 +143,16 @@ export default function RoadmapScrubber({
               </div>
             );
           })}
+        </div>
+        <div className="roadmap-scrubber-track roadmap-beat-track">
+          {normalizedAnchors.map((anchor, idx) => (
+            <div
+              key={anchor.id || `beat-${idx}`}
+              className={`roadmap-beat-marker roadmap-beat-${anchor.count}`}
+              style={{ left: `${Math.max(0, Math.min(100, (anchor.time / duration) * 100))}%` }}
+              title={`${anchor.count} · ${formatTime(anchor.time)}`}
+            />
+          ))}
         </div>
       </div>
     </div>
