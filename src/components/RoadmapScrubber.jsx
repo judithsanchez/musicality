@@ -3,8 +3,6 @@ export default function RoadmapScrubber({
   videoDuration,
   introStart,
   introEnd,
-  nextSection,
-  timeToNextSection,
   sectionsList,
   breaks,
   events = [],
@@ -63,11 +61,6 @@ export default function RoadmapScrubber({
           {activeSection && (
             <span className="roadmap-current-section">
               {(sectionTheme[activeSection.category]?.icon || "🎵")} {sectionTheme[activeSection.category]?.label || activeSection.category}
-            </span>
-          )}
-          {nextSection && timeToNextSection <= 10 && (
-            <span style={{ fontSize: "0.65rem", color: "#ffffff", marginLeft: "8px", fontWeight: "bold" }}>
-              ➡️ Next section in {timeToNextSection.toFixed(1)}s
             </span>
           )}
         </span>

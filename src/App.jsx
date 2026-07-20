@@ -549,8 +549,6 @@ export default function App() {
   }
 
   const sectionsList = songData?.sections || [];
-  const nextSection = sectionsList.find(sec => sec.startTimeMs > (currentTime * 1000)) || null;
-  const timeToNextSection = nextSection ? (nextSection.startTimeMs / 1000) - currentTime : null;
 
   return (
     <div className="app-container">
@@ -641,8 +639,6 @@ export default function App() {
                 videoDuration={videoDuration}
                 introStart={0}
                 introEnd={0}
-                nextSection={nextSection}
-                timeToNextSection={timeToNextSection}
                 sectionsList={sectionsList}
                 breaks={[]}
                 events={(calibratedSongData || songData)?.events || []}
