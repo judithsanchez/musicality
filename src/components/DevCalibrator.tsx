@@ -804,6 +804,20 @@ export default function DevCalibrator({
 	}, [activeTab, sectionStructureReady]);
 
 	useEffect(() => {
+		if (activeTab !== 3 || !activeTapSectionId || !verificationGroupId) return;
+		if (
+			verificationGroupId.startsWith('section:') &&
+			verificationGroupId !== `section:${activeTapSectionId}`
+		) {
+			setVerificationGroupId(null);
+			setFillPreview((current: any) =>
+				current?.sectionId === activeTapSectionId ? current : null,
+			);
+			resetTimingAdjustment();
+		}
+	}, [activeTab, activeTapSectionId, verificationGroupId]);
+
+	useEffect(() => {
 		if (
 			activeTab !== 2 ||
 			eventTimelineScope !== 'section' ||
@@ -1962,7 +1976,16 @@ export default function DevCalibrator({
 	};
 
 	const handleSelectTapSection = (section: any) => {
+		resetTimingAdjustment();
 		setActiveTapSectionId(section.id);
+		if (fillPreview?.sectionId !== section.id) {
+			setFillPreview(null);
+		}
+		const sectionHasAnchors = activeReviewedAnchors.some(
+			(anchor: any) =>
+				anchor.timeMs >= section.startTimeMs && anchor.timeMs <= section.endTimeMs,
+		);
+		setVerificationGroupId(sectionHasAnchors ? `section:${section.id}` : null);
 		seekToSectionWithoutAutoplay(section, 500);
 	};
 
