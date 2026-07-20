@@ -5286,6 +5286,7 @@ export default function DevCalibrator({
 										.map((anchor: any) => ({
 											...anchor,
 											displayTimeMs: adjustedAnchorTime(anchor),
+											originalTimeMs: anchor.timeMs,
 										}))
 										.filter(
 											(anchor: any) =>
@@ -5298,6 +5299,21 @@ export default function DevCalibrator({
 											const isTimingTarget = timingAdjustTargetIds.has(
 												anchor.id,
 											);
+											const hasTimingPreview =
+												isTimingTarget &&
+												timingAdjustMs !== 0 &&
+												anchor.displayTimeMs !== anchor.originalTimeMs;
+											const originalPct = timelinePct(
+												clampVisibleTime(anchor.originalTimeMs),
+											);
+											const displayPct = timelinePct(anchor.displayTimeMs);
+											const previewLeftPct = Math.min(
+												originalPct,
+												displayPct,
+											);
+											const previewWidthPct = Math.abs(
+												displayPct - originalPct,
+											);
 											const top =
 												anchor.count === 1
 													? reviewedLane.top
@@ -5307,15 +5323,51 @@ export default function DevCalibrator({
 															? reviewedLane.top + 8
 															: reviewedLane.top + 12;
 											return (
+												<React.Fragment key={anchor.id}>
+													{hasTimingPreview && (
+														<>
+															<div
+																title={`Original ${anchor.count} ${(anchor.originalTimeMs / 1000).toFixed(2)}s`}
+																style={{
+																	position: 'absolute',
+																	top: `${top + 5}px`,
+																	left: `${originalPct}%`,
+																	width: '7px',
+																	height: '7px',
+																	borderRadius: '999px',
+																	border: `1px dashed ${color}`,
+																	background: 'rgba(0,0,0,0.72)',
+																	transform: 'translateX(-3px)',
+																	opacity: 0.95,
+																	zIndex: 12,
+																	pointerEvents: 'none',
+																}}
+															/>
+															<div
+																title={`Preview shift ${timingAdjustMs > 0 ? '+' : ''}${timingAdjustMs}ms`}
+																style={{
+																	position: 'absolute',
+																	top: `${top + 8}px`,
+																	left: `${previewLeftPct}%`,
+																	width: `${Math.max(previewWidthPct, 0.16)}%`,
+																	height: '2px',
+																	background: color,
+																	boxShadow: `0 0 9px ${color}`,
+																	opacity: 0.9,
+																	zIndex: 11,
+																	pointerEvents: 'none',
+																}}
+															/>
+														</>
+													)}
 												<div
-													key={anchor.id}
-													title={`${anchor.source === 'filled' ? 'Filled' : 'Reviewed'} ${anchor.count} ${(anchor.displayTimeMs / 1000).toFixed(2)}s`}
+													title={`${isTimingTarget ? 'Selected timing target' : anchor.source === 'filled' ? 'Filled' : 'Reviewed'} ${anchor.count} ${(anchor.displayTimeMs / 1000).toFixed(2)}s`}
 													style={{
 														position: 'absolute',
-														top: `${top}px`,
-														height: isTimingTarget ? '16px' : '12px',
-														left: `${timelinePct(anchor.displayTimeMs)}%`,
-														width: isTimingTarget ? '5px' : '3px',
+														top: `${isTimingTarget ? top - 4 : top}px`,
+														height: isTimingTarget ? '22px' : '12px',
+														left: `${displayPct}%`,
+														width: isTimingTarget ? '7px' : '3px',
 														background: color,
 														opacity: isTimingTarget
 															? 1
@@ -5325,17 +5377,24 @@ export default function DevCalibrator({
 														zIndex: isTimingTarget ? 11 : 9,
 														pointerEvents: 'none',
 														borderRadius:
-															anchor.source === 'filled' ? '999px' : '0',
+															isTimingTarget || anchor.source === 'filled'
+																? '999px'
+																: '0',
 														outline: isTimingTarget
-															? '1px solid rgba(255,255,255,0.95)'
+															? '2px solid rgba(255,255,255,0.95)'
+															: 'none',
+														outlineOffset: '2px',
+														transform: isTimingTarget
+															? 'translateX(-2px)'
 															: 'none',
 														boxShadow: isTimingTarget
-															? `0 0 14px ${color}`
+															? `0 0 18px ${color}`
 															: anchor.reviewed
 																? `0 0 9px ${color}aa`
 																: 'none',
 													}}
 												/>
+												</React.Fragment>
 											);
 										})}
 
