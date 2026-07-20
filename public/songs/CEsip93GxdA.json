@@ -96,211 +96,962 @@
   ],
   "tapCalibrationPasses": [
     {
-      "id": "6eae0031-cde1-4400-8d52-9180f8f0d790",
-      "startedAt": "2026-07-19T22:48:50.233Z",
-      "inputLatencyMs": 472,
+      "id": "232a38d6-0c41-4d56-9e5a-db98d22b57b5",
+      "startedAt": "2026-07-20T06:28:45.976Z",
+      "inputLatencyMs": 482,
+      "sectionId": "8745ab27-e3cb-4a0f-a444-f6fc92ada756"
+    },
+    {
+      "id": "775f1168-d530-4e5a-aa7b-bc70541088d6",
+      "startedAt": "2026-07-20T06:55:14.016Z",
+      "inputLatencyMs": 482,
+      "sectionId": "ebfe9cb1-9bc3-4cb4-9a2a-af19a9e2b53b"
+    },
+    {
+      "id": "0bcd8758-473d-4fdc-9f4e-236da143361e",
+      "startedAt": "2026-07-20T07:10:33.703Z",
+      "inputLatencyMs": 482,
       "sectionId": "31586db1-c142-4c06-9679-0441ed7eb7f3"
     },
     {
-      "id": "20d65c67-a72f-4216-8a16-e347c3ba5f98",
-      "startedAt": "2026-07-20T06:09:29.037Z",
-      "inputLatencyMs": 448,
-      "sectionId": "8745ab27-e3cb-4a0f-a444-f6fc92ada756"
+      "id": "ac94c8be-6a9c-4605-b0eb-4f6655ae82ab",
+      "startedAt": "2026-07-20T07:13:10.788Z",
+      "inputLatencyMs": 482,
+      "sectionId": "cc84854e-f8ad-4384-a604-c00c9f7035a5"
+    },
+    {
+      "id": "04aa9ace-b06f-4dc1-a49b-7b6f1e75cba2",
+      "startedAt": "2026-07-20T07:19:15.537Z",
+      "inputLatencyMs": 482,
+      "sectionId": "f80a879d-e8f1-4d0d-8965-10bd7996cab2"
+    },
+    {
+      "id": "1319cd03-fc46-4ea4-9698-1bbaa4eb4c91",
+      "startedAt": "2026-07-20T07:25:28.158Z",
+      "inputLatencyMs": 482,
+      "sectionId": "de367001-c70a-4372-bc88-3bb77d6a8f8c"
+    },
+    {
+      "id": "afe8714f-7755-4c75-a252-460052754288",
+      "startedAt": "2026-07-20T07:30:32.782Z",
+      "inputLatencyMs": 482,
+      "sectionId": "c673cbf9-d650-4d10-a1ef-ff2428bed751"
     }
   ],
   "taps": [
     {
-      "id": "b054a7c8-e11a-4f33-b4ab-4b4e2cb6a6da",
-      "timeMs": 25704,
-      "correctedTimeMs": 25256,
-      "passId": "20d65c67-a72f-4216-8a16-e347c3ba5f98",
+      "id": "9c3b89a4-de50-4b0e-8cb2-95ed148e7282",
+      "timeMs": 22695,
+      "correctedTimeMs": 22213,
+      "passId": "232a38d6-0c41-4d56-9e5a-db98d22b57b5",
       "source": "manual"
     },
     {
-      "id": "fc6a9739-33d0-48b4-9a1d-0ce185b28416",
-      "timeMs": 28088,
-      "correctedTimeMs": 27640,
-      "passId": "20d65c67-a72f-4216-8a16-e347c3ba5f98",
+      "id": "1235283e-d088-4a49-9a20-460574d127b4",
+      "timeMs": 25028,
+      "correctedTimeMs": 24546,
+      "passId": "232a38d6-0c41-4d56-9e5a-db98d22b57b5",
       "source": "manual"
     },
     {
-      "id": "622d8248-e582-4906-a896-c3f8476d98a2",
-      "timeMs": 30422,
-      "correctedTimeMs": 29974,
-      "passId": "20d65c67-a72f-4216-8a16-e347c3ba5f98",
+      "id": "2b3799bd-57e9-4fec-b0cf-3ec314d380a0",
+      "timeMs": 27453,
+      "correctedTimeMs": 26971,
+      "passId": "232a38d6-0c41-4d56-9e5a-db98d22b57b5",
       "source": "manual"
     },
     {
-      "id": "056cb113-4c08-41e9-bc94-8d7b01e5f918",
-      "timeMs": 32888,
-      "correctedTimeMs": 32440,
-      "passId": "20d65c67-a72f-4216-8a16-e347c3ba5f98",
+      "id": "afabc708-f623-4de8-8b6a-5d572e94e2dd",
+      "timeMs": 29895,
+      "correctedTimeMs": 29413,
+      "passId": "232a38d6-0c41-4d56-9e5a-db98d22b57b5",
       "source": "manual"
     },
     {
-      "id": "9c822d2e-33ab-4832-b8f5-bd29b83c4ea2",
-      "timeMs": 72467,
-      "correctedTimeMs": 71995,
-      "passId": "6eae0031-cde1-4400-8d52-9180f8f0d790",
+      "id": "b9698b60-89c8-4cad-8346-f68261f8967b",
+      "timeMs": 32320,
+      "correctedTimeMs": 31838,
+      "passId": "232a38d6-0c41-4d56-9e5a-db98d22b57b5",
       "source": "manual"
     },
     {
-      "id": "531f1b2f-89df-4f68-a71b-488315c29a02",
-      "timeMs": 75276,
-      "correctedTimeMs": 74804,
-      "passId": "6eae0031-cde1-4400-8d52-9180f8f0d790",
+      "id": "81cd7a13-4656-4a36-8fd8-b97fecf73efc",
+      "timeMs": 34720,
+      "correctedTimeMs": 34238,
+      "passId": "232a38d6-0c41-4d56-9e5a-db98d22b57b5",
       "source": "manual"
     },
     {
-      "id": "546e144d-82a9-4aa1-a510-f5ab193e8de0",
-      "timeMs": 76625,
-      "correctedTimeMs": 76153,
-      "passId": "6eae0031-cde1-4400-8d52-9180f8f0d790",
+      "id": "3124077b-472d-4aeb-927b-197df88b01da",
+      "timeMs": 37178,
+      "correctedTimeMs": 36696,
+      "passId": "232a38d6-0c41-4d56-9e5a-db98d22b57b5",
       "source": "manual"
     },
     {
-      "id": "10ac43e2-e939-4a71-805d-84852f72660e",
-      "timeMs": 78925,
-      "correctedTimeMs": 78453,
-      "passId": "6eae0031-cde1-4400-8d52-9180f8f0d790",
+      "id": "b70935fa-98a5-4559-89e9-4aa70cdd5a67",
+      "timeMs": 39595,
+      "correctedTimeMs": 39113,
+      "passId": "232a38d6-0c41-4d56-9e5a-db98d22b57b5",
       "source": "manual"
     },
     {
-      "id": "9bd61af1-44a2-43ba-bbb7-9e43b203acac",
-      "timeMs": 81317,
-      "correctedTimeMs": 80845,
-      "passId": "6eae0031-cde1-4400-8d52-9180f8f0d790",
+      "id": "73f57fd8-9f61-4667-9386-d1f2762a87d7",
+      "timeMs": 42235,
+      "correctedTimeMs": 41753,
+      "passId": "775f1168-d530-4e5a-aa7b-bc70541088d6",
       "source": "manual"
     },
     {
-      "id": "52491aa4-a57a-4492-a904-fb4e3846b67a",
-      "timeMs": 83783,
-      "correctedTimeMs": 83311,
-      "passId": "6eae0031-cde1-4400-8d52-9180f8f0d790",
+      "id": "64b4549b-c79a-4281-b3e5-779416aa4735",
+      "timeMs": 44575,
+      "correctedTimeMs": 44093,
+      "passId": "775f1168-d530-4e5a-aa7b-bc70541088d6",
       "source": "manual"
     },
     {
-      "id": "11c6b3b8-ae3c-40c3-9230-bee8529b6846",
-      "timeMs": 86200,
-      "correctedTimeMs": 85728,
-      "passId": "6eae0031-cde1-4400-8d52-9180f8f0d790",
+      "id": "2a2b2995-39bf-46ee-8fa5-3bd3d41a287a",
+      "timeMs": 46968,
+      "correctedTimeMs": 46486,
+      "passId": "775f1168-d530-4e5a-aa7b-bc70541088d6",
       "source": "manual"
     },
     {
-      "id": "bb273458-4855-44e9-b385-38cab406d3b8",
-      "timeMs": 88734,
-      "correctedTimeMs": 88262,
-      "passId": "6eae0031-cde1-4400-8d52-9180f8f0d790",
+      "id": "01e2921f-bdeb-4959-8506-872bff596c1e",
+      "timeMs": 49435,
+      "correctedTimeMs": 48953,
+      "passId": "775f1168-d530-4e5a-aa7b-bc70541088d6",
+      "source": "manual"
+    },
+    {
+      "id": "5b2b970f-796d-4457-a652-015302b535bc",
+      "timeMs": 51918,
+      "correctedTimeMs": 51436,
+      "passId": "775f1168-d530-4e5a-aa7b-bc70541088d6",
+      "source": "manual"
+    },
+    {
+      "id": "c5b8c9ce-4ec4-40a4-8854-be06201a8bcf",
+      "timeMs": 54401,
+      "correctedTimeMs": 53919,
+      "passId": "775f1168-d530-4e5a-aa7b-bc70541088d6",
+      "source": "manual"
+    },
+    {
+      "id": "06d50eda-9cca-4070-921f-ca3940bcd02b",
+      "timeMs": 56818,
+      "correctedTimeMs": 56336,
+      "passId": "775f1168-d530-4e5a-aa7b-bc70541088d6",
+      "source": "manual"
+    },
+    {
+      "id": "d106aa5c-e5e9-482f-bb0e-b95b5025e3eb",
+      "timeMs": 59202,
+      "correctedTimeMs": 58720,
+      "passId": "775f1168-d530-4e5a-aa7b-bc70541088d6",
+      "source": "manual"
+    },
+    {
+      "id": "a52bb35b-c6fb-4172-8e35-1c954dd33a21",
+      "timeMs": 61793,
+      "correctedTimeMs": 61311,
+      "passId": "775f1168-d530-4e5a-aa7b-bc70541088d6",
+      "source": "manual"
+    },
+    {
+      "id": "45ad4864-2e9a-4d7d-9176-448b89bff263",
+      "timeMs": 64201,
+      "correctedTimeMs": 63719,
+      "passId": "775f1168-d530-4e5a-aa7b-bc70541088d6",
+      "source": "manual"
+    },
+    {
+      "id": "29d2ed04-4e10-432e-83b7-01d379890279",
+      "timeMs": 66601,
+      "correctedTimeMs": 66119,
+      "passId": "775f1168-d530-4e5a-aa7b-bc70541088d6",
+      "source": "manual"
+    },
+    {
+      "id": "677865fa-101d-4bd6-abee-a9d30b970c51",
+      "timeMs": 68984,
+      "correctedTimeMs": 68502,
+      "passId": "775f1168-d530-4e5a-aa7b-bc70541088d6",
+      "source": "manual"
+    },
+    {
+      "id": "8b08bf86-fc6c-4a4d-b09f-6fc387c5b5bd",
+      "timeMs": 72678,
+      "correctedTimeMs": 72196,
+      "passId": "0bcd8758-473d-4fdc-9f4e-236da143361e",
+      "source": "manual"
+    },
+    {
+      "id": "ef6b83a5-b39e-4e94-adc9-3db870ce4d66",
+      "timeMs": 74136,
+      "correctedTimeMs": 73654,
+      "passId": "0bcd8758-473d-4fdc-9f4e-236da143361e",
+      "source": "manual"
+    },
+    {
+      "id": "e560e8b3-543b-40c4-835c-a4ed9f6e4c1f",
+      "timeMs": 75394,
+      "correctedTimeMs": 74912,
+      "passId": "0bcd8758-473d-4fdc-9f4e-236da143361e",
+      "source": "manual"
+    },
+    {
+      "id": "727b7f97-e567-41af-9ddc-b166d3e7328d",
+      "timeMs": 76586,
+      "correctedTimeMs": 76104,
+      "passId": "0bcd8758-473d-4fdc-9f4e-236da143361e",
+      "source": "manual"
+    },
+    {
+      "id": "543fae0d-dc7b-4f76-b016-fdd318157a16",
+      "timeMs": 77719,
+      "correctedTimeMs": 77237,
+      "passId": "0bcd8758-473d-4fdc-9f4e-236da143361e",
+      "source": "manual"
+    },
+    {
+      "id": "6c74ccbe-a366-4bd4-ac0a-a4572d90d18a",
+      "timeMs": 78836,
+      "correctedTimeMs": 78354,
+      "passId": "0bcd8758-473d-4fdc-9f4e-236da143361e",
+      "source": "manual"
+    },
+    {
+      "id": "cce8e0e7-7dcb-48d5-bd49-a0551cd74b8a",
+      "timeMs": 80003,
+      "correctedTimeMs": 79521,
+      "passId": "0bcd8758-473d-4fdc-9f4e-236da143361e",
+      "source": "manual"
+    },
+    {
+      "id": "40cbc1c0-130a-4d59-803f-03c4a59105c5",
+      "timeMs": 81394,
+      "correctedTimeMs": 80912,
+      "passId": "0bcd8758-473d-4fdc-9f4e-236da143361e",
+      "source": "manual"
+    },
+    {
+      "id": "adc079ce-ee90-4677-af2c-f5bf59fc3d1c",
+      "timeMs": 82511,
+      "correctedTimeMs": 82029,
+      "passId": "0bcd8758-473d-4fdc-9f4e-236da143361e",
+      "source": "manual"
+    },
+    {
+      "id": "81371cb4-490d-42a7-a2b4-2ad451d44dc9",
+      "timeMs": 83661,
+      "correctedTimeMs": 83179,
+      "passId": "0bcd8758-473d-4fdc-9f4e-236da143361e",
+      "source": "manual"
+    },
+    {
+      "id": "7b242e48-44b7-4764-85e1-0c758c8bbf9b",
+      "timeMs": 84928,
+      "correctedTimeMs": 84446,
+      "passId": "0bcd8758-473d-4fdc-9f4e-236da143361e",
+      "source": "manual"
+    },
+    {
+      "id": "a1f8c50d-d98b-4e02-9ef9-2d3147b273e9",
+      "timeMs": 86111,
+      "correctedTimeMs": 85629,
+      "passId": "0bcd8758-473d-4fdc-9f4e-236da143361e",
+      "source": "manual"
+    },
+    {
+      "id": "e67db465-4224-45ce-915d-9c5848849230",
+      "timeMs": 87261,
+      "correctedTimeMs": 86779,
+      "passId": "0bcd8758-473d-4fdc-9f4e-236da143361e",
+      "source": "manual"
+    },
+    {
+      "id": "7271fdc9-cb1c-4eb4-9013-f5ca9fde1bd2",
+      "timeMs": 88478,
+      "correctedTimeMs": 87996,
+      "passId": "0bcd8758-473d-4fdc-9f4e-236da143361e",
+      "source": "manual"
+    },
+    {
+      "id": "b64b55e3-9059-48b3-8898-9d3b151577c9",
+      "timeMs": 91251,
+      "correctedTimeMs": 90769,
+      "passId": "ac94c8be-6a9c-4605-b0eb-4f6655ae82ab",
+      "source": "manual"
+    },
+    {
+      "id": "874a080b-193a-49d3-ad96-5b537ee770b7",
+      "timeMs": 93601,
+      "correctedTimeMs": 93119,
+      "passId": "ac94c8be-6a9c-4605-b0eb-4f6655ae82ab",
+      "source": "manual"
+    },
+    {
+      "id": "954b0687-a9ad-4582-94e8-74c3d8abd04f",
+      "timeMs": 96084,
+      "correctedTimeMs": 95602,
+      "passId": "ac94c8be-6a9c-4605-b0eb-4f6655ae82ab",
+      "source": "manual"
+    },
+    {
+      "id": "182d368a-8b4f-4a63-9df1-ddfa8658ac73",
+      "timeMs": 98542,
+      "correctedTimeMs": 98060,
+      "passId": "ac94c8be-6a9c-4605-b0eb-4f6655ae82ab",
+      "source": "manual"
+    },
+    {
+      "id": "fceb0b1b-7867-4aab-9c7e-45ac9e92e76c",
+      "timeMs": 100976,
+      "correctedTimeMs": 100494,
+      "passId": "ac94c8be-6a9c-4605-b0eb-4f6655ae82ab",
+      "source": "manual"
+    },
+    {
+      "id": "e2c7ca6e-2f88-4b95-8af6-0137b9c67f90",
+      "timeMs": 103426,
+      "correctedTimeMs": 102944,
+      "passId": "ac94c8be-6a9c-4605-b0eb-4f6655ae82ab",
+      "source": "manual"
+    },
+    {
+      "id": "1c5adbd3-730a-4f9b-91d8-587f316b57c6",
+      "timeMs": 105801,
+      "correctedTimeMs": 105319,
+      "passId": "ac94c8be-6a9c-4605-b0eb-4f6655ae82ab",
+      "source": "manual"
+    },
+    {
+      "id": "43663d91-2d61-4bf8-b33b-2b91c15ecf9f",
+      "timeMs": 107976,
+      "correctedTimeMs": 107494,
+      "passId": "ac94c8be-6a9c-4605-b0eb-4f6655ae82ab",
+      "source": "manual"
+    },
+    {
+      "id": "9e046ea3-7104-43e5-817b-aee378161128",
+      "timeMs": 110975,
+      "correctedTimeMs": 110493,
+      "passId": "04aa9ace-b06f-4dc1-a49b-7b6f1e75cba2",
+      "source": "manual"
+    },
+    {
+      "id": "cf21702a-5c59-4975-ab67-3e50c1b075df",
+      "timeMs": 113642,
+      "correctedTimeMs": 113160,
+      "passId": "04aa9ace-b06f-4dc1-a49b-7b6f1e75cba2",
+      "source": "manual"
+    },
+    {
+      "id": "44ae5e18-47fe-4100-9bb7-24832da8adda",
+      "timeMs": 130411,
+      "correctedTimeMs": 129929,
+      "passId": "1319cd03-fc46-4ea4-9698-1bbaa4eb4c91",
+      "source": "manual"
+    },
+    {
+      "id": "7c1e52f1-a492-4eaf-84b7-90c2ef1541d1",
+      "timeMs": 133152,
+      "correctedTimeMs": 132670,
+      "passId": "1319cd03-fc46-4ea4-9698-1bbaa4eb4c91",
+      "source": "manual"
+    },
+    {
+      "id": "9abf224c-05b4-45e9-b13e-57ab32c59bd1",
+      "timeMs": 135302,
+      "correctedTimeMs": 134820,
+      "passId": "1319cd03-fc46-4ea4-9698-1bbaa4eb4c91",
+      "source": "manual"
+    },
+    {
+      "id": "526fb78c-421a-4bab-9af6-015eada184de",
+      "timeMs": 137736,
+      "correctedTimeMs": 137254,
+      "passId": "1319cd03-fc46-4ea4-9698-1bbaa4eb4c91",
+      "source": "manual"
+    },
+    {
+      "id": "24e12de3-d32e-48dd-bf2a-26e7d45e3ba1",
+      "timeMs": 154957,
+      "correctedTimeMs": 154475,
+      "passId": "afe8714f-7755-4c75-a252-460052754288",
+      "source": "manual"
+    },
+    {
+      "id": "b35e442c-dc85-4759-9a4c-e6d717a24a0e",
+      "timeMs": 157491,
+      "correctedTimeMs": 157009,
+      "passId": "afe8714f-7755-4c75-a252-460052754288",
+      "source": "manual"
+    },
+    {
+      "id": "1c82881f-97ea-4a0b-832c-2f4dd9cd0e84",
+      "timeMs": 159674,
+      "correctedTimeMs": 159192,
+      "passId": "afe8714f-7755-4c75-a252-460052754288",
+      "source": "manual"
+    },
+    {
+      "id": "1cefb36f-e1c3-47c0-b849-5b3bbc2f4679",
+      "timeMs": 162124,
+      "correctedTimeMs": 161642,
+      "passId": "afe8714f-7755-4c75-a252-460052754288",
       "source": "manual"
     }
   ],
   "reviewedAnchors": [
     {
+      "id": "62f43dc0-7ea4-4290-9a2c-610a83ecf460",
+      "tapId": "9c3b89a4-de50-4b0e-8cb2-95ed148e7282",
       "source": "manual",
-      "id": "47c19b4b-487f-4e0c-a6f0-59468339150f",
-      "tapId": "b054a7c8-e11a-4f33-b4ab-4b4e2cb6a6da",
-      "timeMs": 25256,
-      "count": 1,
-      "confidence": "suggested",
-      "reviewed": false
-    },
-    {
-      "source": "manual",
-      "id": "d56748d5-96dd-4602-86a0-356a8b7cf9a6",
-      "tapId": "fc6a9739-33d0-48b4-9a1d-0ce185b28416",
-      "timeMs": 27640,
-      "count": 5,
-      "confidence": "suggested",
-      "reviewed": false
-    },
-    {
-      "source": "manual",
-      "id": "bdd8c383-9146-4c55-8196-2325945d3454",
-      "tapId": "622d8248-e582-4906-a896-c3f8476d98a2",
-      "timeMs": 29974,
-      "count": 1,
-      "confidence": "suggested",
-      "reviewed": false
-    },
-    {
-      "source": "manual",
-      "id": "c2bc3788-d49a-4c32-b5e5-9703ea0d8d43",
-      "tapId": "056cb113-4c08-41e9-bc94-8d7b01e5f918",
-      "timeMs": 32440,
-      "count": 5,
-      "confidence": "suggested",
-      "reviewed": false
-    },
-    {
-      "source": "manual",
-      "id": "b1000c85-162f-4278-88df-b4eeabd5780f",
-      "tapId": "9c822d2e-33ab-4832-b8f5-bd29b83c4ea2",
-      "timeMs": 71995,
+      "timeMs": 22463,
       "count": 1,
       "confidence": "confirmed",
       "reviewed": true
     },
     {
+      "id": "00820545-ac3d-4345-9029-ec6184869193",
+      "tapId": "1235283e-d088-4a49-9a20-460574d127b4",
       "source": "manual",
-      "id": "81208cdc-41c9-48a2-9d4f-de47ca5f7572",
-      "tapId": "531f1b2f-89df-4f68-a71b-488315c29a02",
-      "timeMs": 74804,
+      "timeMs": 24796,
       "count": 5,
       "confidence": "confirmed",
       "reviewed": true
     },
     {
+      "id": "21b69594-d9a3-433d-b82a-5ae7d349c5cb",
+      "tapId": "2b3799bd-57e9-4fec-b0cf-3ec314d380a0",
       "source": "manual",
-      "id": "03b9a327-7bc0-4fe9-9e7e-e7d76b6c2381",
-      "tapId": "546e144d-82a9-4aa1-a510-f5ab193e8de0",
-      "timeMs": 76153,
+      "timeMs": 27221,
       "count": 1,
       "confidence": "confirmed",
       "reviewed": true
     },
     {
+      "id": "5deb2830-669d-4e76-8078-767abd5b1341",
+      "tapId": "afabc708-f623-4de8-8b6a-5d572e94e2dd",
       "source": "manual",
-      "id": "e0e32eda-64ed-4c2f-a527-2f90d453c3cb",
-      "tapId": "10ac43e2-e939-4a71-805d-84852f72660e",
-      "timeMs": 78453,
+      "timeMs": 29663,
       "count": 5,
       "confidence": "confirmed",
       "reviewed": true
     },
     {
+      "id": "8e4ac01e-3bb3-4a74-99df-f8961ca8ad36",
+      "tapId": "b9698b60-89c8-4cad-8346-f68261f8967b",
       "source": "manual",
-      "id": "ee7daaff-6999-4435-ae0a-433edd15535b",
-      "tapId": "9bd61af1-44a2-43ba-bbb7-9e43b203acac",
-      "timeMs": 80845,
+      "timeMs": 32088,
       "count": 1,
       "confidence": "confirmed",
       "reviewed": true
     },
     {
+      "id": "b8adab19-432d-475b-ba16-b7ae7bc636c9",
+      "tapId": "81cd7a13-4656-4a36-8fd8-b97fecf73efc",
       "source": "manual",
-      "id": "6c789a71-bd4d-4984-b8a1-a928ce06f093",
-      "tapId": "52491aa4-a57a-4492-a904-fb4e3846b67a",
-      "timeMs": 83311,
+      "timeMs": 34488,
       "count": 5,
       "confidence": "confirmed",
       "reviewed": true
     },
     {
+      "id": "5a313785-4bb4-4c92-be0c-3fc5e64b92f0",
+      "tapId": "3124077b-472d-4aeb-927b-197df88b01da",
       "source": "manual",
-      "id": "024abf4b-b7f1-4ccc-b139-91c96775068c",
-      "tapId": "11c6b3b8-ae3c-40c3-9230-bee8529b6846",
-      "timeMs": 85728,
+      "timeMs": 36976,
       "count": 1,
       "confidence": "confirmed",
       "reviewed": true
     },
     {
+      "id": "7563d4b6-82c2-4ee1-9650-fba96670dcda",
+      "tapId": "b70935fa-98a5-4559-89e9-4aa70cdd5a67",
       "source": "manual",
-      "id": "4da84b3c-07e9-4034-8cd2-97b31aacf6a4",
-      "tapId": "bb273458-4855-44e9-b385-38cab406d3b8",
-      "timeMs": 88262,
+      "timeMs": 39393,
       "count": 5,
       "confidence": "confirmed",
+      "reviewed": true
+    },
+    {
+      "id": "bedec381-6c4a-475a-b0d7-516cb3d29132",
+      "tapId": "73f57fd8-9f61-4667-9386-d1f2762a87d7",
+      "source": "manual",
+      "timeMs": 41953,
+      "count": 1,
+      "confidence": "confirmed",
+      "reviewed": true
+    },
+    {
+      "id": "058818f6-13f7-4490-9602-88c9a1dc05e7",
+      "tapId": "64b4549b-c79a-4281-b3e5-779416aa4735",
+      "source": "manual",
+      "timeMs": 44293,
+      "count": 5,
+      "confidence": "confirmed",
+      "reviewed": true
+    },
+    {
+      "id": "f5132acf-f10b-454c-85df-076079f4bcee",
+      "tapId": "2a2b2995-39bf-46ee-8fa5-3bd3d41a287a",
+      "source": "manual",
+      "timeMs": 46686,
+      "count": 1,
+      "confidence": "confirmed",
+      "reviewed": true
+    },
+    {
+      "id": "7da80dcc-a06a-435c-953a-e260f9c25f5d",
+      "tapId": "01e2921f-bdeb-4959-8506-872bff596c1e",
+      "source": "manual",
+      "timeMs": 49153,
+      "count": 5,
+      "confidence": "confirmed",
+      "reviewed": true
+    },
+    {
+      "id": "9fc39625-0007-478b-a020-66590da76b01",
+      "tapId": "5b2b970f-796d-4457-a652-015302b535bc",
+      "source": "manual",
+      "timeMs": 51636,
+      "count": 1,
+      "confidence": "confirmed",
+      "reviewed": true
+    },
+    {
+      "id": "964f3f24-8473-4c34-94bb-26bd42a1e010",
+      "tapId": "c5b8c9ce-4ec4-40a4-8854-be06201a8bcf",
+      "source": "manual",
+      "timeMs": 54119,
+      "count": 5,
+      "confidence": "confirmed",
+      "reviewed": true
+    },
+    {
+      "id": "4bfd00aa-3490-4670-b9ff-33e45871e26b",
+      "tapId": "06d50eda-9cca-4070-921f-ca3940bcd02b",
+      "source": "manual",
+      "timeMs": 56536,
+      "count": 1,
+      "confidence": "confirmed",
+      "reviewed": true
+    },
+    {
+      "id": "c44cd9cd-06c5-4cc7-8ca9-d38dd6d31ebb",
+      "tapId": "d106aa5c-e5e9-482f-bb0e-b95b5025e3eb",
+      "source": "manual",
+      "timeMs": 58920,
+      "count": 5,
+      "confidence": "confirmed",
+      "reviewed": true
+    },
+    {
+      "id": "198d8c11-9e6b-4a46-a5fb-82781e7dda9c",
+      "tapId": "a52bb35b-c6fb-4172-8e35-1c954dd33a21",
+      "source": "manual",
+      "timeMs": 61511,
+      "count": 1,
+      "confidence": "confirmed",
+      "reviewed": true
+    },
+    {
+      "id": "15660818-a06b-4fe6-b69c-fd832c2ae985",
+      "tapId": "45ad4864-2e9a-4d7d-9176-448b89bff263",
+      "source": "manual",
+      "timeMs": 63919,
+      "count": 5,
+      "confidence": "confirmed",
+      "reviewed": true
+    },
+    {
+      "id": "f47a5186-af0f-4257-a293-9ee7c04b0e96",
+      "tapId": "29d2ed04-4e10-432e-83b7-01d379890279",
+      "source": "manual",
+      "timeMs": 66319,
+      "count": 1,
+      "confidence": "confirmed",
+      "reviewed": true
+    },
+    {
+      "id": "26e068af-8feb-4d58-921b-eb5a8626e787",
+      "tapId": "677865fa-101d-4bd6-abee-a9d30b970c51",
+      "source": "manual",
+      "timeMs": 68702,
+      "count": 5,
+      "confidence": "confirmed",
+      "reviewed": true
+    },
+    {
+      "id": "d19add53-3897-4b45-979e-403cbe7e9b91",
+      "tapId": "8b08bf86-fc6c-4a4d-b09f-6fc387c5b5bd",
+      "source": "manual",
+      "timeMs": 72196,
+      "count": 1,
+      "confidence": "uncertain",
+      "reviewed": true
+    },
+    {
+      "id": "6c00567c-bd61-4166-8d95-3db490908332",
+      "tapId": "ef6b83a5-b39e-4e94-adc9-3db870ce4d66",
+      "source": "manual",
+      "timeMs": 73654,
+      "count": 5,
+      "confidence": "uncertain",
+      "reviewed": true
+    },
+    {
+      "id": "bc94709f-cc01-4939-94d3-0f120720c9cd",
+      "tapId": "e560e8b3-543b-40c4-835c-a4ed9f6e4c1f",
+      "source": "manual",
+      "timeMs": 74912,
+      "count": 1,
+      "confidence": "uncertain",
+      "reviewed": true
+    },
+    {
+      "id": "4c9530eb-0732-413f-8aa9-3fede46d0ddf",
+      "tapId": "727b7f97-e567-41af-9ddc-b166d3e7328d",
+      "source": "manual",
+      "timeMs": 76104,
+      "count": 5,
+      "confidence": "uncertain",
+      "reviewed": true
+    },
+    {
+      "id": "4ba97336-d983-43fd-9f3c-915abd90abcd",
+      "tapId": "543fae0d-dc7b-4f76-b016-fdd318157a16",
+      "source": "manual",
+      "timeMs": 77237,
+      "count": 1,
+      "confidence": "uncertain",
+      "reviewed": true
+    },
+    {
+      "id": "0890f0b6-26fc-42b3-90b8-b532560cd941",
+      "tapId": "6c74ccbe-a366-4bd4-ac0a-a4572d90d18a",
+      "source": "manual",
+      "timeMs": 78354,
+      "count": 5,
+      "confidence": "uncertain",
+      "reviewed": true
+    },
+    {
+      "id": "738d1659-efba-4cd2-b3d1-0e55034b28c1",
+      "tapId": "cce8e0e7-7dcb-48d5-bd49-a0551cd74b8a",
+      "source": "manual",
+      "timeMs": 79521,
+      "count": 1,
+      "confidence": "uncertain",
+      "reviewed": true
+    },
+    {
+      "id": "9403ad65-ea38-4562-9793-e4627a4ab959",
+      "tapId": "40cbc1c0-130a-4d59-803f-03c4a59105c5",
+      "source": "manual",
+      "timeMs": 80912,
+      "count": 5,
+      "confidence": "uncertain",
+      "reviewed": true
+    },
+    {
+      "id": "4b9c55bd-8d82-48ad-8186-5ca53027865e",
+      "tapId": "adc079ce-ee90-4677-af2c-f5bf59fc3d1c",
+      "source": "manual",
+      "timeMs": 82029,
+      "count": 1,
+      "confidence": "uncertain",
+      "reviewed": true
+    },
+    {
+      "id": "fcd867d5-fc5c-40f5-8f90-2f90053b650b",
+      "tapId": "81371cb4-490d-42a7-a2b4-2ad451d44dc9",
+      "source": "manual",
+      "timeMs": 83179,
+      "count": 5,
+      "confidence": "uncertain",
+      "reviewed": true
+    },
+    {
+      "id": "932d3633-553a-48c4-81e6-2e170796f843",
+      "tapId": "7b242e48-44b7-4764-85e1-0c758c8bbf9b",
+      "source": "manual",
+      "timeMs": 84446,
+      "count": 1,
+      "confidence": "uncertain",
+      "reviewed": true
+    },
+    {
+      "id": "d2219cb6-3997-409a-b85e-988589b7f6f8",
+      "tapId": "a1f8c50d-d98b-4e02-9ef9-2d3147b273e9",
+      "source": "manual",
+      "timeMs": 85629,
+      "count": 5,
+      "confidence": "uncertain",
+      "reviewed": true
+    },
+    {
+      "id": "dba74e4a-5103-42a1-a721-c7fa3b731e9d",
+      "tapId": "e67db465-4224-45ce-915d-9c5848849230",
+      "source": "manual",
+      "timeMs": 86779,
+      "count": 1,
+      "confidence": "uncertain",
+      "reviewed": true
+    },
+    {
+      "id": "14086fb3-4c12-4e89-9cfd-288df415239d",
+      "tapId": "7271fdc9-cb1c-4eb4-9013-f5ca9fde1bd2",
+      "source": "manual",
+      "timeMs": 87996,
+      "count": 5,
+      "confidence": "uncertain",
+      "reviewed": true
+    },
+    {
+      "id": "2db73c63-29ca-4929-82b7-0027e4ebb8f8",
+      "tapId": "b64b55e3-9059-48b3-8898-9d3b151577c9",
+      "source": "manual",
+      "timeMs": 90769,
+      "count": 1,
+      "confidence": "confirmed",
+      "reviewed": true
+    },
+    {
+      "id": "e792c131-6b7e-4f5a-985e-51688abf59a4",
+      "tapId": "874a080b-193a-49d3-ad96-5b537ee770b7",
+      "source": "manual",
+      "timeMs": 93119,
+      "count": 5,
+      "confidence": "confirmed",
+      "reviewed": true
+    },
+    {
+      "id": "8c3b80d9-3adb-4efd-9ccb-244d313292e6",
+      "tapId": "954b0687-a9ad-4582-94e8-74c3d8abd04f",
+      "source": "manual",
+      "timeMs": 95602,
+      "count": 1,
+      "confidence": "confirmed",
+      "reviewed": true
+    },
+    {
+      "id": "db07bfc1-d3c4-47ea-bcc0-ea63d1e89977",
+      "tapId": "182d368a-8b4f-4a63-9df1-ddfa8658ac73",
+      "source": "manual",
+      "timeMs": 98060,
+      "count": 5,
+      "confidence": "confirmed",
+      "reviewed": true
+    },
+    {
+      "id": "6cd7f089-f157-4583-bee2-3ae8e1520ceb",
+      "tapId": "fceb0b1b-7867-4aab-9c7e-45ac9e92e76c",
+      "source": "manual",
+      "timeMs": 100494,
+      "count": 1,
+      "confidence": "confirmed",
+      "reviewed": true
+    },
+    {
+      "id": "de3dd36e-6a17-4fef-a4aa-216bd8694ce9",
+      "tapId": "e2c7ca6e-2f88-4b95-8af6-0137b9c67f90",
+      "source": "manual",
+      "timeMs": 102944,
+      "count": 5,
+      "confidence": "confirmed",
+      "reviewed": true
+    },
+    {
+      "id": "c26e9bcd-6429-47e4-830a-741da43c4e8a",
+      "tapId": "1c5adbd3-730a-4f9b-91d8-587f316b57c6",
+      "source": "manual",
+      "timeMs": 105319,
+      "count": 1,
+      "confidence": "confirmed",
+      "reviewed": true
+    },
+    {
+      "id": "9e88b592-f79b-46e0-9d8e-18a7daec249b",
+      "tapId": "43663d91-2d61-4bf8-b33b-2b91c15ecf9f",
+      "source": "manual",
+      "timeMs": 107494,
+      "count": 5,
+      "confidence": "confirmed",
+      "reviewed": true
+    },
+    {
+      "id": "0b1eea7d-d93a-4b35-bd63-0b799d6d3acc",
+      "tapId": "9e046ea3-7104-43e5-817b-aee378161128",
+      "source": "manual",
+      "timeMs": 110493,
+      "count": 1,
+      "confidence": "confirmed",
+      "reviewed": true
+    },
+    {
+      "id": "edbdfcdc-6a96-467a-9e96-010f81a1e37f",
+      "tapId": "cf21702a-5c59-4975-ab67-3e50c1b075df",
+      "source": "manual",
+      "timeMs": 113160,
+      "count": 5,
+      "confidence": "confirmed",
+      "reviewed": true
+    },
+    {
+      "id": "79706748-98a1-45de-873e-e5cfeaa93427",
+      "passId": "1319cd03-fc46-4ea4-9698-1bbaa4eb4c91",
+      "source": "filled",
+      "timeMs": 122627,
+      "count": 5,
+      "confidence": "uncertain",
+      "reviewed": true
+    },
+    {
+      "id": "23e1cd31-1a47-4b8c-b0da-8849fc969933",
+      "passId": "1319cd03-fc46-4ea4-9698-1bbaa4eb4c91",
+      "source": "filled",
+      "timeMs": 125061,
+      "count": 1,
+      "confidence": "uncertain",
+      "reviewed": true
+    },
+    {
+      "id": "5e4e0a6c-74eb-409e-86be-7cc78f240681",
+      "passId": "1319cd03-fc46-4ea4-9698-1bbaa4eb4c91",
+      "source": "filled",
+      "timeMs": 127495,
+      "count": 5,
+      "confidence": "uncertain",
+      "reviewed": true
+    },
+    {
+      "id": "82748c27-79a9-45d2-a784-c831f3afd4a1",
+      "tapId": "44ae5e18-47fe-4100-9bb7-24832da8adda",
+      "source": "manual",
+      "timeMs": 129929,
+      "count": 1,
+      "confidence": "uncertain",
+      "reviewed": true
+    },
+    {
+      "id": "cc59a4ec-2baa-4dac-a000-40cb21d3b70f",
+      "tapId": "7c1e52f1-a492-4eaf-84b7-90c2ef1541d1",
+      "source": "manual",
+      "timeMs": 132670,
+      "count": 5,
+      "confidence": "uncertain",
+      "reviewed": true
+    },
+    {
+      "id": "878118d8-5c19-4f57-b579-b7d6d15e7f4f",
+      "tapId": "9abf224c-05b4-45e9-b13e-57ab32c59bd1",
+      "source": "manual",
+      "timeMs": 134820,
+      "count": 1,
+      "confidence": "uncertain",
+      "reviewed": true
+    },
+    {
+      "id": "d16df1b2-ac89-4ca6-adec-f85d045c351a",
+      "tapId": "526fb78c-421a-4bab-9af6-015eada184de",
+      "source": "manual",
+      "timeMs": 137254,
+      "count": 5,
+      "confidence": "uncertain",
+      "reviewed": true
+    },
+    {
+      "id": "cf0b94cf-e3d9-4ca8-aa91-5fd914dec875",
+      "passId": "afe8714f-7755-4c75-a252-460052754288",
+      "source": "filled",
+      "timeMs": 139775,
+      "count": 1,
+      "confidence": "uncertain",
+      "reviewed": true
+    },
+    {
+      "id": "1a1a91fe-dee7-412a-aad8-540cf276cd3f",
+      "passId": "afe8714f-7755-4c75-a252-460052754288",
+      "source": "filled",
+      "timeMs": 142225,
+      "count": 5,
+      "confidence": "uncertain",
+      "reviewed": true
+    },
+    {
+      "id": "12a6e9a0-98ad-4b58-994b-875b2088c981",
+      "passId": "afe8714f-7755-4c75-a252-460052754288",
+      "source": "filled",
+      "timeMs": 144675,
+      "count": 1,
+      "confidence": "uncertain",
+      "reviewed": true
+    },
+    {
+      "id": "e97f83b4-ffc4-43c1-acce-4e745e0c3d6f",
+      "passId": "afe8714f-7755-4c75-a252-460052754288",
+      "source": "filled",
+      "timeMs": 147125,
+      "count": 5,
+      "confidence": "uncertain",
+      "reviewed": true
+    },
+    {
+      "id": "0d950423-9c70-46d6-92c0-12354a7b9a20",
+      "passId": "afe8714f-7755-4c75-a252-460052754288",
+      "source": "filled",
+      "timeMs": 149575,
+      "count": 1,
+      "confidence": "uncertain",
+      "reviewed": true
+    },
+    {
+      "id": "e7197151-1ef5-465f-855b-ffbc182b3bf1",
+      "passId": "afe8714f-7755-4c75-a252-460052754288",
+      "source": "filled",
+      "timeMs": 152025,
+      "count": 5,
+      "confidence": "uncertain",
+      "reviewed": true
+    },
+    {
+      "id": "69db7a8b-1f3d-4e43-8bf6-d6811728116e",
+      "tapId": "24e12de3-d32e-48dd-bf2a-26e7d45e3ba1",
+      "source": "manual",
+      "timeMs": 154475,
+      "count": 1,
+      "confidence": "uncertain",
+      "reviewed": true
+    },
+    {
+      "id": "8ebb347f-ada8-4fbf-83fd-b9970b914ad6",
+      "tapId": "b35e442c-dc85-4759-9a4c-e6d717a24a0e",
+      "source": "manual",
+      "timeMs": 157009,
+      "count": 5,
+      "confidence": "uncertain",
+      "reviewed": true
+    },
+    {
+      "id": "e9da0fc7-4ba8-4f54-bfa4-dfe90644200b",
+      "tapId": "1c82881f-97ea-4a0b-832c-2f4dd9cd0e84",
+      "source": "manual",
+      "timeMs": 159192,
+      "count": 1,
+      "confidence": "uncertain",
+      "reviewed": true
+    },
+    {
+      "id": "07646671-3b12-4c2e-94b8-acff2601cf36",
+      "tapId": "1cefb36f-e1c3-47c0-b849-5b3bbc2f4679",
+      "source": "manual",
+      "timeMs": 161642,
+      "count": 5,
+      "confidence": "uncertain",
       "reviewed": true
     }
   ],
