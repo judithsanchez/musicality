@@ -2029,25 +2029,26 @@ body {
   }
 
   .roadmap-scrubber-wrapper {
-    gap: 3px;
+    gap: 4px;
   }
 
   .roadmap-section-track,
   .roadmap-scrubber-wrapper:hover .roadmap-section-track {
-    height: 12px;
+    height: 9px;
     border-radius: 999px;
   }
 
   .roadmap-event-track,
   .roadmap-scrubber-wrapper:hover .roadmap-event-track {
-    height: 6px;
+    height: 12px;
     border-radius: 999px;
   }
 
   .roadmap-beat-track,
   .roadmap-scrubber-wrapper:hover .roadmap-beat-track {
-    height: 5px;
+    height: 4px;
     border-radius: 999px;
+    background: rgba(255, 255, 255, 0.018);
   }
 
   .roadmap-section-range {
@@ -2055,10 +2056,11 @@ body {
   }
 
   .roadmap-event-range {
-    top: 0;
-    height: 100%;
-    min-width: 7px;
+    top: 2px;
+    height: calc(100% - 4px);
+    min-width: 10px;
     font-size: 0;
+    box-shadow: 0 0 8px rgba(251, 191, 36, 0.55);
   }
 
   .roadmap-playhead {
@@ -2066,9 +2068,9 @@ body {
   }
 
   .roadmap-beat-marker {
-    width: 2px;
-    height: 5px;
-    opacity: 0.85;
+    width: 1px;
+    height: 3px;
+    opacity: 0.72;
     box-shadow: none;
   }
 
