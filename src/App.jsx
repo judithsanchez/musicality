@@ -312,12 +312,6 @@ export default function App() {
         },
         events: {
           onReady: (event) => {
-            try {
-              event.target.unloadModule?.("captions");
-              event.target.unloadModule?.("cc");
-            } catch (e) {
-              console.warn(e);
-            }
             setPlayer(event.target);
             playerRef.current = event.target;
           },
