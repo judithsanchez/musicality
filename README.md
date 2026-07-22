@@ -1,14 +1,41 @@
-# Salsa Rhythm Learning Hub
+# Musicality
 
-An interactive, serverless ear-training tool and rhythm game designed for Salsa and Bachata dancers, hosted on GitHub Pages.
+Static Salsa/Bachata rhythm calibration and practice app, deployed on GitHub Pages.
 
----
+## Run Locally
 
-## ⚠️ CRITICAL DEVELOPER & AI DIRECTIVES (STRICT ENFORCEMENT)
+Install dependencies once:
 
-### 1. Package Management & Locking Rules
-* **Exclusively `pnpm`**: We use `pnpm` exclusively for managing package dependencies.
-* **Strict Version Locking**: Version ranges are strictly fixed. Auto-updates of packages are **strictly forbidden** under any circumstance.
-* **Explicit Upgrade/Add Commands Only**: Under no circumstance should `pnpm install`, `pnpm run dev`, `pnpm run build`, or `pnpm run test` automatically update any package. Any addition, upgrade, or version change of dependencies must be done through an **explicit, manual, and separate command** (e.g. `pnpm add [package]@[exact-version]`).
-* **Human Approval Before Package Mutation**: AI agents must stop and notify the user before running dependency installs, package-manager commands, dev-server commands, or build/test commands that may download packages, rewrite `pnpm-lock.yaml`, modify `package.json`, mutate `node_modules`, or otherwise change dependency state. Agents must provide the exact command for the user to run or explicitly approve.
-* **Do not use npm or yarn**.
+```bash
+pnpm install
+```
+
+Start the dev server:
+
+```bash
+pnpm run dev
+```
+
+Vite uses port `5173` by default:
+
+```text
+http://localhost:5173
+```
+
+If `5173` is already busy, Vite automatically uses the next free port, commonly:
+
+```text
+http://localhost:5174
+```
+
+Use the URL printed by Vite in the terminal for the exact active port.
+
+## Useful Commands
+
+```bash
+pnpm run typecheck
+pnpm run build
+pnpm run lint
+```
+
+Production deploys from `main` through GitHub Pages.
