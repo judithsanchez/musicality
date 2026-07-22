@@ -606,6 +606,22 @@ export default function DevCalibrator({
 		});
 	}, [duration, editorSections]);
 
+	const eventCalibrationReady = useMemo(() => {
+		const sections = [...editorSections].sort(
+			(a, b) => a.startTimeMs - b.startTimeMs,
+		);
+		if (sections.length < 2 || sections[0]?.category !== 'intro') return false;
+		if (sections[0].startTimeMs > 250) return false;
+		return sections.slice(1).every((section, index) => {
+			const previous = sections[index];
+			return (
+				section.startTimeMs >= previous.startTimeMs &&
+				Math.abs(section.startTimeMs - previous.endTimeMs) <= 250 &&
+				section.endTimeMs > section.startTimeMs
+			);
+		});
+	}, [editorSections]);
+
 	const tapSectionDecisions =
 		calibratedSongData?.tapCalibration?.sectionDecisions ||
 		songData?.tapCalibration?.sectionDecisions ||
@@ -871,10 +887,10 @@ export default function DevCalibrator({
 	}, [activeTab]);
 
 	useEffect(() => {
-		if (activeTab === 2 && !sectionStructureReady) {
+		if (activeTab === 2 && !eventCalibrationReady) {
 			setActiveTab(1);
 		}
-	}, [activeTab, sectionStructureReady]);
+	}, [activeTab, eventCalibrationReady]);
 
 	useEffect(() => {
 		if (activeTab !== 3 || !activeTapSectionId || !verificationGroupId) return;
@@ -2887,7 +2903,7 @@ export default function DevCalibrator({
 					{['Sections', 'Events', 'Taps'].map((tabName, idx) => {
 						const tabNum = idx + 1;
 						const isActive = activeTab === tabNum;
-						const isLocked = tabNum === 2 && !sectionStructureReady;
+						const isLocked = tabNum === 2 && !eventCalibrationReady;
 
 						return (
 							<button
@@ -2928,7 +2944,7 @@ export default function DevCalibrator({
 					})}
 				</div>
 
-				{!sectionStructureReady && (
+				{!eventCalibrationReady && (
 					<div
 						style={{
 							display: 'flex',
