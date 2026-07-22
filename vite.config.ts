@@ -96,7 +96,7 @@ function songDbPlugin() {
                 catalog.push(metadata);
               }
 
-              fs.writeFileSync(catalogFilePath, JSON.stringify(catalog, null, 2), 'utf8');
+              fs.writeFileSync(catalogFilePath, `${JSON.stringify(catalog, null, 2)}\n`, 'utf8');
 
               res.statusCode = 200;
               res.setHeader('Content-Type', 'application/json');
@@ -187,7 +187,7 @@ function songDbPlugin() {
                 } else {
                   catalog.push(metadata);
                 }
-                fs.writeFileSync(catalogFilePath, JSON.stringify(catalog, null, 2), 'utf8');
+                fs.writeFileSync(catalogFilePath, `${JSON.stringify(catalog, null, 2)}\n`, 'utf8');
 
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/json');

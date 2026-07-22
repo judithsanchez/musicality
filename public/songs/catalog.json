@@ -6,5 +6,13 @@
     "artist": "Leoni Torres",
     "genre": "SALSA",
     "status": "READY"
+  },
+  {
+    "id": "song-3TsGZyq-BfY",
+    "youtubeId": "3TsGZyq-BfY",
+    "title": "He Tratado (LIVE)",
+    "artist": "Victor Manuelle",
+    "genre": "SALSA",
+    "status": "DRAFT"
   }
 ]
