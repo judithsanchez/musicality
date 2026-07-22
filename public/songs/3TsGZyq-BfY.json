@@ -5,13 +5,92 @@
   "artist": "Victor Manuelle",
   "genre": "SALSA",
   "status": "DRAFT",
-  "events": [],
-  "schemaVersion": "3.4",
-  "sections": [],
+  "sections": [
+    {
+      "id": "sec-default",
+      "startTimeMs": 0,
+      "endTimeMs": 22538,
+      "category": "intro",
+      "tags": []
+    },
+    {
+      "id": "00410790-8c86-4e16-8176-578f0b710e01",
+      "startTimeMs": 22538,
+      "endTimeMs": 63260,
+      "category": "verse",
+      "tags": []
+    },
+    {
+      "id": "b45b144c-43fd-4a24-98ab-c44e3f34f9d2",
+      "startTimeMs": 63260,
+      "endTimeMs": 96313,
+      "category": "chorus",
+      "tags": []
+    },
+    {
+      "id": "284c3259-50df-4245-8610-9c22bce471fa",
+      "startTimeMs": 96313,
+      "endTimeMs": 116650,
+      "category": "mambo",
+      "tags": []
+    },
+    {
+      "id": "45d798af-8117-4980-b89d-ba5a24dec563",
+      "startTimeMs": 116650,
+      "endTimeMs": 149970,
+      "category": "build-up",
+      "tags": []
+    },
+    {
+      "id": "06973cbd-7004-4ab0-82f1-ca31ddf986a0",
+      "startTimeMs": 149970,
+      "endTimeMs": 170734,
+      "category": "mambo",
+      "tags": []
+    },
+    {
+      "id": "5c3507e6-fad4-4b16-9cd2-fa8ddbe6cc10",
+      "startTimeMs": 170734,
+      "endTimeMs": 180482,
+      "category": "build-up",
+      "tags": []
+    },
+    {
+      "id": "8eb472ca-4524-44e2-9566-60e9481fb64b",
+      "startTimeMs": 180482,
+      "endTimeMs": 225421,
+      "category": "chorus",
+      "tags": []
+    },
+    {
+      "id": "5805039c-1884-4c0c-9769-fdef15bdeb17",
+      "startTimeMs": 225421,
+      "endTimeMs": 274901,
+      "category": "mambo",
+      "tags": []
+    },
+    {
+      "id": "66a7e758-5eea-47eb-b427-3e1e4591fb1b",
+      "startTimeMs": 274901,
+      "endTimeMs": 300000,
+      "category": "outro",
+      "tags": []
+    }
+  ],
+  "events": [
+    {
+      "id": "3386efc0-d272-45f8-984c-4a5335c1a65a",
+      "startTimeMs": 128406,
+      "endTimeMs": 131406,
+      "category": "break",
+      "tags": []
+    }
+  ],
   "tapCalibrationPasses": [],
   "taps": [],
   "reviewedAnchors": [],
   "tapCalibration": {
     "sectionDecisions": []
-  }
+  },
+  "schemaVersion": "3.4"
 }
